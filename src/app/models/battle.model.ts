@@ -9,6 +9,7 @@ export interface EnemyMonster {
   id: string;
   name: string;
   icon: string;
+  spriteUrl?: string;
   hp: number;
   attack: number;
   defense: number;

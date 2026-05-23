@@ -13,7 +13,13 @@
         @if (game.squad()[slot]; as monster) {
           <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}">
             <span class="slot-number">{{ slot + 1 }}</span>
-            <span class="squad-icon">{{ monster.icon }}</span>
+            <span class="squad-icon">
+              @if (monster.spriteUrl) {
+                <img class="creature-sprite large" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ monster.icon }}
+              }
+            </span>
             <h3>{{ monster.name }}</h3>
             <p>{{ monster.stage }} / {{ monster.type }}</p>
             <strong>Power {{ game.getMonsterPower(monster) }}</strong>
@@ -35,7 +41,13 @@
       <div class="candidate-row">
         @for (monster of candidates(); track monster.id) {
           <button type="button" class="candidate-card stage-{{ game.stageClass(monster.stage) }}" [disabled]="game.player().squadIds.length >= 3" (click)="game.addToSquad(monster.id)">
-            <span>{{ monster.icon }}</span>
+            <span class="candidate-sprite">
+              @if (monster.spriteUrl) {
+                <img class="creature-sprite small" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ monster.icon }}
+              }
+            </span>
             <strong>{{ monster.name }}</strong>
             <small>Power {{ game.getMonsterPower(monster) }}</small>
             <em>Add</em>

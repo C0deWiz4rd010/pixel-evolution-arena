@@ -10,7 +10,13 @@
     <span class="monster-id">{{ monster.id }}</span>
     <span class="card-status">{{ monster.unlocked ? monster.rarity : 'LOCK' }}</span>
   </span>
-  <span class="monster-icon" aria-hidden="true">{{ monster.unlocked ? monster.icon : 'LOCK' }}</span>
+  <span class="monster-icon" aria-hidden="true">
+    @if (monster.unlocked && monster.spriteUrl) {
+      <img class="creature-sprite" [src]="monster.spriteUrl" alt="" loading="lazy" />
+    } @else {
+      {{ monster.unlocked ? monster.icon : 'LOCK' }}
+    }
+  </span>
   <strong class="monster-name">{{ monster.unlocked ? monster.name : 'Unknown Signal' }}</strong>
   <span class="monster-meta">{{ monster.stage }} / {{ monster.type }}</span>
   <span class="card-bottomline">

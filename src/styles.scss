@@ -276,6 +276,36 @@ li {
   image-rendering: pixelated;
 }
 
+.creature-sprite {
+  display: block;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px currentColor) saturate(1.18);
+}
+
+.creature-sprite.tiny {
+  width: 34px;
+  height: 34px;
+}
+
+.creature-sprite.small {
+  width: 42px;
+  height: 42px;
+}
+
+.creature-sprite.medium {
+  width: 52px;
+  height: 52px;
+}
+
+.creature-sprite.large {
+  width: 84px;
+  height: 84px;
+}
+
 .stat-label {
   color: var(--muted);
   font-size: 0.68rem;
@@ -731,11 +761,16 @@ app-monster-card {
 
 .monster-icon {
   display: grid;
-  min-height: 28px;
+  height: 48px;
   place-items: center;
   font-size: 1.75rem;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 8px currentColor);
+}
+
+.monster-icon .creature-sprite {
+  width: 46px;
+  height: 46px;
 }
 
 .monster-name,
@@ -971,6 +1006,11 @@ app-monster-card {
 }
 
 .target-icon {
+  display: grid;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  place-items: center;
   font-size: 2rem;
 }
 
@@ -1175,6 +1215,13 @@ app-monster-card {
   font-size: 2rem;
 }
 
+.candidate-card .candidate-sprite {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+}
+
 .candidate-card strong,
 .candidate-card small,
 .candidate-card em {
@@ -1233,6 +1280,14 @@ app-monster-card {
 
 .combatant > span {
   font-size: 2.15rem;
+}
+
+.combatant > .combatant-sprite {
+  display: grid;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  place-items: center;
 }
 
 .combatant strong,

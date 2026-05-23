@@ -13,7 +13,13 @@
         <h3>Your Squad</h3>
         @for (monster of game.squad(); track monster.id) {
           <article class="combatant stage-{{ game.stageClass(monster.stage) }}">
-            <span>{{ monster.icon }}</span>
+            <span class="combatant-sprite">
+              @if (monster.spriteUrl) {
+                <img class="creature-sprite medium" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ monster.icon }}
+              }
+            </span>
             <div>
               <strong>{{ monster.name }}</strong>
               <small>HP {{ monster.hp }} / Power {{ game.getMonsterPower(monster) }}</small>
@@ -36,7 +42,13 @@
         <h3>Enemy Team</h3>
         @for (enemy of game.enemies; track enemy.id) {
           <article class="combatant enemy">
-            <span>{{ enemy.icon }}</span>
+            <span class="combatant-sprite">
+              @if (enemy.spriteUrl) {
+                <img class="creature-sprite medium" [src]="enemy.spriteUrl" [alt]="enemy.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ enemy.icon }}
+              }
+            </span>
             <div>
               <strong>{{ enemy.name }}</strong>
               <small>HP {{ enemy.hp }} / {{ enemy.type }}</small>

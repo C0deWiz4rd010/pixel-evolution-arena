@@ -8,6 +8,7 @@ Repo-native animated SVG sprite set for the 100 `N001`-`N100` creatures in `docs
 - SVGs use `shape-rendering="crispEdges"` and simple rect/polygon pixel clusters.
 - Each file embeds CSS idle animation: stepped bob, blinking eyes, type glow, and subtle scanline pulse.
 - Designs are original placeholders derived from each creature stage, type, name motif, and silhouette brief; no external assets are referenced.
+- The playable prototype currently maps `M001`-`M050` to the first 50 sprite files and uses three additional generated sprites for the static arena enemy team.
 
 ## Manifest
 

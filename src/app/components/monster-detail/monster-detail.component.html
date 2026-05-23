@@ -6,7 +6,13 @@
     </div>
 
     <div class="detail-hero">
-      <span class="detail-icon">{{ selected.unlocked ? selected.icon : 'LOCK' }}</span>
+      <span class="detail-icon">
+        @if (selected.unlocked && selected.spriteUrl) {
+          <img class="creature-sprite large" [src]="selected.spriteUrl" [alt]="selected.name + ' animated sprite'" />
+        } @else {
+          {{ selected.unlocked ? selected.icon : 'LOCK' }}
+        }
+      </span>
       <div>
         <h2>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</h2>
         <p>{{ selected.stage }} / {{ selected.type }}</p>
@@ -45,7 +51,13 @@
       @for (target of game.getEvolutionTargets(selected); track target.id) {
         <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
           <div class="target-head">
-            <span class="target-icon">{{ target.icon }}</span>
+            <span class="target-icon">
+              @if (target.spriteUrl) {
+                <img class="creature-sprite small" [src]="target.spriteUrl" [alt]="target.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ target.icon }}
+              }
+            </span>
             <div>
               <strong>{{ target.name }}</strong>
               <span>{{ target.stage }} / {{ target.type }}</span>

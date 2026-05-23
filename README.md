@@ -8,7 +8,7 @@ The focus is game feel first: fast decisions, visible progress, compact battles,
 
 - Angular 21 standalone app with Signals and `computed` state.
 - 50 original playable prototype creatures in local mock data.
-- 100 additional original creature concepts plus animated SVG sprites under `public/assets/creatures/generated-100/`.
+- 100 additional original creature concepts plus animated SVG sprites under `public/assets/creatures/generated-100/`; the first 50 are wired into the playable prototype roster.
 - Evolution Tree, Squad, Arena, Collection, and Handbook views.
 - Local-only game state: no backend, no login, no external runtime APIs.
 - Auto-battle loop with XP, level-ups, coins, DNA shards, item drops, and battle logs.
@@ -81,4 +81,4 @@ All app data, names, and sprites should remain original and brand-safe.
 
 ## Status
 
-This is an early playable prototype. The next polish goals are tighter one-view UI fidelity to the reference posters, deeper sprite integration, richer battle presentation, and expanded use of the generated 100-creature roster.
+This is an early playable prototype. The next polish goals are tighter one-view UI fidelity to the reference posters, richer battle presentation, and expanding the remaining generated roster into playable progression branches.

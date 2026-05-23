@@ -4,7 +4,60 @@ export const STAGES: MonsterStage[] = ['Baby', 'In-Training', 'Rookie', 'Champio
 
 export const TYPES: MonsterType[] = ['Nature', 'Fire', 'Water', 'Dark', 'Light', 'Machine', 'Beast', 'Toxic'];
 
-export const MONSTERS: Monster[] = [
+const PLAYABLE_SPRITE_FILES = [
+  'n001-budchip.svg',
+  'n002-cinderpip.svg',
+  'n003-tideblink.svg',
+  'n004-murkspark.svg',
+  'n005-halopeb.svg',
+  'n006-boltgrit.svg',
+  'n007-pawbyte.svg',
+  'n008-venipip.svg',
+  'n009-sprigglow.svg',
+  'n010-flarebud.svg',
+  'n011-drizzdrop.svg',
+  'n012-cubbit.svg',
+  'n013-leaflatch.svg',
+  'n014-kindlepounce.svg',
+  'n015-ripplequill.svg',
+  'n016-gloomnode.svg',
+  'n017-prismwisp.svg',
+  'n018-cogpix.svg',
+  'n019-fanglet.svg',
+  'n020-muckmote.svg',
+  'n021-bloombyte.svg',
+  'n022-searwhisk.svg',
+  'n023-shellstream.svg',
+  'n024-nullnib.svg',
+  'n025-sunthread.svg',
+  'n026-wirepod.svg',
+  'n027-thornhopper.svg',
+  'n028-ashjack.svg',
+  'n029-streamlynx.svg',
+  'n030-umbracrow.svg',
+  'n031-gleamhare.svg',
+  'n032-rivetmoth.svg',
+  'n033-rushcub.svg',
+  'n034-vialslug.svg',
+  'n035-fernwinder.svg',
+  'n036-kilnkit.svg',
+  'n037-mistmantle.svg',
+  'n038-shadehook.svg',
+  'n039-luxmarten.svg',
+  'n040-gearfinch.svg',
+  'n041-talonroll.svg',
+  'n042-spoilspike.svg',
+  'n043-rootracer.svg',
+  'n044-blazevane.svg',
+  'n045-brinecrest.svg',
+  'n046-acidmask.svg',
+  'n047-canopyram.svg',
+  'n048-cinderweld.svg',
+  'n049-torrentail.svg',
+  'n050-nightlance.svg',
+];
+
+const BASE_MONSTERS: Monster[] = [
   { id: 'M001', name: 'Bubblit', stage: 'Baby', type: 'Water', icon: '💧', level: 2, xp: 30, maxXp: 90, attack: 18, defense: 16, speed: 20, hp: 72, rarity: 'Common', unlocked: true, evolutionTargets: ['M007'] },
   { id: 'M002', name: 'Sproutbit', stage: 'Baby', type: 'Nature', icon: '🌱', level: 2, xp: 24, maxXp: 90, attack: 16, defense: 22, speed: 16, hp: 78, rarity: 'Common', unlocked: true, evolutionTargets: ['M008'] },
   { id: 'M003', name: 'Emberling', stage: 'Baby', type: 'Fire', icon: '🔥', level: 2, xp: 18, maxXp: 90, attack: 24, defense: 12, speed: 20, hp: 68, rarity: 'Common', unlocked: true, evolutionTargets: ['M009'] },
@@ -56,3 +109,8 @@ export const MONSTERS: Monster[] = [
   { id: 'M049', name: 'Bloomgeist', stage: 'Special', type: 'Nature', icon: '🌸', level: 1, xp: 0, maxXp: 760, attack: 214, defense: 240, speed: 150, hp: 560, rarity: 'Legendary', unlocked: false, evolutionTargets: [], requirements: { level: 16, coins: 900, dnaShards: 48, item: 'Solar Crest' } },
   { id: 'M050', name: 'Prismyr', stage: 'Special', type: 'Light', icon: '🔷', level: 1, xp: 0, maxXp: 780, attack: 228, defense: 200, speed: 240, hp: 500, rarity: 'Legendary', unlocked: false, evolutionTargets: [], requirements: { level: 16, coins: 950, dnaShards: 50, item: 'Solar Crest' } },
 ];
+
+export const MONSTERS: Monster[] = BASE_MONSTERS.map((monster, index) => ({
+  ...monster,
+  spriteUrl: `assets/creatures/generated-100/${PLAYABLE_SPRITE_FILES[index]}`,
+}));

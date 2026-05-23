@@ -17,6 +17,7 @@ export interface Monster {
   stage: MonsterStage;
   type: MonsterType;
   icon: string;
+  spriteUrl?: string;
   level: number;
   xp: number;
   maxXp: number;

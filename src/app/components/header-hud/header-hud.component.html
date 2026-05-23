@@ -29,7 +29,17 @@
       <strong>{{ game.player().battlesWon }}</strong>
     </div>
     <div class="stat-chip selected">
-      <span class="selected-icon">{{ game.selectedMonster()?.icon ?? 'ID' }}</span>
+      <span class="selected-icon">
+        @if (game.selectedMonster(); as selectedMonster) {
+          @if (selectedMonster.unlocked && selectedMonster.spriteUrl) {
+            <img class="creature-sprite tiny" [src]="selectedMonster.spriteUrl" [alt]="selectedMonster.name + ' animated sprite'" />
+          } @else {
+            {{ selectedMonster.icon }}
+          }
+        } @else {
+          ID
+        }
+      </span>
       <span class="stat-label">Selected</span>
       <strong>{{ game.selectedMonster()?.name ?? 'No Signal' }}</strong>
       <small>LV. {{ game.selectedMonster()?.level ?? 0 }}</small>
