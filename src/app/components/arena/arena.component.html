@@ -16,7 +16,7 @@
             <span>{{ monster.icon }}</span>
             <div>
               <strong>{{ monster.name }}</strong>
-              <small>HP {{ monster.hp }} · Power {{ game.getMonsterPower(monster) }}</small>
+              <small>HP {{ monster.hp }} / Power {{ game.getMonsterPower(monster) }}</small>
             </div>
           </article>
         }
@@ -39,7 +39,7 @@
             <span>{{ enemy.icon }}</span>
             <div>
               <strong>{{ enemy.name }}</strong>
-              <small>HP {{ enemy.hp }} · {{ enemy.type }}</small>
+              <small>HP {{ enemy.hp }} / {{ enemy.type }}</small>
             </div>
           </article>
         }
@@ -51,8 +51,8 @@
     <h2>Rewards</h2>
     @if (game.lastReward(); as reward) {
       <div class="reward-grid">
-        <span>◎ +{{ reward.coins }} Coins</span>
-        <span>⌬ +{{ reward.dnaShards }} DNA</span>
+        <span>CR +{{ reward.coins }} Coins</span>
+        <span>DNA +{{ reward.dnaShards }}</span>
         <span>XP +{{ reward.xp }}</span>
         <span>{{ reward.won ? 'Victory' : 'Retreat' }}</span>
       </div>

@@ -15,14 +15,14 @@
             <span class="slot-number">{{ slot + 1 }}</span>
             <span class="squad-icon">{{ monster.icon }}</span>
             <h3>{{ monster.name }}</h3>
-            <p>{{ monster.stage }} · {{ monster.type }}</p>
+            <p>{{ monster.stage }} / {{ monster.type }}</p>
             <strong>Power {{ game.getMonsterPower(monster) }}</strong>
             <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
           </article>
         } @else {
           <article class="squad-slot empty">
             <span class="slot-number">{{ slot + 1 }}</span>
-            <span class="squad-icon">＋</span>
+            <span class="squad-icon">+</span>
             <h3>Empty Slot</h3>
             <p>Add an unlocked creature.</p>
           </article>

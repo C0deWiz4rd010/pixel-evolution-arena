@@ -14,4 +14,26 @@ export class MonsterDetailComponent {
   stageClass(monster: Monster): string {
     return this.game.stageClass(monster.stage);
   }
+
+  addToSquadReason(monster: Monster): string | null {
+    const player = this.game.player();
+
+    if (!monster.unlocked) {
+      return 'Unlock this signal before adding it to the squad.';
+    }
+
+    if (player.squadIds.includes(monster.id)) {
+      return 'Already assigned to the squad.';
+    }
+
+    if (player.squadIds.length >= 3) {
+      return 'Squad is full. Remove a member to add this form.';
+    }
+
+    return null;
+  }
+
+  requirementMarker(met: boolean): string {
+    return met ? 'OK' : 'MISS';
+  }
 }

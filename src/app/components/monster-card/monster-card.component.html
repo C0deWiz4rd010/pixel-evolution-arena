@@ -6,18 +6,18 @@
   type="button"
   (click)="selectMonster.emit(monster.id)"
 >
-  <span class="monster-id">{{ monster.id }}</span>
-  <span class="monster-icon" aria-hidden="true">{{ monster.unlocked ? monster.icon : '▧' }}</span>
-  <strong>{{ monster.unlocked ? monster.name : 'Locked' }}</strong>
-  <span class="monster-meta">{{ monster.stage }} · {{ monster.type }}</span>
-  <span class="monster-meta">Lv. {{ monster.level }} · {{ monster.rarity }}</span>
-  <span class="mini-stats">
-    <span>ATK {{ monster.attack }}</span>
-    <span>DEF {{ monster.defense }}</span>
-    <span>SPD {{ monster.speed }}</span>
+  <span class="card-topline">
+    <span class="monster-id">{{ monster.id }}</span>
+    <span class="card-status">{{ monster.unlocked ? monster.rarity : 'LOCK' }}</span>
   </span>
-  <span class="power-line">Power {{ power }}</span>
+  <span class="monster-icon" aria-hidden="true">{{ monster.unlocked ? monster.icon : 'LOCK' }}</span>
+  <strong class="monster-name">{{ monster.unlocked ? monster.name : 'Unknown Signal' }}</strong>
+  <span class="monster-meta">{{ monster.stage }} / {{ monster.type }}</span>
+  <span class="card-bottomline">
+    <span>LV {{ monster.level }}</span>
+    <strong>PW {{ power }}</strong>
+  </span>
   @if (!monster.unlocked) {
-    <span class="lock-mark">🔒</span>
+    <span class="lock-mark">LOCKED</span>
   }
 </button>

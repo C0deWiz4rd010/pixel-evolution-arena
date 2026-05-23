@@ -6,10 +6,10 @@
     </div>
 
     <div class="detail-hero">
-      <span class="detail-icon">{{ selected.unlocked ? selected.icon : '▧' }}</span>
+      <span class="detail-icon">{{ selected.unlocked ? selected.icon : 'LOCK' }}</span>
       <div>
         <h2>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</h2>
-        <p>{{ selected.stage }} · {{ selected.type }}</p>
+        <p>{{ selected.stage }} / {{ selected.type }}</p>
       </div>
     </div>
 
@@ -29,9 +29,12 @@
     </div>
 
     <div class="detail-actions">
-      <button type="button" [disabled]="!selected.unlocked || game.player().squadIds.includes(selected.id) || game.player().squadIds.length >= 3" (click)="game.addToSquad(selected.id)">
+      <button type="button" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">
         Add to Squad
       </button>
+      @if (addToSquadReason(selected); as reason) {
+        <p class="action-note">{{ reason }}</p>
+      }
     </div>
 
     <section class="evolution-targets">
@@ -45,7 +48,7 @@
             <span class="target-icon">{{ target.icon }}</span>
             <div>
               <strong>{{ target.name }}</strong>
-              <span>{{ target.stage }} · {{ target.type }}</span>
+              <span>{{ target.stage }} / {{ target.type }}</span>
             </div>
             <span class="monster-id">{{ target.id }}</span>
           </div>
@@ -53,7 +56,7 @@
           <div class="requirements">
             @for (status of game.getRequirementStatuses(selected, target); track status.label) {
               <span [class.met]="status.met" [class.missing]="!status.met">
-                {{ status.met ? '✓' : '×' }} {{ status.label }} {{ status.current }} / {{ status.required }}
+                {{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }} / {{ status.required }}
               </span>
             }
           </div>

@@ -10,17 +10,17 @@ export class TabNavigationComponent {
   @Output() tabChange = new EventEmitter<string>();
 
   readonly tabs = [
-    { label: 'Evolution Tree', icon: 'TREE' },
-    { label: 'Squad', icon: 'TEAM' },
+    { label: 'Evolution Tree', icon: 'ET' },
+    { label: 'Squad', icon: 'SQ' },
     { label: 'Arena', icon: 'VS' },
-    { label: 'Collection', icon: 'DEX' },
+    { label: 'Collection', icon: 'DX' },
   ];
 
-  readonly handbookTab = { label: 'Handbook', icon: '?' };
+  readonly handbookTab = { label: 'Handbook', icon: 'HB' };
 
   readonly linkTypes = [
     { label: 'Standard', className: 'standard' },
-    { label: 'Branch', className: 'branch' },
+    { label: 'Alternate', className: 'branch' },
     { label: 'Special', className: 'special' },
   ];
 }
