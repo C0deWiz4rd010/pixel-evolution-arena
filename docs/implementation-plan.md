@@ -9,6 +9,10 @@
 
 ## Step 2: Angular App Shell
 
+- Confirm gameplay design gate:
+  - `docs/game-design.md`
+  - `docs/balance-and-progression.md`
+  - `docs/gameplay-implementation-checklist.md`
 - Scaffold Angular in repository root.
 - Add app-wide SCSS theme.
 - Create Header HUD and Tab Navigation.
@@ -33,5 +37,6 @@
 - Rewrite README.
 - Verify build.
 - Run local browser smoke test.
+- Complete gameplay checklist.
 - Fix responsive and interaction issues.
 - Commit logical steps and integrate back to `develop`.

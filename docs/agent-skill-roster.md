@@ -5,7 +5,8 @@ This file records the agents, skills, and instructions selected before implement
 ## Primary Agent
 
 - Role: Codex implementation lead
-- Responsibilities: repo setup, Angular implementation, asset organization, documentation, Git workflow, verification, and final integration.
+- Responsibilities: gameplay-first product direction, repo setup, Angular implementation, asset organization, documentation, Git workflow, verification, and final integration.
+- Current operating rule: do not implement a feature unless it supports the core loop documented in `docs/game-design.md`.
 
 ## Subagents Used
 
@@ -94,6 +95,8 @@ The active implementation bias is now gameplay-first:
 - Evolution should feel like a concrete goal with visible requirements and payoff.
 - Collection filtering should support "what should I unlock next?" rather than only browsing.
 - The UI should feel fluid and responsive with immediate state feedback.
+- Balance should make the first few minutes generous: visible XP, at least one early evolution path, and item drops as memorable surprises.
+- Visual polish should reinforce decisions and rewards, not hide the play loop.
 
 ## Implementation Instructions Snapshot
 
