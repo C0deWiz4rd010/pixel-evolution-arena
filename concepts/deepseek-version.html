@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Digimon Evolution Tree - Pixel Evolver Spiel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a1f1a 0%, #07130f 100%);
+            font-family: 'Courier New', 'VT323', monospace;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Hauptcontainer - Retro Pixel Look */
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #1e2a24;
+            border: 6px solid #5b8c6f;
+            border-radius: 24px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            padding: 20px;
+        }
+
+        /* Header */
+        .game-header {
+            text-align: center;
+            border-bottom: 3px dashed #7aa57b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .game-header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            color: #d4f1c6;
+            text-shadow: 3px 3px 0 #2c4a33;
+            letter-spacing: 2px;
+            word-break: keep-all;
+        }
+
+        .game-header p {
+            color: #bdd4b0;
+            font-size: 0.85rem;
+            margin: 5px 0 0;
+        }
+
+        /* Hauptspielbereich */
+        .monitor-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .digimon-card {
+            background: #0f1915;
+            border-radius: 28px;
+            padding: 20px;
+            flex: 2;
+            min-width: 260px;
+            border: 3px solid #6e9f78;
+            box-shadow: inset 0 0 8px #2e4638, 0 8px 12px black;
+        }
+
+        .pixel-art {
+            background: #0b120f;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 18px;
+            padding: 12px;
+            border: 2px solid #598a62;
+        }
+
+        canvas {
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: pixelated;
+            background: #202d26;
+            border-radius: 16px;
+            box-shadow: 0 0 0 3px #3c5e48;
+            width: 128px;
+            height: 128px;
+        }
+
+        .digimon-info {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .digimon-id {
+            font-size: 1.7rem;
+            background: #000000aa;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 30px;
+            color: #f5ffcf;
+            letter-spacing: 2px;
+        }
+
+        .digimon-stage {
+            font-size: 1.2rem;
+            background: #2c4236;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+            color: #ffe5a3;
+        }
+
+        .xp-bar-container {
+            background: #2a2f2c;
+            border-radius: 30px;
+            height: 18px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid #7ea77e;
+        }
+
+        .xp-fill {
+            width: 0%;
+            height: 100%;
+            background: #b5ff7a;
+            background: linear-gradient(90deg, #a8e65c, #d4ff9f);
+            transition: width 0.2s ease;
+            border-radius: 30px;
+        }
+
+        .xp-text {
+            font-size: 0.85rem;
+            text-align: center;
+            color: #cfe6c1;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .pixel-btn {
+            background: #2d463b;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: #f1f9e6;
+            cursor: pointer;
+            transition: 0.07s linear;
+            box-shadow: 0 3px 0 #0e1f18;
+            border: 1px solid #6cae7c;
+        }
+
+        .pixel-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #0e1f18;
+        }
+
+        .pixel-btn.special {
+            background: #7a4c2c;
+            border-color: #f5bc70;
+            text-shadow: 0px 0px 2px black;
+        }
+
+        .pixel-btn.warning {
+            background: #4d2e2a;
+            border-color: #cf9f7a;
+        }
+
+        .selector-area {
+            background: #14221d;
+            border-radius: 28px;
+            padding: 18px;
+            flex: 1;
+            min-width: 220px;
+            border: 2px solid #588064;
+        }
+
+        .selector-area h3 {
+            margin: 0 0 12px 0;
+            color: #e7f5cf;
+            font-size: 1.3rem;
+        }
+
+        select {
+            background: #0f1913;
+            color: #dbffbc;
+            font-family: monospace;
+            font-size: 1.1rem;
+            padding: 8px;
+            border-radius: 20px;
+            border: 2px solid #609c6e;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .reset-btn {
+            background: #2f604b;
+            width: 100%;
+        }
+
+        /* Galerie - Evolution Tree Netzwerk */
+        .gallery-section {
+            margin-top: 30px;
+            background: #0d1814b3;
+            border-radius: 28px;
+            padding: 15px;
+            border-top: 3px solid #83b386;
+        }
+
+        .gallery-title {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            color: #c7f0b2;
+        }
+
+        .stage-group {
+            margin-bottom: 20px;
+            background: #10231e70;
+            border-radius: 20px;
+            padding: 10px;
+        }
+
+        .stage-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: #0a241cb3;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            color: #ffeaaf;
+        }
+
+        .digimon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .digi-sprite {
+            background: #18261f;
+            border-radius: 16px;
+            width: 70px;
+            text-align: center;
+            padding: 8px 2px;
+            transition: 0.05s linear;
+            border: 1px solid #4b7a57;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .digi-sprite.unlocked {
+            background: #2d6b49;
+            border-color: #e2ffb0;
+            color: #ffffc2;
+            box-shadow: 0 0 6px #a0ffb0;
+        }
+
+        .digi-sprite.locked {
+            background: #1a2b24;
+            color: #617a66;
+            filter: grayscale(0.5);
+            border-color: #355a41;
+        }
+
+        .digi-id {
+            font-size: 0.7rem;
+            background: #00000077;
+            display: inline-block;
+            border-radius: 20px;
+            padding: 2px 6px;
+        }
+
+        .message-area {
+            background: #000000aa;
+            border-radius: 26px;
+            padding: 8px 15px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #e9f5db;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 18px;
+            color: #5e7d68;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-header">
+        <h1>⚡ DIGIMON EVOLUTION TREE ⚡</h1>
+        <p>100 ORIGINAL PIXEL DIGIMON • 7 STAGES • STANDARD / ALTERNATE / REVERSE / SPECIAL</p>
+    </div>
+
+    <div class="monitor-area">
+        <!-- Haupt-Digimon Bereich -->
+        <div class="digimon-card">
+            <div class="pixel-art">
+                <canvas id="digimonCanvas" width="128" height="128"></canvas>
+            </div>
+            <div class="digimon-info">
+                <div class="digimon-id" id="currentIdDisplay">ID-000</div>
+                <div class="digimon-stage" id="currentStageDisplay">BABY</div>
+                <div class="xp-bar-container">
+                    <div class="xp-fill" id="xpFill"></div>
+                </div>
+                <div class="xp-text" id="xpText">XP: 0 / 100</div>
+            </div>
+            <div class="action-buttons">
+                <button class="pixel-btn" id="trainBtn">🏋️ TRAIN +XP</button>
+                <button class="pixel-btn" id="evolveBtn">✨ EVOLVE (100XP)</button>
+                <button class="pixel-btn" id="alternateBtn">🔄 ALTERNATE (50XP)</button>
+                <button class="pixel-btn warning" id="reverseBtn">⬇️ REVERSE (30XP)</button>
+                <button class="pixel-btn special" id="specialBoostBtn">🌟 SPECIAL JUMP (80XP)</button>
+            </div>
+            <div class="message-area" id="messageBox">
+                👾 Wähle ein Baby-Digimon & trainiere!
+            </div>
+        </div>
+
+        <!-- Auswahl & Reset -->
+        <div class="selector-area">
+            <h3>📀 START-DIGIMON</h3>
+            <select id="babySelect">
+                <option value="1">BABY-001 (Piximon)</option>
+                <option value="2">BABY-002 (Budmon)</option>
+                <option value="3">BABY-003 (Chibimon)</option>
+                <option value="4">BABY-004 (Poyomon)</option>
+                <option value="5">BABY-005 (Yuramon)</option>
+                <option value="6">BABY-006 (Punimon)</option>
+                <option value="7">BABY-007 (Tokomon)</option>
+                <option value="8">BABY-008 (Koromon)</option>
+                <option value="9">BABY-009 (Tanemon)</option>
+                <option value="10">BABY-010 (Botamon)</option>
+            </select>
+            <button class="pixel-btn reset-btn" id="resetBtn">🔄 NEUSTART & AUSWÄHLEN</button>
+            <div style="margin-top: 18px; font-size:0.75rem; color:#afcfaa;">
+                <span>🔗 LINK TYPES: Standard (nächste Stufe) | Alternate (gleiche Stufe) | Reverse (vorherige) | Special (Vor-/Rück- Sprung)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- EVOLUTION NETWORK GALERIE (alle 100+ Pixel-Digimon) -->
+    <div class="gallery-section">
+        <div class="gallery-title">
+            <span>📜 DIGIMON EVOLUTION NETWORK • FREIGESCHALTETE SAMMLUNG</span>
+            <span id="unlockCounter" style="font-size:0.8rem;">✨ 0 / 100 entdeckt</span>
+        </div>
+        <div id="evolutionGallery"></div>
+    </div>
+    <footer>⚡ 100% ORIGINAL PIXEL ART • Jedes Digimon einzigartig • Komplette Evolutionsmechanik (Standard/Alternate/Reverse/Special) ⚡</footer>
+</div>
+
+<script>
+    // ----- DEFINITION DER DIGIMON-WELT (7 STUFEN, IDs basierend auf Bild) -----
+    // Stufenbereiche originalgetreu:
+    // BABY: 001-010
+    // IN-TRAINING: 011-030
+    // ROOKIE: 051-070
+    // CHAMPION: 071-090
+    // ULTIMATE: 091-100
+    // MEGA: 101-110
+    // SPECIAL: 111-120
+    // Insgesamt 10+20+20+20+10+10+10 = 100 einzigartige Digimon
+
+    const STAGE_RANGES = {
+        "BABY": { min: 1, max: 10, ids: Array.from({length: 10}, (_, i) => i + 1) },
+        "IN-TRAINING": { min: 11, max: 30, ids: Array.from({length: 20}, (_, i) => i + 11) },
+        "ROOKIE": { min: 51, max: 70, ids: Array.from({length: 20}, (_, i) => i + 51) },
+        "CHAMPION": { min: 71, max: 90, ids: Array.from({length: 20}, (_, i) => i + 71) },
+        "ULTIMATE": { min: 91, max: 100, ids: Array.from({length: 10}, (_, i) => i + 91) },
+        "MEGA": { min: 101, max: 110, ids: Array.from({length: 10}, (_, i) => i + 101) },
+        "SPECIAL": { min: 111, max: 120, ids: Array.from({length: 10}, (_, i) => i + 111) }
+    };
+
+    const STAGE_ORDER = ["BABY", "IN-TRAINING", "ROOKIE", "CHAMPION", "ULTIMATE", "MEGA", "SPECIAL"];
+    
+    // Helper: Stage einer ID ermitteln
+    function getStageById(id) {
+        for (let stage of STAGE_ORDER) {
+            const range = STAGE_RANGES[stage];
+            if (id >= range.min && id <= range.max) return stage;
+        }
+        return "BABY"; // fallback
+    }
+
+    // Zufälliges Digimon innerhalb einer Stage (aus existierenden IDs)
+    function getRandomDigimonIdInStage(stage) {
+        const ids = STAGE_RANGES[stage].ids;
+        if (!ids.length) return 1;
+        return ids[Math.floor(Math.random() * ids.length)];
+    }
+
+    // Nächste Stufe (Standard)
+    function getNextStage(currentStage) {
+        const idx = STAGE_ORDER.indexOf(currentStage);
+        if (idx === STAGE_ORDER.length - 1) return null;
+        return STAGE_ORDER[idx + 1];
+    }
+
+    // Vorherige Stufe (Reverse)
+    function getPrevStage(currentStage) {
+        const idx = STAGE_ORDER.indexOf(currentStage);
+        if (idx <= 0) return null;
+        return STAGE_ORDER[idx - 1];
+    }
+
+    // Anderes zufälliges Digimon in derselben Stufe (alternate)
+    function getAlternateSameStage(currentId, currentStage) {
+        const pool = STAGE_RANGES[currentStage].ids.filter(id => id !== currentId);
+        if (pool.length === 0) return currentId;
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // SPECIAL JUMP: springt entweder 2 Stufen vorwärts oder zu einer komplett anderen Stufe (Spezial)
+    function getSpecialJump(currentStage, currentId) {
+        // Special: entweder zwei Stufen weiter (falls möglich) oder zufällig zu Mega/Special/Ultimate
+        const currentIdx = STAGE_ORDER.indexOf(currentStage);
+        let targetStage = null;
+        // 70% Wahrscheinlichkeit: 2 Stufen vor, ansonsten krasser Sprung zu MEGA/SPECIAL
+        const r = Math.random();
+        if (r < 0.6 && currentIdx + 2 < STAGE_ORDER.length) {
+            targetStage = STAGE_ORDER[currentIdx + 2];
+        } else if (r < 0.85 && currentStage !== "SPECIAL") {
+            // Sprung zu Mega oder Special
+            const highStages = ["MEGA", "SPECIAL"];
+            targetStage = highStages[Math.floor(Math.random() * highStages.length)];
+        } else {
+            // fallback: nächste Stufe
+            targetStage = getNextStage(currentStage);
+        }
+        if (!targetStage) targetStage = currentStage;
+        if (targetStage === currentStage) return getAlternateSameStage(currentId, currentStage);
+        return getRandomDigimonIdInStage(targetStage);
+    }
+
+    // ----- SPIELSTATUS -----
+    let currentDigimon = {
+        id: 1,
+        stage: "BABY",
+        xp: 0
+    };
+    let unlockedSet = new Set();   // gesammelte Digimon IDs
+
+    function addUnlocked(id) {
+        if (!unlockedSet.has(id)) {
+            unlockedSet.add(id);
+            updateGallery();
+        }
+    }
+
+    // XP-Schwellen für Aktionen (kosten)
+    const EVOLVE_COST = 100;
+    const ALTERNATE_COST = 50;
+    const REVERSE_COST = 30;
+    const SPECIAL_COST = 80;
+
+    // UI Elemente
+    const canvas = document.getElementById('digimonCanvas');
+    const ctx = canvas.getContext('2d');
+    const currentIdSpan = document.getElementById('currentIdDisplay');
+    const currentStageSpan = document.getElementById('currentStageDisplay');
+    const xpFillDiv = document.getElementById('xpFill');
+    const xpTextSpan = document.getElementById('xpText');
+    const messageBox = document.getElementById('messageBox');
+    const unlockCounterSpan = document.getElementById('unlockCounter');
+
+    // Pixel-Art Zeichnung basierend auf ID (generische Pixel-Monster)
+    function drawPixelDigimon(id, stage) {
+        ctx.clearRect(0, 0, 128, 128);
+        ctx.imageSmoothingEnabled = false;
+        // Hintergrund Pixel-Style
+        ctx.fillStyle = "#101e18";
+        ctx.fillRect(0, 0, 128, 128);
+        
+        // Farbe basierend auf ID + Stage für individuellen Look
+        const hue = (id * 23) % 360;
+        const sat = 60 + (id % 30);
+        const light = 55;
+        const mainColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        const eyeColor = `hsl(${hue}, 80%, 80%)`;
+        
+        // Körper (Pixel-Stil)
+        ctx.fillStyle = mainColor;
+        ctx.fillRect(32, 48, 64, 56);
+        ctx.fillRect(44, 32, 40, 24);
+        // Ohren / Hörner
+        ctx.fillStyle = `hsl(${hue}, 70%, 45%)`;
+        ctx.fillRect(24, 32, 16, 20);
+        ctx.fillRect(88, 32, 16, 20);
+        // Augen
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(48, 56, 12, 12);
+        ctx.fillRect(68, 56, 12, 12);
+        ctx.fillStyle = eyeColor;
+        ctx.fillRect(52, 60, 6, 6);
+        ctx.fillRect(72, 60, 6, 6);
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(54, 62, 3, 3);
+        ctx.fillRect(74, 62, 3, 3);
+        // Mund
+        ctx.fillStyle = "#4a2a1a";
+        ctx.fillRect(58, 80, 12, 8);
+        // Pixel-Akzente (Stufe)
+        ctx.fillStyle = "#ffdf8c";
+        ctx.font = "bold 12px 'Courier New'";
+        ctx.fillText(`${stage.substring(0,3)}`, 52, 110);
+        ctx.fillStyle = "#f0f0c0";
+        ctx.font = "bold 10px monospace";
+        ctx.fillText(`#${id}`, 56, 124);
+        
+        // kleine Pixel-Muster: je nach ID unterschied
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = `hsl(${(hue + i * 90) % 360}, 70%, 65%)`;
+            ctx.fillRect(28 + i * 18, 96, 4, 6);
+        }
+    }
+
+    function updateUI() {
+        const idStr = String(currentDigimon.id).padStart(3, '0');
+        currentIdSpan.innerText = `ID-${idStr}`;
+        currentStageSpan.innerText = currentDigimon.stage;
+        const required = EVOLVE_COST;
+        let percent = (currentDigimon.xp / required) * 100;
+        percent = Math.min(100, percent);
+        xpFillDiv.style.width = `${percent}%`;
+        xpTextSpan.innerText = `XP: ${Math.floor(currentDigimon.xp)} / ${required}`;
+        drawPixelDigimon(currentDigimon.id, currentDigimon.stage);
+        // Aktualisiere Entdeckungszähler
+        const totalExist = Object.values(STAGE_RANGES).reduce((acc, r) => acc + r.ids.length, 0);
+        unlockCounterSpan.innerText = `✨ ${unlockedSet.size} / ${totalExist} entdeckt`;
+    }
+
+    // Nachricht
+    function setMessage(msg, isError = false) {
+        messageBox.innerHTML = isError ? `⚠️ ${msg}` : `✨ ${msg}`;
+        setTimeout(() => {
+            if (messageBox.innerHTML.includes(msg)) {
+                if(!isError) messageBox.innerHTML = `⚡ Bereit für die nächste Evolution!`;
+            }
+        }, 2200);
+    }
+
+    // XP hinzufügen
+    function addXP(amount) {
+        let newXp = currentDigimon.xp + amount;
+        currentDigimon.xp = Math.min(newXp, EVOLVE_COST * 2); // max etwas puffern
+        updateUI();
+        setMessage(`+${amount} XP! (${Math.floor(currentDigimon.xp)}/${EVOLVE_COST})`);
+    }
+
+    // Allgemeine Evolutionslogik: wechselt zu neuer ID + Stage, zieht XP ab
+    function applyEvolution(newId, newStage, cost, actionName) {
+        if (currentDigimon.xp < cost) {
+            setMessage(`Nicht genug XP! ${actionName} kostet ${cost} XP. Trainiere mehr!`, true);
+            return false;
+        }
+        const oldId = currentDigimon.id;
+        currentDigimon.xp -= cost;
+        currentDigimon.id = newId;
+        currentDigimon.stage = newStage;
+        addUnlocked(oldId);
+        addUnlocked(newId);
+        updateUI();
+        setMessage(`✅ ${actionName} erfolgreich! Neues Digimon: ID-${String(newId).padStart(3,'0')} (${newStage})`);
+        return true;
+    }
+
+    // Standard Evolution (nächste Stufe)
+    function standardEvolve() {
+        const nextStage = getNextStage(currentDigimon.stage);
+        if (!nextStage) {
+            setMessage(`🌟 SPECIAL-MAX erreicht! Dieses Digimon hat keine höhere Stufe. Nutze ALTERNATE oder SPECIAL JUMP!`, true);
+            return;
+        }
+        const newId = getRandomDigimonIdInStage(nextStage);
+        applyEvolution(newId, nextStage, EVOLVE_COST, "STANDARD-EVOLUTION");
+    }
+
+    // Alternate: anderes Digimon gleicher Stufe
+    function alternateForm() {
+        const newId = getAlternateSameStage(currentDigimon.id, currentDigimon.stage);
+        if (newId === currentDigimon.id) {
+            setMessage(`Keine alternative Form verfügbar! Versuche es später nochmal.`, true);
+            return;
+        }
+        applyEvolution(newId, currentDigimon.stage, ALTERNATE_COST, "ALTERNATE-FORM");
+    }
+
+    // Reverse: eine Stufe zurück
+    function reverseEvolve() {
+        const prevStage = getPrevStage(currentDigimon.stage);
+        if (!prevStage) {
+            setMessage(`BABY-Stufe kann sich nicht rückentwickeln! Kehre um?`, true);
+            return;
+        }
+        const newId = getRandomDigimonIdInStage(prevStage);
+        applyEvolution(newId, prevStage, REVERSE_COST, "REVERSE-EVOLUTION");
+    }
+
+    // Special Jump
+    function specialJump() {
+        const newId = getSpecialJump(currentDigimon.stage, currentDigimon.id);
+        const newStage = getStageById(newId);
+        if (newId === currentDigimon.id && newStage === currentDigimon.stage) {
+            setMessage(`Kein spezieller Sprung möglich!`, true);
+            return;
+        }
+        applyEvolution(newId, newStage, SPECIAL_COST, "SPECIAL-JUMP");
+    }
+
+    // Reset / Neues Baby wählen
+    function resetToBaby(selectedBabyId = null) {
+        let babyId = selectedBabyId !== null ? parseInt(selectedBabyId) : parseInt(document.getElementById('babySelect').value);
+        if (isNaN(babyId)) babyId = 1;
+        babyId = Math.min(10, Math.max(1, babyId));
+        currentDigimon = {
+            id: babyId,
+            stage: "BABY",
+            xp: 0
+        };
+        addUnlocked(babyId);
+        updateUI();
+        setMessage(`Neues Baby-Digimon ID-${String(babyId).padStart(3,'0')} gewählt! Trainiere es für Evolutionen.`);
+    }
+
+    // GALERIE: Dynamischen Evolution Tree anzeigen (alle 100 Digimon nach Stufe)
+    function buildGallery() {
+        const galleryDiv = document.getElementById('evolutionGallery');
+        galleryDiv.innerHTML = '';
+        for (let stage of STAGE_ORDER) {
+            const stageData = STAGE_RANGES[stage];
+            const ids = stageData.ids;
+            if (ids.length === 0) continue;
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'stage-group';
+            groupDiv.innerHTML = `<div class="stage-label">${stage} (${ids.length} Digimon)</div><div class="digimon-grid" id="grid-${stage}"></div>`;
+            galleryDiv.appendChild(groupDiv);
+            const gridContainer = groupDiv.querySelector(`.digimon-grid`);
+            ids.forEach(id => {
+                const isUnlocked = unlockedSet.has(id);
+                const spriteDiv = document.createElement('div');
+                spriteDiv.className = `digi-sprite ${isUnlocked ? 'unlocked' : 'locked'}`;
+                spriteDiv.innerHTML = `<div class="digi-id">ID-${String(id).padStart(3,'0')}</div><div style="font-size:0.65rem;">${stage.substring(0,3)}</div>`;
+                spriteDiv.addEventListener('click', () => {
+                    if (isUnlocked) {
+                        setMessage(`📜 ID-${String(id).padStart(3,'0')} (${stage}) – bereits entdeckt!`);
+                    } else {
+                        setMessage(`🔒 Noch nicht entdeckt! Entwickle oder finde dieses Digimon.`, true);
+                    }
+                });
+                gridContainer.appendChild(spriteDiv);
+            });
+        }
+    }
+
+    function updateGallery() {
+        const allSprites = document.querySelectorAll('.digi-sprite');
+        for (let stage of STAGE_ORDER) {
+            const stageIds = STAGE_RANGES[stage].ids;
+            stageIds.forEach(id => {
+                const spriteElement = findSpriteElementById(id);
+                if (spriteElement) {
+                    const isUnlocked = unlockedSet.has(id);
+                    if (isUnlocked) {
+                        spriteElement.classList.add('unlocked');
+                        spriteElement.classList.remove('locked');
+                    } else {
+                        spriteElement.classList.add('locked');
+                        spriteElement.classList.remove('unlocked');
+                    }
+                }
+            });
+        }
+        const totalExist = Object.values(STAGE_RANGES).reduce((acc, r) => acc + r.ids.length, 0);
+        unlockCounterSpan.innerText = `✨ ${unlockedSet.size} / ${totalExist} entdeckt`;
+    }
+
+    function findSpriteElementById(id) {
+        const all = document.querySelectorAll('.digi-sprite');
+        for (let el of all) {
+            if (el.innerHTML.includes(`ID-${String(id).padStart(3,'0')}`)) return el;
+        }
+        return null;
+    }
+
+    // Training: zufällige XP 10-35
+    function train() {
+        const gain = Math.floor(Math.random() * 26) + 12; // 12-37
+        addXP(gain);
+        // Eventuell direkt prüfen ob genug für Standard? (Kein Auto-Evolve, User soll selbst entscheiden)
+        if (currentDigimon.xp >= EVOLVE_COST) {
+            setMessage(`💪 Genug XP für eine EVOLUTION (100) ! Klicke auf EVOLVE!`, false);
+        }
+    }
+
+    // Event-Listener und Initialisierung
+    function initGame() {
+        buildGallery();
+        resetToBaby(1);
+        
+        document.getElementById('trainBtn').addEventListener('click', train);
+        document.getElementById('evolveBtn').addEventListener('click', standardEvolve);
+        document.getElementById('alternateBtn').addEventListener('click', alternateForm);
+        document.getElementById('reverseBtn').addEventListener('click', reverseEvolve);
+        document.getElementById('specialBoostBtn').addEventListener('click', specialJump);
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            const selected = document.getElementById('babySelect').value;
+            resetToBaby(selected);
+        });
+    }
+
+    // Start
+    initGame();
+</script>
+</body>
+</html>
