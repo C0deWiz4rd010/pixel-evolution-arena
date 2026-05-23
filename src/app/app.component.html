@@ -1,0 +1,25 @@
+<main class="app-shell">
+  <app-arena-effects [activeTab]="activeTab()" />
+  <app-header-hud />
+  <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
+
+  <section class="play-surface">
+    @switch (activeTab()) {
+      @case ('Evolution Tree') {
+        <app-evolution-tree />
+      }
+      @case ('Squad') {
+        <app-squad />
+      }
+      @case ('Arena') {
+        <app-arena />
+      }
+      @case ('Collection') {
+        <app-collection />
+      }
+      @case ('Handbook') {
+        <app-handbook />
+      }
+    }
+  </section>
+</main>

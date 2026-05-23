@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N100" data-stage="Special" data-type="Toxic">
+  <title id="title">N100 Blightstar sprite</title>
+  <desc id="desc">Original Special Toxic pixel creature for Pixel Evolution Arena. Poison star core inside cracked glass armor; final toxic control chase.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.64s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#102000" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#e4ff47" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#f6ffb8" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="52" y="21" width="24" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="56" y="15" width="16" height="6" fill="#f6ffb8" opacity="0.8"/>
+    <rect x="29" y="68" width="8" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="91" y="78" width="10" height="10" fill="#f6ffb8" class="glow" opacity="0.7"/>
+    <rect x="45" y="106" width="6" height="12" fill="#e4ff47" class="glow"/>
+    <rect x="11" y="84" width="8" height="18" fill="#315700"/>
+    <rect x="109" y="76" width="8" height="18" fill="#315700"/>
+    <rect x="36" y="106" width="12" height="8" fill="#315700"/>
+    <rect x="80" y="106" width="12" height="8" fill="#315700"/>
+    <rect x="32" y="108" width="4" height="4" fill="#e4ff47"/>
+    <rect x="92" y="108" width="4" height="4" fill="#e4ff47"/>
+    <polygon points="31,56 97,56 107,66 107,100 97,110 31,110 21,100 21,66" fill="#315700"/>
+    <polygon points="33,60 95,60 103,68 103,98 95,106 33,106 25,98 25,68" fill="#91e536"/>
+    <rect x="29" y="64" width="29" height="6" fill="#f6ffb8" opacity="0.75"/>
+    <rect x="52" y="86" width="5" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="72" y="80" width="5" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <polygon points="39,29 81,29 89,37 89,65 81,73 39,73 31,65 31,37" fill="#315700"/>
+    <polygon points="41,33 79,33 85,39 85,63 79,69 41,69 35,63 35,39" fill="#91e536"/>
+    <rect x="39" y="35" width="17" height="5" fill="#f6ffb8" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="49" width="6" height="8" fill="#102000"/>
+    <rect x="78" y="49" width="6" height="8" fill="#102000"/>
+    <rect x="45" y="50" width="2" height="2" fill="#e4ff47"/>
+    <rect x="79" y="50" width="2" height="2" fill="#e4ff47"/>
+    </g>
+    <rect x="33" y="66" width="8" height="8" fill="#102000"/>
+    <rect x="87" y="66" width="8" height="8" fill="#102000"/>
+    <rect x="35" y="68" width="4" height="4" fill="#e4ff47" class="glow"/>
+    <rect x="89" y="68" width="4" height="4" fill="#e4ff47" class="glow"/>
+    <rect x="95" y="80" width="8" height="8" fill="#f6ffb8" class="glow" opacity="0.78"/>
+    <rect x="25" y="88" width="6" height="6" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="28" y="35" width="72" height="4" fill="#e4ff47" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#e4ff47" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#f6ffb8" class="scan" opacity="0.32"/>
+  </g>
+</svg>

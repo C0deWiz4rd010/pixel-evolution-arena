@@ -1,0 +1,83 @@
+<div class="handbook-layout">
+  <section class="hud-panel handbook-main">
+    <div class="section-heading">
+      <div>
+        <h2>Game Handbook</h2>
+        <p>Read the loop, rewards, evolution rules, and what to do next.</p>
+      </div>
+      <span class="manual-code">MANUAL // V0.1</span>
+    </div>
+
+    <div class="manual-grid">
+      <article>
+        <h3>Core Loop</h3>
+        <ol>
+          <li>Select a creature in the Evolution Tree.</li>
+          <li>Add up to three unlocked creatures to Squad.</li>
+          <li>Start an Arena auto-battle.</li>
+          <li>Earn XP, Coins, DNA Shards, and possible items.</li>
+          <li>Spend rewards to unlock evolutions.</li>
+          <li>Use Collection filters to choose the next chase target.</li>
+        </ol>
+      </article>
+
+      <article>
+        <h3>Rewards</h3>
+        <p>Wins grant +120 Coins, +8 DNA Shards, +35 XP, one battle win, and a 25% item-drop chance.</p>
+        <p>Losses still grant +30 Coins, +2 DNA Shards, and +12 XP.</p>
+      </article>
+
+      <article>
+        <h3>Evolution</h3>
+        <p>Evolution requires an unlocked source creature, enough level, Coins, DNA Shards, and sometimes an item.</p>
+        <p>When evolution succeeds, the target unlocks, resources are spent, and the new form becomes selected.</p>
+      </article>
+
+      <article>
+        <h3>Squad Power</h3>
+        <p>Team Power is HP + Attack + Defense + Speed for every squad member.</p>
+        <p>A full squad is usually stronger than one rare creature alone.</p>
+      </article>
+
+      <article>
+        <h3>Items</h3>
+        <ul>
+          @for (item of game.inventoryItems; track item) {
+            <li>{{ item }} unlocks rarer or special branches.</li>
+          }
+        </ul>
+      </article>
+
+      <article>
+        <h3>Stage Colors</h3>
+        <div class="manual-stages">
+          @for (stage of game.stages; track stage) {
+            <span class="stage-{{ game.stageClass(stage) }}">{{ stage }}</span>
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <aside class="hud-panel handbook-side">
+    <h2>Quick Read</h2>
+    <div class="manual-stat">
+      <span>Current Team Power</span>
+      <strong>{{ game.teamPower() }}</strong>
+    </div>
+    <div class="manual-stat">
+      <span>Unlocked</span>
+      <strong>{{ game.unlockedCount() }} / {{ game.monsters().length }}</strong>
+    </div>
+    <div class="manual-stat">
+      <span>Next Habit</span>
+      <strong>{{ game.squad().length < 3 ? 'Fill Squad' : 'Battle Again' }}</strong>
+    </div>
+
+    <h3>Log Colors</h3>
+    <p><b class="log-info">Info</b> starts and momentum shifts.</p>
+    <p><b class="log-damage">Damage</b> makes hits readable.</p>
+    <p><b class="log-reward">Reward</b> marks wins, XP, items, and unlocks.</p>
+    <p><b class="log-system">System</b> explains blockers and next steps.</p>
+  </aside>
+</div>

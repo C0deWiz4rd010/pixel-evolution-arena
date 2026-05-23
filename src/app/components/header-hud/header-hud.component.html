@@ -1,0 +1,37 @@
+<header class="hud-panel header-hud">
+  <div class="brand-block">
+    <img class="brand-mark-image" src="assets/brand/pixel-evolution-arena-mark.svg" alt="Pixel Evolution Arena mark" />
+    <div>
+      <h1>Pixel Evolution Arena</h1>
+      <p>Build your squad. Unlock evolutions. Dominate the arena.</p>
+    </div>
+  </div>
+
+  <div class="hud-stats">
+    <div class="stat-chip coins">
+      <span class="stat-icon">◎</span>
+      <span class="stat-label">Coins</span>
+      <strong>{{ game.player().coins }}</strong>
+    </div>
+    <div class="stat-chip dna">
+      <span class="stat-icon">⌬</span>
+      <span class="stat-label">DNA Shards</span>
+      <strong>{{ game.player().dnaShards }}</strong>
+    </div>
+    <div class="stat-chip power">
+      <span class="stat-icon">ϟ</span>
+      <span class="stat-label">Team Power</span>
+      <strong>{{ game.teamPower() }}</strong>
+    </div>
+    <div class="stat-chip wins">
+      <span class="stat-icon">⌑</span>
+      <span class="stat-label">Battles Won</span>
+      <strong>{{ game.player().battlesWon }}</strong>
+    </div>
+    <div class="stat-chip selected">
+      <span class="stat-label">Selected Monster</span>
+      <strong>{{ game.selectedMonster()?.name ?? 'None' }}</strong>
+      <span class="selected-icon">{{ game.selectedMonster()?.icon ?? '□' }}</span>
+    </div>
+  </div>
+</header>

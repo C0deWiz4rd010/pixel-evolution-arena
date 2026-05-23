@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N004" data-stage="Baby" data-type="Dark">
+  <title id="title">N004 Murkspark sprite</title>
+  <desc id="desc">Original Baby Dark pixel creature for Pixel Evolution Arena. Smudged shadow mote with one bright eye; crit-flavored risky starter.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.8s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.64s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,72 30,56 38,84" fill="#1a1034"/>
+    <polygon points="82,72 98,56 90,84" fill="#1a1034"/>
+    <polygon points="50,74 78,74 88,84 88,100 78,110 50,110 40,100 40,84" fill="#070310" opacity="0.58"/>
+    <rect x="40" y="90" width="48" height="6" fill="#d95dff" class="glow" opacity="0.55"/>
+    <rect x="50" y="88" width="8" height="8" fill="#1a1034"/>
+    <rect x="70" y="88" width="8" height="8" fill="#1a1034"/>
+    <polygon points="56,66 72,66 80,74 80,84 72,92 56,92 48,84 48,74" fill="#1a1034"/>
+    <polygon points="58,70 70,70 76,76 76,82 70,88 58,88 52,82 52,76" fill="#7255f6"/>
+    <rect x="56" y="74" width="11" height="6" fill="#f0c6ff" opacity="0.75"/>
+    <rect x="60" y="78" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="62" y="84" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="64" y="78" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="51" y="76" width="4" height="6" fill="#070310"/>
+    <rect x="73" y="76" width="4" height="6" fill="#070310"/>
+    </g>
+  </g>
+</svg>

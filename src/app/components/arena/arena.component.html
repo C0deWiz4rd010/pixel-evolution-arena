@@ -1,0 +1,73 @@
+<div class="arena-layout">
+  <section class="hud-panel arena-stage">
+    <div class="section-heading">
+      <div>
+        <h2>Arena</h2>
+        <p>Run quick simulations, collect rewards, and push your next evolution goal.</p>
+      </div>
+      <button type="button" class="primary-action" (click)="game.startBattle()">Start Battle</button>
+    </div>
+
+    <div class="battlefield">
+      <div class="battle-team player-side">
+        <h3>Your Squad</h3>
+        @for (monster of game.squad(); track monster.id) {
+          <article class="combatant stage-{{ game.stageClass(monster.stage) }}">
+            <span>{{ monster.icon }}</span>
+            <div>
+              <strong>{{ monster.name }}</strong>
+              <small>HP {{ monster.hp }} · Power {{ game.getMonsterPower(monster) }}</small>
+            </div>
+          </article>
+        }
+        @if (game.squad().length === 0) {
+          <p class="empty-note">Add at least one monster to your squad.</p>
+        }
+      </div>
+
+      <div class="arena-core">
+        <span class="vs-mark">VS</span>
+        <div class="energy-beam"></div>
+        <strong>{{ game.teamPower() }}</strong>
+        <span>Team Power</span>
+      </div>
+
+      <div class="battle-team enemy-side">
+        <h3>Enemy Team</h3>
+        @for (enemy of game.enemies; track enemy.id) {
+          <article class="combatant enemy">
+            <span>{{ enemy.icon }}</span>
+            <div>
+              <strong>{{ enemy.name }}</strong>
+              <small>HP {{ enemy.hp }} · {{ enemy.type }}</small>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <aside class="hud-panel reward-panel">
+    <h2>Rewards</h2>
+    @if (game.lastReward(); as reward) {
+      <div class="reward-grid">
+        <span>◎ +{{ reward.coins }} Coins</span>
+        <span>⌬ +{{ reward.dnaShards }} DNA</span>
+        <span>XP +{{ reward.xp }}</span>
+        <span>{{ reward.won ? 'Victory' : 'Retreat' }}</span>
+      </div>
+      @if (reward.item) {
+        <p class="reward-item">Item found: {{ reward.item }}</p>
+      }
+    } @else {
+      <p>Win or lose, every battle moves the squad forward.</p>
+    }
+
+    <h3>Battle Log</h3>
+    <div class="battle-log">
+      @for (log of game.battleLogs(); track $index) {
+        <p class="log-{{ log.type }}">{{ log.text }}</p>
+      }
+    </div>
+  </aside>
+</div>

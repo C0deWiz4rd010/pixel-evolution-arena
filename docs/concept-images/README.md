@@ -11,6 +11,7 @@ These images were provided as inspiration only. They must not be copied as runti
 - `reference/concept-evolution-tree-wide-reference.png` - wide creature lineup reference.
 - `reference/concept-creature-roster-040.png` - 40-creature roster reference.
 - `reference/concept-creature-roster-010.png` - 10-creature roster reference.
+- `reference/concept-evolution-chart-light-reference.png` - light-background evolution chart reference for dense one-view line routing.
 
 ## Generated Project Concepts
 

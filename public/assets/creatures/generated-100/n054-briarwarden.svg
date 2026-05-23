@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N054" data-stage="Champion" data-type="Nature">
+  <title id="title">N054 Briarwarden sprite</title>
+  <desc id="desc">Original Champion Nature pixel creature for Pixel Evolution Arena. Shield-backed briar guardian; defensive nature core for stall squads.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 4s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="57,43 34,53 50,63" fill="#b7ff5f"/>
+    <polygon points="71,43 94,53 78,63" fill="#ecffd1"/>
+    <rect x="61" y="53" width="6" height="14" fill="#124a2c"/>
+    <rect x="22" y="80" width="6" height="30" fill="#124a2c"/>
+    <rect x="100" y="78" width="6" height="32" fill="#124a2c"/>
+    <rect x="20" y="92" width="8" height="6" fill="#b7ff5f"/>
+    <rect x="100" y="90" width="8" height="6" fill="#b7ff5f"/>
+    <rect x="41" y="100" width="12" height="8" fill="#124a2c"/>
+    <rect x="75" y="100" width="12" height="8" fill="#124a2c"/>
+    <rect x="37" y="102" width="4" height="4" fill="#b7ff5f"/>
+    <rect x="87" y="102" width="4" height="4" fill="#b7ff5f"/>
+    <polygon points="40,62 88,62 98,72 98,94 88,104 40,104 30,94 30,72" fill="#124a2c"/>
+    <polygon points="42,66 86,66 94,74 94,92 86,100 42,100 34,92 34,74" fill="#39c66f"/>
+    <rect x="38" y="70" width="23" height="6" fill="#ecffd1" opacity="0.75"/>
+    <rect x="51" y="81" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="62" y="87" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="73" y="81" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <polygon points="43,41 73,41 81,49 81,67 73,75 43,75 35,67 35,49" fill="#124a2c"/>
+    <polygon points="45,45 71,45 77,51 77,65 71,71 45,71 39,65 39,51" fill="#39c66f"/>
+    <rect x="43" y="47" width="14" height="5" fill="#ecffd1" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#06180f"/>
+    <rect x="75" y="56" width="6" height="8" fill="#06180f"/>
+    <rect x="48" y="57" width="2" height="2" fill="#b7ff5f"/>
+    <rect x="76" y="57" width="2" height="2" fill="#b7ff5f"/>
+    </g>
+    <rect x="42" y="72" width="8" height="8" fill="#06180f"/>
+    <rect x="78" y="72" width="8" height="8" fill="#06180f"/>
+    <rect x="44" y="74" width="4" height="4" fill="#b7ff5f" class="glow"/>
+    <rect x="80" y="74" width="4" height="4" fill="#b7ff5f" class="glow"/>
+  </g>
+</svg>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N001" data-stage="Baby" data-type="Nature">
+  <title id="title">N001 Budchip sprite</title>
+  <desc id="desc">Original Baby Nature pixel creature for Pixel Evolution Arena. Sprout-shaped circuit seed; low attack, early regen logs, safe first pick.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.8s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.1s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="57,68 34,78 50,88" fill="#b7ff5f"/>
+    <polygon points="71,68 94,78 78,88" fill="#ecffd1"/>
+    <rect x="61" y="78" width="6" height="14" fill="#124a2c"/>
+    <rect x="50" y="88" width="8" height="8" fill="#124a2c"/>
+    <rect x="70" y="88" width="8" height="8" fill="#124a2c"/>
+    <polygon points="55,66 73,66 81,74 81,84 73,92 55,92 47,84 47,74" fill="#124a2c"/>
+    <polygon points="57,70 71,70 77,76 77,82 71,88 57,88 51,82 51,76" fill="#39c66f"/>
+    <rect x="55" y="74" width="12" height="6" fill="#ecffd1" opacity="0.75"/>
+    <rect x="60" y="84" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="64" y="78" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="51" y="76" width="4" height="6" fill="#06180f"/>
+    <rect x="73" y="76" width="4" height="6" fill="#06180f"/>
+    </g>
+    <rect x="59" y="76" width="8" height="8" fill="#06180f"/>
+    <rect x="61" y="76" width="8" height="8" fill="#06180f"/>
+    <rect x="61" y="78" width="4" height="4" fill="#b7ff5f" class="glow"/>
+    <rect x="63" y="78" width="4" height="4" fill="#b7ff5f" class="glow"/>
+  </g>
+</svg>

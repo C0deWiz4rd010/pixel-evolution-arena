@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N070" data-stage="Ultimate" data-type="Dark">
+  <title id="title">N070 Ebonrelay sprite</title>
+  <desc id="desc">Original Ultimate Dark pixel creature for Pixel Evolution Arena. Relay tower shadow beast; converts speed into crit burst.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.35s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 3.64s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+    <rect x="26" y="30" width="76" height="70" fill="#d95dff" class="glow" opacity="0.06"/>
+    <rect x="32" y="114" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,44 30,28 38,56" fill="#1a1034"/>
+    <polygon points="82,44 98,28 90,56" fill="#1a1034"/>
+    <polygon points="28,70 100,70 110,80 110,116 100,126 28,126 18,116 18,80" fill="#070310" opacity="0.58"/>
+    <rect x="40" y="106" width="48" height="6" fill="#d95dff" class="glow" opacity="0.55"/>
+    <rect x="12" y="94" width="8" height="8" fill="#d95dff" class="glow"/>
+    <rect x="108" y="84" width="8" height="8" fill="#d95dff" class="glow"/>
+    <rect x="39" y="104" width="12" height="8" fill="#1a1034"/>
+    <rect x="77" y="104" width="12" height="8" fill="#1a1034"/>
+    <rect x="35" y="106" width="4" height="4" fill="#d95dff"/>
+    <rect x="89" y="106" width="4" height="4" fill="#d95dff"/>
+    <polygon points="36,62 92,62 102,72 102,98 92,108 36,108 26,98 26,72" fill="#1a1034"/>
+    <polygon points="38,66 90,66 98,74 98,96 90,104 38,104 30,96 30,74" fill="#7255f6"/>
+    <rect x="34" y="70" width="26" height="6" fill="#f0c6ff" opacity="0.75"/>
+    <rect x="53" y="89" width="5" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="71" y="83" width="5" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <polygon points="44,38 80,38 88,46 88,68 80,76 44,76 36,68 36,46" fill="#1a1034"/>
+    <polygon points="46,42 78,42 84,48 84,66 78,72 46,72 40,66 40,48" fill="#7255f6"/>
+    <rect x="44" y="44" width="16" height="5" fill="#f0c6ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="55" width="6" height="8" fill="#070310"/>
+    <rect x="78" y="55" width="6" height="8" fill="#070310"/>
+    <rect x="45" y="56" width="2" height="2" fill="#d95dff"/>
+    <rect x="79" y="56" width="2" height="2" fill="#d95dff"/>
+    </g>
+    <rect x="46" y="102" width="8" height="4" fill="#f0c6ff"/>
+    <rect x="74" y="102" width="8" height="4" fill="#f0c6ff"/>
+    <rect x="22" y="108" width="84" height="4" fill="#d95dff" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#f0c6ff" class="scan" opacity="0.32"/>
+  </g>
+</svg>

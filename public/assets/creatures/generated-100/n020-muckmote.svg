@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N020" data-stage="In-Training" data-type="Toxic">
+  <title id="title">N020 Muckmote sprite</title>
+  <desc id="desc">Original In-Training Toxic pixel creature for Pixel Evolution Arena. Sticky sludge spark with mask-like eyes; poison stall seed.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#102000" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="52" y="50" width="24" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="56" y="44" width="16" height="6" fill="#f6ffb8" opacity="0.8"/>
+    <rect x="50" y="70" width="8" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="70" y="80" width="10" height="10" fill="#f6ffb8" class="glow" opacity="0.7"/>
+    <rect x="60" y="92" width="6" height="12" fill="#e4ff47" class="glow"/>
+    <rect x="49" y="92" width="8" height="8" fill="#315700"/>
+    <rect x="71" y="92" width="8" height="8" fill="#315700"/>
+    <polygon points="50,58 78,58 86,66 86,88 78,96 50,96 42,88 42,66" fill="#315700"/>
+    <polygon points="52,62 76,62 82,68 82,86 76,92 52,92 46,86 46,68" fill="#91e536"/>
+    <rect x="50" y="66" width="15" height="6" fill="#f6ffb8" opacity="0.75"/>
+    <rect x="62" y="75" width="4" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="72" width="4" height="6" fill="#102000"/>
+    <rect x="75" y="72" width="4" height="6" fill="#102000"/>
+    </g>
+    <rect x="44" y="70" width="40" height="8" fill="#102000" opacity="0.86"/>
+    <rect x="60" y="68" width="8" height="12" fill="#e4ff47" class="glow" opacity="0.75"/>
+    <rect x="74" y="66" width="8" height="8" fill="#f6ffb8" class="glow" opacity="0.78"/>
+    <rect x="46" y="74" width="6" height="6" fill="#e4ff47" class="glow" opacity="0.72"/>
+  </g>
+</svg>

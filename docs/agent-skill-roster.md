@@ -85,6 +85,11 @@ This file records the agents, skills, and instructions selected before implement
 
 - Used for final in-app browser validation when the dev server is running.
 
+### Repository-local Modern Angular 21 Skill
+
+- File: `docs/angular-modern-skill.md`
+- Purpose: keep future Angular work aligned with standalone components, signals, `computed`, `inject()`, and new template control flow.
+
 ## Gameplay Loop Focus
 
 The active implementation bias is now gameplay-first:

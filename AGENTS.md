@@ -14,6 +14,7 @@ These instructions apply to every agent working in this repository.
 ## Technical Direction
 
 - Use Angular, TypeScript, HTML, and SCSS.
+- Follow `docs/angular-modern-skill.md` for Angular 21 patterns.
 - Keep all data local as mock data. No backend, no login, no external runtime APIs.
 - Separate game rules from Angular templates. Components should render state and call service actions; services and pure helpers should own battle, XP, rewards, evolution, and filtering behavior.
 - Use responsive DOM UI for HUD, cards, filters, squad slots, detail panels, and battle logs.

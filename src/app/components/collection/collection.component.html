@@ -1,0 +1,87 @@
+<div class="collection-layout">
+  <section class="hud-panel collection-main">
+    <div class="section-heading">
+      <div>
+        <h2>Collection</h2>
+        <p>Find missing forms, filter future goals, and choose the next chase.</p>
+      </div>
+      <button type="button" (click)="resetFilters()">Reset Filters</button>
+    </div>
+
+    <div class="collection-stats">
+      <span>Total Monsters <strong>{{ game.monsters().length }}</strong></span>
+      <span>Unlocked <strong>{{ game.unlockedCount() }}</strong></span>
+      <span>Locked <strong>{{ game.lockedCount() }}</strong></span>
+    </div>
+
+    <div class="filter-bar">
+      <label>
+        Stage
+        <select [ngModel]="stageFilter()" (ngModelChange)="stageFilter.set($event)">
+          <option>All</option>
+          @for (stage of game.stages; track stage) {
+            <option [value]="stage">{{ stage }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Type
+        <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+          <option>All</option>
+          @for (type of game.types; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Rarity
+        <select [ngModel]="rarityFilter()" (ngModelChange)="rarityFilter.set($event)">
+          <option>All</option>
+          @for (rarity of game.rarities; track rarity) {
+            <option [value]="rarity">{{ rarity }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Status
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option>All</option>
+          <option>Unlocked</option>
+          <option>Locked</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="collection-grid">
+      @for (monster of filteredMonsters(); track monster.id) {
+        <app-monster-card
+          [monster]="monster"
+          [power]="game.getMonsterPower(monster)"
+          [compact]="true"
+          [selected]="game.player().selectedMonsterId === monster.id"
+          (selectMonster)="game.selectMonster($event)"
+        />
+      } @empty {
+        <p class="empty-note">No creatures match these filters. Reset filters to pick a new goal.</p>
+      }
+    </div>
+  </section>
+
+  <aside class="hud-panel collection-summary">
+    <h2>Progress Map</h2>
+    <h3>Stages</h3>
+    @for (stage of game.stages; track stage) {
+      <div class="summary-row">
+        <span>{{ stage }}</span>
+        <strong>{{ game.getStageCount(stage) }}</strong>
+      </div>
+    }
+    <h3>Types</h3>
+    @for (type of game.types; track type) {
+      <div class="summary-row">
+        <span>{{ type }}</span>
+        <strong>{{ game.getTypeCount(type) }}</strong>
+      </div>
+    }
+  </aside>
+</div>

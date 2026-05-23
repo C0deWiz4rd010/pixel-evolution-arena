@@ -51,4 +51,4 @@ src/app/
 
 ## Future Growth
 
-The current prototype does not need a canvas engine. If real movement or live battles are added later, simulation should still stay outside the renderer.
+The current prototype does not need a canvas or Three.js engine. If real movement, 3D arena previews, or live battles are added later, simulation should still stay outside the renderer.

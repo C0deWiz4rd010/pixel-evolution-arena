@@ -13,6 +13,9 @@
   - `docs/game-design.md`
   - `docs/balance-and-progression.md`
   - `docs/gameplay-implementation-checklist.md`
+- Confirm technical decision gate:
+  - Angular 21 current package versions.
+  - No Three.js dependency for MVP unless a real 3D gameplay/inspection surface is added.
 - Scaffold Angular in repository root.
 - Add app-wide SCSS theme.
 - Create Header HUD and Tab Navigation.

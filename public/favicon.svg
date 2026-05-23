@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Evolution Arena favicon</title>
+  <desc id="desc">A compact neon pixel creature arena icon.</desc>
+  <g shape-rendering="crispEdges">
+    <polygon points="12 4 52 4 60 12 60 48 48 60 16 60 4 48 4 12" fill="#050913"/>
+    <polygon points="14 7 50 7 57 14 57 46 46 57 18 57 7 46 7 14" fill="#08111f" stroke="#19f8ff" stroke-width="3"/>
+    <path d="M32 10V18M24 16H40" stroke="#39ff88" stroke-width="3"/>
+    <rect x="29" y="9" width="6" height="6" fill="#39ff88"/>
+    <polygon points="20 22 44 22 49 27 49 43 44 48 20 48 15 43 15 27" fill="#0b1928" stroke="#39ff88" stroke-width="3"/>
+    <rect x="22" y="30" width="8" height="8" fill="#19f8ff"/>
+    <rect x="25" y="33" width="3" height="3" fill="#050913"/>
+    <rect x="34" y="30" width="8" height="8" fill="#ff35d1"/>
+    <rect x="37" y="33" width="3" height="3" fill="#050913"/>
+    <rect x="25" y="42" width="14" height="2" fill="#39ff88"/>
+    <rect x="12" y="15" width="4" height="4" fill="#ff35d1"/>
+    <rect x="48" y="45" width="4" height="4" fill="#19f8ff"/>
+  </g>
+</svg>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N015" data-stage="In-Training" data-type="Water">
+  <title id="title">N015 Ripplequill sprite</title>
+  <desc id="desc">Original In-Training Water pixel creature for Pixel Evolution Arena. Quill-backed otter shape made of pixels; flexible water skirmisher.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="33,78 15,92 35,98" fill="#9df7ff"/>
+    <polygon points="95,78 113,92 93,98" fill="#d6fdff"/>
+    <rect x="46" y="98" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="98" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <rect x="49" y="92" width="8" height="8" fill="#0b4b76"/>
+    <rect x="71" y="92" width="8" height="8" fill="#0b4b76"/>
+    <polygon points="51,60 77,60 85,68 85,88 77,96 51,96 43,88 43,68" fill="#0b4b76"/>
+    <polygon points="53,64 75,64 81,70 81,86 75,92 53,92 47,86 47,70" fill="#39b9ff"/>
+    <rect x="51" y="68" width="14" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="62" y="76" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="74" width="4" height="6" fill="#041826"/>
+    <rect x="75" y="74" width="4" height="6" fill="#041826"/>
+    </g>
+  </g>
+</svg>

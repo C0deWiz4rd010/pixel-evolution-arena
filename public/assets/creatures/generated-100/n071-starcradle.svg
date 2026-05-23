@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N071" data-stage="Ultimate" data-type="Light">
+  <title id="title">N071 Starcradle sprite</title>
+  <desc id="desc">Original Ultimate Light pixel creature for Pixel Evolution Arena. Cradle-shaped star guardian; rare light sustain-speed hybrid.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.35s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.82s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#2a2305" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#ffffff" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#fff9c7" class="glow" opacity="0.06"/>
+    <rect x="32" y="114" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="46" y="28" width="36" height="4" fill="#ffffff" class="glow"/>
+    <rect x="42" y="32" width="6" height="4" fill="#ffffff" class="glow"/>
+    <rect x="80" y="32" width="6" height="4" fill="#ffffff" class="glow"/>
+    <rect x="92" y="70" width="8" height="8" fill="#fff9c7" class="glow"/>
+    <rect x="96" y="66" width="2" height="16" fill="#fff9c7" class="glow"/>
+    <rect x="14" y="82" width="8" height="8" fill="#ffffff" class="glow" opacity="0.7"/>
+    <rect x="106" y="96" width="8" height="8" fill="#ffffff" class="glow" opacity="0.7"/>
+    <rect x="39" y="104" width="12" height="8" fill="#846414"/>
+    <rect x="77" y="104" width="12" height="8" fill="#846414"/>
+    <rect x="35" y="106" width="4" height="4" fill="#ffffff"/>
+    <rect x="89" y="106" width="4" height="4" fill="#ffffff"/>
+    <polygon points="36,62 92,62 102,72 102,98 92,108 36,108 26,98 26,72" fill="#846414"/>
+    <polygon points="38,66 90,66 98,74 98,96 90,104 38,104 30,96 30,74" fill="#ffe46c"/>
+    <rect x="34" y="70" width="26" height="6" fill="#fff9c7" opacity="0.75"/>
+    <rect x="49" y="83" width="5" height="12" fill="#ffffff" class="glow" opacity="0.72"/>
+    <rect x="62" y="89" width="5" height="12" fill="#ffffff" class="glow" opacity="0.72"/>
+    <rect x="75" y="83" width="5" height="12" fill="#ffffff" class="glow" opacity="0.72"/>
+    <polygon points="44,38 80,38 88,46 88,68 80,76 44,76 36,68 36,46" fill="#846414"/>
+    <polygon points="46,42 78,42 84,48 84,66 78,72 46,72 40,66 40,48" fill="#ffe46c"/>
+    <rect x="44" y="44" width="16" height="5" fill="#fff9c7" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="55" width="6" height="8" fill="#2a2305"/>
+    <rect x="78" y="55" width="6" height="8" fill="#2a2305"/>
+    <rect x="45" y="56" width="2" height="2" fill="#ffffff"/>
+    <rect x="79" y="56" width="2" height="2" fill="#ffffff"/>
+    </g>
+    <rect x="38" y="72" width="8" height="8" fill="#2a2305"/>
+    <rect x="82" y="72" width="8" height="8" fill="#2a2305"/>
+    <rect x="40" y="74" width="4" height="4" fill="#ffffff" class="glow"/>
+    <rect x="84" y="74" width="4" height="4" fill="#ffffff" class="glow"/>
+    <rect x="22" y="108" width="84" height="4" fill="#ffffff" class="glow" opacity="0.36"/>
+    <rect x="38" y="114" width="58" height="3" fill="#fff9c7" class="scan" opacity="0.32"/>
+  </g>
+</svg>

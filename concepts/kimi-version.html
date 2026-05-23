@@ -77,7 +77,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
-    max-width: 800px;
+    max-width: 900px;
   }
   .starter-card {
     background: rgba(139,195,74,0.1);
@@ -94,9 +94,11 @@
     box-shadow: 0 5px 20px rgba(139,195,74,0.4);
   }
   .starter-canvas {
-    width: 64px; height: 64px;
+    width: 96px; height: 96px;
     image-rendering: pixelated;
     margin: 0 auto 10px;
+    background: #0a0a1a;
+    border-radius: 4px;
   }
   
   #game-screen {
@@ -124,11 +126,13 @@
     justify-content: space-between;
   }
   .digimon-view {
-    width: 200px; height: 200px;
-    background: rgba(0,0,0,0.3);
-    border: 2px solid currentColor;
+    width: 256px; height: 256px;
+    background: #0a0a1a;
+    border: 3px solid currentColor;
+    border-radius: 8px;
     margin-bottom: 20px;
     image-rendering: pixelated;
+    box-shadow: 0 0 30px currentColor;
   }
   .stat-row {
     display: flex;
@@ -137,7 +141,7 @@
     font-size: 1.1em;
   }
   .stat-bar-bg {
-    width: 100%; height: 10px;
+    width: 100%; height: 12px;
     background: #000;
     border: 1px solid #555;
     margin-top: 4px;
@@ -194,27 +198,32 @@
     text-align: center;
   }
   .combatant-canvas {
-    width: 150px; height: 150px;
+    width: 192px; height: 192px;
     image-rendering: pixelated;
     margin-bottom: 15px;
+    background: #0a0a1a;
+    border-radius: 8px;
+    border: 2px solid currentColor;
   }
   .hp-bar {
-    width: 200px; height: 20px;
+    width: 200px; height: 24px;
     background: #000;
     border: 2px solid #fff;
     margin: 10px auto;
     position: relative;
+    border-radius: 4px;
   }
   .hp-fill {
     height: 100%;
     background: #00e676;
     transition: width 0.3s, background 0.3s;
+    border-radius: 2px;
   }
   .hp-text {
     position: absolute; top:0; left:0; width:100%; height:100%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.8em; font-weight: bold; color: #000;
-    text-shadow: 0 0 2px #fff;
+    font-size: 0.9em; font-weight: bold; color: #fff;
+    text-shadow: 0 0 4px #000;
   }
   .battle-log {
     width: 80%; max-width: 600px;
@@ -225,6 +234,7 @@
     overflow-y: auto;
     margin-bottom: 20px;
     font-size: 1.1em;
+    border-radius: 4px;
   }
   
   .stage-0 { color: #8bc34a; border-color: #8bc34a; }
@@ -412,81 +422,166 @@ function addLink(from, to, type) {
   if(!dTo.evolvesFrom.includes(from)) dTo.evolvesFrom.push(from);
 }
 
+// NEUE ROBUSTE PIXEL-ART ENGINE
 function drawPixelArt(canvas, id, stage, animFrame) {
   const ctx = canvas.getContext('2d');
   const w = canvas.width, h = canvas.height;
-  ctx.clearRect(0,0,w,h);
+  
+  // Hintergrund zuerst löschen und füllen
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Grid: 8x8 große Pixel auf 64x64 Canvas = 8x8 Grid, jeder Pixel 8x8
+  const grid = 8;
+  const ps = w / grid; // 8
   
   let rng = new LCG(id * 997 + stage * 13);
-  let color = STAGE_COLORS[stage];
-  let grid = 16;
-  let ps = w / grid;
   
-  function hexToRgb(hex) {
-    let r = parseInt(hex.slice(1,3),16);
-    let g = parseInt(hex.slice(3,5),16);
-    let b = parseInt(hex.slice(5,7),16);
-    return [r,g,b];
-  }
-  function rgb([r,g,b], a) { return `rgba(${r},${g},${b},${a})`; }
-  let [r,g,b] = hexToRgb(color);
+  // Farben basierend auf Stage
+  const colors = {
+    body: STAGE_COLORS[stage],
+    light: lighten(STAGE_COLORS[stage], 40),
+    dark: darken(STAGE_COLORS[stage], 40),
+    eye: '#ffffff',
+    pupil: '#000000'
+  };
   
-  let breath = Math.sin(animFrame * 0.1) * 1;
-  ctx.save();
-  ctx.translate(w/2, h/2 + breath);
+  // Atmungs-Animation
+  const breath = Math.sin(animFrame * 0.08) * 1;
   
-  let bodyPixels = [];
-  for(let y=6; y < 13; y++) {
-    for(let x=4; x < 12; x++) bodyPixels.push([x,y]);
-  }
-  let features = Math.floor(rng.next() * 5) + 2;
-  for(let i=0; i < features; i++) {
-    let fx = Math.floor(rng.range(3, 12));
-    let fy = Math.floor(rng.range(2, 6));
-    bodyPixels.push([fx, fy]);
-    let mirrorX = grid - 1 - fx;
-    if(mirrorX !== fx) bodyPixels.push([mirrorX, fy]);
+  // Hilfsfunktion zum Zeichnen eines Pixels
+  function pixel(x, y, color, sizeMul = 1) {
+    const px = x * ps;
+    const py = y * ps + breath;
+    const s = ps * sizeMul;
+    ctx.fillStyle = color;
+    ctx.fillRect(px, py, s, s);
   }
   
-  let eyeY = 8, eyeX1 = 6, eyeX2 = 9;
-  
-  bodyPixels.forEach(([x,y]) => {
-    ctx.fillStyle = rgb([r,g,b], 0.9);
-    ctx.fillRect((x - grid/2) * ps, (y - grid/2) * ps, ps, ps);
-  });
-  
-  for(let y=9; y < 12; y++) {
-    for(let x=6; x < 10; x++) {
-      ctx.fillStyle = rgb([Math.min(255,r+40), Math.min(255,g+40), Math.min(255,b+40)], 0.8);
-      ctx.fillRect((x - grid/2) * ps, (y - grid/2) * ps, ps, ps);
+  // Hilfsfunktion für symmetrisches Zeichnen
+  function symPixel(x, y, color, sizeMul = 1) {
+    pixel(x, y, color, sizeMul);
+    if (x !== grid - 1 - x) {
+      pixel(grid - 1 - x, y, color, sizeMul);
     }
   }
   
-  [[eyeX1, eyeY], [eyeX2, eyeY]].forEach(([x,y]) => {
-    ctx.fillStyle = '#fff';
-    ctx.fillRect((x - grid/2) * ps, (y - grid/2) * ps, ps, ps);
-    ctx.fillStyle = '#000';
-    let pupilOff = (animFrame % 20 < 10) ? 0 : 1;
-    if(pupilOff === 0) {
-      ctx.fillRect((x - grid/2) * ps + ps*0.2, (y - grid/2) * ps + ps*0.2, ps*0.6, ps*0.6);
+  // KÖRPER (mittlerer Bereich)
+  for(let y = 3; y < 6; y++) {
+    for(let x = 2; x < 6; x++) {
+      symPixel(x, y, colors.body);
     }
-  });
-  
-  if(stage >= 2) {
-    let wingColor = rgb([Math.max(0,r-30), Math.max(0,g-30), Math.max(0,b-30)], 0.7);
-    ctx.fillStyle = wingColor;
-    ctx.fillRect((2 - grid/2)*ps, (7 - grid/2)*ps, ps*2, ps*3);
-    ctx.fillRect((12 - grid/2)*ps, (7 - grid/2)*ps, ps*2, ps*3);
   }
-  if(stage >= 5) {
-    ctx.strokeStyle = rgb([255,255,255], 0.3 + 0.2*Math.sin(animFrame*0.2));
+  
+  // KOPF (oben)
+  for(let x = 2; x < 6; x++) {
+    symPixel(x, 1, colors.body);
+    symPixel(x, 2, colors.light);
+  }
+  
+  // AUGEN (groß und deutlich)
+  symPixel(2, 2, colors.eye);
+  symPixel(5, 2, colors.eye);
+  symPixel(2, 2, colors.pupil, 0.5); // Pupille in der Mitte des Auges
+  symPixel(5, 2, colors.pupil, 0.5);
+  
+  // BLICK-Animation (Augen zwinkern)
+  if (animFrame % 60 > 55) {
+    symPixel(2, 2, colors.body); // Augen zu
+    symPixel(5, 2, colors.body);
+  }
+  
+  // HÖRNER / OHREN (je nach ID)
+  let features = (id % 4);
+  if (features === 0) {
+    // Spitze Ohren
+    symPixel(1, 0, colors.dark);
+    symPixel(6, 0, colors.dark);
+    symPixel(1, 1, colors.light);
+    symPixel(6, 1, colors.light);
+  } else if (features === 1) {
+    // Runde Ohren
+    symPixel(1, 1, colors.body);
+    symPixel(6, 1, colors.body);
+    symPixel(0, 2, colors.body);
+    symPixel(7, 2, colors.body);
+  } else if (features === 2) {
+    // Hörner
+    symPixel(2, 0, colors.dark);
+    symPixel(5, 0, colors.dark);
+    symPixel(1, 1, colors.light);
+    symPixel(6, 1, colors.light);
+  } else {
+    // Federn / Haare
+    symPixel(3, 0, colors.light);
+    symPixel(4, 0, colors.light);
+    symPixel(2, 0, colors.dark);
+    symPixel(5, 0, colors.dark);
+  }
+  
+  // BEINE
+  symPixel(2, 6, colors.dark);
+  symPixel(5, 6, colors.dark);
+  symPixel(2, 7, colors.body);
+  symPixel(5, 7, colors.body);
+  
+  // FLÜGEL / ARME ab Stage 2+
+  if (stage >= 2) {
+    symPixel(0, 3, colors.dark);
+    symPixel(7, 3, colors.dark);
+    symPixel(0, 4, colors.light);
+    symPixel(7, 4, colors.light);
+  }
+  
+  // EXTRA FLÜGEL ab Stage 4+
+  if (stage >= 4) {
+    symPixel(1, 0, colors.light);
+    symPixel(6, 0, colors.light);
+    symPixel(0, 2, colors.dark);
+    symPixel(7, 2, colors.dark);
+  }
+  
+  // AURA / HALO ab Stage 5+
+  if (stage >= 5) {
+    ctx.strokeStyle = colors.light;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, 0, w/2 - 4, 0, Math.PI*2);
+    ctx.arc(w/2, h/2 + breath, w/2 - 6, 0, Math.PI * 2);
     ctx.stroke();
   }
   
-  ctx.restore();
+  // KRONE / SPECIAL ab Stage 6
+  if (stage >= 6) {
+    symPixel(3, 0, '#ffd700');
+    symPixel(4, 0, '#ffd700');
+    symPixel(3, 1, '#ffd700');
+    symPixel(4, 1, '#ffd700');
+  }
+  
+  // DETAILS (Muster auf dem Bauch)
+  symPixel(3, 4, colors.light);
+  symPixel(4, 4, colors.light);
+}
+
+// Farbhilfsfunktionen
+function lighten(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r + amount);
+  g = Math.min(255, g + amount);
+  b = Math.min(255, b + amount);
+  return `rgb(${r},${g},${b})`;
+}
+
+function darken(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.max(0, r - amount);
+  g = Math.max(0, g - amount);
+  b = Math.max(0, b - amount);
+  return `rgb(${r},${g},${b})`;
 }
 
 class Game {
@@ -584,6 +679,7 @@ class Game {
     document.getElementById('left-panel').style.borderColor = STAGE_COLORS[d.stage];
     document.getElementById('left-panel').className = 'panel left-panel stage-'+d.stage;
     document.getElementById('main-canvas').style.borderColor = STAGE_COLORS[d.stage];
+    document.getElementById('main-canvas').style.boxShadow = `0 0 30px ${STAGE_COLORS[d.stage]}`;
     document.getElementById('digi-lvl').textContent = lvl;
     document.getElementById('digi-xp').textContent = this.state.xp;
     document.getElementById('digi-next').textContent = nextXp;

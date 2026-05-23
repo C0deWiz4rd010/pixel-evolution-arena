@@ -1,0 +1,43 @@
+<div class="tree-layout">
+  <section class="hud-panel tree-panel">
+    <div class="section-heading">
+      <div>
+        <h2>Evolution Tree</h2>
+        <p>Pick a form, read the requirements, then battle for the next unlock.</p>
+      </div>
+      <span>{{ game.unlockedCount() }} / {{ game.monsters().length }} unlocked</span>
+    </div>
+
+    <div class="stage-legend">
+      @for (stage of game.stages; track stage) {
+        <span class="legend-pill stage-{{ game.stageClass(stage) }}">
+          {{ stage }} {{ unlockedStageCount(stage) }}/{{ stageMonsters(stage).length }}
+        </span>
+      }
+    </div>
+
+    <div class="evolution-rows">
+      @for (stage of game.stages; track stage) {
+        <section class="stage-row stage-{{ game.stageClass(stage) }}">
+          <div class="stage-label">
+            <strong>{{ stage }}</strong>
+            <span>{{ stageMonsters(stage).length }} forms</span>
+          </div>
+
+          <div class="monster-row">
+            @for (monster of stageMonsters(stage); track monster.id) {
+              <app-monster-card
+                [monster]="monster"
+                [power]="game.getMonsterPower(monster)"
+                [selected]="game.player().selectedMonsterId === monster.id"
+                (selectMonster)="game.selectMonster($event)"
+              />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </section>
+
+  <app-monster-detail [monster]="game.selectedMonster()" />
+</div>

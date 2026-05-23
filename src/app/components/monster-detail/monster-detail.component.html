@@ -1,0 +1,73 @@
+@if (monster; as selected) {
+  <aside class="hud-panel detail-panel stage-{{ stageClass(selected) }}">
+    <div class="detail-topline">
+      <span class="monster-id">{{ selected.id }}</span>
+      <span class="rarity">{{ selected.rarity }}</span>
+    </div>
+
+    <div class="detail-hero">
+      <span class="detail-icon">{{ selected.unlocked ? selected.icon : '▧' }}</span>
+      <div>
+        <h2>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</h2>
+        <p>{{ selected.stage }} · {{ selected.type }}</p>
+      </div>
+    </div>
+
+    <div class="xp-bar">
+      <span>Level {{ selected.level }}</span>
+      <div class="bar-track"><span [style.width.%]="(selected.xp / selected.maxXp) * 100"></span></div>
+      <span>{{ selected.xp }} / {{ selected.maxXp }} XP</span>
+    </div>
+
+    <div class="stat-grid">
+      <span>HP <strong>{{ selected.hp }}</strong></span>
+      <span>ATK <strong>{{ selected.attack }}</strong></span>
+      <span>DEF <strong>{{ selected.defense }}</strong></span>
+      <span>SPD <strong>{{ selected.speed }}</strong></span>
+      <span>Power <strong>{{ game.getMonsterPower(selected) }}</strong></span>
+      <span>Status <strong>{{ selected.unlocked ? 'Unlocked' : 'Locked' }}</strong></span>
+    </div>
+
+    <div class="detail-actions">
+      <button type="button" [disabled]="!selected.unlocked || game.player().squadIds.includes(selected.id) || game.player().squadIds.length >= 3" (click)="game.addToSquad(selected.id)">
+        Add to Squad
+      </button>
+    </div>
+
+    <section class="evolution-targets">
+      <h3>Possible Evolutions</h3>
+      @if (game.getEvolutionTargets(selected).length === 0) {
+        <p class="empty-note">This form is a current endpoint. Battle with another line to unlock more goals.</p>
+      }
+      @for (target of game.getEvolutionTargets(selected); track target.id) {
+        <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
+          <div class="target-head">
+            <span class="target-icon">{{ target.icon }}</span>
+            <div>
+              <strong>{{ target.name }}</strong>
+              <span>{{ target.stage }} · {{ target.type }}</span>
+            </div>
+            <span class="monster-id">{{ target.id }}</span>
+          </div>
+
+          <div class="requirements">
+            @for (status of game.getRequirementStatuses(selected, target); track status.label) {
+              <span [class.met]="status.met" [class.missing]="!status.met">
+                {{ status.met ? '✓' : '×' }} {{ status.label }} {{ status.current }} / {{ status.required }}
+              </span>
+            }
+          </div>
+
+          <button type="button" [disabled]="!game.canEvolve(selected, target)" (click)="game.evolve(selected.id, target.id)">
+            {{ target.unlocked ? 'Unlocked' : game.canEvolve(selected, target) ? 'Evolve' : 'Requirements Missing' }}
+          </button>
+        </article>
+      }
+    </section>
+  </aside>
+} @else {
+  <aside class="hud-panel detail-panel">
+    <h2>No signal selected</h2>
+    <p>Select an unlocked creature to inspect evolution goals.</p>
+  </aside>
+}
