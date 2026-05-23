@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N025" data-stage="In-Training" data-type="Light">
+  <title id="title">N025 Sunthread sprite</title>
+  <desc id="desc">Original In-Training Light pixel creature for Pixel Evolution Arena. Thread spool of sunlight; speed-support bridge.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.1s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#2a2305" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="46" y="56" width="36" height="4" fill="#ffffff" class="glow"/>
+    <rect x="42" y="60" width="6" height="4" fill="#ffffff" class="glow"/>
+    <rect x="80" y="60" width="6" height="4" fill="#ffffff" class="glow"/>
+    <rect x="77" y="74" width="8" height="8" fill="#fff9c7" class="glow"/>
+    <rect x="81" y="70" width="2" height="16" fill="#fff9c7" class="glow"/>
+    <rect x="48" y="92" width="8" height="8" fill="#846414"/>
+    <rect x="72" y="92" width="8" height="8" fill="#846414"/>
+    <polygon points="49,66 79,66 87,74 87,88 79,96 49,96 41,88 41,74" fill="#846414"/>
+    <polygon points="51,70 77,70 83,76 83,86 77,92 51,92 45,86 45,76" fill="#ffe46c"/>
+    <rect x="49" y="74" width="16" height="6" fill="#fff9c7" opacity="0.75"/>
+    <rect x="58" y="86" width="4" height="12" fill="#ffffff" class="glow" opacity="0.72"/>
+    <rect x="66" y="80" width="4" height="12" fill="#ffffff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="77" width="4" height="6" fill="#2a2305"/>
+    <rect x="75" y="77" width="4" height="6" fill="#2a2305"/>
+    </g>
+  </g>
+</svg>

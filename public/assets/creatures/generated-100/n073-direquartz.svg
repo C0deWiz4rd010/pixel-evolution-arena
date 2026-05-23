@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N073" data-stage="Ultimate" data-type="Beast">
+  <title id="title">N073 Direquartz sprite</title>
+  <desc id="desc">Original Ultimate Beast pixel creature for Pixel Evolution Arena. Quartz-armored dire beast; bruiser carry with block-break flavor.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.35s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.1s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#221005" stroke-width="0" stroke-linejoin="miter">
+    <rect x="26" y="30" width="76" height="70" fill="#ffd08a" class="glow" opacity="0.06"/>
+    <rect x="32" y="114" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,44 36,26 56,38" fill="#5b2d17"/>
+    <polygon points="82,44 92,26 72,38" fill="#5b2d17"/>
+    <polygon points="24,96 10,104 26,108" fill="#ffd08a"/>
+    <polygon points="104,96 118,104 102,108" fill="#ffd08a"/>
+    <polygon points="98,88 124,76 118,92" fill="#5b2d17"/>
+    <rect x="40" y="104" width="12" height="8" fill="#5b2d17"/>
+    <rect x="76" y="104" width="12" height="8" fill="#5b2d17"/>
+    <rect x="36" y="106" width="4" height="4" fill="#ffd08a"/>
+    <rect x="88" y="106" width="4" height="4" fill="#ffd08a"/>
+    <polygon points="94,84 118,74 112,90" fill="#5b2d17"/>
+    <rect x="106" y="78" width="6" height="6" fill="#ffd08a"/>
+    <polygon points="38,60 90,60 100,70 100,98 90,108 38,108 28,98 28,70" fill="#5b2d17"/>
+    <polygon points="40,64 88,64 96,72 96,96 88,104 40,104 32,96 32,72" fill="#c57a3b"/>
+    <rect x="36" y="68" width="24" height="6" fill="#ffe7c7" opacity="0.75"/>
+    <rect x="54" y="88" width="5" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <rect x="70" y="82" width="5" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <polygon points="45,36 79,36 87,44 87,66 79,74 45,74 37,66 37,44" fill="#5b2d17"/>
+    <polygon points="47,40 77,40 83,46 83,64 77,70 47,70 41,64 41,46" fill="#c57a3b"/>
+    <rect x="45" y="42" width="15" height="5" fill="#ffe7c7" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="53" width="6" height="8" fill="#221005"/>
+    <rect x="78" y="53" width="6" height="8" fill="#221005"/>
+    <rect x="45" y="54" width="2" height="2" fill="#ffd08a"/>
+    <rect x="79" y="54" width="2" height="2" fill="#ffd08a"/>
+    </g>
+    <rect x="46" y="102" width="8" height="4" fill="#ffe7c7"/>
+    <rect x="74" y="102" width="8" height="4" fill="#ffe7c7"/>
+    <rect x="22" y="108" width="84" height="4" fill="#ffd08a" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#ffe7c7" class="scan" opacity="0.32"/>
+  </g>
+</svg>

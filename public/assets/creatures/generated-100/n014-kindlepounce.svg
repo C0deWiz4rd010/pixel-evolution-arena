@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N014" data-stage="In-Training" data-type="Fire">
+  <title id="title">N014 Kindlepounce sprite</title>
+  <desc id="desc">Original In-Training Fire pixel creature for Pixel Evolution Arena. Small spring-legged ember cat; fast attack and first-hit logs.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="64,48 54,72 66,68" fill="#ffd05a" class="glow"/>
+    <polygon points="72,56 66,76 82,72" fill="#ff7134" class="glow"/>
+    <polygon points="54,60 44,78 60,72" fill="#fff0bd" opacity="0.85"/>
+    <rect x="49" y="92" width="8" height="8" fill="#7b1d12"/>
+    <rect x="71" y="92" width="8" height="8" fill="#7b1d12"/>
+    <polygon points="50,60 78,60 86,68 86,88 78,96 50,96 42,88 42,68" fill="#7b1d12"/>
+    <polygon points="52,64 76,64 82,70 82,86 76,92 52,92 46,86 46,70" fill="#ff7134"/>
+    <rect x="50" y="68" width="15" height="6" fill="#fff0bd" opacity="0.75"/>
+    <rect x="57" y="76" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <rect x="62" y="82" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <rect x="67" y="76" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="74" width="4" height="6" fill="#260704"/>
+    <rect x="75" y="74" width="4" height="6" fill="#260704"/>
+    </g>
+  </g>
+</svg>

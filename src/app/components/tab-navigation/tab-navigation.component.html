@@ -1,0 +1,22 @@
+<nav class="tab-nav blueprint-nav" aria-label="Game sections">
+  <div class="tab-cluster">
+    @for (tab of tabs; track tab.label) {
+      <button class="tab-button" [class.active]="activeTab === tab.label" type="button" (click)="tabChange.emit(tab.label)">
+        <span class="tab-icon">{{ tab.icon }}</span>
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <div class="link-legend" aria-label="Evolution link legend">
+    <span class="legend-title">Link Types</span>
+    @for (link of linkTypes; track link.label) {
+      <span class="link-key {{ link.className }}"><i></i>{{ link.label }}</span>
+    }
+  </div>
+
+  <button class="tab-button handbook-tab" [class.active]="activeTab === handbookTab.label" type="button" (click)="tabChange.emit(handbookTab.label)">
+    <span class="tab-icon">{{ handbookTab.icon }}</span>
+    {{ handbookTab.label }}
+  </button>
+</nav>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N055" data-stage="Champion" data-type="Fire">
+  <title id="title">N055 Fuseback sprite</title>
+  <desc id="desc">Original Champion Fire pixel creature for Pixel Evolution Arena. Armadillo furnace back; burn tank with armor-core synergy.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.1s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+    <rect x="26" y="30" width="76" height="70" fill="#ffd05a" class="glow" opacity="0.06"/>
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="64,25 54,49 66,45" fill="#ffd05a" class="glow"/>
+    <polygon points="72,33 66,53 82,49" fill="#ff7134" class="glow"/>
+    <polygon points="54,37 44,55 60,49" fill="#fff0bd" opacity="0.85"/>
+    <rect x="23" y="80" width="8" height="10" fill="#ffd05a" class="glow"/>
+    <rect x="97" y="80" width="8" height="10" fill="#ffd05a" class="glow"/>
+    <rect x="49" y="96" width="16" height="4" fill="#fff0bd"/>
+    <rect x="41" y="100" width="12" height="8" fill="#7b1d12"/>
+    <rect x="75" y="100" width="12" height="8" fill="#7b1d12"/>
+    <rect x="37" y="102" width="4" height="4" fill="#ffd05a"/>
+    <rect x="87" y="102" width="4" height="4" fill="#ffd05a"/>
+    <polygon points="41,58 87,58 97,68 97,94 87,104 41,104 31,94 31,68" fill="#7b1d12"/>
+    <polygon points="43,62 85,62 93,70 93,92 85,100 43,100 35,92 35,70" fill="#ff7134"/>
+    <rect x="39" y="66" width="22" height="6" fill="#fff0bd" opacity="0.75"/>
+    <rect x="55" y="85" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <rect x="69" y="79" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <polygon points="50,37 82,37 90,45 90,63 82,71 50,71 42,63 42,45" fill="#7b1d12"/>
+    <polygon points="52,41 80,41 86,47 86,61 80,67 52,67 46,61 46,47" fill="#ff7134"/>
+    <rect x="50" y="43" width="14" height="5" fill="#fff0bd" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="52" width="6" height="8" fill="#260704"/>
+    <rect x="75" y="52" width="6" height="8" fill="#260704"/>
+    <rect x="48" y="53" width="2" height="2" fill="#ffd05a"/>
+    <rect x="76" y="53" width="2" height="2" fill="#ffd05a"/>
+    </g>
+    <rect x="43" y="68" width="8" height="8" fill="#260704"/>
+    <rect x="77" y="68" width="8" height="8" fill="#260704"/>
+    <rect x="45" y="70" width="4" height="4" fill="#ffd05a" class="glow"/>
+    <rect x="79" y="70" width="4" height="4" fill="#ffd05a" class="glow"/>
+  </g>
+</svg>

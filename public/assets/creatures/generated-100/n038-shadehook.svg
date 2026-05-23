@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N038" data-stage="Rookie" data-type="Dark">
+  <title id="title">N038 Shadehook sprite</title>
+  <desc id="desc">Original Rookie Dark pixel creature for Pixel Evolution Arena. Hook-clawed shadow climber; disruptor that wants speed items.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.5s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,51 30,35 38,63" fill="#1a1034"/>
+    <polygon points="82,51 98,35 90,63" fill="#1a1034"/>
+    <polygon points="39,70 89,70 99,80 99,108 89,118 39,118 29,108 29,80" fill="#070310" opacity="0.58"/>
+    <rect x="40" y="98" width="48" height="6" fill="#d95dff" class="glow" opacity="0.55"/>
+    <rect x="44" y="96" width="12" height="8" fill="#1a1034"/>
+    <rect x="72" y="96" width="12" height="8" fill="#1a1034"/>
+    <polygon points="47,62 81,62 91,72 91,90 81,100 47,100 37,90 37,72" fill="#1a1034"/>
+    <polygon points="49,66 79,66 87,74 87,88 79,96 49,96 41,88 41,74" fill="#7255f6"/>
+    <rect x="45" y="70" width="18" height="6" fill="#f0c6ff" opacity="0.75"/>
+    <rect x="62" y="79" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <polygon points="55,45 77,45 85,53 85,65 77,73 55,73 47,65 47,53" fill="#1a1034"/>
+    <polygon points="57,49 75,49 81,55 81,63 75,69 57,69 51,63 51,55" fill="#7255f6"/>
+    <rect x="55" y="51" width="11" height="5" fill="#f0c6ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="58" width="6" height="8" fill="#070310"/>
+    <rect x="75" y="58" width="6" height="8" fill="#070310"/>
+    <rect x="48" y="59" width="2" height="2" fill="#d95dff"/>
+    <rect x="76" y="59" width="2" height="2" fill="#d95dff"/>
+    </g>
+    <rect x="46" y="94" width="8" height="4" fill="#f0c6ff"/>
+    <rect x="74" y="94" width="8" height="4" fill="#f0c6ff"/>
+  </g>
+</svg>

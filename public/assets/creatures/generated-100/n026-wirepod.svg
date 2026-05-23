@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N026" data-stage="In-Training" data-type="Machine">
+  <title id="title">N026 Wirepod sprite</title>
+  <desc id="desc">Original In-Training Machine pixel creature for Pixel Evolution Arena. Pod wrapped in copper wire; setup creature for machine chases.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="60" y="50" width="8" height="16" fill="#334156"/>
+    <rect x="56" y="46" width="16" height="6" fill="#61f4ff" class="glow"/>
+    <rect x="42" y="80" width="8" height="8" fill="#0e1724"/>
+    <rect x="44" y="82" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="78" y="80" width="8" height="8" fill="#0e1724"/>
+    <rect x="80" y="82" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="49" y="84" width="30" height="4" fill="#61f4ff" class="glow" opacity="0.65"/>
+    <rect x="48" y="92" width="8" height="8" fill="#334156"/>
+    <rect x="72" y="92" width="8" height="8" fill="#334156"/>
+    <polygon points="49,64 79,64 87,72 87,88 79,96 49,96 41,88 41,72" fill="#334156"/>
+    <polygon points="51,68 77,68 83,74 83,86 77,92 51,92 45,86 45,74" fill="#9aa8bd"/>
+    <rect x="49" y="72" width="16" height="6" fill="#e6f8ff" opacity="0.75"/>
+    <rect x="55" y="84" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="60" y="78" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="64" y="84" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="69" y="78" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="76" width="4" height="6" fill="#0e1724"/>
+    <rect x="75" y="76" width="4" height="6" fill="#0e1724"/>
+    </g>
+  </g>
+</svg>

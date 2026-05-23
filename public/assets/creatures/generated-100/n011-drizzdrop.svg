@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N011" data-stage="Baby" data-type="Water">
+  <title id="title">N011 Drizzdrop sprite</title>
+  <desc id="desc">Original Baby Water pixel creature for Pixel Evolution Arena. Raindrop blob carrying a shell shard; defensive water starter.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.8s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.82s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="37,86 19,100 39,106" fill="#9df7ff"/>
+    <polygon points="91,86 109,100 89,106" fill="#d6fdff"/>
+    <rect x="46" y="94" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="94" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <rect x="50" y="88" width="8" height="8" fill="#0b4b76"/>
+    <rect x="70" y="88" width="8" height="8" fill="#0b4b76"/>
+    <polygon points="55,68 73,68 81,76 81,84 73,92 55,92 47,84 47,76" fill="#0b4b76"/>
+    <polygon points="57,72 71,72 77,78 77,82 71,88 57,88 51,82 51,78" fill="#39b9ff"/>
+    <rect x="55" y="76" width="12" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="60" y="85" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="64" y="79" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="51" y="77" width="4" height="6" fill="#041826"/>
+    <rect x="73" y="77" width="4" height="6" fill="#041826"/>
+    </g>
+    <rect x="57" y="74" width="14" height="6" fill="#d6fdff" opacity="0.85"/>
+    <rect x="65" y="66" width="-2" height="4" fill="#9df7ff" opacity="0.8"/>
+  </g>
+</svg>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N099" data-stage="Special" data-type="Beast">
+  <title id="title">N099 Crownpelt sprite</title>
+  <desc id="desc">Original Special Beast pixel creature for Pixel Evolution Arena. Mantled arena beast with trophy crest; physical-damage prestige.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#221005" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#ffd08a" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#ffe7c7" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,33 36,15 56,27" fill="#5b2d17"/>
+    <polygon points="82,33 92,15 72,27" fill="#5b2d17"/>
+    <polygon points="18,98 4,106 20,110" fill="#ffd08a"/>
+    <polygon points="110,98 124,106 108,110" fill="#ffd08a"/>
+    <polygon points="104,80 130,68 124,84" fill="#5b2d17"/>
+    <rect x="37" y="106" width="12" height="8" fill="#5b2d17"/>
+    <rect x="79" y="106" width="12" height="8" fill="#5b2d17"/>
+    <rect x="33" y="108" width="4" height="4" fill="#ffd08a"/>
+    <rect x="91" y="108" width="4" height="4" fill="#ffd08a"/>
+    <polygon points="100,86 124,76 118,92" fill="#5b2d17"/>
+    <rect x="112" y="80" width="6" height="6" fill="#ffd08a"/>
+    <polygon points="32,52 96,52 106,62 106,100 96,110 32,110 22,100 22,62" fill="#5b2d17"/>
+    <polygon points="34,56 94,56 102,64 102,98 94,106 34,106 26,98 26,64" fill="#c57a3b"/>
+    <rect x="30" y="60" width="29" height="6" fill="#ffe7c7" opacity="0.75"/>
+    <rect x="62" y="78" width="5" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <polygon points="43,25 89,25 97,33 97,61 89,69 43,69 35,61 35,33" fill="#5b2d17"/>
+    <polygon points="45,29 87,29 93,35 93,59 87,65 45,65 39,59 39,35" fill="#c57a3b"/>
+    <rect x="43" y="31" width="19" height="5" fill="#ffe7c7" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="45" width="6" height="8" fill="#221005"/>
+    <rect x="78" y="45" width="6" height="8" fill="#221005"/>
+    <rect x="45" y="46" width="2" height="2" fill="#ffd08a"/>
+    <rect x="79" y="46" width="2" height="2" fill="#ffd08a"/>
+    </g>
+    <polygon points="46,23 54,9 64,21 74,9 82,23" fill="#ffd08a" class="glow"/>
+    <polygon points="18,70 -6,54 4,94" fill="#5b2d17" opacity="0.92"/>
+    <polygon points="110,70 134,54 124,94" fill="#5b2d17" opacity="0.92"/>
+    <rect x="46" y="104" width="8" height="4" fill="#ffe7c7"/>
+    <rect x="74" y="104" width="8" height="4" fill="#ffe7c7"/>
+    <rect x="28" y="29" width="72" height="4" fill="#ffd08a" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#ffd08a" class="glow" opacity="0.36"/>
+    <rect x="30" y="114" width="58" height="3" fill="#ffe7c7" class="scan" opacity="0.32"/>
+  </g>
+</svg>

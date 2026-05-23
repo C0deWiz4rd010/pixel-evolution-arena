@@ -1,0 +1,105 @@
+<div class="tree-layout">
+  <section class="hud-panel tree-panel">
+    <div class="tree-topline">
+      <div class="section-heading">
+        <div>
+          <h2>Evolution Tree</h2>
+          <p>Pick a form, read the requirements, then battle for the next unlock.</p>
+        </div>
+      </div>
+      <div class="tree-progress">
+        <span>Unlocked Network</span>
+        <strong>{{ game.unlockedCount() }} / {{ game.monsters().length }}</strong>
+      </div>
+    </div>
+
+    <div class="stage-legend">
+      @for (stage of game.stages; track stage) {
+        <span class="legend-pill stage-{{ game.stageClass(stage) }}">
+          <b>{{ stageGlyph(stage) }}</b>
+          <span>{{ stage }}</span>
+          <strong>{{ unlockedStageCount(stage) }}/{{ stageMonsters(stage).length }}</strong>
+        </span>
+      }
+    </div>
+
+    <div class="evolution-rows">
+      @for (stage of game.stages; track stage) {
+        <section class="stage-row stage-{{ game.stageClass(stage) }}">
+          <div class="stage-label">
+            <span class="stage-glyph">{{ stageGlyph(stage) }}</span>
+            <strong>{{ stage }}</strong>
+            <span>{{ unlockedStageCount(stage) }}/{{ stageMonsters(stage).length }} online</span>
+          </div>
+
+          <div class="monster-row">
+            @for (monster of stageMonsters(stage); track monster.id) {
+              <app-monster-card
+                [monster]="monster"
+                [power]="game.getMonsterPower(monster)"
+                [selected]="game.player().selectedMonsterId === monster.id"
+                (selectMonster)="game.selectMonster($event)"
+              />
+            }
+          </div>
+        </section>
+      }
+    </div>
+
+    <section class="tree-command-strip" aria-label="Battle and squad command strip">
+      <div class="mini-squad-dock">
+        <div class="strip-heading">
+          <h3>Squad {{ game.squad().length }}/3</h3>
+          <span>Team PW {{ game.teamPower() }}</span>
+        </div>
+        <div class="mini-squad-slots">
+          @for (monster of squadSlots(); track $index) {
+            @if (monster; as squadMonster) {
+              <button type="button" class="mini-squad-card stage-{{ game.stageClass(squadMonster.stage) }}" (click)="game.selectMonster(squadMonster.id)">
+                <span>{{ squadMonster.icon }}</span>
+                <strong>{{ squadMonster.name }}</strong>
+                <small>LV {{ squadMonster.level }} / PW {{ game.getMonsterPower(squadMonster) }}</small>
+              </button>
+            } @else {
+              <span class="mini-squad-card empty">EMPTY SLOT</span>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="mini-battle-log">
+        <div class="strip-heading">
+          <h3>Battle Log</h3>
+          <span>Latest Signal</span>
+        </div>
+        @for (log of latestBattleLogs(); track $index) {
+          <p class="log-{{ log.type }}">{{ log.text }}</p>
+        }
+      </div>
+
+      <div class="mini-reward-readout">
+        <div class="strip-heading">
+          <h3>Rewards</h3>
+          @if (game.lastReward(); as reward) {
+            <span>{{ reward.won ? 'Victory' : 'Retreat' }}</span>
+          } @else {
+            <span>Ready</span>
+          }
+        </div>
+        @if (game.lastReward(); as reward) {
+          <div class="mini-reward-grid">
+            <span>CR +{{ reward.coins }}</span>
+            <span>DNA +{{ reward.dnaShards }}</span>
+            <span>XP +{{ reward.xp }}</span>
+            <span>{{ reward.item ?? 'No item' }}</span>
+          </div>
+        } @else {
+          <p class="empty-note">Start a battle to push XP, coins, DNA, and item drops.</p>
+        }
+        <button type="button" class="primary-action" (click)="game.startBattle()">Start Battle</button>
+      </div>
+    </section>
+  </section>
+
+  <app-monster-detail [monster]="game.selectedMonster()" />
+</div>

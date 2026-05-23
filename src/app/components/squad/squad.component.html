@@ -1,0 +1,74 @@
+<div class="squad-layout">
+  <section class="hud-panel squad-builder">
+    <div class="section-heading">
+      <div>
+        <h2>Squad</h2>
+        <p>Three choices, instant power feedback, no waiting room.</p>
+      </div>
+      <button type="button" class="danger" [disabled]="game.squad().length === 0" (click)="game.clearSquad()">Clear Squad</button>
+    </div>
+
+    <div class="squad-slots">
+      @for (slot of [0, 1, 2]; track slot) {
+        @if (game.squad()[slot]; as monster) {
+          <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}">
+            <span class="slot-number">{{ slot + 1 }}</span>
+            <span class="squad-icon">
+              @if (monster.spriteUrl) {
+                <img class="creature-sprite large" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ monster.icon }}
+              }
+            </span>
+            <h3>{{ monster.name }}</h3>
+            <p>{{ monster.stage }} / {{ monster.type }}</p>
+            <strong>Power {{ game.getMonsterPower(monster) }}</strong>
+            <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
+          </article>
+        } @else {
+          <article class="squad-slot empty">
+            <span class="slot-number">{{ slot + 1 }}</span>
+            <span class="squad-icon">+</span>
+            <h3>Empty Slot</h3>
+            <p>Add an unlocked creature.</p>
+          </article>
+        }
+      }
+    </div>
+
+    <div class="candidate-strip">
+      <h3>Unlocked Monsters</h3>
+      <div class="candidate-row">
+        @for (monster of candidates(); track monster.id) {
+          <button type="button" class="candidate-card stage-{{ game.stageClass(monster.stage) }}" [disabled]="game.player().squadIds.length >= 3" (click)="game.addToSquad(monster.id)">
+            <span class="candidate-sprite">
+              @if (monster.spriteUrl) {
+                <img class="creature-sprite small" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+              } @else {
+                {{ monster.icon }}
+              }
+            </span>
+            <strong>{{ monster.name }}</strong>
+            <small>Power {{ game.getMonsterPower(monster) }}</small>
+            <em>Add</em>
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <aside class="hud-panel team-summary">
+    <h2>Team Summary</h2>
+    <div class="big-number">{{ game.teamPower() }}</div>
+    <p>{{ recommendation() }}</p>
+
+    <div class="coverage-list">
+      @for (type of game.types; track type) {
+        <span>
+          <strong>{{ type }}</strong>
+          <em>{{ typeCount(type) }}</em>
+        </span>
+      }
+    </div>
+  </aside>
+</div>

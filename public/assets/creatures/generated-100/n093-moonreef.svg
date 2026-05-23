@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N093" data-stage="Special" data-type="Water">
+  <title id="title">N093 Moonreef sprite</title>
+  <desc id="desc">Original Special Water pixel creature for Pixel Evolution Arena. Lunar coral whale silhouette; safe-farm prestige and rare water chase.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#9df7ff" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#d6fdff" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="12,70 -6,84 14,90" fill="#9df7ff"/>
+    <polygon points="116,70 134,84 114,90" fill="#d6fdff"/>
+    <rect x="46" y="112" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="112" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <polygon points="64,15 52,33 76,33" fill="#d6fdff" opacity="0.9"/>
+    <rect x="40" y="62" width="48" height="4" fill="#9df7ff" opacity="0.7"/>
+    <rect x="37" y="106" width="12" height="8" fill="#0b4b76"/>
+    <rect x="79" y="106" width="12" height="8" fill="#0b4b76"/>
+    <rect x="33" y="108" width="4" height="4" fill="#9df7ff"/>
+    <rect x="91" y="108" width="4" height="4" fill="#9df7ff"/>
+    <polygon points="100,86 124,76 118,92" fill="#0b4b76"/>
+    <rect x="112" y="80" width="6" height="6" fill="#9df7ff"/>
+    <polygon points="32,52 96,52 106,62 106,100 96,110 32,110 22,100 22,62" fill="#0b4b76"/>
+    <polygon points="34,56 94,56 102,64 102,98 94,106 34,106 26,98 26,64" fill="#39b9ff"/>
+    <rect x="30" y="60" width="29" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="52" y="84" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="72" y="78" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <polygon points="41,25 87,25 95,33 95,61 87,69 41,69 33,61 33,33" fill="#0b4b76"/>
+    <polygon points="43,29 85,29 91,35 91,59 85,65 43,65 37,59 37,35" fill="#39b9ff"/>
+    <rect x="41" y="31" width="19" height="5" fill="#d6fdff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="45" width="6" height="8" fill="#041826"/>
+    <rect x="78" y="45" width="6" height="8" fill="#041826"/>
+    <rect x="45" y="46" width="2" height="2" fill="#9df7ff"/>
+    <rect x="79" y="46" width="2" height="2" fill="#9df7ff"/>
+    </g>
+    <rect x="32" y="92" width="64" height="6" fill="#d6fdff" opacity="0.85"/>
+    <rect x="40" y="84" width="48" height="4" fill="#9df7ff" opacity="0.8"/>
+    <rect x="28" y="29" width="72" height="4" fill="#9df7ff" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#9df7ff" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#d6fdff" class="scan" opacity="0.32"/>
+  </g>
+</svg>

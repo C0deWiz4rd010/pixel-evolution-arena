@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N059" data-stage="Champion" data-type="Machine">
+  <title id="title">N059 Ironkite sprite</title>
+  <desc id="desc">Original Champion Machine pixel creature for Pixel Evolution Arena. Kite-shaped drone bird; defensive machine flier and item scout.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.82s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+    <rect x="26" y="30" width="76" height="70" fill="#61f4ff" class="glow" opacity="0.06"/>
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="60" y="25" width="8" height="16" fill="#334156"/>
+    <rect x="56" y="21" width="16" height="6" fill="#61f4ff" class="glow"/>
+    <rect x="42" y="76" width="8" height="8" fill="#0e1724"/>
+    <rect x="44" y="78" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="78" y="76" width="8" height="8" fill="#0e1724"/>
+    <rect x="80" y="78" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="40" y="92" width="48" height="4" fill="#61f4ff" class="glow" opacity="0.65"/>
+    <rect x="42" y="100" width="12" height="8" fill="#334156"/>
+    <rect x="74" y="100" width="12" height="8" fill="#334156"/>
+    <rect x="38" y="102" width="4" height="4" fill="#61f4ff"/>
+    <rect x="86" y="102" width="4" height="4" fill="#61f4ff"/>
+    <polygon points="90,80 114,70 108,86" fill="#334156"/>
+    <rect x="102" y="74" width="6" height="6" fill="#61f4ff"/>
+    <polygon points="42,60 86,60 96,70 96,94 86,104 42,104 32,94 32,70" fill="#334156"/>
+    <polygon points="44,64 84,64 92,72 92,92 84,100 44,100 36,92 36,72" fill="#9aa8bd"/>
+    <rect x="40" y="68" width="22" height="6" fill="#e6f8ff" opacity="0.75"/>
+    <rect x="50" y="86" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="58" y="80" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="66" y="86" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="74" y="80" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <polygon points="47,39 77,39 85,47 85,65 77,73 47,73 39,65 39,47" fill="#334156"/>
+    <polygon points="49,43 75,43 81,49 81,63 75,69 49,69 43,63 43,49" fill="#9aa8bd"/>
+    <rect x="47" y="45" width="14" height="5" fill="#e6f8ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="54" width="6" height="8" fill="#0e1724"/>
+    <rect x="75" y="54" width="6" height="8" fill="#0e1724"/>
+    <rect x="48" y="55" width="2" height="2" fill="#61f4ff"/>
+    <rect x="76" y="55" width="2" height="2" fill="#61f4ff"/>
+    </g>
+    <polygon points="28,78 4,62 14,102" fill="#334156" opacity="0.92"/>
+    <polygon points="100,78 124,62 114,102" fill="#334156" opacity="0.92"/>
+  </g>
+</svg>

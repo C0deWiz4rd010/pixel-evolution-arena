@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N028" data-stage="Rookie" data-type="Fire">
+  <title id="title">N028 Ashjack sprite</title>
+  <desc id="desc">Original Rookie Fire pixel creature for Pixel Evolution Arena. Jackal-like ash sprite with square flame ears; early burst attacker.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.5s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.64s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="64,31 54,55 66,51" fill="#ffd05a" class="glow"/>
+    <polygon points="72,39 66,59 82,55" fill="#ff7134" class="glow"/>
+    <polygon points="54,43 44,61 60,55" fill="#fff0bd" opacity="0.85"/>
+    <rect x="44" y="96" width="12" height="8" fill="#7b1d12"/>
+    <rect x="72" y="96" width="12" height="8" fill="#7b1d12"/>
+    <polygon points="46,60 82,60 92,70 92,90 82,100 46,100 36,90 36,70" fill="#7b1d12"/>
+    <polygon points="48,64 80,64 88,72 88,88 80,96 48,96 40,88 40,72" fill="#ff7134"/>
+    <rect x="44" y="68" width="19" height="6" fill="#fff0bd" opacity="0.75"/>
+    <rect x="62" y="78" width="4" height="12" fill="#ffd05a" class="glow" opacity="0.72"/>
+    <polygon points="52,43 76,43 84,51 84,63 76,71 52,71 44,63 44,51" fill="#7b1d12"/>
+    <polygon points="54,47 74,47 80,53 80,61 74,67 54,67 48,61 48,53" fill="#ff7134"/>
+    <rect x="52" y="49" width="12" height="5" fill="#fff0bd" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#260704"/>
+    <rect x="75" y="56" width="6" height="8" fill="#260704"/>
+    <rect x="48" y="57" width="2" height="2" fill="#ffd05a"/>
+    <rect x="76" y="57" width="2" height="2" fill="#ffd05a"/>
+    </g>
+  </g>
+</svg>

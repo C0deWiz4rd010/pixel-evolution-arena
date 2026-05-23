@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N024" data-stage="In-Training" data-type="Dark">
+  <title id="title">N024 Nullnib sprite</title>
+  <desc id="desc">Original In-Training Dark pixel creature for Pixel Evolution Arena. Pen-nib shadow imp; marks enemies in battle logs.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.6s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 4s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,68 30,52 38,80" fill="#1a1034"/>
+    <polygon points="82,68 98,52 90,80" fill="#1a1034"/>
+    <polygon points="45,70 83,70 93,80 93,104 83,114 45,114 35,104 35,80" fill="#070310" opacity="0.58"/>
+    <rect x="40" y="94" width="48" height="6" fill="#d95dff" class="glow" opacity="0.55"/>
+    <rect x="49" y="92" width="8" height="8" fill="#1a1034"/>
+    <rect x="71" y="92" width="8" height="8" fill="#1a1034"/>
+    <polygon points="51,62 77,62 85,70 85,88 77,96 51,96 43,88 43,70" fill="#1a1034"/>
+    <polygon points="53,66 75,66 81,72 81,86 75,92 53,92 47,86 47,72" fill="#7255f6"/>
+    <rect x="51" y="70" width="14" height="6" fill="#f0c6ff" opacity="0.75"/>
+    <rect x="58" y="77" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="62" y="83" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="67" y="77" width="4" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="49" y="75" width="4" height="6" fill="#070310"/>
+    <rect x="75" y="75" width="4" height="6" fill="#070310"/>
+    </g>
+    <rect x="44" y="74" width="40" height="8" fill="#070310" opacity="0.86"/>
+    <rect x="60" y="72" width="8" height="12" fill="#d95dff" class="glow" opacity="0.75"/>
+  </g>
+</svg>

@@ -1,0 +1,48 @@
+<header class="hud-panel header-hud">
+  <div class="brand-block">
+    <img class="brand-mark-image" src="assets/brand/pixel-evolution-arena-mark.svg" alt="Pixel Evolution Arena mark" />
+    <div class="brand-copy">
+      <h1>Pixel Evolution Arena</h1>
+      <p>Build your squad. Unlock evolutions. Dominate the arena.</p>
+    </div>
+  </div>
+
+  <div class="hud-stats" aria-label="Player resources and selected monster">
+    <div class="stat-chip coins">
+      <span class="stat-icon">CR</span>
+      <span class="stat-label">Coins</span>
+      <strong>{{ game.player().coins }}</strong>
+    </div>
+    <div class="stat-chip dna">
+      <span class="stat-icon">DNA</span>
+      <span class="stat-label">DNA Shards</span>
+      <strong>{{ game.player().dnaShards }}</strong>
+    </div>
+    <div class="stat-chip power">
+      <span class="stat-icon">PW</span>
+      <span class="stat-label">Team Power</span>
+      <strong>{{ game.teamPower() }}</strong>
+    </div>
+    <div class="stat-chip wins">
+      <span class="stat-icon">WIN</span>
+      <span class="stat-label">Battles Won</span>
+      <strong>{{ game.player().battlesWon }}</strong>
+    </div>
+    <div class="stat-chip selected">
+      <span class="selected-icon">
+        @if (game.selectedMonster(); as selectedMonster) {
+          @if (selectedMonster.unlocked && selectedMonster.spriteUrl) {
+            <img class="creature-sprite tiny" [src]="selectedMonster.spriteUrl" [alt]="selectedMonster.name + ' animated sprite'" />
+          } @else {
+            {{ selectedMonster.icon }}
+          }
+        } @else {
+          ID
+        }
+      </span>
+      <span class="stat-label">Selected</span>
+      <strong>{{ game.selectedMonster()?.name ?? 'No Signal' }}</strong>
+      <small>LV. {{ game.selectedMonster()?.level ?? 0 }}</small>
+    </div>
+  </div>
+</header>

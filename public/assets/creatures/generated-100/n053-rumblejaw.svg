@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N053" data-stage="Champion" data-type="Beast">
+  <title id="title">N053 Rumblejaw sprite</title>
+  <desc id="desc">Original Champion Beast pixel creature for Pixel Evolution Arena. Heavy jawed brawler; high HP wallbreaker for low-resource players.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.82s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#221005" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,49 36,31 56,43" fill="#5b2d17"/>
+    <polygon points="82,49 92,31 72,43" fill="#5b2d17"/>
+    <polygon points="26,92 12,100 28,104" fill="#ffd08a"/>
+    <polygon points="102,92 116,100 100,104" fill="#ffd08a"/>
+    <polygon points="96,90 122,78 116,94" fill="#5b2d17"/>
+    <rect x="41" y="100" width="12" height="8" fill="#5b2d17"/>
+    <rect x="75" y="100" width="12" height="8" fill="#5b2d17"/>
+    <rect x="37" y="102" width="4" height="4" fill="#ffd08a"/>
+    <rect x="87" y="102" width="4" height="4" fill="#ffd08a"/>
+    <polygon points="40,62 88,62 98,72 98,94 88,104 40,104 30,94 30,72" fill="#5b2d17"/>
+    <polygon points="42,66 86,66 94,74 94,92 86,100 42,100 34,92 34,74" fill="#c57a3b"/>
+    <rect x="38" y="70" width="23" height="6" fill="#ffe7c7" opacity="0.75"/>
+    <rect x="49" y="87" width="4" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <rect x="58" y="81" width="4" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <rect x="66" y="87" width="4" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <rect x="75" y="81" width="4" height="12" fill="#ffd08a" class="glow" opacity="0.72"/>
+    <polygon points="45,41 75,41 83,49 83,67 75,75 45,75 37,67 37,49" fill="#5b2d17"/>
+    <polygon points="47,45 73,45 79,51 79,65 73,71 47,71 41,65 41,51" fill="#c57a3b"/>
+    <rect x="45" y="47" width="14" height="5" fill="#ffe7c7" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#221005"/>
+    <rect x="75" y="56" width="6" height="8" fill="#221005"/>
+    <rect x="48" y="57" width="2" height="2" fill="#ffd08a"/>
+    <rect x="76" y="57" width="2" height="2" fill="#ffd08a"/>
+    </g>
+    <rect x="46" y="98" width="8" height="4" fill="#ffe7c7"/>
+    <rect x="74" y="98" width="8" height="4" fill="#ffe7c7"/>
+  </g>
+</svg>
