@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Orange hit spark</title>
+  <desc id="desc">Pixel battle hit spark with orange and yellow angular shards.</desc>
+  <g shape-rendering="crispEdges">
+    <polygon points="64 8 76 46 118 32 86 62 120 82 80 80 78 120 62 86 34 116 46 78 8 76 42 60 18 28 54 46" fill="#ff9c24"/>
+    <polygon points="64 26 72 52 98 46 78 64 100 76 74 74 72 98 62 78 44 96 52 72 28 70 50 60 34 42 58 52" fill="#ffe12b"/>
+    <rect x="58" y="58" width="12" height="12" fill="#fff6ba"/>
+    <rect x="16" y="18" width="10" height="10" fill="#ff453b"/>
+    <rect x="102" y="96" width="10" height="10" fill="#ff453b"/>
+  </g>
+</svg>

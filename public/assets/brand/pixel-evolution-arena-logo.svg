@@ -38,10 +38,27 @@
       <path d="M848 66V256"/>
       <path d="M1012 66V256"/>
     </g>
+    <g aria-hidden="true">
+      <path d="M320 252H536V238H684V252H828" fill="none" stroke="#19f8ff" stroke-width="4"/>
+      <path d="M828 252l-18 -10v20z" fill="#19f8ff"/>
+      <path d="M450 238V224H574" fill="none" stroke="#ffe66b" stroke-width="3" stroke-dasharray="8 8"/>
+      <path d="M574 224l-14 -8v16z" fill="#ffe66b"/>
+      <path d="M662 238V218H934" fill="none" stroke="#ff35d1" stroke-width="3" stroke-dasharray="10 6"/>
+      <path d="M934 218l-16 -9v18z" fill="#ff35d1"/>
+      <rect x="320" y="238" width="20" height="20" fill="#7cff3a"/>
+      <rect x="376" y="238" width="20" height="20" fill="#18d2ff"/>
+      <rect x="432" y="224" width="20" height="20" fill="#ffe12b"/>
+      <rect x="488" y="238" width="20" height="20" fill="#ff9c24"/>
+      <rect x="544" y="210" width="20" height="20" fill="#ff453b"/>
+      <rect x="600" y="238" width="20" height="20" fill="#b663ff"/>
+      <rect x="656" y="224" width="20" height="20" fill="#ff55d8"/>
+    </g>
     <g transform="translate(72 66) scale(0.37)" filter="url(#logoGlow)">
       <polygon points="96 40 416 40 472 96 472 370 384 464 128 464 40 370 40 96" fill="#050913"/>
       <polygon points="104 52 408 52 460 104 460 364 378 452 134 452 52 364 52 104" fill="#08111f" stroke="#19f8ff" stroke-width="8"/>
       <polygon points="160 176 352 176 384 208 384 324 352 356 160 356 128 324 128 208" fill="#0b1928" stroke="#39ff88" stroke-width="8"/>
+      <path d="M128 388H216V420H296V388H384" fill="none" stroke="#19f8ff" stroke-width="8"/>
+      <path d="M384 388l-24 -14v28z" fill="#19f8ff"/>
       <rect x="184" y="232" width="44" height="44" fill="#19f8ff"/>
       <rect x="196" y="244" width="20" height="20" fill="#050913"/>
       <rect x="284" y="232" width="44" height="44" fill="#ff35d1"/>

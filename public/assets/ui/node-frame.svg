@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Creature node frame</title>
+  <desc id="desc">Chamfered pixel frame for creature nodes in cards and evolution rows.</desc>
+  <g shape-rendering="crispEdges" fill="none">
+    <polygon points="12 2 126 2 126 108 108 126 2 126 2 20" stroke="#19f8ff" stroke-width="4"/>
+    <polygon points="22 14 114 14 114 98 98 114 14 114 14 30" stroke="#39ff88" stroke-width="3"/>
+    <path d="M64 14v18M64 96v18M14 64h18M96 64h18" stroke="#ff55d8" stroke-width="2"/>
+    <rect x="10" y="10" width="10" height="10" fill="#19f8ff" stroke="none"/>
+    <rect x="108" y="108" width="10" height="10" fill="#ff55d8" stroke="none"/>
+  </g>
+</svg>

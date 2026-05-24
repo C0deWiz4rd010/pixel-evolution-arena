@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Yellow reward glint</title>
+  <desc id="desc">Crisp reward glint for coins, drops, and post-battle payouts.</desc>
+  <g shape-rendering="crispEdges">
+    <polygon points="64 8 78 50 120 64 78 78 64 120 50 78 8 64 50 50" fill="#ffe12b"/>
+    <polygon points="64 30 72 56 98 64 72 72 64 98 56 72 30 64 56 56" fill="#fff6ba"/>
+    <rect x="60" y="60" width="8" height="8" fill="#ff9c24"/>
+    <rect x="18" y="18" width="8" height="8" fill="#ffe12b"/>
+    <rect x="102" y="102" width="8" height="8" fill="#ffe12b"/>
+  </g>
+</svg>

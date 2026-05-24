@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Cyan particle burst</title>
+  <desc id="desc">Crisp cyan digital particle burst for selection, scan, and route feedback.</desc>
+  <g shape-rendering="crispEdges" fill="none" stroke-linecap="square">
+    <path d="M64 8v28M64 92v28M8 64h28M92 64h28" stroke="#19f8ff" stroke-width="6"/>
+    <path d="M24 24l20 20M84 84l20 20M104 24L84 44M44 84l-20 20" stroke="#7cf6ff" stroke-width="5"/>
+    <path d="M50 64h28M64 50v28" stroke="#e8fbff" stroke-width="4"/>
+    <rect x="58" y="58" width="12" height="12" fill="#19f8ff" stroke="none"/>
+    <rect x="30" y="58" width="8" height="8" fill="#19f8ff" stroke="none"/>
+    <rect x="90" y="62" width="8" height="8" fill="#19f8ff" stroke="none"/>
+    <rect x="60" y="30" width="8" height="8" fill="#7cf6ff" stroke="none"/>
+    <rect x="62" y="90" width="8" height="8" fill="#7cf6ff" stroke="none"/>
+  </g>
+</svg>

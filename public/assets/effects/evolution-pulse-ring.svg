@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Evolution pulse ring</title>
+  <desc id="desc">Seven-stage angular evolution pulse ring for unlock and evolve feedback.</desc>
+  <g shape-rendering="crispEdges" fill="none">
+    <polygon points="80 8 132 28 152 80 132 132 80 152 28 132 8 80 28 28" stroke="#19f8ff" stroke-width="5"/>
+    <polygon points="80 28 118 42 132 80 118 118 80 132 42 118 28 80 42 42" stroke="#39ff88" stroke-width="4"/>
+    <path d="M80 8v24M132 28l-18 18M152 80h-24M132 132l-18-18M80 152v-24M28 132l18-18M8 80h24M28 28l18 18" stroke="#ff55d8" stroke-width="3"/>
+    <rect x="74" y="2" width="12" height="12" fill="#7cff3a" stroke="none"/>
+    <rect x="126" y="24" width="12" height="12" fill="#18d2ff" stroke="none"/>
+    <rect x="146" y="74" width="12" height="12" fill="#ffe12b" stroke="none"/>
+    <rect x="126" y="124" width="12" height="12" fill="#ff9c24" stroke="none"/>
+    <rect x="74" y="146" width="12" height="12" fill="#ff453b" stroke="none"/>
+    <rect x="22" y="124" width="12" height="12" fill="#b663ff" stroke="none"/>
+    <rect x="2" y="74" width="12" height="12" fill="#ff55d8" stroke="none"/>
+  </g>
+</svg>

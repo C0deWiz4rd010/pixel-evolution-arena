@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Evolution core pulse</title>
+  <desc id="desc">Compact digital evolution core with concentric pixel diamonds.</desc>
+  <g shape-rendering="crispEdges">
+    <polygon points="64 8 104 64 64 120 24 64" fill="#050913" stroke="#19f8ff" stroke-width="6"/>
+    <polygon points="64 28 88 64 64 100 40 64" fill="#0b1928" stroke="#39ff88" stroke-width="5"/>
+    <polygon points="64 46 76 64 64 82 52 64" fill="#ff55d8"/>
+    <rect x="60" y="60" width="8" height="8" fill="#e8fbff"/>
+    <path d="M64 0v18M64 110v18M0 64h18M110 64h18" stroke="#b663ff" stroke-width="4"/>
+  </g>
+</svg>

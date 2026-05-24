@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="128" viewBox="0 0 192 128" role="img" aria-labelledby="title desc">
+  <title id="title">Scanline panel</title>
+  <desc id="desc">Reusable chamfered HUD panel motif with grid and scanline accents.</desc>
+  <g shape-rendering="crispEdges">
+    <polygon points="14 2 190 2 190 104 168 126 2 126 2 24" fill="#050913" stroke="#19f8ff" stroke-width="3"/>
+    <g stroke="#12324a" stroke-width="2" opacity="0.8">
+      <path d="M18 24H174M18 48H174M18 72H174M18 96H174"/>
+      <path d="M32 14V116M64 14V116M96 14V116M128 14V116M160 14V116"/>
+    </g>
+    <rect x="18" y="12" width="36" height="4" fill="#39ff88"/>
+    <rect x="138" y="112" width="30" height="4" fill="#ff55d8"/>
+  </g>
+</svg>
