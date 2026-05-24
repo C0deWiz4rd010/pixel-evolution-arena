@@ -24,9 +24,9 @@
   --mega: #b663ff;
   --special: #ff55d8;
   --radius: 4px;
-  --corner-cut: 10px;
-  --corner-cut-tight: 7px;
-  --corner-cut-wide: 14px;
+  --corner-cut: 4px;
+  --corner-cut-tight: 3px;
+  --corner-cut-wide: 5px;
   --chamfer: polygon(
     var(--corner-cut) 0,
     calc(100% - var(--corner-cut)) 0,
@@ -63,7 +63,7 @@
   --sprite-small: 60px;
   --sprite-medium: 72px;
   --sprite-large: 108px;
-  --sprite-node: 82px;
+  --sprite-node: 96px;
   --sprite-target: 66px;
   --sprite-hero: 128px;
 }
@@ -205,12 +205,18 @@ li {
 
 .hud-panel::before {
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   pointer-events: none;
   content: "";
-  border: 1px solid rgba(156, 246, 255, 0.1);
+  border: 1px solid rgba(156, 246, 255, 0.12);
+  background:
+    linear-gradient(90deg, var(--line-bright) 0 16px, transparent 16px calc(100% - 16px), var(--line-bright) calc(100% - 16px) 100%),
+    linear-gradient(180deg, var(--line-bright) 0 1px, transparent 1px calc(100% - 1px), var(--line-bright) calc(100% - 1px) 100%);
+  background-size: 100% 1px, 1px 100%;
+  background-repeat: no-repeat;
+  background-position: top left, top left;
   clip-path: inherit;
-  opacity: 0.72;
+  opacity: 0.44;
 }
 
 .hud-panel::after {
@@ -838,6 +844,7 @@ app-monster-card {
   text-align: left;
   text-transform: none;
   clip-path: var(--chamfer-tight);
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 14%, transparent) inset;
 }
 
 .monster-card::before,
@@ -861,8 +868,8 @@ app-monster-card {
 }
 
 .monster-card.compact {
-  --node-sprite-size: 88px;
-  min-height: 156px;
+  --node-sprite-size: 104px;
+  min-height: 170px;
 }
 
 .monster-card.selected {
@@ -899,7 +906,7 @@ app-monster-card {
 
 .monster-icon {
   display: grid;
-  min-height: 88px;
+  min-height: 104px;
   place-items: center;
   border: 1px solid color-mix(in srgb, currentColor 52%, transparent);
   background:
@@ -912,6 +919,7 @@ app-monster-card {
   image-rendering: pixelated;
   filter: drop-shadow(0 0 8px currentColor);
   clip-path: var(--chamfer-tight);
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent) inset;
 }
 
 .monster-icon .creature-sprite {
@@ -942,7 +950,7 @@ app-monster-card {
 
 .monster-name {
   color: var(--text);
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 800;
 }
 
@@ -972,6 +980,7 @@ app-monster-card {
   background: rgba(0, 0, 0, 0.64);
   color: var(--danger);
   font-size: 0.5rem;
+  clip-path: var(--chamfer-tight);
 }
 
 .detail-panel {
