@@ -1,84 +1,193 @@
-<div class="arena-layout">
-  <section class="hud-panel arena-stage">
-    <div class="section-heading">
-      <div>
-        <h2>Arena</h2>
-        <p>Run quick simulations, collect rewards, and push your next evolution goal.</p>
+<div class="arena-layout arena-terminal-shell">
+  <section
+    class="hud-panel arena-stage battle-terminal"
+    [class.is-blocked]="terminalTone() === 'is-blocked'"
+    [class.is-ready]="terminalTone() === 'is-ready'"
+    [class.is-victory]="terminalTone() === 'is-victory'"
+    [class.is-retreat]="terminalTone() === 'is-retreat'"
+  >
+    <div class="terminal-heading">
+      <div class="terminal-title">
+        <span>Arena // Battle Control</span>
+        <h2>Arena Control</h2>
+        <p>Fast sim, pressure readout, rewards, and combat feed.</p>
       </div>
-      <button type="button" class="primary-action" (click)="game.startBattle()">Start Battle</button>
+
+      <div class="terminal-state">
+        <span>Status</span>
+        <strong>{{ terminalStatus() }}</strong>
+      </div>
     </div>
 
-    <div class="battlefield">
-      <div class="battle-team player-side">
-        <h3>Your Squad</h3>
-        @for (monster of game.squad(); track monster.id) {
-          <article class="combatant stage-{{ game.stageClass(monster.stage) }}">
-            <span class="combatant-sprite">
-              @if (monster.spriteUrl) {
-                <img class="creature-sprite medium" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
-              } @else {
-                {{ monster.icon }}
-              }
-            </span>
-            <div>
-              <strong>{{ monster.name }}</strong>
-              <small>HP {{ monster.hp }} / Power {{ game.getMonsterPower(monster) }}</small>
-            </div>
-          </article>
-        }
-        @if (game.squad().length === 0) {
-          <p class="empty-note">Add at least one monster to your squad.</p>
-        }
-      </div>
+    <div class="combat-matrix">
+      <section class="formation-panel player-side" aria-label="Your squad formation">
+        <div class="formation-heading">
+          <span>Allied Formation</span>
+          <strong>{{ game.squad().length }}/3 Units</strong>
+        </div>
 
-      <div class="arena-core">
-        <span class="vs-mark">VS</span>
-        <div class="energy-beam"></div>
-        <strong>{{ game.teamPower() }}</strong>
-        <span>Team Power</span>
-      </div>
+        <div class="combatant-stack">
+          @for (slot of squadSlots(); track $index; let index = $index) {
+            @if (slot; as monster) {
+              <article class="combatant command-card stage-{{ game.stageClass(monster.stage) }}" [class.lead-unit]="index === 0">
+                <div class="combatant-frame">
+                  <span class="combatant-sprite">
+                    @if (monster.spriteUrl) {
+                      <img class="creature-sprite medium" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+                    } @else {
+                      {{ monster.icon }}
+                    }
+                  </span>
+                </div>
 
-      <div class="battle-team enemy-side">
-        <h3>Enemy Team</h3>
-        @for (enemy of game.enemies; track enemy.id) {
-          <article class="combatant enemy">
-            <span class="combatant-sprite">
-              @if (enemy.spriteUrl) {
-                <img class="creature-sprite medium" [src]="enemy.spriteUrl" [alt]="enemy.name + ' animated sprite'" loading="lazy" />
-              } @else {
-                {{ enemy.icon }}
-              }
-            </span>
-            <div>
-              <strong>{{ enemy.name }}</strong>
-              <small>HP {{ enemy.hp }} / {{ enemy.type }}</small>
+                <div class="combatant-data">
+                  <span class="unit-code">ALY-0{{ index + 1 }} // {{ monster.stage }}</span>
+                  <strong>{{ monster.name }}</strong>
+                  <small>Lv {{ monster.level }} / {{ monster.type }}</small>
+                  <div class="stat-rail">
+                    <span>HP {{ monster.hp }}</span>
+                    <span>PWR {{ game.getMonsterPower(monster) }}</span>
+                  </div>
+                </div>
+              </article>
+            } @else {
+              <article class="combatant command-card empty-slot">
+                <div class="combatant-frame">
+                  <span class="empty-socket">S{{ index + 1 }}</span>
+                </div>
+                <div class="combatant-data">
+                  <span class="unit-code">ALY-0{{ index + 1 }} // EMPTY</span>
+                  <strong>Open Squad Slot</strong>
+                  <small>Add a monster from Squad or Evolution Tree.</small>
+                </div>
+              </article>
+            }
+          }
+        </div>
+      </section>
+
+      <section class="arena-core" aria-label="Battle power core">
+        <div class="route-grid" aria-hidden="true">
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+
+        <div class="vs-core">
+          <span class="core-label">Live Sim</span>
+          <strong class="vs-mark">VS</strong>
+          <div class="power-duel">
+            <div class="power-stack">
+              <span>Your Power</span>
+              <strong>{{ game.teamPower() }}</strong>
             </div>
-          </article>
-        }
-      </div>
+            <div class="enemy-power">
+              <span>Enemy Net</span>
+              <strong>{{ game.enemyPower() }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="energy-beam" aria-hidden="true">
+          <span></span>
+        </div>
+
+        <div class="pressure-strip" [class.advantage]="powerDelta() >= 0" [class.warning]="powerDelta() < 0">
+          <span>{{ pressureLabel() }}</span>
+          <strong>{{ powerDeltaLabel() }}</strong>
+        </div>
+
+        <button type="button" class="primary-action start-battle-action" (click)="game.startBattle()">
+          Start Battle
+        </button>
+      </section>
+
+      <section class="formation-panel enemy-side" aria-label="Enemy team formation">
+        <div class="formation-heading">
+          <span>Enemy Formation</span>
+          <strong>{{ game.enemies.length }} Units</strong>
+        </div>
+
+        <div class="combatant-stack">
+          @for (enemy of game.enemies; track enemy.id; let index = $index) {
+            <article class="combatant command-card enemy" [class.lead-unit]="index === 0">
+              <div class="combatant-frame">
+                <span class="combatant-sprite">
+                  @if (enemy.spriteUrl) {
+                    <img class="creature-sprite medium" [src]="enemy.spriteUrl" [alt]="enemy.name + ' animated sprite'" loading="lazy" />
+                  } @else {
+                    {{ enemy.icon }}
+                  }
+                </span>
+              </div>
+
+              <div class="combatant-data">
+                <span class="unit-code">ENY-0{{ index + 1 }} // {{ enemy.type }}</span>
+                <strong>{{ enemy.name }}</strong>
+                <small>HP {{ enemy.hp }} / SPD {{ enemy.speed }}</small>
+                <div class="stat-rail">
+                  <span>ATK {{ enemy.attack }}</span>
+                  <span>DEF {{ enemy.defense }}</span>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
     </div>
   </section>
 
-  <aside class="hud-panel reward-panel">
-    <h2>Rewards</h2>
-    @if (game.lastReward(); as reward) {
-      <div class="reward-grid">
-        <span>CR +{{ reward.coins }} Coins</span>
-        <span>DNA +{{ reward.dnaShards }}</span>
-        <span>XP +{{ reward.xp }}</span>
-        <span>{{ reward.won ? 'Victory' : 'Retreat' }}</span>
+  <aside
+    class="hud-panel reward-panel battle-feed-panel"
+    [class.is-blocked]="terminalTone() === 'is-blocked'"
+    [class.is-ready]="terminalTone() === 'is-ready'"
+    [class.is-victory]="terminalTone() === 'is-victory'"
+    [class.is-retreat]="terminalTone() === 'is-retreat'"
+  >
+    <div class="feed-heading">
+      <div>
+        <span>Reward Uplink</span>
+        <h2>Battle Feed</h2>
       </div>
+      <strong>{{ terminalStatus() }}</strong>
+    </div>
+
+    @if (game.lastReward(); as reward) {
+      <section class="result-banner" [class.victory]="reward.won" [class.retreat]="!reward.won">
+        <span>{{ reward.won ? 'Victory Result' : 'Retreat Result' }}</span>
+        <strong>{{ reward.won ? 'Rewards Secured' : 'Fallback Rewards' }}</strong>
+      </section>
+
+      <div class="reward-grid reward-terminal-grid">
+        <span class="coin-reward">CR +{{ reward.coins }} Coins</span>
+        <span class="dna-reward">DNA +{{ reward.dnaShards }}</span>
+        <span class="xp-reward">XP +{{ reward.xp }}</span>
+        <span class="state-reward">{{ reward.won ? 'Win' : 'Retreat' }}</span>
+      </div>
+
       @if (reward.item) {
         <p class="reward-item">Item found: {{ reward.item }}</p>
       }
     } @else {
-      <p>Win or lose, every battle moves the squad forward.</p>
+      <section class="result-banner standby">
+        <span>Standby</span>
+        <strong>{{ game.squad().length > 0 ? 'Battle Ready' : 'Add Squad Unit' }}</strong>
+      </section>
+
+      <p class="reward-standby">Win or lose, every battle pays coins, DNA, and squad XP immediately.</p>
     }
 
-    <h3>Battle Log</h3>
+    <div class="battle-log-heading">
+      <h3>Live Battle Log</h3>
+      <span>{{ recentLogs().length }} Latest</span>
+    </div>
+
     <div class="battle-log">
-      @for (log of game.battleLogs(); track $index) {
-        <p class="log-{{ log.type }}">{{ log.text }}</p>
+      @for (log of recentLogs(); track $index; let index = $index) {
+        <p class="log-{{ log.type }}" [class.latest-log]="index === 0">
+          <span class="log-index">{{ index + 1 }}</span>
+          <span>{{ log.text }}</span>
+        </p>
       }
     </div>
   </aside>
