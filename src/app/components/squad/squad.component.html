@@ -170,6 +170,33 @@
       </div>
     </section>
 
+    <section class="coverage-console synergy-console" aria-label="Squad synergy and matchup readout">
+      <div class="coverage-head">
+        <span>Combat Signals</span>
+        <strong>{{ synergySignals().length > 0 ? synergySignals().length + ' active' : 'baseline' }}</strong>
+      </div>
+      <p class="synergy-brief">
+        {{ battleEdge().label }} // {{ battleEdge().detail }}
+      </p>
+      @if (synergySignals().length > 0) {
+        <div class="coverage-list synergy-list">
+          @for (signal of synergySignals(); track signal.id) {
+            <span class="coverage-node synergy-node">
+              <strong>{{ signal.label }}</strong>
+              <em>{{ formatModifier(signal.modifier) }}</em>
+            </span>
+          }
+        </div>
+      } @else {
+        <p class="empty-note">Three stronger signals or cleaner type spreads will unlock battle synergies.</p>
+      }
+      <div class="gap-row forecast-row">
+        <span>Next Arena State</span>
+        <strong>{{ dangerForecast().label }}</strong>
+      </div>
+      <p class="synergy-brief">{{ dangerForecast().detail }}</p>
+    </section>
+
     <section class="gap-console" aria-label="Missing squad signals">
       <div class="gap-row">
         <span>Open Slots</span>

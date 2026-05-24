@@ -329,6 +329,35 @@
   width: 100%;
 }
 
+.battle-readout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.32rem;
+  width: 100%;
+  margin-top: 0.42rem;
+}
+
+.battle-readout span,
+.battle-analysis {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.battle-readout span {
+  padding: 0.3rem 0.34rem;
+  color: var(--muted);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  clip-path: var(--chamfer-tight);
+}
+
+.battle-readout strong {
+  display: block;
+  margin-top: 0.14rem;
+  color: var(--text);
+  font-size: 0.64rem;
+}
+
 .power-stack,
 .enemy-power {
   display: grid;
@@ -440,6 +469,31 @@
   color: var(--dna);
 }
 
+.battle-analysis {
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.42rem 0.48rem;
+  clip-path: var(--chamfer-tight);
+}
+
+.battle-analysis span {
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.battle-analysis strong {
+  color: var(--line);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.battle-analysis p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
 .battle-log {
   display: grid;
   max-height: 310px;
@@ -519,5 +573,9 @@
 
   .combatant.command-card.lead-unit {
     min-height: 0;
+  }
+
+  .battle-readout {
+    grid-template-columns: 1fr;
   }
 }

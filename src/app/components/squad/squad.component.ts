@@ -116,6 +116,10 @@ export class SquadComponent {
     return 'behind';
   });
 
+  readonly synergySignals = this.game.squadSynergies;
+  readonly battleEdge = this.game.squadTypePressure;
+  readonly dangerForecast = this.game.upcomingArenaThreat;
+
   readonly nextAction = computed<NextActionView>(() => {
     const candidate = this.recommendedCandidate();
     const weakest = this.weakestMember();
@@ -215,6 +219,10 @@ export class SquadComponent {
     }
 
     this.game.removeFromSquad(weakest.id);
+  }
+
+  formatModifier(value: number): string {
+    return `${value > 0 ? '+' : ''}${Math.round(value * 100)}%`;
   }
 
   private candidateScore(monster: Monster): number {

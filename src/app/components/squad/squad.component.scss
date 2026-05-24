@@ -451,6 +451,32 @@
   opacity: 0.72;
 }
 
+.synergy-console {
+  border-color: rgba(255, 225, 43, 0.28);
+}
+
+.synergy-list {
+  margin-top: 0.2rem;
+}
+
+.synergy-node {
+  border-color: rgba(255, 225, 43, 0.34);
+}
+
+.synergy-node em {
+  color: var(--rookie);
+}
+
+.synergy-brief {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.forecast-row {
+  margin-top: 0.15rem;
+}
+
 .gap-row {
   align-items: center;
   border-bottom: 1px solid rgba(131, 182, 199, 0.16);

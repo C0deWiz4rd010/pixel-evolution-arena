@@ -17,6 +17,10 @@ export class ArenaComponent {
   readonly recentLogs = computed(() => this.game.battleLogs().slice(0, 9));
 
   readonly powerDelta = computed(() => this.game.teamPower() - this.game.enemyPower());
+  readonly arenaThreat = this.game.upcomingArenaThreat;
+  readonly squadTypeEdge = this.game.squadTypePressure;
+  readonly enemyTypeEdge = this.game.enemyTypePressure;
+  readonly synergySignals = this.game.squadSynergies;
 
   readonly powerDeltaLabel = computed(() => {
     const delta = this.powerDelta();
@@ -26,6 +30,10 @@ export class ArenaComponent {
   readonly pressureLabel = computed(() => {
     if (this.game.squad().length === 0) {
       return 'No squad signal';
+    }
+
+    if (this.squadTypeEdge().modifier >= 0.07) {
+      return 'Type edge online';
     }
 
     const delta = this.powerDelta();

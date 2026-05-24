@@ -10,7 +10,7 @@
       <div class="terminal-title">
         <span>Arena // Battle Control</span>
         <h2>Arena Control</h2>
-        <p>Fast sim, pressure readout, rewards, and combat feed.</p>
+        <p>{{ arenaThreat().label }} // {{ arenaThreat().detail }}</p>
       </div>
 
       <div class="terminal-state">
@@ -86,6 +86,11 @@
               <strong>{{ game.enemyPower() }}</strong>
             </div>
           </div>
+          <div class="battle-readout">
+            <span>Threat <strong>{{ arenaThreat().label }}</strong></span>
+            <span>Type <strong>{{ squadTypeEdge().label }}</strong></span>
+            <span>Sync <strong>{{ synergySignals().length > 0 ? synergySignals()[0].label : 'Baseline' }}</strong></span>
+          </div>
         </div>
 
         <div class="energy-beam" aria-hidden="true">
@@ -105,7 +110,7 @@
       <section class="formation-panel enemy-side" aria-label="Enemy team formation">
         <div class="formation-heading">
           <span>Enemy Formation</span>
-          <strong>{{ game.enemies.length }} Units</strong>
+          <strong>{{ game.enemies.length }} Units / {{ enemyTypeEdge().label }}</strong>
         </div>
 
         <div class="combatant-stack">
@@ -176,6 +181,12 @@
 
       <p class="reward-standby">Win or lose, every battle pays coins, DNA, and squad XP immediately.</p>
     }
+
+    <div class="battle-analysis">
+      <span>Synergy Stack</span>
+      <strong>{{ synergySignals().length > 0 ? synergySignals().length + ' active signals' : 'No active synergy' }}</strong>
+      <p>{{ squadTypeEdge().detail }}</p>
+    </div>
 
     <div class="battle-log-heading">
       <h3>Live Battle Log</h3>
