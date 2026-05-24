@@ -13,6 +13,20 @@ export class MonsterCardComponent {
   @Input() compact = false;
   @Output() selectMonster = new EventEmitter<string>();
 
+  get displayName(): string {
+    return this.monster.unlocked ? this.monster.name : 'Unknown Signal';
+  }
+
+  get statusLabel(): string {
+    return this.monster.unlocked ? this.monster.rarity : 'LOCK';
+  }
+
+  get cardAriaLabel(): string {
+    const lockState = this.monster.unlocked ? 'unlocked' : 'locked';
+
+    return `${this.displayName}, ${this.monster.stage} ${this.monster.type}, level ${this.monster.level}, power ${this.power}, ${lockState}`;
+  }
+
   get stageClass(): string {
     return this.monster.stage.toLowerCase().replace(/\s+/g, '-').replace('in-training', 'intraining');
   }

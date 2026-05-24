@@ -4,21 +4,24 @@
   [class.locked]="!monster.unlocked"
   [class.compact]="compact"
   type="button"
+  [attr.aria-label]="cardAriaLabel"
   (click)="selectMonster.emit(monster.id)"
 >
   <span class="card-topline">
     <span class="monster-id">{{ monster.id }}</span>
-    <span class="card-status">{{ monster.unlocked ? monster.rarity : 'LOCK' }}</span>
+    <span class="card-status">{{ statusLabel }}</span>
   </span>
-  <span class="monster-icon" aria-hidden="true">
+  <span class="monster-icon sprite-node" aria-hidden="true">
     @if (monster.unlocked && monster.spriteUrl) {
-      <img class="creature-sprite" [src]="monster.spriteUrl" alt="" loading="lazy" />
+      <img class="creature-sprite node" [src]="monster.spriteUrl" alt="" loading="lazy" />
     } @else {
       {{ monster.unlocked ? monster.icon : 'LOCK' }}
     }
   </span>
-  <strong class="monster-name">{{ monster.unlocked ? monster.name : 'Unknown Signal' }}</strong>
-  <span class="monster-meta">{{ monster.stage }} / {{ monster.type }}</span>
+  <span class="monster-caption">
+    <strong class="monster-name">{{ displayName }}</strong>
+    <span class="monster-meta">{{ monster.stage }} / {{ monster.type }}</span>
+  </span>
   <span class="card-bottomline">
     <span>LV {{ monster.level }}</span>
     <strong>PW {{ power }}</strong>

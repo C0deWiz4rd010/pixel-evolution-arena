@@ -30,5 +30,6 @@ export class AppComponent {
 
   setActiveTab(tab: string): void {
     this.activeTab.set(tab as AppTab);
+    globalThis.requestAnimationFrame(() => globalThis.scrollTo({ top: 0, behavior: 'auto' }));
   }
 }

@@ -1,74 +1,196 @@
-<div class="squad-layout">
-  <section class="hud-panel squad-builder">
-    <div class="section-heading">
+<div class="squad-layout squad-terminal">
+  <section class="hud-panel squad-builder squad-command">
+    <div class="section-heading squad-heading">
       <div>
-        <h2>Squad</h2>
-        <p>Three choices, instant power feedback, no waiting room.</p>
+        <span class="terminal-label">TEAM TERMINAL</span>
+        <h2>Squad Uplink</h2>
+        <p>Load three active signals, compare output, and patch coverage gaps.</p>
       </div>
-      <button type="button" class="danger" [disabled]="game.squad().length === 0" (click)="game.clearSquad()">Clear Squad</button>
+      <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
     </div>
 
-    <div class="squad-slots">
-      @for (slot of [0, 1, 2]; track slot) {
-        @if (game.squad()[slot]; as monster) {
-          <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}">
-            <span class="slot-number">{{ slot + 1 }}</span>
-            <span class="squad-icon">
-              @if (monster.spriteUrl) {
-                <img class="creature-sprite large" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+    <section class="active-squad-board" aria-label="Active squad slots">
+      <div class="board-head">
+        <div>
+          <span>ACTIVE LOADOUT</span>
+          <strong>{{ slotsFilled() }}/3 ONLINE</strong>
+        </div>
+        <div>
+          <span>TEAM OUTPUT</span>
+          <strong>{{ game.teamPower() }} PW</strong>
+        </div>
+      </div>
+
+      <div class="squad-slots">
+        @for (slot of squadSlots(); track slot.index) {
+          @if (slot.monster; as monster) {
+            <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
+              <div class="slot-chrome">
+                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
+                <span>{{ slot.role }}</span>
+                <em>{{ monster.stage }}</em>
+              </div>
+
+              <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
+                @if (monster.spriteUrl) {
+                  <img class="creature-sprite squad-sprite" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+                } @else {
+                  <span class="fallback-icon">{{ monster.icon }}</span>
+                }
+              </button>
+
+              <div class="slot-identity">
+                <span>{{ monster.id }} / {{ monster.type }}</span>
+                <h3>{{ monster.name }}</h3>
+              </div>
+
+              <div class="slot-stat-grid" aria-label="Squad member stats">
+                <span><small>ATK</small><strong>{{ monster.attack }}</strong></span>
+                <span><small>DEF</small><strong>{{ monster.defense }}</strong></span>
+                <span><small>SPD</small><strong>{{ monster.speed }}</strong></span>
+                <span><small>HP</small><strong>{{ monster.hp }}</strong></span>
+              </div>
+
+              <div class="slot-footer">
+                <span>LV {{ monster.level }}</span>
+                <strong>{{ power(monster) }} PW</strong>
+              </div>
+
+              <div class="slot-actions">
+                <button type="button" (click)="game.selectMonster(monster.id)">Inspect</button>
+                <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
+              </div>
+            </article>
+          } @else {
+            <article class="squad-slot empty">
+              <div class="slot-chrome">
+                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
+                <span>{{ slot.role }}</span>
+                <em>OFFLINE</em>
+              </div>
+              <span class="empty-node">+</span>
+              <h3>Signal Missing</h3>
+              @if (recommendedCandidate(); as candidate) {
+                <p>Best next link: {{ candidate.name }} / {{ candidate.type }}</p>
+                <button type="button" class="slot-quick-add" (click)="addRecommended()">Load Suggested</button>
               } @else {
-                {{ monster.icon }}
+                <p>No unlocked reserve signal.</p>
               }
-            </span>
-            <h3>{{ monster.name }}</h3>
-            <p>{{ monster.stage }} / {{ monster.type }}</p>
-            <strong>Power {{ game.getMonsterPower(monster) }}</strong>
-            <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
-          </article>
-        } @else {
-          <article class="squad-slot empty">
-            <span class="slot-number">{{ slot + 1 }}</span>
-            <span class="squad-icon">+</span>
-            <h3>Empty Slot</h3>
-            <p>Add an unlocked creature.</p>
-          </article>
+            </article>
+          }
         }
+      </div>
+    </section>
+
+    <section class="candidate-strip reserve-terminal" aria-label="Unlocked reserve monsters">
+      <div class="strip-heading">
+        <h3>Reserve Uplink</h3>
+        <span>{{ candidates().length }} unlocked outside squad</span>
+      </div>
+
+      @if (candidates().length > 0) {
+        <div class="candidate-row">
+          @for (monster of candidates(); track monster.id) {
+            <button
+              type="button"
+              class="candidate-card stage-{{ game.stageClass(monster.stage) }}"
+              [class.recommended]="recommendedCandidateId() === monster.id"
+              [disabled]="slotsFilled() >= 3"
+              (click)="game.addToSquad(monster.id)"
+            >
+              <span class="candidate-id">{{ monster.id }}</span>
+              <span class="candidate-sprite">
+                @if (monster.spriteUrl) {
+                  <img class="creature-sprite candidate-sprite-img" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+                } @else {
+                  {{ monster.icon }}
+                }
+              </span>
+              <strong>{{ monster.name }}</strong>
+              <small>{{ monster.stage }} / {{ monster.type }}</small>
+              <span class="candidate-power">PW {{ power(monster) }}</span>
+              <em>{{ slotsFilled() >= 3 ? 'Remove first' : candidateCue(monster) }}</em>
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="empty-note">All unlocked creatures are already online or the roster needs more Evolution Tree progress.</p>
       }
-    </div>
-
-    <div class="candidate-strip">
-      <h3>Unlocked Monsters</h3>
-      <div class="candidate-row">
-        @for (monster of candidates(); track monster.id) {
-          <button type="button" class="candidate-card stage-{{ game.stageClass(monster.stage) }}" [disabled]="game.player().squadIds.length >= 3" (click)="game.addToSquad(monster.id)">
-            <span class="candidate-sprite">
-              @if (monster.spriteUrl) {
-                <img class="creature-sprite small" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
-              } @else {
-                {{ monster.icon }}
-              }
-            </span>
-            <strong>{{ monster.name }}</strong>
-            <small>Power {{ game.getMonsterPower(monster) }}</small>
-            <em>Add</em>
-          </button>
-        }
-      </div>
-    </div>
+    </section>
   </section>
 
-  <aside class="hud-panel team-summary">
-    <h2>Team Summary</h2>
-    <div class="big-number">{{ game.teamPower() }}</div>
-    <p>{{ recommendation() }}</p>
-
-    <div class="coverage-list">
-      @for (type of game.types; track type) {
-        <span>
-          <strong>{{ type }}</strong>
-          <em>{{ typeCount(type) }}</em>
-        </span>
-      }
+  <aside class="hud-panel team-summary squad-diagnostics">
+    <div class="diagnostic-header">
+      <span class="terminal-label">SQUAD DIAGNOSTICS</span>
+      <h2>Battle Readiness</h2>
     </div>
+
+    <section class="power-benchmark state-{{ powerStatus() }}" aria-label="Power comparison">
+      <div class="benchmark-row">
+        <span>Team PW</span>
+        <strong>{{ game.teamPower() }}</strong>
+      </div>
+      <div class="benchmark-row enemy">
+        <span>Enemy Grid</span>
+        <strong>{{ game.enemyPower() }}</strong>
+      </div>
+      <div class="power-track" aria-label="Team power match percent">
+        <span [style.width.%]="powerMatchPercent()"></span>
+      </div>
+      <p>{{ powerDeltaLabel() }}</p>
+    </section>
+
+    <section class="next-command tone-{{ nextAction().tone }}" aria-label="Recommended squad action">
+      <span>Next Command</span>
+      <h3>{{ nextAction().title }}</h3>
+      <p>{{ recommendation() }}</p>
+      @if (nextAction().tone === 'add' && recommendedCandidate(); as candidate) {
+        <button type="button" [disabled]="slotsFilled() >= 3" (click)="addRecommended()">Add {{ candidate.name }}</button>
+      }
+      @if (nextAction().tone === 'remove' && weakestMember(); as weakest) {
+        <button type="button" class="danger" (click)="removeWeakest()">Remove {{ weakest.name }}</button>
+      }
+    </section>
+
+    <section class="coverage-console" aria-label="Type coverage">
+      <div class="coverage-head">
+        <span>Type Coverage</span>
+        <strong>{{ coveredTypeCount() }}/{{ game.types.length }}</strong>
+      </div>
+      <div class="coverage-track">
+        <span [style.width.%]="coveragePercent()"></span>
+      </div>
+      <div class="coverage-list">
+        @for (item of coverageItems(); track item.type) {
+          <span class="coverage-node" [class.missing]="!item.covered">
+            <strong>{{ item.type }}</strong>
+            <em>{{ item.covered ? item.count + 'x' : 'MISS' }}</em>
+          </span>
+        }
+      </div>
+    </section>
+
+    <section class="gap-console" aria-label="Missing squad signals">
+      <div class="gap-row">
+        <span>Open Slots</span>
+        <strong>{{ emptySlots() }}</strong>
+      </div>
+      <div class="gap-row">
+        <span>Weakest Link</span>
+        <strong>{{ weakestMember()?.name ?? 'None' }}</strong>
+      </div>
+      <div class="missing-types">
+        <span>Missing Types</span>
+        @if (missingTypes().length > 0) {
+          <div>
+            @for (type of missingTypes(); track type) {
+              <strong>{{ type }}</strong>
+            }
+          </div>
+        } @else {
+          <strong>Full spectrum</strong>
+        }
+      </div>
+    </section>
   </aside>
 </div>
