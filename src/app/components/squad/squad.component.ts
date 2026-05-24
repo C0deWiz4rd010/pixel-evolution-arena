@@ -119,6 +119,8 @@ export class SquadComponent {
   readonly synergySignals = this.game.squadSynergies;
   readonly battleEdge = this.game.squadTypePressure;
   readonly dangerForecast = this.game.upcomingArenaThreat;
+  readonly activeFormation = this.game.activeFormation;
+  readonly arenaDirective = this.game.arenaDirective;
 
   readonly nextAction = computed<NextActionView>(() => {
     const candidate = this.recommendedCandidate();

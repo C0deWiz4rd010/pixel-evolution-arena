@@ -10,7 +10,7 @@
       <div class="terminal-title">
         <span>Arena // Battle Control</span>
         <h2>Arena Control</h2>
-        <p>{{ arenaThreat().label }} // {{ arenaThreat().detail }}</p>
+        <p>{{ arenaDirective().title }} // {{ arenaThreat().label }}</p>
       </div>
 
       <div class="terminal-state">
@@ -87,6 +87,7 @@
             </div>
           </div>
           <div class="battle-readout">
+            <span>Tier <strong>{{ activeFormation().tier }}</strong></span>
             <span>Threat <strong>{{ arenaThreat().label }}</strong></span>
             <span>Type <strong>{{ squadTypeEdge().label }}</strong></span>
             <span>Sync <strong>{{ synergySignals().length > 0 ? synergySignals()[0].label : 'Baseline' }}</strong></span>
@@ -109,7 +110,7 @@
 
       <section class="formation-panel enemy-side" aria-label="Enemy team formation">
         <div class="formation-heading">
-          <span>Enemy Formation</span>
+          <span>{{ activeFormation().name }}</span>
           <strong>{{ game.enemies.length }} Units / {{ enemyTypeEdge().label }}</strong>
         </div>
 
@@ -183,6 +184,10 @@
     }
 
     <div class="battle-analysis">
+      <span>Run Directive</span>
+      <strong>{{ arenaDirective().objective }}</strong>
+      <p>{{ arenaDirective().rewardFocus }}</p>
+      <p>{{ arenaDirective().tacticalHint }}</p>
       <span>Synergy Stack</span>
       <strong>{{ synergySignals().length > 0 ? synergySignals().length + ' active signals' : 'No active synergy' }}</strong>
       <p>{{ squadTypeEdge().detail }}</p>

@@ -181,6 +181,11 @@
         </div>
 
         <div class="arena-readiness">
+          <span>{{ activeFormation().tier }} <b>{{ activeFormation().name }}</b></span>
+          <span>GOAL <b>{{ arenaDirective().objective }}</b></span>
+        </div>
+
+        <div class="arena-readiness">
           <span>TEAM <b>{{ game.teamPower() }}</b></span>
           <span>ENEMY <b>{{ game.enemyPower() }}</b></span>
         </div>

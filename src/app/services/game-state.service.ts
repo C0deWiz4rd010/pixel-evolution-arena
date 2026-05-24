@@ -1,7 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { ENEMIES } from '../data/enemies.data';
+import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
-import { BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
+import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { EvolutionRequirements, Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
 import { PlayerState } from '../models/player-state.model';
 
@@ -36,12 +36,19 @@ export interface ArenaThreatProfile {
   itemBonus: number;
 }
 
+export interface ArenaRunDirective {
+  title: string;
+  objective: string;
+  rewardFocus: string;
+  tacticalHint: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
   readonly stages = STAGES;
   readonly types = TYPES;
   readonly rarities: MonsterRarity[] = ['Common', 'Rare', 'Epic', 'Legendary'];
-  readonly enemies: EnemyMonster[] = ENEMIES;
+  readonly arenaFormations = ARENA_FORMATIONS;
   readonly inventoryItems = ['Armor Core', 'Shadow Gem', 'Solar Crest', 'Ancient Gear'];
 
   readonly monsters = signal<Monster[]>(MONSTERS.map((monster) => ({ ...monster, evolutionTargets: [...monster.evolutionTargets] })));
@@ -77,9 +84,23 @@ export class GameStateService {
 
   readonly lockedCount = computed(() => this.monsters().length - this.unlockedCount());
 
+  readonly activeFormation = computed(() => this.getArenaFormation(this.player().battlesFought + 1));
+
   readonly enemyPower = computed(() => this.enemies.reduce((total, enemy) => total + enemy.attack + enemy.defense + enemy.speed + enemy.hp, 0));
 
   readonly upcomingArenaThreat = computed(() => this.getArenaThreatProfile(this.player().battlesFought + 1));
+
+  readonly arenaDirective = computed<ArenaRunDirective>(() => {
+    const formation = this.activeFormation();
+    const threat = this.upcomingArenaThreat();
+
+    return {
+      title: `${formation.tier} // ${formation.name}`,
+      objective: formation.objective,
+      rewardFocus: `${formation.rewardFocus} ${threat.rewardModifier > 1 ? `${threat.label} bonus live.` : ''}`.trim(),
+      tacticalHint: `${formation.tacticalHint} ${threat.detail}`.trim(),
+    };
+  });
 
   readonly squadSynergies = computed(() => this.evaluateSquadSynergies(this.squad()));
 
@@ -92,8 +113,12 @@ export class GameStateService {
   );
 
   readonly enemyBattleModifier = computed(() =>
-    this.clampModifier(this.upcomingArenaThreat().enemyModifier + this.enemyTypePressure().modifier, -0.12, 0.24),
+    this.clampModifier(this.activeFormation().enemyModifier + this.upcomingArenaThreat().enemyModifier + this.enemyTypePressure().modifier, -0.12, 0.32),
   );
+
+  get enemies(): EnemyMonster[] {
+    return this.activeFormation().enemies;
+  }
 
   getMonsterPower(monster: Monster): number {
     return monster.attack + monster.defense + monster.speed + monster.hp;
@@ -209,13 +234,15 @@ export class GameStateService {
       return;
     }
 
+    const formation = this.activeFormation();
     const threat = this.upcomingArenaThreat();
     const playerModifier = this.squadBattleModifier();
-    const enemyModifier = this.clampModifier(threat.enemyModifier + this.enemyTypePressure().modifier, -0.12, 0.24);
+    const enemyModifier = this.clampModifier(formation.enemyModifier + threat.enemyModifier + this.enemyTypePressure().modifier, -0.12, 0.32);
     const playerRoll = this.teamPower() * (1 + playerModifier) * this.randomBetween(0.88, 1.14);
     const enemyRoll = this.enemyPower() * (1 + enemyModifier) * this.randomBetween(0.88, 1.14);
     const won = playerRoll >= enemyRoll;
-    const rewardScale = won ? threat.rewardModifier : 0.9 + (threat.rewardModifier - 1) * 0.55;
+    const rewardMultiplier = formation.rewardModifier * threat.rewardModifier;
+    const rewardScale = won ? rewardMultiplier : 0.88 + (rewardMultiplier - 1) * 0.55;
     const reward: BattleReward = won
       ? {
           won,
@@ -230,9 +257,9 @@ export class GameStateService {
           xp: Math.max(10, Math.round(12 * rewardScale)),
         };
 
-    const logs = this.generateBattleLogs(squad, won, reward, threat, playerRoll, enemyRoll);
+    const logs = this.generateBattleLogs(squad, won, reward, formation, threat, playerRoll, enemyRoll);
     const levelLogs = this.addXpToSquad(reward.xp);
-    const item = won && Math.random() < Math.min(0.55, 0.25 + threat.itemBonus) ? this.randomItem() : undefined;
+    const item = won && Math.random() < Math.min(0.65, 0.25 + formation.itemBonus + threat.itemBonus) ? this.randomItem() : undefined;
 
     if (item) {
       reward.item = item;
@@ -300,6 +327,7 @@ export class GameStateService {
     squad: Monster[],
     won: boolean,
     reward: BattleReward,
+    formation: ArenaFormation,
     threat: ArenaThreatProfile,
     playerRoll: number,
     enemyRoll: number,
@@ -320,7 +348,8 @@ export class GameStateService {
     const rollMargin = Math.round(playerRoll - enemyRoll);
 
     return [
-      { text: `Arena battle started // ${threat.label}.`, type: 'info' },
+      { text: `Arena battle started // ${formation.name} // ${formation.tier} // ${threat.label}.`, type: 'info' },
+      { text: `Objective: ${formation.objective}`, type: 'info' },
       ...(synergyLead ? [{ text: `${synergyLead.label} boosts allied output (${this.formatPercent(synergyLead.modifier)}).`, type: 'info' as const }] : []),
       { text: `${typePressure.label}: ${typePressure.detail}`, type: 'info' },
       { text: `${attackerA.name} uses ${flavorA} on ${defenderA.name} for ${damageA} damage.${this.matchupSuffix(matchupA, attackerA.type, defenderA.type)}`, type: 'damage' },
@@ -328,7 +357,10 @@ export class GameStateService {
       { text: `${attackerB.name} follows with ${flavorB} for ${damageB} damage.${this.matchupSuffix(matchupB, attackerB.type, defenderB.type)}`, type: 'damage' },
       { text: won ? `Enemy team loses momentum at ${rollMargin >= 120 ? 'full collapse' : 'the edge of the grid'}.` : 'Enemy team regains momentum and compresses the arena line.', type: 'info' },
       { text: won ? `Your squad wins the battle! (${rollMargin >= 0 ? '+' : ''}${rollMargin} sim)` : `Your squad is forced to retreat. (${rollMargin} sim)`, type: won ? 'reward' : 'system' },
-      { text: `Rewards: +${reward.coins} Coins, +${reward.dnaShards} DNA Shards, +${reward.xp} XP.${threat.rewardModifier > 1 ? ` ${threat.label} boost active.` : ''}`, type: 'reward' },
+      {
+        text: `Rewards: +${reward.coins} Coins, +${reward.dnaShards} DNA Shards, +${reward.xp} XP.${formation.tier !== 'Scout' ? ` ${formation.tier} cache active.` : ''}${threat.rewardModifier > 1 ? ` ${threat.label} boost active.` : ''}`,
+        type: 'reward',
+      },
     ];
   }
 
@@ -485,6 +517,25 @@ export class GameStateService {
       rewardModifier: 1,
       itemBonus: 0,
     };
+  }
+
+  private getArenaFormation(battleNumber: number): ArenaFormation {
+    const rotation = this.arenaFormations;
+    if (battleNumber > 0 && battleNumber % 5 === 0) {
+      return rotation.find((formation) => formation.tier === 'Boss') ?? rotation[rotation.length - 1];
+    }
+
+    if (battleNumber > 0 && battleNumber % 3 === 0) {
+      const eliteFormations = rotation.filter((formation) => formation.tier === 'Elite');
+      return eliteFormations[(Math.floor(battleNumber / 3) - 1) % eliteFormations.length];
+    }
+
+    if (battleNumber === 1) {
+      return rotation.find((formation) => formation.tier === 'Scout') ?? rotation[0];
+    }
+
+    const standardPool = rotation.filter((formation) => formation.tier === 'Standard');
+    return standardPool[(Math.max(0, battleNumber - 2)) % standardPool.length];
   }
 
   private getTypeMatchupValue(attacker: MonsterType, defender: MonsterType): -1 | 0 | 1 {

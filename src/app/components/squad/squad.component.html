@@ -131,13 +131,14 @@
         <strong>{{ game.teamPower() }}</strong>
       </div>
       <div class="benchmark-row enemy">
-        <span>Enemy Grid</span>
+        <span>{{ activeFormation().tier }} Grid</span>
         <strong>{{ game.enemyPower() }}</strong>
       </div>
       <div class="power-track" aria-label="Team power match percent">
         <span [style.width.%]="powerMatchPercent()"></span>
       </div>
       <p>{{ powerDeltaLabel() }}</p>
+      <p class="synergy-brief">{{ activeFormation().name }} // {{ arenaDirective().objective }}</p>
     </section>
 
     <section class="next-command tone-{{ nextAction().tone }}" aria-label="Recommended squad action">

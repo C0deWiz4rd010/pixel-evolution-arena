@@ -17,6 +17,8 @@ export class ArenaComponent {
   readonly recentLogs = computed(() => this.game.battleLogs().slice(0, 9));
 
   readonly powerDelta = computed(() => this.game.teamPower() - this.game.enemyPower());
+  readonly arenaDirective = this.game.arenaDirective;
+  readonly activeFormation = this.game.activeFormation;
   readonly arenaThreat = this.game.upcomingArenaThreat;
   readonly squadTypeEdge = this.game.squadTypePressure;
   readonly enemyTypeEdge = this.game.enemyTypePressure;

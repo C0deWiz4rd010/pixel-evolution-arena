@@ -77,6 +77,8 @@ export class EvolutionTreeComponent {
   });
 
   readonly battleDelta = computed(() => this.game.teamPower() - this.game.enemyPower());
+  readonly arenaDirective = this.game.arenaDirective;
+  readonly activeFormation = this.game.activeFormation;
 
   readonly battlePosture = computed(() => {
     const squadSize = this.game.squad().length;

@@ -17,6 +17,21 @@ export interface EnemyMonster {
   type: MonsterType;
 }
 
+export type ArenaTier = 'Scout' | 'Standard' | 'Elite' | 'Boss';
+
+export interface ArenaFormation {
+  id: string;
+  name: string;
+  tier: ArenaTier;
+  objective: string;
+  rewardFocus: string;
+  tacticalHint: string;
+  enemyModifier: number;
+  rewardModifier: number;
+  itemBonus: number;
+  enemies: EnemyMonster[];
+}
+
 export interface BattleReward {
   coins: number;
   dnaShards: number;
