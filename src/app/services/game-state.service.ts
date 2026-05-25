@@ -1,14 +1,28 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
 import { PlayerState } from '../models/player-state.model';
-import { ArenaThreatProfile, buildBattleLogs, calculateEnemyBattleModifier, resolveBattle, shouldAwardItem } from '../rules/battle.rules';
-import { applyEvolutionToPlayer, canEvolve, getRequirementStatuses, RequirementStatus, unlockEvolutionTarget } from '../rules/evolution.rules';
+import { serializeMonsterProgress } from '../models/save-state.model';
+import {
+  ArenaThreatProfile,
+  buildBattleLogs,
+  calculateEnemyBattleModifier,
+  resolveBattle,
+  shouldAwardItem,
+} from '../rules/battle.rules';
+import {
+  applyEvolutionToPlayer,
+  canEvolve,
+  getRequirementStatuses,
+  RequirementStatus,
+  unlockEvolutionTarget,
+} from '../rules/evolution.rules';
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
 import { evaluateTypePressure } from '../rules/type-matchup.rules';
 import { applyXpToSquad } from '../rules/xp.rules';
+import { SaveStateService } from './save-state.service';
 
 export interface ArenaRunDirective {
   title: string;
@@ -17,33 +31,55 @@ export interface ArenaRunDirective {
   tacticalHint: string;
 }
 
+const STARTER_PLAYER_STATE: PlayerState = {
+  coins: 1200,
+  dnaShards: 45,
+  battlesFought: 0,
+  battlesWon: 0,
+  selectedMonsterId: 'M007',
+  squadIds: ['M007', 'M008'],
+  inventory: ['Shadow Gem', 'Ancient Gear'],
+};
+
+const STARTER_BATTLE_LOGS: BattleLog[] = [
+  { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
+  { text: 'Tip: Aquabun can evolve early if you spend starter resources.', type: 'info' },
+];
+
+const STARTER_MONSTERS: Monster[] = MONSTERS.map(cloneMonster);
+const STARTER_MONSTER_IDS = new Set(STARTER_MONSTERS.map((monster) => monster.id));
+
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
+  private readonly saveState = inject(SaveStateService);
+
   readonly stages = STAGES;
   readonly types = TYPES;
   readonly rarities: MonsterRarity[] = ['Common', 'Rare', 'Epic', 'Legendary'];
   readonly arenaFormations = ARENA_FORMATIONS;
   readonly inventoryItems = ['Armor Core', 'Shadow Gem', 'Solar Crest', 'Ancient Gear'];
 
-  readonly monsters = signal<Monster[]>(MONSTERS.map((monster) => ({ ...monster, evolutionTargets: [...monster.evolutionTargets] })));
-
-  readonly player = signal<PlayerState>({
-    coins: 1200,
-    dnaShards: 45,
-    battlesFought: 0,
-    battlesWon: 0,
-    selectedMonsterId: 'M007',
-    squadIds: ['M007', 'M008'],
-    inventory: ['Shadow Gem', 'Ancient Gear'],
-  });
-
-  readonly battleLogs = signal<BattleLog[]>([
-    { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
-    { text: 'Tip: Aquabun can evolve early if you spend starter resources.', type: 'info' },
-  ]);
-
+  readonly monsters = signal<Monster[]>(createStarterMonsters());
+  readonly player = signal<PlayerState>(createStarterPlayerState());
+  readonly battleLogs = signal<BattleLog[]>(createStarterBattleLogs());
   readonly lastReward = signal<BattleReward | null>(null);
   readonly lastBattleThreat = signal<ArenaThreatProfile | null>(null);
+
+  readonly saveSyncState = this.saveState.syncState;
+  readonly saveVersion = this.saveState.saveVersion;
+  readonly saveStatusLabel = computed(() => {
+    switch (this.saveState.syncState()) {
+      case 'unsupported':
+        return 'VOLATILE';
+      case 'error':
+        return 'ERROR';
+      default:
+        return 'SYNCED';
+    }
+  });
+  readonly saveStorageLabel = computed(() => (this.saveState.syncState() === 'unsupported' ? 'Session only' : 'Local archive'));
+  readonly lastSavedLabel = computed(() => formatSaveTimestamp(this.saveState.lastSavedAt()));
+  readonly hasProgressToReset = computed(() => hasProgressBeyondStarter(this.player(), this.monsters()));
 
   readonly selectedMonster = computed(() => {
     const selectedId = this.player().selectedMonsterId;
@@ -88,6 +124,21 @@ export class GameStateService {
     calculateEnemyBattleModifier(this.activeFormation().enemyModifier + this.upcomingArenaThreat().enemyModifier, this.enemyTypePressure().modifier),
   );
 
+  constructor() {
+    const savedState = this.saveState.loadState();
+
+    if (savedState) {
+      this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), savedState.monsters));
+      this.player.set(sanitizePlayerState(savedState.player));
+      this.battleLogs.set(savedState.battleLogs.length ? cloneBattleLogs(savedState.battleLogs) : createStarterBattleLogs());
+      this.lastReward.set(savedState.lastReward ? { ...savedState.lastReward } : null);
+      this.lastBattleThreat.set(savedState.lastBattleThreat ? { ...savedState.lastBattleThreat } : null);
+      return;
+    }
+
+    this.persistState();
+  }
+
   get enemies(): EnemyMonster[] {
     return this.activeFormation().enemies;
   }
@@ -106,6 +157,7 @@ export class GameStateService {
 
   selectMonster(id: string): void {
     this.player.update((player) => ({ ...player, selectedMonsterId: id }));
+    this.persistState();
   }
 
   addToSquad(id: string): void {
@@ -122,14 +174,28 @@ export class GameStateService {
 
       return { ...player, squadIds: [...player.squadIds, id] };
     });
+
+    this.persistState();
   }
 
   removeFromSquad(id: string): void {
     this.player.update((player) => ({ ...player, squadIds: player.squadIds.filter((squadId) => squadId !== id) }));
+    this.persistState();
   }
 
   clearSquad(): void {
     this.player.update((player) => ({ ...player, squadIds: [] }));
+    this.persistState();
+  }
+
+  resetProgress(): void {
+    this.saveState.clearState();
+    this.monsters.set(createStarterMonsters());
+    this.player.set(createStarterPlayerState());
+    this.lastReward.set(null);
+    this.lastBattleThreat.set(null);
+    this.battleLogs.set([{ text: 'Archive reset complete. Starter squad and resources restored.', type: 'system' as const }, ...createStarterBattleLogs()].slice(0, 36));
+    this.persistState();
   }
 
   getEvolutionTargets(monster: Monster): Monster[] {
@@ -153,9 +219,7 @@ export class GameStateService {
     }
 
     this.player.update((player) => applyEvolutionToPlayer(player, target));
-
     this.monsters.update((monsters) => unlockEvolutionTarget(monsters, source, target));
-
     this.prependLog(`${source.name} evolved into ${target.name}!`, 'reward');
   }
 
@@ -213,6 +277,7 @@ export class GameStateService {
     this.lastReward.set(battle.reward);
     this.lastBattleThreat.set(threat);
     this.battleLogs.set([...logs, ...xpResult.logs, ...(item ? [{ text: `Item found: ${item}.`, type: 'reward' as const }] : []), ...this.battleLogs()].slice(0, 36));
+    this.persistState();
   }
 
   getStageCount(stage: MonsterStage): number {
@@ -221,6 +286,20 @@ export class GameStateService {
 
   getTypeCount(type: MonsterType): number {
     return this.monsters().filter((monster) => monster.type === type).length;
+  }
+
+  syncSaveState(): void {
+    this.persistState();
+  }
+
+  private persistState(): void {
+    this.saveState.saveState({
+      player: clonePlayerState(this.player()),
+      monsters: this.monsters().map((monster) => serializeMonsterProgress(monster)),
+      battleLogs: cloneBattleLogs(this.battleLogs()),
+      lastReward: this.lastReward() ? { ...this.lastReward()! } : null,
+      lastBattleThreat: this.lastBattleThreat() ? { ...this.lastBattleThreat()! } : null,
+    });
   }
 
   private getArenaThreatProfile(battleNumber: number): ArenaThreatProfile {
@@ -288,6 +367,7 @@ export class GameStateService {
 
   private prependLog(text: string, type: BattleLog['type']): void {
     this.battleLogs.update((logs) => [{ text, type }, ...logs].slice(0, 36));
+    this.persistState();
   }
 
   private randomItem(): string {
@@ -301,4 +381,91 @@ export class GameStateService {
   private randomBetween(min: number, max: number): number {
     return min + Math.random() * (max - min);
   }
+}
+
+function createStarterMonsters(): Monster[] {
+  return STARTER_MONSTERS.map(cloneMonster);
+}
+
+function createStarterPlayerState(): PlayerState {
+  return clonePlayerState(STARTER_PLAYER_STATE);
+}
+
+function createStarterBattleLogs(): BattleLog[] {
+  return cloneBattleLogs(STARTER_BATTLE_LOGS);
+}
+
+function cloneMonster(monster: Monster): Monster {
+  return {
+    ...monster,
+    evolutionTargets: [...monster.evolutionTargets],
+  };
+}
+
+function clonePlayerState(player: PlayerState): PlayerState {
+  return {
+    ...player,
+    squadIds: [...player.squadIds],
+    inventory: [...player.inventory],
+  };
+}
+
+function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
+  return logs.map((log) => ({ ...log }));
+}
+
+function sanitizePlayerState(player: PlayerState): PlayerState {
+  return {
+    ...clonePlayerState(player),
+    selectedMonsterId:
+      player.selectedMonsterId && STARTER_MONSTER_IDS.has(player.selectedMonsterId)
+        ? player.selectedMonsterId
+        : STARTER_PLAYER_STATE.selectedMonsterId,
+    squadIds: player.squadIds.filter((id) => STARTER_MONSTER_IDS.has(id)).slice(0, 3),
+  };
+}
+
+function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
+  if (
+    player.coins !== STARTER_PLAYER_STATE.coins ||
+    player.dnaShards !== STARTER_PLAYER_STATE.dnaShards ||
+    player.battlesFought !== STARTER_PLAYER_STATE.battlesFought ||
+    player.battlesWon !== STARTER_PLAYER_STATE.battlesWon ||
+    player.selectedMonsterId !== STARTER_PLAYER_STATE.selectedMonsterId ||
+    player.squadIds.join('|') !== STARTER_PLAYER_STATE.squadIds.join('|') ||
+    player.inventory.join('|') !== STARTER_PLAYER_STATE.inventory.join('|')
+  ) {
+    return true;
+  }
+
+  return monsters.some((monster, index) => {
+    const starter = STARTER_MONSTERS[index];
+    return (
+      monster.unlocked !== starter.unlocked ||
+      monster.level !== starter.level ||
+      monster.xp !== starter.xp ||
+      monster.maxXp !== starter.maxXp ||
+      monster.attack !== starter.attack ||
+      monster.defense !== starter.defense ||
+      monster.speed !== starter.speed ||
+      monster.hp !== starter.hp
+    );
+  });
+}
+
+function formatSaveTimestamp(savedAt: string | null): string {
+  if (!savedAt) {
+    return 'Starter sync';
+  }
+
+  const timestamp = new Date(savedAt);
+  if (Number.isNaN(timestamp.getTime())) {
+    return 'Pending sync';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(timestamp);
 }

@@ -96,7 +96,7 @@ Exit criteria:
 
 ## Phase 3: Save And Reset
 
-Status: next
+Status: completed
 
 Goal:
 
@@ -122,7 +122,7 @@ Exit criteria:
 
 ## Phase 4: Battle Depth
 
-Status: queued
+Status: next
 
 Goal:
 

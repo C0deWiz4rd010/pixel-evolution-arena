@@ -124,6 +124,44 @@
         </div>
       </article>
 
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">SAVE</span>
+          <h3>Save Core</h3>
+        </div>
+        <div class="reward-rows">
+          <div>
+            <span>Status</span>
+            <strong>{{ game.saveStatusLabel() }}</strong>
+            <small>{{ game.lastSavedLabel() }}</small>
+          </div>
+          <div>
+            <span>Snapshot Version</span>
+            <strong>V{{ game.saveVersion }}</strong>
+            <small>Compatible with the current local archive schema.</small>
+          </div>
+          <div>
+            <span>Storage Lane</span>
+            <strong>{{ game.saveStorageLabel() }}</strong>
+            <small>Progress survives refresh while local storage is available.</small>
+          </div>
+        </div>
+        <div class="save-actions">
+          <button type="button" (click)="saveNow()">Save Now</button>
+          @if (!resetArmed()) {
+            <button type="button" class="danger-action" [disabled]="!game.hasProgressToReset()" (click)="armReset()">Arm Reset</button>
+          } @else {
+            <button type="button" class="danger-action" (click)="confirmReset()">Confirm Reset</button>
+            <button type="button" (click)="cancelReset()">Cancel</button>
+          }
+        </div>
+        @if (resetArmed()) {
+          <p class="archive-warning">
+            Reset restores the starter squad, base resources, and default unlock state in the local archive.
+          </p>
+        }
+      </article>
+
       <article class="manual-card wide">
         <div class="card-heading">
           <span class="card-code">STAGES</span>
@@ -160,6 +198,10 @@
       <div class="manual-stat">
         <span>Last Reward</span>
         <strong>{{ lastRewardLabel() }}</strong>
+      </div>
+      <div class="manual-stat">
+        <span>Save Status</span>
+        <strong>{{ game.saveStatusLabel() }}</strong>
       </div>
     </div>
 

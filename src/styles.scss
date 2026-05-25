@@ -292,7 +292,7 @@ li {
 
 .hud-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(128px, 0.85fr)) minmax(220px, 1.35fr);
+  grid-template-columns: repeat(5, minmax(124px, 0.82fr)) minmax(220px, 1.35fr);
   gap: 0.42rem;
   min-width: 0;
 }
@@ -464,6 +464,11 @@ li {
 .wins strong,
 .power strong {
   color: var(--success);
+}
+
+.save .stat-icon,
+.save strong {
+  color: var(--line-bright);
 }
 
 .tab-nav {
@@ -1934,7 +1939,7 @@ app-monster-card {
   }
 
   .hud-stats {
-    grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(210px, 1.35fr);
+    grid-template-columns: repeat(5, minmax(116px, 1fr)) minmax(210px, 1.35fr);
   }
 
   .brand-copy h1 {

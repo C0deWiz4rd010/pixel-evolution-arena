@@ -48,3 +48,23 @@ test('default route can evolve and battles produce rewards', async ({ page }) =>
   await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
   await expect(page.getByText(/Rewards: \+\d+ Coins, \+\d+ DNA Shards, \+\d+ XP\./)).toBeVisible();
 });
+
+test('progress survives reload and reset restores the starter state', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const nav = page.locator('nav[aria-label="Game sections"]');
+  const detailPanel = page.locator('aside.detail-panel');
+
+  await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
+  await detailPanel.getByRole('button', { name: 'Evolve' }).click();
+  await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
+
+  await nav.getByRole('button', { name: /Handbook/i }).click();
+  await page.getByRole('button', { name: 'Arm Reset' }).click();
+  await page.getByRole('button', { name: 'Confirm Reset' }).click();
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
+});

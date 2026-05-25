@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 
@@ -35,6 +35,7 @@ const STAGE_GLYPHS: Record<MonsterStage, string> = {
 })
 export class HandbookComponent {
   readonly game = inject(GameStateService);
+  readonly resetArmed = signal(false);
 
   readonly stageRows = computed<StageManualRow[]>(() => {
     const monsters = this.game.monsters();
@@ -180,4 +181,21 @@ export class HandbookComponent {
       },
     ];
   });
+
+  saveNow(): void {
+    this.game.syncSaveState();
+  }
+
+  armReset(): void {
+    this.resetArmed.set(true);
+  }
+
+  cancelReset(): void {
+    this.resetArmed.set(false);
+  }
+
+  confirmReset(): void {
+    this.game.resetProgress();
+    this.resetArmed.set(false);
+  }
 }

@@ -28,6 +28,12 @@
       <span class="stat-label">Battles Won</span>
       <strong>{{ game.player().battlesWon }}</strong>
     </div>
+    <div class="stat-chip save">
+      <span class="stat-icon">SV</span>
+      <span class="stat-label">Save Core</span>
+      <strong>{{ game.saveStatusLabel() }}</strong>
+      <small>{{ game.lastSavedLabel() }}</small>
+    </div>
     <div class="stat-chip selected">
       <span class="selected-icon">
         @if (game.selectedMonster(); as selectedMonster) {

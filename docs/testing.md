@@ -30,6 +30,7 @@ Current automated coverage focus:
 - squad synergy and modifier clamping
 - type matchup summaries
 - critical browser flow smoke for tabs, filters, empty-squad blocking, evolution, and battle rewards
+- save persistence across reload and reset-to-starter flow
 
 ## Manual Smoke Test
 
@@ -45,6 +46,8 @@ Verify:
 - Arena battle requires at least one squad monster.
 - Battle rewards update coins, DNA shards, XP, levels, battle count, and inventory.
 - Collection filters by stage, type, rarity, and lock status.
+- Refresh preserves local progress.
+- The handbook reset flow restores the starter squad, resources, and selected route.
 - Automated smoke remains green after any UI or state-management refactor.
 
 ## Responsive Checks
