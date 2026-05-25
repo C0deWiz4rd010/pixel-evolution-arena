@@ -8,6 +8,29 @@ Run:
 npm.cmd run build
 ```
 
+## Automated Checks
+
+Unit tests:
+
+```bash
+npm.cmd run test
+```
+
+Browser smoke tests:
+
+```bash
+npm.cmd run test:e2e
+```
+
+Current automated coverage focus:
+
+- battle reward calculation
+- XP overflow and repeated level-ups
+- evolution requirement checks and item consumption
+- squad synergy and modifier clamping
+- type matchup summaries
+- critical browser flow smoke for tabs, filters, empty-squad blocking, evolution, and battle rewards
+
 ## Manual Smoke Test
 
 Verify:
@@ -22,6 +45,7 @@ Verify:
 - Arena battle requires at least one squad monster.
 - Battle rewards update coins, DNA shards, XP, levels, battle count, and inventory.
 - Collection filters by stage, type, rarity, and lock status.
+- Automated smoke remains green after any UI or state-management refactor.
 
 ## Responsive Checks
 

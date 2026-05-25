@@ -69,7 +69,7 @@ Exit criteria:
 
 ## Phase 2: Test Foundation
 
-Status: next
+Status: completed
 
 Goal:
 
@@ -96,7 +96,7 @@ Exit criteria:
 
 ## Phase 3: Save And Reset
 
-Status: queued
+Status: next
 
 Goal:
 
