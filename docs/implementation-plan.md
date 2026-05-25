@@ -1,5 +1,9 @@
 # Implementation Plan
 
+This file documents the original MVP implementation path that produced the first playable prototype.
+
+For the current post-MVP expansion plan, use [next-implementation-roadmap.md](./next-implementation-roadmap.md).
+
 ## Step 1: Repo Prep
 
 - Create feature branch.
@@ -15,7 +19,7 @@
   - `docs/gameplay-implementation-checklist.md`
 - Confirm technical decision gate:
   - Angular 21 current package versions.
-  - No Three.js dependency for MVP unless a real 3D gameplay/inspection surface is added.
+  - No renderer-owned gameplay systems; visual effects remain optional and view-only.
 - Scaffold Angular in repository root.
 - Add app-wide SCSS theme.
 - Create Header HUD and Tab Navigation.

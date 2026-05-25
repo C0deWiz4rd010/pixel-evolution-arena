@@ -61,6 +61,7 @@ PowerShell note: use `npm.cmd`/`npx.cmd` if local execution policy blocks `npm.p
 - [Game Design](docs/game-design.md)
 - [Balance And Progression](docs/balance-and-progression.md)
 - [Gameplay Checklist](docs/gameplay-implementation-checklist.md)
+- [Next Roadmap](docs/next-implementation-roadmap.md)
 - [Modern Angular Skill](docs/angular-modern-skill.md)
 - [Technical Decisions](docs/technical-decisions.md)
 - [Asset Guidelines](docs/asset-guidelines.md)
