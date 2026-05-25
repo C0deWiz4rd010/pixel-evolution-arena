@@ -41,7 +41,7 @@ Exit criteria:
 
 ## Phase 1: Rules Extraction
 
-Status: next
+Status: completed
 
 Goal:
 
@@ -69,7 +69,7 @@ Exit criteria:
 
 ## Phase 2: Test Foundation
 
-Status: queued
+Status: next
 
 Goal:
 
