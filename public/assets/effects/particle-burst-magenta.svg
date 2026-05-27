@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Magenta particle burst</title>
+  <desc id="desc">Crisp magenta digital particle burst for special routes and rare effects.</desc>
+  <g shape-rendering="crispEdges" fill="none" stroke-linecap="square">
+    <path d="M64 10v24M64 94v24M10 64h24M94 64h24" stroke="#ff55d8" stroke-width="6"/>
+    <path d="M22 34l24 10M82 84l24 10M106 34L82 44M46 84l-24 10" stroke="#b663ff" stroke-width="5"/>
+    <path d="M44 64h40M64 44v40" stroke="#ffd5f5" stroke-width="4"/>
+    <rect x="56" y="56" width="16" height="16" fill="#ff55d8" stroke="none"/>
+    <rect x="28" y="38" width="8" height="8" fill="#ff55d8" stroke="none"/>
+    <rect x="92" y="82" width="8" height="8" fill="#ff55d8" stroke="none"/>
+    <rect x="82" y="28" width="10" height="10" fill="#b663ff" stroke="none"/>
+    <rect x="36" y="90" width="10" height="10" fill="#b663ff" stroke="none"/>
+  </g>
+</svg>

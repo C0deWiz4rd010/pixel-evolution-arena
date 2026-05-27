@@ -1,0 +1,752 @@
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ARENA_FORMATIONS } from '../data/enemies.data';
+import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
+import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
+import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
+import { PlayerState, SquadPreset } from '../models/player-state.model';
+import { serializeMonsterProgress } from '../models/save-state.model';
+import {
+  ArenaThreatProfile,
+  BATTLE_CATEGORIES,
+  BattleCategoryId,
+  BattleCategoryProfile,
+  applyStreakBonus,
+  buildBattleLogs,
+  calculateEnemyBattleModifier,
+  calculateStreakBonus,
+  findCrossedMilestone,
+  generateLossHint,
+  getBattleCategoryProfile,
+  milestoneLabel,
+  predictBattleOutlook,
+  resolveBattle,
+  shouldAwardItem,
+} from '../rules/battle.rules';
+import {
+  applyEvolutionToPlayer,
+  canEvolve,
+  getRequirementStatuses,
+  RequirementStatus,
+  unlockEvolutionTarget,
+} from '../rules/evolution.rules';
+import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
+import { evaluateTypePressure } from '../rules/type-matchup.rules';
+import { applyXpToSquad } from '../rules/xp.rules';
+import { AudioService } from './audio.service';
+import { SaveStateService } from './save-state.service';
+
+export interface ArenaRunDirective {
+  title: string;
+  objective: string;
+  rewardFocus: string;
+  tacticalHint: string;
+}
+
+const STARTER_PLAYER_STATE: PlayerState = {
+  coins: 1200,
+  dnaShards: 45,
+  battlesFought: 0,
+  battlesWon: 0,
+  selectedMonsterId: 'M007',
+  squadIds: ['M007', 'M008'],
+  inventory: ['Shadow Gem', 'Ancient Gear'],
+  winStreak: 0,
+  bestWinStreak: 0,
+  claimedMilestones: [],
+  squadPresets: [],
+  pinnedChaseId: null,
+  claimedStageMilestones: [],
+  audioEnabled: false,
+};
+
+const MAX_SQUAD_PRESETS = 3;
+const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
+
+const STARTER_BATTLE_LOGS: BattleLog[] = [
+  { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
+  { text: 'Tip: Aquabun can evolve early if you spend starter resources.', type: 'info' },
+];
+
+const STARTER_MONSTERS: Monster[] = MONSTERS.map(cloneMonster);
+const STARTER_MONSTER_IDS = new Set(STARTER_MONSTERS.map((monster) => monster.id));
+
+@Injectable({ providedIn: 'root' })
+export class GameStateService {
+  private readonly saveState = inject(SaveStateService);
+  private readonly audio = inject(AudioService);
+
+  readonly stages = STAGES;
+  readonly types = TYPES;
+  readonly rarities: MonsterRarity[] = ['Common', 'Rare', 'Epic', 'Legendary'];
+  readonly arenaFormations = ARENA_FORMATIONS;
+  readonly inventoryItems = ['Armor Core', 'Shadow Gem', 'Solar Crest', 'Ancient Gear'];
+
+  readonly battleCategories = BATTLE_CATEGORIES;
+
+  readonly monsters = signal<Monster[]>(createStarterMonsters());
+  readonly player = signal<PlayerState>(createStarterPlayerState());
+  readonly battleLogs = signal<BattleLog[]>(createStarterBattleLogs());
+  readonly lastReward = signal<BattleReward | null>(null);
+  readonly lastBattleThreat = signal<ArenaThreatProfile | null>(null);
+  readonly battleCategoryId = signal<BattleCategoryId>('standard');
+  readonly battleCategory = computed<BattleCategoryProfile>(() => getBattleCategoryProfile(this.battleCategoryId()));
+
+  readonly saveSyncState = this.saveState.syncState;
+  readonly saveVersion = this.saveState.saveVersion;
+  readonly saveStatusLabel = computed(() => {
+    switch (this.saveState.syncState()) {
+      case 'unsupported':
+        return 'VOLATILE';
+      case 'error':
+        return 'ERROR';
+      default:
+        return 'SYNCED';
+    }
+  });
+  readonly saveStorageLabel = computed(() => (this.saveState.syncState() === 'unsupported' ? 'Session only' : 'Local archive'));
+  readonly lastSavedLabel = computed(() => formatSaveTimestamp(this.saveState.lastSavedAt()));
+  readonly hasProgressToReset = computed(() => hasProgressBeyondStarter(this.player(), this.monsters()));
+
+  readonly selectedMonster = computed(() => {
+    const selectedId = this.player().selectedMonsterId;
+    return this.monsters().find((monster) => monster.id === selectedId) ?? this.monsters().find((monster) => monster.unlocked) ?? null;
+  });
+
+  readonly squad = computed(() => this.player().squadIds.map((id) => this.getMonsterById(id)).filter((monster): monster is Monster => Boolean(monster)));
+
+  readonly teamPower = computed(() => this.squad().reduce((total, monster) => total + getMonsterPower(monster), 0));
+
+  readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
+
+  readonly lockedCount = computed(() => this.monsters().length - this.unlockedCount());
+
+  readonly activeFormation = computed(() => this.getArenaFormation(this.player().battlesFought + 1));
+
+  readonly enemyPower = computed(() => this.enemies.reduce((total, enemy) => total + getMonsterPower(enemy), 0));
+
+  readonly upcomingArenaThreat = computed(() => this.getArenaThreatProfile(this.player().battlesFought + 1));
+
+  readonly arenaDirective = computed<ArenaRunDirective>(() => {
+    const formation = this.activeFormation();
+    const threat = this.upcomingArenaThreat();
+
+    return {
+      title: `${formation.tier} // ${formation.name}`,
+      objective: formation.objective,
+      rewardFocus: `${formation.rewardFocus} ${threat.rewardModifier > 1 ? `${threat.label} bonus live.` : ''}`.trim(),
+      tacticalHint: `${formation.tacticalHint} ${threat.detail}`.trim(),
+    };
+  });
+
+  readonly squadSynergies = computed(() => evaluateSquadSynergies(this.squad()));
+
+  readonly squadTypePressure = computed(() => evaluateTypePressure(this.squad().map((monster) => monster.type), this.enemies.map((enemy) => enemy.type)));
+
+  readonly enemyTypePressure = computed(() => evaluateTypePressure(this.enemies.map((enemy) => enemy.type), this.squad().map((monster) => monster.type), true));
+
+  readonly squadBattleModifier = computed(() => calculateSquadBattleModifier(this.squadSynergies(), this.squadTypePressure().modifier));
+
+  readonly enemyBattleModifier = computed(() =>
+    calculateEnemyBattleModifier(
+      this.activeFormation().enemyModifier + this.upcomingArenaThreat().enemyModifier + this.battleCategory().enemyModifier,
+      this.enemyTypePressure().modifier,
+    ),
+  );
+
+  readonly battleOutlook = computed(() =>
+    predictBattleOutlook({
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      playerModifier: this.squadBattleModifier(),
+      enemyModifier: this.enemyBattleModifier(),
+      hasSquad: this.squad().length > 0,
+    }),
+  );
+
+  readonly winStreak = computed(() => this.player().winStreak);
+  readonly bestWinStreak = computed(() => this.player().bestWinStreak);
+  readonly streakLabel = computed(() => {
+    const streak = this.winStreak();
+    if (streak <= 0) {
+      return 'No streak';
+    }
+    return `x${streak}`;
+  });
+
+  readonly pinnedChaseId = computed(() => this.player().pinnedChaseId);
+  readonly pinnedChase = computed(() => {
+    const id = this.pinnedChaseId();
+    if (!id) {
+      return null;
+    }
+    return this.getMonsterById(id) ?? null;
+  });
+
+  constructor() {
+    const savedState = this.saveState.loadState();
+
+    if (savedState) {
+      this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), savedState.monsters));
+      this.player.set(sanitizePlayerState(savedState.player));
+      this.battleLogs.set(savedState.battleLogs.length ? cloneBattleLogs(savedState.battleLogs) : createStarterBattleLogs());
+      this.lastReward.set(savedState.lastReward ? { ...savedState.lastReward } : null);
+      this.lastBattleThreat.set(savedState.lastBattleThreat ? { ...savedState.lastBattleThreat } : null);
+      this.audio.setEnabled(this.player().audioEnabled);
+      return;
+    }
+
+    this.audio.setEnabled(this.player().audioEnabled);
+    this.persistState();
+  }
+
+  toggleAudio(): boolean {
+    const next = !this.player().audioEnabled;
+    this.player.update((current) => ({ ...current, audioEnabled: next }));
+    this.audio.setEnabled(next);
+    if (next) {
+      this.audio.play('menu');
+    }
+    this.persistState();
+    return next;
+  }
+
+  get audioEnabled(): boolean {
+    return this.player().audioEnabled;
+  }
+
+  get enemies(): EnemyMonster[] {
+    return this.activeFormation().enemies;
+  }
+
+  getMonsterPower(monster: Monster): number {
+    return getMonsterPower(monster);
+  }
+
+  stageClass(stage: MonsterStage): string {
+    return stage.toLowerCase().replace(/\s+/g, '-').replace('in-training', 'intraining');
+  }
+
+  getMonsterById(id: string): Monster | undefined {
+    return this.monsters().find((monster) => monster.id === id);
+  }
+
+  selectMonster(id: string): void {
+    this.player.update((player) => ({ ...player, selectedMonsterId: id }));
+    this.persistState();
+  }
+
+  addToSquad(id: string): void {
+    const monster = this.getMonsterById(id);
+    if (!monster?.unlocked) {
+      this.prependLog(`${monster?.name ?? 'Locked creature'} must be unlocked before joining the squad.`, 'system');
+      return;
+    }
+
+    this.player.update((player) => {
+      if (player.squadIds.includes(id) || player.squadIds.length >= 3) {
+        return player;
+      }
+
+      return { ...player, squadIds: [...player.squadIds, id] };
+    });
+
+    this.persistState();
+  }
+
+  removeFromSquad(id: string): void {
+    this.player.update((player) => ({ ...player, squadIds: player.squadIds.filter((squadId) => squadId !== id) }));
+    this.persistState();
+  }
+
+  clearSquad(): void {
+    this.player.update((player) => ({ ...player, squadIds: [] }));
+    this.persistState();
+  }
+
+  setBattleCategory(id: BattleCategoryId): void {
+    this.battleCategoryId.set(id);
+  }
+
+  saveSquadPreset(name: string): SquadPreset | null {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    const squadIds = [...this.player().squadIds];
+    if (squadIds.length === 0) {
+      this.prependLog('Cannot save an empty squad as a preset.', 'system');
+      return null;
+    }
+
+    let saved: SquadPreset | null = null;
+
+    this.player.update((player) => {
+      const preset: SquadPreset = {
+        id: `preset-${Date.now()}`,
+        name: trimmed.slice(0, 24),
+        squadIds,
+      };
+
+      const existingIndex = player.squadPresets.findIndex((current) => current.name.toLowerCase() === preset.name.toLowerCase());
+      let nextPresets: SquadPreset[];
+      if (existingIndex >= 0) {
+        nextPresets = [...player.squadPresets];
+        nextPresets[existingIndex] = preset;
+      } else if (player.squadPresets.length >= MAX_SQUAD_PRESETS) {
+        nextPresets = [...player.squadPresets.slice(1), preset];
+      } else {
+        nextPresets = [...player.squadPresets, preset];
+      }
+
+      saved = preset;
+      return { ...player, squadPresets: nextPresets };
+    });
+
+    this.persistState();
+    return saved;
+  }
+
+  loadSquadPreset(presetId: string): void {
+    const preset = this.player().squadPresets.find((entry) => entry.id === presetId);
+    if (!preset) {
+      return;
+    }
+
+    const validIds = preset.squadIds.filter((id) => {
+      const monster = this.getMonsterById(id);
+      return monster?.unlocked;
+    });
+
+    this.player.update((player) => ({ ...player, squadIds: validIds.slice(0, 3) }));
+    this.prependLog(`Loaded preset "${preset.name}" into squad.`, 'info');
+  }
+
+  deleteSquadPreset(presetId: string): void {
+    this.player.update((player) => ({
+      ...player,
+      squadPresets: player.squadPresets.filter((preset) => preset.id !== presetId),
+    }));
+    this.persistState();
+  }
+
+  pinChaseTarget(id: string): void {
+    const monster = this.getMonsterById(id);
+    if (!monster) {
+      return;
+    }
+    this.player.update((player) => ({ ...player, pinnedChaseId: id }));
+    this.persistState();
+  }
+
+  unpinChaseTarget(): void {
+    this.player.update((player) => ({ ...player, pinnedChaseId: null }));
+    this.persistState();
+  }
+
+  resetProgress(): void {
+    this.saveState.clearState();
+    this.monsters.set(createStarterMonsters());
+    this.player.set(createStarterPlayerState());
+    this.lastReward.set(null);
+    this.lastBattleThreat.set(null);
+    this.battleLogs.set([{ text: 'Archive reset complete. Starter squad and resources restored.', type: 'system' as const }, ...createStarterBattleLogs()].slice(0, 36));
+    this.persistState();
+  }
+
+  getEvolutionTargets(monster: Monster): Monster[] {
+    return monster.evolutionTargets.map((targetId) => this.getMonsterById(targetId)).filter((target): target is Monster => Boolean(target));
+  }
+
+  getRequirementStatuses(source: Monster, target: Monster): RequirementStatus[] {
+    return getRequirementStatuses(source, target, this.player());
+  }
+
+  canEvolve(source: Monster, target: Monster): boolean {
+    return canEvolve(source, target, this.player());
+  }
+
+  evolve(sourceId: string, targetId: string): void {
+    const source = this.getMonsterById(sourceId);
+    const target = this.getMonsterById(targetId);
+    if (!source || !target || !this.canEvolve(source, target)) {
+      this.prependLog('Evolution requirements are not met yet.', 'system');
+      return;
+    }
+
+    this.player.update((player) => applyEvolutionToPlayer(player, target));
+    this.monsters.update((monsters) => unlockEvolutionTarget(monsters, source, target));
+    this.prependLog(`${source.name} evolved into ${target.name}!`, 'reward');
+    this.audio.play('evolve');
+
+    if (this.player().pinnedChaseId === target.id) {
+      this.unpinChaseTarget();
+    }
+
+    this.awardStageMilestoneIfComplete(target.stage);
+    this.persistState();
+  }
+
+  private awardStageMilestoneIfComplete(stage: MonsterStage): void {
+    const player = this.player();
+    if (player.claimedStageMilestones.includes(stage)) {
+      return;
+    }
+
+    const stageMonsters = this.monsters().filter((monster) => monster.stage === stage);
+    if (stageMonsters.length === 0 || stageMonsters.some((monster) => !monster.unlocked)) {
+      return;
+    }
+
+    this.player.update((current) => ({
+      ...current,
+      coins: current.coins + STAGE_MILESTONE_REWARD.coins,
+      dnaShards: current.dnaShards + STAGE_MILESTONE_REWARD.dnaShards,
+      claimedStageMilestones: [...current.claimedStageMilestones, stage],
+    }));
+
+    this.prependLog(
+      `${stage} stage fully online: +${STAGE_MILESTONE_REWARD.coins} Coins, +${STAGE_MILESTONE_REWARD.dnaShards} DNA Shards.`,
+      'reward',
+    );
+  }
+
+  startBattle(): void {
+    const squad = this.squad();
+    if (squad.length === 0) {
+      this.lastReward.set(null);
+      this.lastBattleThreat.set(null);
+      this.prependLog('Add at least one monster to your squad.', 'system');
+      return;
+    }
+
+    const formation = this.activeFormation();
+    const threat = this.upcomingArenaThreat();
+    const category = this.battleCategory();
+    const battle = resolveBattle({
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      playerModifier: this.squadBattleModifier(),
+      enemyModifier: this.enemyBattleModifier(),
+      rewardMultiplier: formation.rewardModifier * threat.rewardModifier * category.rewardModifier,
+      randomBetween: (min, max) => this.randomBetween(min, max),
+    });
+    const logs = buildBattleLogs({
+      squad,
+      enemies: this.enemies,
+      reward: battle.reward,
+      formation,
+      threat,
+      playerRoll: battle.playerRoll,
+      enemyRoll: battle.enemyRoll,
+      synergyLead: this.squadSynergies()[0] ?? null,
+      typePressure: this.squadTypePressure(),
+      randomFrom: <T>(items: T[]) => this.randomFrom(items),
+      randomBetween: (min, max) => this.randomBetween(min, max),
+    });
+    const currentPlayer = this.player();
+    const nextStreak = battle.won ? currentPlayer.winStreak + 1 : 0;
+    const streakBonus = battle.won ? calculateStreakBonus(nextStreak, battle.reward) : { coins: 0, xp: 0 };
+    let reward = battle.won ? applyStreakBonus(battle.reward, streakBonus, nextStreak) : { ...battle.reward, streakAfter: 0 };
+
+    const xpResult = applyXpToSquad(this.monsters(), this.player().squadIds, reward.xp);
+    this.monsters.set(xpResult.updatedMonsters);
+
+    const itemChance = Math.min(0.65, Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus));
+    const item = shouldAwardItem(battle.won, itemChance, Math.random()) ? this.randomItem() : undefined;
+
+    if (item) {
+      reward.item = item;
+    }
+
+    const nextBattlesWon = currentPlayer.battlesWon + (battle.won ? 1 : 0);
+    const crossedMilestone = battle.won
+      ? findCrossedMilestone(currentPlayer.battlesWon, nextBattlesWon, currentPlayer.claimedMilestones)
+      : null;
+
+    if (crossedMilestone !== null) {
+      reward = { ...reward, milestoneLabel: milestoneLabel(crossedMilestone) };
+    }
+
+    if (!battle.won) {
+      reward = {
+        ...reward,
+        lossHint: generateLossHint({
+          squad,
+          enemies: this.enemies,
+          teamPower: this.teamPower(),
+          enemyPower: this.enemyPower(),
+          typePressureLabel: this.squadTypePressure().label,
+          squadSize: squad.length,
+        }),
+      };
+    }
+
+    this.player.update((player) => ({
+      ...player,
+      coins: player.coins + reward.coins,
+      dnaShards: player.dnaShards + reward.dnaShards,
+      battlesFought: player.battlesFought + 1,
+      battlesWon: nextBattlesWon,
+      inventory: item ? [...player.inventory, item] : player.inventory,
+      winStreak: nextStreak,
+      bestWinStreak: Math.max(player.bestWinStreak, nextStreak),
+      claimedMilestones:
+        crossedMilestone !== null ? [...player.claimedMilestones, crossedMilestone] : player.claimedMilestones,
+    }));
+
+    const milestoneLog =
+      crossedMilestone !== null
+        ? [{ text: milestoneLabel(crossedMilestone), type: 'reward' as const }]
+        : [];
+    const streakLog =
+      battle.won && (reward.streakBonusCoins ?? 0) + (reward.streakBonusXp ?? 0) > 0
+        ? [
+            {
+              text: `Win streak x${nextStreak}: +${reward.streakBonusCoins ?? 0} Coins, +${reward.streakBonusXp ?? 0} XP bonus.`,
+              type: 'reward' as const,
+            },
+          ]
+        : [];
+    const lossHintLog = reward.lossHint ? [{ text: reward.lossHint, type: 'system' as const }] : [];
+
+    this.lastReward.set(reward);
+    this.lastBattleThreat.set(threat);
+    this.audio.play(battle.won ? 'win' : 'loss');
+    if (item) {
+      this.audio.play('item');
+    }
+    if (xpResult.logs.some((entry) => entry.text.toLowerCase().includes('level'))) {
+      this.audio.play('level-up');
+    }
+    this.battleLogs.set(
+      [
+        ...logs,
+        ...xpResult.logs,
+        ...streakLog,
+        ...milestoneLog,
+        ...lossHintLog,
+        ...(item ? [{ text: `Item found: ${item}.`, type: 'reward' as const }] : []),
+        ...this.battleLogs(),
+      ].slice(0, 36),
+    );
+    this.persistState();
+  }
+
+  getStageCount(stage: MonsterStage): number {
+    return this.monsters().filter((monster) => monster.stage === stage).length;
+  }
+
+  getTypeCount(type: MonsterType): number {
+    return this.monsters().filter((monster) => monster.type === type).length;
+  }
+
+  syncSaveState(): void {
+    this.persistState();
+  }
+
+  private persistState(): void {
+    this.saveState.saveState({
+      player: clonePlayerState(this.player()),
+      monsters: this.monsters().map((monster) => serializeMonsterProgress(monster)),
+      battleLogs: cloneBattleLogs(this.battleLogs()),
+      lastReward: this.lastReward() ? { ...this.lastReward()! } : null,
+      lastBattleThreat: this.lastBattleThreat() ? { ...this.lastBattleThreat()! } : null,
+    });
+  }
+
+  private getArenaThreatProfile(battleNumber: number): ArenaThreatProfile {
+    if (battleNumber > 0 && battleNumber % 5 === 0) {
+      return {
+        id: 'boss',
+        label: 'Boss Surge',
+        detail: 'Every fifth sim spikes enemy stats but pays the richest rewards.',
+        enemyModifier: 0.18,
+        rewardModifier: 1.35,
+        itemBonus: 0.18,
+      };
+    }
+
+    if (battleNumber > 0 && battleNumber % 3 === 0) {
+      return {
+        id: 'hazard',
+        label: 'Hazard Zone',
+        detail: 'Arena hazards amplify enemy pressure and raise payout.',
+        enemyModifier: 0.1,
+        rewardModifier: 1.18,
+        itemBonus: 0.08,
+      };
+    }
+
+    if (battleNumber > 0 && battleNumber % 2 === 0) {
+      return {
+        id: 'volatile',
+        label: 'Volatile Grid',
+        detail: 'A noisy signal state with slightly boosted enemy tempo and rewards.',
+        enemyModifier: 0.05,
+        rewardModifier: 1.08,
+        itemBonus: 0.04,
+      };
+    }
+
+    return {
+      id: 'standard',
+      label: 'Calm Circuit',
+      detail: 'Baseline arena conditions with no danger spike.',
+      enemyModifier: 0,
+      rewardModifier: 1,
+      itemBonus: 0,
+    };
+  }
+
+  private getArenaFormation(battleNumber: number): ArenaFormation {
+    const rotation = this.arenaFormations;
+    if (battleNumber > 0 && battleNumber % 5 === 0) {
+      return rotation.find((formation) => formation.tier === 'Boss') ?? rotation[rotation.length - 1];
+    }
+
+    if (battleNumber > 0 && battleNumber % 3 === 0) {
+      const eliteFormations = rotation.filter((formation) => formation.tier === 'Elite');
+      return eliteFormations[(Math.floor(battleNumber / 3) - 1) % eliteFormations.length];
+    }
+
+    if (battleNumber === 1) {
+      return rotation.find((formation) => formation.tier === 'Scout') ?? rotation[0];
+    }
+
+    const standardPool = rotation.filter((formation) => formation.tier === 'Standard');
+    return standardPool[(Math.max(0, battleNumber - 2)) % standardPool.length];
+  }
+
+  private prependLog(text: string, type: BattleLog['type']): void {
+    this.battleLogs.update((logs) => [{ text, type }, ...logs].slice(0, 36));
+    this.persistState();
+  }
+
+  private randomItem(): string {
+    return this.randomFrom(this.inventoryItems);
+  }
+
+  private randomFrom<T>(items: T[]): T {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  private randomBetween(min: number, max: number): number {
+    return min + Math.random() * (max - min);
+  }
+}
+
+function createStarterMonsters(): Monster[] {
+  return STARTER_MONSTERS.map(cloneMonster);
+}
+
+function createStarterPlayerState(): PlayerState {
+  return clonePlayerState(STARTER_PLAYER_STATE);
+}
+
+function createStarterBattleLogs(): BattleLog[] {
+  return cloneBattleLogs(STARTER_BATTLE_LOGS);
+}
+
+function cloneMonster(monster: Monster): Monster {
+  return {
+    ...monster,
+    evolutionTargets: [...monster.evolutionTargets],
+  };
+}
+
+function clonePlayerState(player: PlayerState): PlayerState {
+  return {
+    ...player,
+    squadIds: [...player.squadIds],
+    inventory: [...player.inventory],
+    claimedMilestones: [...player.claimedMilestones],
+    squadPresets: player.squadPresets.map((preset) => ({ ...preset, squadIds: [...preset.squadIds] })),
+    claimedStageMilestones: [...player.claimedStageMilestones],
+  };
+}
+
+function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
+  return logs.map((log) => ({ ...log }));
+}
+
+function sanitizePlayerState(player: PlayerState): PlayerState {
+  return {
+    ...clonePlayerState(player),
+    selectedMonsterId:
+      player.selectedMonsterId && STARTER_MONSTER_IDS.has(player.selectedMonsterId)
+        ? player.selectedMonsterId
+        : STARTER_PLAYER_STATE.selectedMonsterId,
+    squadIds: player.squadIds.filter((id) => STARTER_MONSTER_IDS.has(id)).slice(0, 3),
+    winStreak: Math.max(0, player.winStreak ?? 0),
+    bestWinStreak: Math.max(0, player.bestWinStreak ?? player.winStreak ?? 0),
+    claimedMilestones: Array.isArray(player.claimedMilestones) ? [...player.claimedMilestones] : [],
+    squadPresets: Array.isArray(player.squadPresets)
+      ? player.squadPresets
+          .map((preset) => ({
+            id: preset.id,
+            name: preset.name,
+            squadIds: preset.squadIds.filter((id) => STARTER_MONSTER_IDS.has(id)).slice(0, 3),
+          }))
+          .slice(0, 3)
+      : [],
+    pinnedChaseId:
+      player.pinnedChaseId && STARTER_MONSTER_IDS.has(player.pinnedChaseId) ? player.pinnedChaseId : null,
+    claimedStageMilestones: Array.isArray(player.claimedStageMilestones)
+      ? [...player.claimedStageMilestones]
+      : [],
+    audioEnabled: typeof player.audioEnabled === 'boolean' ? player.audioEnabled : false,
+  };
+}
+
+function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
+  if (
+    player.coins !== STARTER_PLAYER_STATE.coins ||
+    player.dnaShards !== STARTER_PLAYER_STATE.dnaShards ||
+    player.battlesFought !== STARTER_PLAYER_STATE.battlesFought ||
+    player.battlesWon !== STARTER_PLAYER_STATE.battlesWon ||
+    player.selectedMonsterId !== STARTER_PLAYER_STATE.selectedMonsterId ||
+    player.squadIds.join('|') !== STARTER_PLAYER_STATE.squadIds.join('|') ||
+    player.inventory.join('|') !== STARTER_PLAYER_STATE.inventory.join('|') ||
+    (player.winStreak ?? 0) !== 0 ||
+    (player.bestWinStreak ?? 0) !== 0 ||
+    (player.claimedMilestones?.length ?? 0) > 0 ||
+    (player.squadPresets?.length ?? 0) > 0 ||
+    player.pinnedChaseId !== null ||
+    (player.claimedStageMilestones?.length ?? 0) > 0 ||
+    player.audioEnabled !== STARTER_PLAYER_STATE.audioEnabled
+  ) {
+    return true;
+  }
+
+  return monsters.some((monster, index) => {
+    const starter = STARTER_MONSTERS[index];
+    return (
+      monster.unlocked !== starter.unlocked ||
+      monster.level !== starter.level ||
+      monster.xp !== starter.xp ||
+      monster.maxXp !== starter.maxXp ||
+      monster.attack !== starter.attack ||
+      monster.defense !== starter.defense ||
+      monster.speed !== starter.speed ||
+      monster.hp !== starter.hp
+    );
+  });
+}
+
+function formatSaveTimestamp(savedAt: string | null): string {
+  if (!savedAt) {
+    return 'Starter sync';
+  }
+
+  const timestamp = new Date(savedAt);
+  if (Number.isNaN(timestamp.getTime())) {
+    return 'Pending sync';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(timestamp);
+}

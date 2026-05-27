@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="80" viewBox="0 0 192 80" role="img" aria-labelledby="title desc">
+  <title id="title">Branch route arrow</title>
+  <desc id="desc">Dashed yellow branch route arrow for alternate evolution paths.</desc>
+  <g shape-rendering="crispEdges" fill="none">
+    <path d="M8 48H74V24H156" stroke="#ffe12b" stroke-width="6" stroke-dasharray="14 10"/>
+    <polygon points="156 8 188 24 156 40" fill="#ffe12b" stroke="none"/>
+    <rect x="68" y="42" width="12" height="12" fill="#ff9c24" stroke="none"/>
+    <path d="M74 48v18h62" stroke="#ffe12b" stroke-width="4" stroke-dasharray="10 8"/>
+  </g>
+</svg>

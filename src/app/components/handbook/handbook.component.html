@@ -1,0 +1,238 @@
+<div class="handbook-layout">
+  <section class="hud-panel handbook-main">
+    <div class="manual-hero">
+      <div class="manual-title-block">
+        <span class="panel-eyebrow">Manual/Data Panel</span>
+        <h2>Field Handbook</h2>
+        <p>Live command rules for squad building, route checks, rewards, and evolution gates.</p>
+      </div>
+      <span class="manual-code">
+        <span>MANUAL</span>
+        <strong>V0.2</strong>
+      </span>
+    </div>
+
+    @if (directive(); as directiveSignal) {
+      <div class="directive-banner {{ directiveSignal.tone }}">
+        <span class="directive-code">{{ directiveSignal.code }}</span>
+        <div>
+          <span>Current Directive</span>
+          <strong>{{ directiveSignal.label }}</strong>
+          <p>{{ directiveSignal.detail }}</p>
+        </div>
+      </div>
+    }
+
+    <div class="manual-grid command-grid">
+      <article class="manual-card wide">
+        <div class="card-heading">
+          <span class="card-code">RULESET</span>
+          <h3>Next-Step Rules</h3>
+        </div>
+        <div class="rule-stack">
+          @for (rule of nextRules(); track rule.code) {
+            <div class="rule-line" [class.active]="rule.active">
+              <span class="rule-code">{{ rule.code }}</span>
+              <div>
+                <strong>{{ rule.label }}</strong>
+                <p>{{ rule.detail }}</p>
+              </div>
+              <small>{{ rule.state }}</small>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">ROUTE</span>
+          <h3>Selected Route</h3>
+        </div>
+        @if (game.selectedMonster(); as selected) {
+          <div class="selected-readout">
+            <span class="selected-id">{{ selected.id }}</span>
+            <strong>{{ selected.name }}</strong>
+            <small>{{ selected.stage }} / LV. {{ selected.level }}</small>
+          </div>
+          <div class="route-targets">
+            @for (route of selectedRoutes(); track route.target.id) {
+              <div class="route-target" [class.ready]="route.ready">
+                <span>{{ route.target.id }}</span>
+                <strong>{{ route.target.name }}</strong>
+                <small>{{ route.ready ? 'Ready' : route.missingLabel }}</small>
+              </div>
+            } @empty {
+              <p class="empty-note">
+                No further route from this selected signal. Battle or choose a new chase target.
+              </p>
+            }
+          </div>
+        } @else {
+          <p class="empty-note">
+            No selected signal. Return to Evolution Tree and select a creature node.
+          </p>
+        }
+      </article>
+
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">PAYLOAD</span>
+          <h3>Reward Decoder</h3>
+        </div>
+        <div class="reward-rows">
+          <div>
+            <span>Win packet</span>
+            <strong>+120 CR / +8 DNA / +35 XP</strong>
+            <small>Win count plus 25% item-drop chance.</small>
+          </div>
+          <div>
+            <span>Retreat packet</span>
+            <strong>+30 CR / +2 DNA / +12 XP</strong>
+            <small>Progress continues even after a loss.</small>
+          </div>
+        </div>
+      </article>
+
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">POWER</span>
+          <h3>Squad Math</h3>
+        </div>
+        <p>Team Power is HP + Attack + Defense + Speed for each active squad member.</p>
+        <div class="power-meter">
+          <span>{{ game.squad().length }} / 3 slots</span>
+          <strong>{{ game.teamPower() }}</strong>
+        </div>
+        <p>
+          A full squad usually beats one rare creature alone because every member receives battle
+          XP.
+        </p>
+      </article>
+
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">KEYS</span>
+          <h3>Inventory Gates</h3>
+        </div>
+        <div class="inventory-grid">
+          @for (item of inventoryRows(); track item.item) {
+            <div>
+              <span>{{ item.item }}</span>
+              <strong>x{{ item.count }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="manual-card">
+        <div class="card-heading">
+          <span class="card-code">SAVE</span>
+          <h3>Save Core</h3>
+        </div>
+        <div class="reward-rows">
+          <div>
+            <span>Status</span>
+            <strong>{{ game.saveStatusLabel() }}</strong>
+            <small>{{ game.lastSavedLabel() }}</small>
+          </div>
+          <div>
+            <span>Snapshot Version</span>
+            <strong>V{{ game.saveVersion }}</strong>
+            <small>Compatible with the current local archive schema.</small>
+          </div>
+          <div>
+            <span>Storage Lane</span>
+            <strong>{{ game.saveStorageLabel() }}</strong>
+            <small>Progress survives refresh while local storage is available.</small>
+          </div>
+        </div>
+        <div class="save-actions">
+          <button type="button" (click)="saveNow()">Save Now</button>
+          <button
+            type="button"
+            [class.audio-on]="game.player().audioEnabled"
+            (click)="game.toggleAudio()"
+            [attr.aria-pressed]="game.player().audioEnabled"
+          >
+            Audio: {{ game.player().audioEnabled ? 'On' : 'Off' }}
+          </button>
+          @if (!resetArmed()) {
+            <button type="button" class="danger-action" [disabled]="!game.hasProgressToReset()" (click)="armReset()">Arm Reset</button>
+          } @else {
+            <button type="button" class="danger-action" (click)="confirmReset()">Confirm Reset</button>
+            <button type="button" (click)="cancelReset()">Cancel</button>
+          }
+        </div>
+        @if (resetArmed()) {
+          <p class="archive-warning">
+            Reset restores the starter squad, base resources, and default unlock state in the local archive.
+          </p>
+        }
+      </article>
+
+      <article class="manual-card wide">
+        <div class="card-heading">
+          <span class="card-code">STAGES</span>
+          <h3>Stage Color Index</h3>
+        </div>
+        <div class="stage-index">
+          @for (row of stageRows(); track row.stage) {
+            <div class="stage-row stage-{{ row.className }}">
+              <span class="stage-glyph">{{ row.glyph }}</span>
+              <strong>{{ row.stage }}</strong>
+              <small>{{ row.unlocked }} / {{ row.total }}</small>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <aside class="hud-panel handbook-side manual-console">
+    <div class="console-heading">
+      <span>Right-Port Manual</span>
+      <strong>Online</strong>
+    </div>
+
+    <div class="manual-stat-grid">
+      <div class="manual-stat">
+        <span>Team Power</span>
+        <strong>{{ game.teamPower() }}</strong>
+      </div>
+      <div class="manual-stat">
+        <span>Unlocked</span>
+        <strong>{{ game.unlockedCount() }} / {{ game.monsters().length }}</strong>
+      </div>
+      <div class="manual-stat">
+        <span>Last Reward</span>
+        <strong>{{ lastRewardLabel() }}</strong>
+      </div>
+      <div class="manual-stat">
+        <span>Save Status</span>
+        <strong>{{ game.saveStatusLabel() }}</strong>
+      </div>
+    </div>
+
+    <div class="console-block">
+      <h3>Latest Signals</h3>
+      <div class="log-feed">
+        @for (log of latestLogs(); track log.text) {
+          <p class="log-entry log-{{ log.type }}">
+            <span>{{ log.type }}</span>
+            {{ log.text }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="console-block">
+      <h3>Log Color Key</h3>
+      <div class="log-key">
+        <span><b class="log-info">Info</b> start and momentum</span>
+        <span><b class="log-damage">Damage</b> readable hits</span>
+        <span><b class="log-reward">Reward</b> XP, items, unlocks</span>
+        <span><b class="log-system">System</b> blockers and next steps</span>
+      </div>
+    </div>
+  </aside>
+</div>

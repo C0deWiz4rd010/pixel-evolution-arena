@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N056" data-stage="Champion" data-type="Water">
+  <title id="title">N056 Reefcharger sprite</title>
+  <desc id="desc">Original Champion Water pixel creature for Pixel Evolution Arena. Coral-plated charger; sustain bruiser for safe repeated battles.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="22,80 4,94 24,100" fill="#9df7ff"/>
+    <polygon points="106,80 124,94 104,100" fill="#d6fdff"/>
+    <rect x="46" y="106" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="106" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <rect x="42" y="100" width="12" height="8" fill="#0b4b76"/>
+    <rect x="74" y="100" width="12" height="8" fill="#0b4b76"/>
+    <rect x="38" y="102" width="4" height="4" fill="#9df7ff"/>
+    <rect x="86" y="102" width="4" height="4" fill="#9df7ff"/>
+    <polygon points="90,80 114,70 108,86" fill="#0b4b76"/>
+    <rect x="102" y="74" width="6" height="6" fill="#9df7ff"/>
+    <polygon points="42,62 86,62 96,72 96,94 86,104 42,104 32,94 32,72" fill="#0b4b76"/>
+    <polygon points="44,66 84,66 92,74 92,92 84,100 44,100 36,92 36,74" fill="#39b9ff"/>
+    <rect x="40" y="70" width="22" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="55" y="87" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="69" y="81" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <polygon points="45,41 75,41 83,49 83,67 75,75 45,75 37,67 37,49" fill="#0b4b76"/>
+    <polygon points="47,45 73,45 79,51 79,65 73,71 47,71 41,65 41,51" fill="#39b9ff"/>
+    <rect x="45" y="47" width="14" height="5" fill="#d6fdff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#041826"/>
+    <rect x="75" y="56" width="6" height="8" fill="#041826"/>
+    <rect x="48" y="57" width="2" height="2" fill="#9df7ff"/>
+    <rect x="76" y="57" width="2" height="2" fill="#9df7ff"/>
+    </g>
+    <rect x="42" y="86" width="44" height="6" fill="#d6fdff" opacity="0.85"/>
+    <rect x="50" y="78" width="28" height="4" fill="#9df7ff" opacity="0.8"/>
+  </g>
+</svg>

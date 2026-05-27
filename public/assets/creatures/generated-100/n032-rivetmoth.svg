@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N032" data-stage="Rookie" data-type="Machine">
+  <title id="title">N032 Rivetmoth sprite</title>
+  <desc id="desc">Original Rookie Machine pixel creature for Pixel Evolution Arena. Mechanical moth with rivet wings; utility speed and item-drop fantasy.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.5s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.45s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="60" y="29" width="8" height="16" fill="#334156"/>
+    <rect x="56" y="25" width="16" height="6" fill="#61f4ff" class="glow"/>
+    <rect x="42" y="76" width="8" height="8" fill="#0e1724"/>
+    <rect x="44" y="78" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="78" y="76" width="8" height="8" fill="#0e1724"/>
+    <rect x="80" y="78" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="45" y="88" width="38" height="4" fill="#61f4ff" class="glow" opacity="0.65"/>
+    <rect x="44" y="96" width="12" height="8" fill="#334156"/>
+    <rect x="72" y="96" width="12" height="8" fill="#334156"/>
+    <polygon points="47,60 81,60 91,70 91,90 81,100 47,100 37,90 37,70" fill="#334156"/>
+    <polygon points="49,64 79,64 87,72 87,88 79,96 49,96 41,88 41,72" fill="#9aa8bd"/>
+    <rect x="45" y="68" width="18" height="6" fill="#e6f8ff" opacity="0.75"/>
+    <rect x="57" y="84" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <rect x="67" y="78" width="4" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <polygon points="53,43 75,43 83,51 83,63 75,71 53,71 45,63 45,51" fill="#334156"/>
+    <polygon points="55,47 73,47 79,53 79,61 73,67 55,67 49,61 49,53" fill="#9aa8bd"/>
+    <rect x="53" y="49" width="11" height="5" fill="#e6f8ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#0e1724"/>
+    <rect x="75" y="56" width="6" height="8" fill="#0e1724"/>
+    <rect x="48" y="57" width="2" height="2" fill="#61f4ff"/>
+    <rect x="76" y="57" width="2" height="2" fill="#61f4ff"/>
+    </g>
+    <polygon points="33,78 9,62 19,102" fill="#334156" opacity="0.92"/>
+    <polygon points="95,78 119,62 109,102" fill="#334156" opacity="0.92"/>
+  </g>
+</svg>

@@ -1,0 +1,1002 @@
+[
+  {
+    "id": "N001",
+    "name": "Budchip",
+    "stage": "Baby",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n001-budchip.svg",
+    "animationNote": "Baby Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Sprout-shaped circuit seed"
+  },
+  {
+    "id": "N002",
+    "name": "Cinderpip",
+    "stage": "Baby",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n002-cinderpip.svg",
+    "animationNote": "Baby Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Tiny coal chick with pixel ember tail"
+  },
+  {
+    "id": "N003",
+    "name": "Tideblink",
+    "stage": "Baby",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n003-tideblink.svg",
+    "animationNote": "Baby Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Teardrop sprite with blinking fin"
+  },
+  {
+    "id": "N004",
+    "name": "Murkspark",
+    "stage": "Baby",
+    "type": "Dark",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n004-murkspark.svg",
+    "animationNote": "Baby Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Smudged shadow mote with one bright eye"
+  },
+  {
+    "id": "N005",
+    "name": "Halopeb",
+    "stage": "Baby",
+    "type": "Light",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n005-halopeb.svg",
+    "animationNote": "Baby Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Pebble halo with tiny legs"
+  },
+  {
+    "id": "N006",
+    "name": "Boltgrit",
+    "stage": "Baby",
+    "type": "Machine",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n006-boltgrit.svg",
+    "animationNote": "Baby Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Chunky screw pebble with static feet"
+  },
+  {
+    "id": "N007",
+    "name": "Pawbyte",
+    "stage": "Baby",
+    "type": "Beast",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n007-pawbyte.svg",
+    "animationNote": "Baby Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Soft paw-shaped data block"
+  },
+  {
+    "id": "N008",
+    "name": "Venipip",
+    "stage": "Baby",
+    "type": "Toxic",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n008-venipip.svg",
+    "animationNote": "Baby Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Wobbling vial tadpole"
+  },
+  {
+    "id": "N009",
+    "name": "Sprigglow",
+    "stage": "Baby",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n009-sprigglow.svg",
+    "animationNote": "Baby Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Glowing seedling lantern"
+  },
+  {
+    "id": "N010",
+    "name": "Flarebud",
+    "stage": "Baby",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n010-flarebud.svg",
+    "animationNote": "Baby Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Closed flower bud with flame petals"
+  },
+  {
+    "id": "N011",
+    "name": "Drizzdrop",
+    "stage": "Baby",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n011-drizzdrop.svg",
+    "animationNote": "Baby Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Raindrop blob carrying a shell shard"
+  },
+  {
+    "id": "N012",
+    "name": "Cubbit",
+    "stage": "Baby",
+    "type": "Beast",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n012-cubbit.svg",
+    "animationNote": "Baby Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Square-eared cub with data tail"
+  },
+  {
+    "id": "N013",
+    "name": "Leaflatch",
+    "stage": "In-Training",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n013-leaflatch.svg",
+    "animationNote": "In-Training Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Latching leaf bug with clampy vines"
+  },
+  {
+    "id": "N014",
+    "name": "Kindlepounce",
+    "stage": "In-Training",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n014-kindlepounce.svg",
+    "animationNote": "In-Training Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Small spring-legged ember cat"
+  },
+  {
+    "id": "N015",
+    "name": "Ripplequill",
+    "stage": "In-Training",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n015-ripplequill.svg",
+    "animationNote": "In-Training Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Quill-backed otter shape made of pixels"
+  },
+  {
+    "id": "N016",
+    "name": "Gloomnode",
+    "stage": "In-Training",
+    "type": "Dark",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n016-gloomnode.svg",
+    "animationNote": "In-Training Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Floating black node with cable whiskers"
+  },
+  {
+    "id": "N017",
+    "name": "Prismwisp",
+    "stage": "In-Training",
+    "type": "Light",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n017-prismwisp.svg",
+    "animationNote": "In-Training Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Prism flame with glassy tail"
+  },
+  {
+    "id": "N018",
+    "name": "Cogpix",
+    "stage": "In-Training",
+    "type": "Machine",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n018-cogpix.svg",
+    "animationNote": "In-Training Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Tiny cog fairy with antenna wings"
+  },
+  {
+    "id": "N019",
+    "name": "Fanglet",
+    "stage": "In-Training",
+    "type": "Beast",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n019-fanglet.svg",
+    "animationNote": "In-Training Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Round pup with one oversized fang"
+  },
+  {
+    "id": "N020",
+    "name": "Muckmote",
+    "stage": "In-Training",
+    "type": "Toxic",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n020-muckmote.svg",
+    "animationNote": "In-Training Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Sticky sludge spark with mask-like eyes"
+  },
+  {
+    "id": "N021",
+    "name": "Bloombyte",
+    "stage": "In-Training",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n021-bloombyte.svg",
+    "animationNote": "In-Training Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Pixel bud with two data leaves"
+  },
+  {
+    "id": "N022",
+    "name": "Searwhisk",
+    "stage": "In-Training",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n022-searwhisk.svg",
+    "animationNote": "In-Training Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Whiskered ember mouse silhouette"
+  },
+  {
+    "id": "N023",
+    "name": "Shellstream",
+    "stage": "In-Training",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n023-shellstream.svg",
+    "animationNote": "In-Training Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Little shell raft with water feet"
+  },
+  {
+    "id": "N024",
+    "name": "Nullnib",
+    "stage": "In-Training",
+    "type": "Dark",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n024-nullnib.svg",
+    "animationNote": "In-Training Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Pen-nib shadow imp"
+  },
+  {
+    "id": "N025",
+    "name": "Sunthread",
+    "stage": "In-Training",
+    "type": "Light",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n025-sunthread.svg",
+    "animationNote": "In-Training Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Thread spool of sunlight"
+  },
+  {
+    "id": "N026",
+    "name": "Wirepod",
+    "stage": "In-Training",
+    "type": "Machine",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n026-wirepod.svg",
+    "animationNote": "In-Training Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Pod wrapped in copper wire"
+  },
+  {
+    "id": "N027",
+    "name": "Thornhopper",
+    "stage": "Rookie",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n027-thornhopper.svg",
+    "animationNote": "Rookie Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Grasshopper with thorn knees"
+  },
+  {
+    "id": "N028",
+    "name": "Ashjack",
+    "stage": "Rookie",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n028-ashjack.svg",
+    "animationNote": "Rookie Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Jackal-like ash sprite with square flame ears"
+  },
+  {
+    "id": "N029",
+    "name": "Streamlynx",
+    "stage": "Rookie",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n029-streamlynx.svg",
+    "animationNote": "Rookie Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Sleek lynx with river-stripe tail"
+  },
+  {
+    "id": "N030",
+    "name": "Umbracrow",
+    "stage": "Rookie",
+    "type": "Dark",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n030-umbracrow.svg",
+    "animationNote": "Rookie Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Crow silhouette with neon beak"
+  },
+  {
+    "id": "N031",
+    "name": "Gleamhare",
+    "stage": "Rookie",
+    "type": "Light",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n031-gleamhare.svg",
+    "animationNote": "Rookie Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Hare made of bright pixel panels"
+  },
+  {
+    "id": "N032",
+    "name": "Rivetmoth",
+    "stage": "Rookie",
+    "type": "Machine",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n032-rivetmoth.svg",
+    "animationNote": "Rookie Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Mechanical moth with rivet wings"
+  },
+  {
+    "id": "N033",
+    "name": "Rushcub",
+    "stage": "Rookie",
+    "type": "Beast",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n033-rushcub.svg",
+    "animationNote": "Rookie Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Stocky cub with dash stripes"
+  },
+  {
+    "id": "N034",
+    "name": "Vialslug",
+    "stage": "Rookie",
+    "type": "Toxic",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n034-vialslug.svg",
+    "animationNote": "Rookie Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Slug carrying a glass vial shell"
+  },
+  {
+    "id": "N035",
+    "name": "Fernwinder",
+    "stage": "Rookie",
+    "type": "Nature",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n035-fernwinder.svg",
+    "animationNote": "Rookie Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Coiled fern serpent"
+  },
+  {
+    "id": "N036",
+    "name": "Kilnkit",
+    "stage": "Rookie",
+    "type": "Fire",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n036-kilnkit.svg",
+    "animationNote": "Rookie Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Kiln-shelled kitten with vent tail"
+  },
+  {
+    "id": "N037",
+    "name": "Mistmantle",
+    "stage": "Rookie",
+    "type": "Water",
+    "rarity": "Common",
+    "file": "public/assets/creatures/generated-100/n037-mistmantle.svg",
+    "animationNote": "Rookie Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Cloaked manta pup made of fog pixels"
+  },
+  {
+    "id": "N038",
+    "name": "Shadehook",
+    "stage": "Rookie",
+    "type": "Dark",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n038-shadehook.svg",
+    "animationNote": "Rookie Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Hook-clawed shadow climber"
+  },
+  {
+    "id": "N039",
+    "name": "Luxmarten",
+    "stage": "Rookie",
+    "type": "Light",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n039-luxmarten.svg",
+    "animationNote": "Rookie Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Slender marten with light-band tail"
+  },
+  {
+    "id": "N040",
+    "name": "Gearfinch",
+    "stage": "Rookie",
+    "type": "Machine",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n040-gearfinch.svg",
+    "animationNote": "Rookie Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Clockwork finch with rotating crest"
+  },
+  {
+    "id": "N041",
+    "name": "Talonroll",
+    "stage": "Rookie",
+    "type": "Beast",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n041-talonroll.svg",
+    "animationNote": "Rookie Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Armored rolling raptor chick"
+  },
+  {
+    "id": "N042",
+    "name": "Spoilspike",
+    "stage": "Rookie",
+    "type": "Toxic",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n042-spoilspike.svg",
+    "animationNote": "Rookie Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Spiked compost crawler"
+  },
+  {
+    "id": "N043",
+    "name": "Rootracer",
+    "stage": "Rookie",
+    "type": "Nature",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n043-rootracer.svg",
+    "animationNote": "Rookie Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Root-legged racer with seed visor"
+  },
+  {
+    "id": "N044",
+    "name": "Blazevane",
+    "stage": "Rookie",
+    "type": "Fire",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n044-blazevane.svg",
+    "animationNote": "Rookie Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Weather-vane fox flame"
+  },
+  {
+    "id": "N045",
+    "name": "Brinecrest",
+    "stage": "Rookie",
+    "type": "Water",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n045-brinecrest.svg",
+    "animationNote": "Rookie Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Crested lizard with salt crystal fins"
+  },
+  {
+    "id": "N046",
+    "name": "Acidmask",
+    "stage": "Rookie",
+    "type": "Toxic",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n046-acidmask.svg",
+    "animationNote": "Rookie Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Masked ooze sprinter"
+  },
+  {
+    "id": "N047",
+    "name": "Canopyram",
+    "stage": "Champion",
+    "type": "Nature",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n047-canopyram.svg",
+    "animationNote": "Champion Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Ram with canopy horns"
+  },
+  {
+    "id": "N048",
+    "name": "Cinderweld",
+    "stage": "Champion",
+    "type": "Fire",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n048-cinderweld.svg",
+    "animationNote": "Champion Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Welded salamander forge"
+  },
+  {
+    "id": "N049",
+    "name": "Torrentail",
+    "stage": "Champion",
+    "type": "Water",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n049-torrentail.svg",
+    "animationNote": "Champion Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Long-tailed wave beast"
+  },
+  {
+    "id": "N050",
+    "name": "Nightlance",
+    "stage": "Champion",
+    "type": "Dark",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n050-nightlance.svg",
+    "animationNote": "Champion Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Lance-headed shadow knight"
+  },
+  {
+    "id": "N051",
+    "name": "Solarstride",
+    "stage": "Champion",
+    "type": "Light",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n051-solarstride.svg",
+    "animationNote": "Champion Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Long-legged solar runner"
+  },
+  {
+    "id": "N052",
+    "name": "Circuitelk",
+    "stage": "Champion",
+    "type": "Machine",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n052-circuitelk.svg",
+    "animationNote": "Champion Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Elk frame with circuit antlers"
+  },
+  {
+    "id": "N053",
+    "name": "Rumblejaw",
+    "stage": "Champion",
+    "type": "Beast",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n053-rumblejaw.svg",
+    "animationNote": "Champion Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Heavy jawed brawler"
+  },
+  {
+    "id": "N054",
+    "name": "Briarwarden",
+    "stage": "Champion",
+    "type": "Nature",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n054-briarwarden.svg",
+    "animationNote": "Champion Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Shield-backed briar guardian"
+  },
+  {
+    "id": "N055",
+    "name": "Fuseback",
+    "stage": "Champion",
+    "type": "Fire",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n055-fuseback.svg",
+    "animationNote": "Champion Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Armadillo furnace back"
+  },
+  {
+    "id": "N056",
+    "name": "Reefcharger",
+    "stage": "Champion",
+    "type": "Water",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n056-reefcharger.svg",
+    "animationNote": "Champion Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Coral-plated charger"
+  },
+  {
+    "id": "N057",
+    "name": "Dreadveil",
+    "stage": "Champion",
+    "type": "Dark",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n057-dreadveil.svg",
+    "animationNote": "Champion Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Veiled mantis shadow"
+  },
+  {
+    "id": "N058",
+    "name": "Prismantler",
+    "stage": "Champion",
+    "type": "Light",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n058-prismantler.svg",
+    "animationNote": "Champion Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Deer silhouette with prism antlers"
+  },
+  {
+    "id": "N059",
+    "name": "Ironkite",
+    "stage": "Champion",
+    "type": "Machine",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n059-ironkite.svg",
+    "animationNote": "Champion Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Kite-shaped drone bird"
+  },
+  {
+    "id": "N060",
+    "name": "Ravagepelt",
+    "stage": "Champion",
+    "type": "Beast",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n060-ravagepelt.svg",
+    "animationNote": "Champion Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Shaggy pelt rusher"
+  },
+  {
+    "id": "N061",
+    "name": "Bloomram",
+    "stage": "Champion",
+    "type": "Nature",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n061-bloomram.svg",
+    "animationNote": "Champion Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Blooming ram with charge petals"
+  },
+  {
+    "id": "N062",
+    "name": "Tidalglass",
+    "stage": "Champion",
+    "type": "Water",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n062-tidalglass.svg",
+    "animationNote": "Champion Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Glassy seahorse guardian"
+  },
+  {
+    "id": "N063",
+    "name": "Voidreel",
+    "stage": "Champion",
+    "type": "Dark",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n063-voidreel.svg",
+    "animationNote": "Champion Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Film-reel shadow serpent"
+  },
+  {
+    "id": "N064",
+    "name": "Dawnlancer",
+    "stage": "Champion",
+    "type": "Light",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n064-dawnlancer.svg",
+    "animationNote": "Champion Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Spear-headed dawn beetle"
+  },
+  {
+    "id": "N065",
+    "name": "Gearbastion",
+    "stage": "Champion",
+    "type": "Machine",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n065-gearbastion.svg",
+    "animationNote": "Champion Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Walking turret tortoise"
+  },
+  {
+    "id": "N066",
+    "name": "Venomweld",
+    "stage": "Champion",
+    "type": "Toxic",
+    "rarity": "Rare",
+    "file": "public/assets/creatures/generated-100/n066-venomweld.svg",
+    "animationNote": "Champion Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Toxic pipe lizard fused to metal plates"
+  },
+  {
+    "id": "N067",
+    "name": "Verdantlock",
+    "stage": "Ultimate",
+    "type": "Nature",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n067-verdantlock.svg",
+    "animationNote": "Ultimate Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Massive lock-shaped tree beast"
+  },
+  {
+    "id": "N068",
+    "name": "Magmarray",
+    "stage": "Ultimate",
+    "type": "Fire",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n068-magmarray.svg",
+    "animationNote": "Ultimate Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Floating lava ray"
+  },
+  {
+    "id": "N069",
+    "name": "Abyssalynx",
+    "stage": "Ultimate",
+    "type": "Water",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n069-abyssalynx.svg",
+    "animationNote": "Ultimate Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Deep-water lynx with fin mane"
+  },
+  {
+    "id": "N070",
+    "name": "Ebonrelay",
+    "stage": "Ultimate",
+    "type": "Dark",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n070-ebonrelay.svg",
+    "animationNote": "Ultimate Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Relay tower shadow beast"
+  },
+  {
+    "id": "N071",
+    "name": "Starcradle",
+    "stage": "Ultimate",
+    "type": "Light",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n071-starcradle.svg",
+    "animationNote": "Ultimate Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Cradle-shaped star guardian"
+  },
+  {
+    "id": "N072",
+    "name": "Axionforge",
+    "stage": "Ultimate",
+    "type": "Machine",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n072-axionforge.svg",
+    "animationNote": "Ultimate Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Compact forge mech with rotating core"
+  },
+  {
+    "id": "N073",
+    "name": "Direquartz",
+    "stage": "Ultimate",
+    "type": "Beast",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n073-direquartz.svg",
+    "animationNote": "Ultimate Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Quartz-armored dire beast"
+  },
+  {
+    "id": "N074",
+    "name": "Plagueforge",
+    "stage": "Ultimate",
+    "type": "Toxic",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n074-plagueforge.svg",
+    "animationNote": "Ultimate Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Bio-forge with dripping smokestacks"
+  },
+  {
+    "id": "N075",
+    "name": "Nightrift",
+    "stage": "Ultimate",
+    "type": "Dark",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n075-nightrift.svg",
+    "animationNote": "Ultimate Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Split-wing rift predator"
+  },
+  {
+    "id": "N076",
+    "name": "Auricircuit",
+    "stage": "Ultimate",
+    "type": "Light",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n076-auricircuit.svg",
+    "animationNote": "Ultimate Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Golden circuit serpent"
+  },
+  {
+    "id": "N077",
+    "name": "Gearoracle",
+    "stage": "Ultimate",
+    "type": "Machine",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n077-gearoracle.svg",
+    "animationNote": "Ultimate Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Oracle drone with many lens-eyes"
+  },
+  {
+    "id": "N078",
+    "name": "Primalbyte",
+    "stage": "Ultimate",
+    "type": "Beast",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n078-primalbyte.svg",
+    "animationNote": "Ultimate Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Pixel sabertooth with data mane"
+  },
+  {
+    "id": "N079",
+    "name": "Venomari",
+    "stage": "Ultimate",
+    "type": "Toxic",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n079-venomari.svg",
+    "animationNote": "Ultimate Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Elegant toxic eel with vial halo"
+  },
+  {
+    "id": "N080",
+    "name": "Slimewyrd",
+    "stage": "Ultimate",
+    "type": "Toxic",
+    "rarity": "Epic",
+    "file": "public/assets/creatures/generated-100/n080-slimewyrd.svg",
+    "animationNote": "Ultimate Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Wizardly slime dragon silhouette"
+  },
+  {
+    "id": "N081",
+    "name": "Worldroot",
+    "stage": "Mega",
+    "type": "Nature",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n081-worldroot.svg",
+    "animationNote": "Mega Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Colossal root colossus with crown canopy"
+  },
+  {
+    "id": "N082",
+    "name": "Sunscorch",
+    "stage": "Mega",
+    "type": "Fire",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n082-sunscorch.svg",
+    "animationNote": "Mega Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Solar furnace dragon shape without copied silhouette"
+  },
+  {
+    "id": "N083",
+    "name": "Tidecrown",
+    "stage": "Mega",
+    "type": "Water",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n083-tidecrown.svg",
+    "animationNote": "Mega Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Crowned leviathan-like wave crest"
+  },
+  {
+    "id": "N084",
+    "name": "Nullsovereign",
+    "stage": "Mega",
+    "type": "Dark",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n084-nullsovereign.svg",
+    "animationNote": "Mega Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Regal shadow core with broken crown"
+  },
+  {
+    "id": "N085",
+    "name": "Haloarch",
+    "stage": "Mega",
+    "type": "Light",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n085-haloarch.svg",
+    "animationNote": "Mega Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Arched halo guardian with wing panels"
+  },
+  {
+    "id": "N086",
+    "name": "Zenithgear",
+    "stage": "Mega",
+    "type": "Machine",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n086-zenithgear.svg",
+    "animationNote": "Mega Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Towering gear knight silhouette"
+  },
+  {
+    "id": "N087",
+    "name": "Apexclaw",
+    "stage": "Mega",
+    "type": "Beast",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n087-apexclaw.svg",
+    "animationNote": "Mega Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Four-armed claw champion"
+  },
+  {
+    "id": "N088",
+    "name": "Riftmaw",
+    "stage": "Mega",
+    "type": "Beast",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n088-riftmaw.svg",
+    "animationNote": "Mega Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Wide-jawed rift beast with data scars"
+  },
+  {
+    "id": "N089",
+    "name": "Venomcrown",
+    "stage": "Mega",
+    "type": "Toxic",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n089-venomcrown.svg",
+    "animationNote": "Mega Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Crowned poison hydra motif, original pixel mask heads"
+  },
+  {
+    "id": "N090",
+    "name": "Corrosynth",
+    "stage": "Mega",
+    "type": "Toxic",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n090-corrosynth.svg",
+    "animationNote": "Mega Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Synthetic corrosion golem"
+  },
+  {
+    "id": "N091",
+    "name": "Edenbyte",
+    "stage": "Special",
+    "type": "Nature",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n091-edenbyte.svg",
+    "animationNote": "Special Nature idle: stepped bob, blinking eyes, nature glow, and a subtle scanline pulse.",
+    "silhouette": "Secret garden server-beast"
+  },
+  {
+    "id": "N092",
+    "name": "Novafurnace",
+    "stage": "Special",
+    "type": "Fire",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n092-novafurnace.svg",
+    "animationNote": "Special Fire idle: stepped bob, blinking eyes, fire glow, and a subtle scanline pulse.",
+    "silhouette": "Star furnace beast with vent wings"
+  },
+  {
+    "id": "N093",
+    "name": "Moonreef",
+    "stage": "Special",
+    "type": "Water",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n093-moonreef.svg",
+    "animationNote": "Special Water idle: stepped bob, blinking eyes, water glow, and a subtle scanline pulse.",
+    "silhouette": "Lunar coral whale silhouette"
+  },
+  {
+    "id": "N094",
+    "name": "Umbrahalo",
+    "stage": "Special",
+    "type": "Dark",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n094-umbrahalo.svg",
+    "animationNote": "Special Dark idle: stepped bob, blinking eyes, dark glow, and a subtle scanline pulse.",
+    "silhouette": "Dark halo crowned phantom"
+  },
+  {
+    "id": "N095",
+    "name": "Prismoracle",
+    "stage": "Special",
+    "type": "Light",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n095-prismoracle.svg",
+    "animationNote": "Special Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Crystal oracle with prism mask"
+  },
+  {
+    "id": "N096",
+    "name": "Dawncipher",
+    "stage": "Special",
+    "type": "Light",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n096-dawncipher.svg",
+    "animationNote": "Special Light idle: stepped bob, blinking eyes, light glow, and a subtle scanline pulse.",
+    "silhouette": "Cipher-wing dawn sentinel"
+  },
+  {
+    "id": "N097",
+    "name": "Chronocore",
+    "stage": "Special",
+    "type": "Machine",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n097-chronocore.svg",
+    "animationNote": "Special Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Clock-core mech with stable square frame"
+  },
+  {
+    "id": "N098",
+    "name": "Arcforge",
+    "stage": "Special",
+    "type": "Machine",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n098-arcforge.svg",
+    "animationNote": "Special Machine idle: stepped bob, blinking eyes, machine glow, and a subtle scanline pulse.",
+    "silhouette": "Arc-welder titan with lightning clamps"
+  },
+  {
+    "id": "N099",
+    "name": "Crownpelt",
+    "stage": "Special",
+    "type": "Beast",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n099-crownpelt.svg",
+    "animationNote": "Special Beast idle: stepped bob, blinking eyes, beast glow, and a subtle scanline pulse.",
+    "silhouette": "Mantled arena beast with trophy crest"
+  },
+  {
+    "id": "N100",
+    "name": "Blightstar",
+    "stage": "Special",
+    "type": "Toxic",
+    "rarity": "Legendary",
+    "file": "public/assets/creatures/generated-100/n100-blightstar.svg",
+    "animationNote": "Special Toxic idle: stepped bob, blinking eyes, toxic glow, and a subtle scanline pulse.",
+    "silhouette": "Poison star core inside cracked glass armor"
+  }
+]

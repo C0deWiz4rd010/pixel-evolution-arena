@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Green heal glint</title>
+  <desc id="desc">Digital green plus glint for heal, recovery, and positive status feedback.</desc>
+  <g shape-rendering="crispEdges">
+    <path d="M64 14v100M14 64h100" stroke="#7cff3a" stroke-width="10"/>
+    <path d="M64 34v60M34 64h60" stroke="#eaffd8" stroke-width="4"/>
+    <rect x="54" y="54" width="20" height="20" fill="#39ff88"/>
+    <rect x="24" y="24" width="10" height="10" fill="#7cff3a"/>
+    <rect x="94" y="24" width="10" height="10" fill="#7cff3a"/>
+    <rect x="24" y="94" width="10" height="10" fill="#7cff3a"/>
+    <rect x="94" y="94" width="10" height="10" fill="#7cff3a"/>
+  </g>
+</svg>

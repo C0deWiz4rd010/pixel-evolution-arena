@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.lab-readout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.32rem;
+  margin: 0.34rem 0;
+}
+
+.lab-chip {
+  display: grid;
+  gap: 0.14rem;
+  padding: 0.32rem 0.42rem;
+  border: 1px solid rgba(19, 216, 255, 0.28);
+  background: rgba(0, 0, 0, 0.34);
+  text-align: center;
+  clip-path: var(--chamfer-tight);
+}
+
+.lab-chip small {
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lab-chip strong {
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.lab-chip.success-chip strong {
+  color: var(--line-bright);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.lab-chip.power-chip strong {
+  color: var(--danger);
+}
+
+.lab-chip.power-chip.gain strong {
+  color: var(--success);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.lab-chip.pin-chip.pinned {
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.32);
+}
+
+.pin-action {
+  min-height: 0;
+  padding: 0.16rem 0.32rem;
+  border-color: var(--line);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--text);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}

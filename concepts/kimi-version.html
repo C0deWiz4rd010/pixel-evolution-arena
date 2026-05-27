@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digimon Evolution Tree - Browser Game</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #050a1f;
+    color: #e0f7fa;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    width: 100vw; height: 100vh;
+  }
+  .screen {
+    display: none;
+    width: 100%; height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen.active { display: flex; }
+  
+  #start-screen {
+    background: radial-gradient(circle at center, #0d1b3e 0%, #050a1f 100%);
+  }
+  .title {
+    font-size: 3em;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px #00e5ff, 0 0 40px #00e5ff;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 1.2em;
+    color: #ffc107;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px #ffc107;
+  }
+  .btn {
+    background: linear-gradient(135deg, #00e5ff 0%, #2979ff 100%);
+    border: 2px solid #00e5ff;
+    color: #000;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    font-family: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0,229,255,0.4);
+    transition: all 0.2s;
+    margin: 5px;
+  }
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(0,229,255,0.7);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #ff5252 0%, #d50000 100%);
+    border-color: #ff5252;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255,82,82,0.4);
+  }
+  .btn-danger:hover {
+    box-shadow: 0 0 25px rgba(255,82,82,0.7);
+  }
+  
+  #select-screen h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #8bc34a;
+    color: #8bc34a;
+  }
+  .starter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    max-width: 900px;
+  }
+  .starter-card {
+    background: rgba(139,195,74,0.1);
+    border: 2px solid #8bc34a;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+  }
+  .starter-card:hover {
+    background: rgba(139,195,74,0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(139,195,74,0.4);
+  }
+  .starter-canvas {
+    width: 96px; height: 96px;
+    image-rendering: pixelated;
+    margin: 0 auto 10px;
+    background: #0a0a1a;
+    border-radius: 4px;
+  }
+  
+  #game-screen {
+    flex-direction: row;
+    padding: 20px;
+    gap: 20px;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .panel {
+    background: rgba(13,27,62,0.8);
+    border: 2px solid #00e5ff;
+    border-radius: 4px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .left-panel {
+    width: 350px;
+    align-items: center;
+    justify-content: center;
+  }
+  .right-panel {
+    width: 400px;
+    justify-content: space-between;
+  }
+  .digimon-view {
+    width: 256px; height: 256px;
+    background: #0a0a1a;
+    border: 3px solid currentColor;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    image-rendering: pixelated;
+    box-shadow: 0 0 30px currentColor;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 1.1em;
+  }
+  .stat-bar-bg {
+    width: 100%; height: 12px;
+    background: #000;
+    border: 1px solid #555;
+    margin-top: 4px;
+    position: relative;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    background: currentColor;
+    transition: width 0.3s;
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .log {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #555;
+    height: 120px;
+    overflow-y: auto;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+  
+  #tree-screen {
+    position: relative;
+  }
+  #tree-container {
+    width: 95%; height: 85%;
+    overflow: auto;
+    border: 2px solid #9c27b0;
+    background: rgba(0,0,0,0.5);
+    position: relative;
+  }
+  #tree-canvas {
+    display: block;
+  }
+  
+  #battle-screen {
+    background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
+  }
+  .battle-arena {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 30px;
+  }
+  .combatant {
+    text-align: center;
+  }
+  .combatant-canvas {
+    width: 192px; height: 192px;
+    image-rendering: pixelated;
+    margin-bottom: 15px;
+    background: #0a0a1a;
+    border-radius: 8px;
+    border: 2px solid currentColor;
+  }
+  .hp-bar {
+    width: 200px; height: 24px;
+    background: #000;
+    border: 2px solid #fff;
+    margin: 10px auto;
+    position: relative;
+    border-radius: 4px;
+  }
+  .hp-fill {
+    height: 100%;
+    background: #00e676;
+    transition: width 0.3s, background 0.3s;
+    border-radius: 2px;
+  }
+  .hp-text {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9em; font-weight: bold; color: #fff;
+    text-shadow: 0 0 4px #000;
+  }
+  .battle-log {
+    width: 80%; max-width: 600px;
+    height: 150px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #ff5252;
+    padding: 15px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    border-radius: 4px;
+  }
+  
+  .stage-0 { color: #8bc34a; border-color: #8bc34a; }
+  .stage-1 { color: #00e5ff; border-color: #00e5ff; }
+  .stage-2 { color: #ffc107; border-color: #ffc107; }
+  .stage-3 { color: #ff9800; border-color: #ff9800; }
+  .stage-4 { color: #f44336; border-color: #f44336; }
+  .stage-5 { color: #9c27b0; border-color: #9c27b0; }
+  .stage-6 { color: #e91e63; border-color: #e91e63; }
+  
+  .scanlines {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="scanlines"></div>
+
+<div id="start-screen" class="screen active">
+  <div class="title">DIGIMON<br>EVOLUTION TREE</div>
+  <div class="subtitle">100 Original Pixel Digimon • Browser Edition</div>
+  <button class="btn" onclick="game.toSelect()">Neues Spiel</button>
+  <button class="btn" onclick="game.load()">Spiel Laden</button>
+</div>
+
+<div id="select-screen" class="screen">
+  <h2>Wähle dein Baby-Digimon</h2>
+  <div class="starter-grid" id="starter-grid"></div>
+</div>
+
+<div id="game-screen" class="screen">
+  <div class="panel left-panel" id="left-panel">
+    <canvas id="main-canvas" class="digimon-view" width="64" height="64"></canvas>
+    <div id="digimon-info" style="text-align:center;">
+      <h2 id="digi-name">Digi-001</h2>
+      <div id="digi-stage">Baby</div>
+      <div>Level <span id="digi-lvl">1</span></div>
+      <div>XP: <span id="digi-xp">0</span> / <span id="digi-next">100</span></div>
+    </div>
+  </div>
+  <div class="panel right-panel">
+    <div>
+      <h3>Stats</h3>
+      <div class="stat-row"><span>HP</span><span id="stat-hp">20</span></div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-hp" style="width:100%; background:#00e676;"></div></div>
+      <div class="stat-row"><span>ATK</span><span id="stat-atk">5</span></div>
+      <div class="stat-row"><span>DEF</span><span id="stat-def">3</span></div>
+      <div class="stat-row"><span>SPD</span><span id="stat-spd">4</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="game.train()">Trainieren</button>
+      <button class="btn btn-danger" onclick="game.explore()">Erkunden</button>
+      <button class="btn" onclick="game.tryEvolve()">Evolution</button>
+      <button class="btn" onclick="game.showTree()">Baum</button>
+    </div>
+    <div class="log" id="game-log"></div>
+    <button class="btn" style="margin-top:10px; font-size:0.9em;" onclick="game.save()">Speichern</button>
+  </div>
+</div>
+
+<div id="tree-screen" class="screen">
+  <h2 style="margin-bottom:10px; text-shadow: 0 0 15px #e91e63;">Evolutionsbaum</h2>
+  <div id="tree-container">
+    <canvas id="tree-canvas"></canvas>
+  </div>
+  <button class="btn" style="margin-top:15px;" onclick="game.toGame()">Zurück</button>
+</div>
+
+<div id="battle-screen" class="screen">
+  <h2 style="text-shadow: 0 0 20px #ff5252; margin-bottom:20px;">DIGI-KAMPF</h2>
+  <div class="battle-arena">
+    <div class="combatant">
+      <canvas id="battle-player" class="combatant-canvas" width="64" height="64"></canvas>
+      <div id="battle-player-name">Du</div>
+      <div class="hp-bar"><div class="hp-fill" id="player-hp" style="width:100%"></div><div class="hp-text" id="player-hp-text">100/100</div></div>
+    </div>
+    <div style="font-size:2em; color:#ff5252;">VS</div>
+    <div class="combatant">
+      <canvas id="battle-enemy" class="combatant-canvas" width="64" height="64"></canvas>
+      <div id="battle-enemy-name">Gegner</div>
+      <div class="hp-bar"><div class="hp-fill" id="enemy-hp" style="width:100%; background:#ff5252;"></div><div class="hp-text" id="enemy-hp-text">100/100</div></div>
+    </div>
+  </div>
+  <div class="battle-log" id="battle-log"></div>
+  <button class="btn btn-danger" id="battle-btn" onclick="game.battleTurn()">Angreifen!</button>
+  <button class="btn" style="display:none;" id="battle-end-btn" onclick="game.endBattle()">Zurück</button>
+</div>
+
+<script>
+const STAGES = ['Baby','In-Training','Rookie','Champion','Ultimate','Mega','Special'];
+const STAGE_COLORS = ['#8bc34a','#00e5ff','#ffc107','#ff9800','#f44336','#9c27b0','#e91e63'];
+const STAGE_IDS = [
+  {start:1, count:10},
+  {start:11, count:30},
+  {start:51, count:20},
+  {start:71, count:20},
+  {start:91, count:10},
+  {start:101, count:20},
+  {start:121, count:20}
+];
+
+let digimonDB = [];
+let evolutionLinks = [];
+
+function LCG(seed) { this.s = seed || 12345; }
+LCG.prototype.next = function() { this.s = (this.s * 9301 + 49297) % 233280; return this.s / 233280; };
+LCG.prototype.range = function(min, max) { return Math.floor(this.next() * (max - min + 1)) + min; };
+
+function initDatabase() {
+  digimonDB = [];
+  let id = 1;
+  STAGE_IDS.forEach((range, stageIdx) => {
+    for(let i=0; i < range.count; i++) {
+      let rng = new LCG(id * 137 + stageIdx);
+      let multi = [1, 2.5, 5, 9, 15, 24, 30][stageIdx];
+      let hp = Math.floor((15 + rng.range(5,20)) * multi);
+      let atk = Math.floor((4 + rng.range(2,8)) * multi);
+      let def = Math.floor((2 + rng.range(1,6)) * multi);
+      let spd = Math.floor((3 + rng.range(1,10)) * multi);
+      digimonDB.push({
+        id: id,
+        stage: stageIdx,
+        name: `Digi-${String(id).padStart(3,'0')}`,
+        hp: hp, maxHp: hp, atk: atk, def: def, spd: spd,
+        color: STAGE_COLORS[stageIdx]
+      });
+      id++;
+    }
+  });
+  
+  evolutionLinks = [];
+  for(let i=0; i < 10; i++) {
+    let from = i+1;
+    let to1 = 11 + i*3;
+    addLink(from, to1, 'standard');
+    addLink(from, to1+1, 'standard');
+    addLink(from, to1+2, 'alternate');
+  }
+  let itIdx = 11;
+  for(let i=0; i < 20; i++) {
+    let to = 51 + i;
+    if(i < 10) {
+      addLink(itIdx, to, 'standard'); itIdx++;
+      addLink(itIdx, to, 'alternate'); itIdx++;
+    } else {
+      addLink(itIdx, to, 'standard'); itIdx++;
+    }
+  }
+  for(let i=0; i < 20; i++) {
+    let from = 51 + i;
+    let to = 71 + i;
+    addLink(from, to, 'standard');
+    if(i < 10) addLink(from, to+1, 'alternate');
+  }
+  for(let i=0; i < 10; i++) {
+    let to = 91 + i;
+    addLink(71 + i*2, to, 'standard');
+    addLink(71 + i*2 + 1, to, 'alternate');
+  }
+  for(let i=0; i < 10; i++) {
+    let from = 91 + i;
+    addLink(from, 101 + i*2, 'standard');
+    addLink(from, 101 + i*2 + 1, 'special');
+  }
+  for(let i=0; i < 20; i++) {
+    let from = 101 + i;
+    let to = 121 + i;
+    addLink(from, to, 'standard');
+    if(i % 3 === 0) addLink(to, from, 'reverse');
+  }
+}
+
+function addLink(from, to, type) {
+  evolutionLinks.push({from, to, type});
+  let dFrom = digimonDB[from-1];
+  let dTo = digimonDB[to-1];
+  if(!dFrom.evolvesTo) dFrom.evolvesTo = [];
+  if(!dTo.evolvesFrom) dTo.evolvesFrom = [];
+  if(!dFrom.evolvesTo.includes(to)) dFrom.evolvesTo.push(to);
+  if(!dTo.evolvesFrom.includes(from)) dTo.evolvesFrom.push(from);
+}
+
+// NEUE ROBUSTE PIXEL-ART ENGINE
+function drawPixelArt(canvas, id, stage, animFrame) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  
+  // Hintergrund zuerst löschen und füllen
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Grid: 8x8 große Pixel auf 64x64 Canvas = 8x8 Grid, jeder Pixel 8x8
+  const grid = 8;
+  const ps = w / grid; // 8
+  
+  let rng = new LCG(id * 997 + stage * 13);
+  
+  // Farben basierend auf Stage
+  const colors = {
+    body: STAGE_COLORS[stage],
+    light: lighten(STAGE_COLORS[stage], 40),
+    dark: darken(STAGE_COLORS[stage], 40),
+    eye: '#ffffff',
+    pupil: '#000000'
+  };
+  
+  // Atmungs-Animation
+  const breath = Math.sin(animFrame * 0.08) * 1;
+  
+  // Hilfsfunktion zum Zeichnen eines Pixels
+  function pixel(x, y, color, sizeMul = 1) {
+    const px = x * ps;
+    const py = y * ps + breath;
+    const s = ps * sizeMul;
+    ctx.fillStyle = color;
+    ctx.fillRect(px, py, s, s);
+  }
+  
+  // Hilfsfunktion für symmetrisches Zeichnen
+  function symPixel(x, y, color, sizeMul = 1) {
+    pixel(x, y, color, sizeMul);
+    if (x !== grid - 1 - x) {
+      pixel(grid - 1 - x, y, color, sizeMul);
+    }
+  }
+  
+  // KÖRPER (mittlerer Bereich)
+  for(let y = 3; y < 6; y++) {
+    for(let x = 2; x < 6; x++) {
+      symPixel(x, y, colors.body);
+    }
+  }
+  
+  // KOPF (oben)
+  for(let x = 2; x < 6; x++) {
+    symPixel(x, 1, colors.body);
+    symPixel(x, 2, colors.light);
+  }
+  
+  // AUGEN (groß und deutlich)
+  symPixel(2, 2, colors.eye);
+  symPixel(5, 2, colors.eye);
+  symPixel(2, 2, colors.pupil, 0.5); // Pupille in der Mitte des Auges
+  symPixel(5, 2, colors.pupil, 0.5);
+  
+  // BLICK-Animation (Augen zwinkern)
+  if (animFrame % 60 > 55) {
+    symPixel(2, 2, colors.body); // Augen zu
+    symPixel(5, 2, colors.body);
+  }
+  
+  // HÖRNER / OHREN (je nach ID)
+  let features = (id % 4);
+  if (features === 0) {
+    // Spitze Ohren
+    symPixel(1, 0, colors.dark);
+    symPixel(6, 0, colors.dark);
+    symPixel(1, 1, colors.light);
+    symPixel(6, 1, colors.light);
+  } else if (features === 1) {
+    // Runde Ohren
+    symPixel(1, 1, colors.body);
+    symPixel(6, 1, colors.body);
+    symPixel(0, 2, colors.body);
+    symPixel(7, 2, colors.body);
+  } else if (features === 2) {
+    // Hörner
+    symPixel(2, 0, colors.dark);
+    symPixel(5, 0, colors.dark);
+    symPixel(1, 1, colors.light);
+    symPixel(6, 1, colors.light);
+  } else {
+    // Federn / Haare
+    symPixel(3, 0, colors.light);
+    symPixel(4, 0, colors.light);
+    symPixel(2, 0, colors.dark);
+    symPixel(5, 0, colors.dark);
+  }
+  
+  // BEINE
+  symPixel(2, 6, colors.dark);
+  symPixel(5, 6, colors.dark);
+  symPixel(2, 7, colors.body);
+  symPixel(5, 7, colors.body);
+  
+  // FLÜGEL / ARME ab Stage 2+
+  if (stage >= 2) {
+    symPixel(0, 3, colors.dark);
+    symPixel(7, 3, colors.dark);
+    symPixel(0, 4, colors.light);
+    symPixel(7, 4, colors.light);
+  }
+  
+  // EXTRA FLÜGEL ab Stage 4+
+  if (stage >= 4) {
+    symPixel(1, 0, colors.light);
+    symPixel(6, 0, colors.light);
+    symPixel(0, 2, colors.dark);
+    symPixel(7, 2, colors.dark);
+  }
+  
+  // AURA / HALO ab Stage 5+
+  if (stage >= 5) {
+    ctx.strokeStyle = colors.light;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2 + breath, w/2 - 6, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  // KRONE / SPECIAL ab Stage 6
+  if (stage >= 6) {
+    symPixel(3, 0, '#ffd700');
+    symPixel(4, 0, '#ffd700');
+    symPixel(3, 1, '#ffd700');
+    symPixel(4, 1, '#ffd700');
+  }
+  
+  // DETAILS (Muster auf dem Bauch)
+  symPixel(3, 4, colors.light);
+  symPixel(4, 4, colors.light);
+}
+
+// Farbhilfsfunktionen
+function lighten(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r + amount);
+  g = Math.min(255, g + amount);
+  b = Math.min(255, b + amount);
+  return `rgb(${r},${g},${b})`;
+}
+
+function darken(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.max(0, r - amount);
+  g = Math.max(0, g - amount);
+  b = Math.max(0, b - amount);
+  return `rgb(${r},${g},${b})`;
+}
+
+class Game {
+  constructor() {
+    this.state = {
+      currentId: null,
+      level: 1,
+      xp: 0,
+      unlocked: new Set(),
+      beaten: new Set(),
+      inBattle: false,
+      battleState: null
+    };
+    this.animFrame = 0;
+    this.animId = null;
+    this.battleEnemy = null;
+  }
+  
+  start() {
+    initDatabase();
+    this.loop();
+  }
+  
+  loop() {
+    this.animFrame++;
+    if(this.state.currentId) {
+      let d = digimonDB[this.state.currentId-1];
+      let canvas = document.getElementById('main-canvas');
+      if(canvas && document.getElementById('game-screen').classList.contains('active')) {
+        drawPixelArt(canvas, d.id, d.stage, this.animFrame);
+      }
+      if(this.state.inBattle) {
+        let pCanv = document.getElementById('battle-player');
+        let eCanv = document.getElementById('battle-enemy');
+        if(pCanv) drawPixelArt(pCanv, this.state.currentId, digimonDB[this.state.currentId-1].stage, this.animFrame);
+        if(eCanv && this.battleEnemy) drawPixelArt(eCanv, this.battleEnemy.id, this.battleEnemy.stage, this.animFrame + 10);
+      }
+    }
+    this.animId = requestAnimationFrame(() => this.loop());
+  }
+  
+  toSelect() {
+    if(digimonDB.length === 0) initDatabase();
+    this.hideAll();
+    let grid = document.getElementById('starter-grid');
+    grid.innerHTML = '';
+    for(let i=1; i<=10; i++) {
+      let d = digimonDB[i-1];
+      let card = document.createElement('div');
+      card.className = 'starter-card stage-0';
+      let cvs = document.createElement('canvas');
+      cvs.className = 'starter-canvas';
+      cvs.width = 64; cvs.height = 64;
+      drawPixelArt(cvs, d.id, 0, i*5);
+      card.appendChild(cvs);
+      let name = document.createElement('div');
+      name.textContent = d.name;
+      card.appendChild(name);
+      let stats = document.createElement('div');
+      stats.style.fontSize = '0.8em';
+      stats.style.color = '#aaa';
+      stats.textContent = `HP:${d.hp} ATK:${d.atk}`;
+      card.appendChild(stats);
+      card.onclick = () => this.selectStarter(i);
+      grid.appendChild(card);
+    }
+    document.getElementById('select-screen').classList.add('active');
+  }
+  
+  selectStarter(id) {
+    this.state.currentId = id;
+    this.state.level = 1;
+    this.state.xp = 0;
+    this.state.unlocked = new Set([id]);
+    this.toGame();
+  }
+  
+  toGame() {
+    this.hideAll();
+    document.getElementById('game-screen').classList.add('active');
+    this.updateUI();
+  }
+  
+  hideAll() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  }
+  
+  updateUI() {
+    let d = digimonDB[this.state.currentId-1];
+    let lvl = this.state.level;
+    let nextXp = this.xpForNext();
+    document.getElementById('digi-name').textContent = d.name;
+    document.getElementById('digi-stage').textContent = STAGES[d.stage];
+    document.getElementById('digi-stage').style.color = STAGE_COLORS[d.stage];
+    document.getElementById('left-panel').style.borderColor = STAGE_COLORS[d.stage];
+    document.getElementById('left-panel').className = 'panel left-panel stage-'+d.stage;
+    document.getElementById('main-canvas').style.borderColor = STAGE_COLORS[d.stage];
+    document.getElementById('main-canvas').style.boxShadow = `0 0 30px ${STAGE_COLORS[d.stage]}`;
+    document.getElementById('digi-lvl').textContent = lvl;
+    document.getElementById('digi-xp').textContent = this.state.xp;
+    document.getElementById('digi-next').textContent = nextXp;
+    
+    let hp = Math.floor(d.maxHp * (1 + lvl*0.2));
+    let atk = Math.floor(d.atk * (1 + lvl*0.15));
+    let def = Math.floor(d.def * (1 + lvl*0.15));
+    let spd = Math.floor(d.spd * (1 + lvl*0.1));
+    document.getElementById('stat-hp').textContent = hp;
+    document.getElementById('stat-atk').textContent = atk;
+    document.getElementById('stat-def').textContent = def;
+    document.getElementById('stat-spd').textContent = spd;
+    document.getElementById('bar-hp').style.width = '100%';
+  }
+  
+  xpForNext() {
+    return Math.floor(100 * Math.pow(1.3, this.state.level-1));
+  }
+  
+  log(msg) {
+    let logEl = document.getElementById('game-log');
+    let entry = document.createElement('div');
+    entry.textContent = `> ${msg}`;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  
+  train() {
+    let gain = Math.floor(10 + Math.random() * 15);
+    this.state.xp += gain;
+    this.log(`Training abgeschlossen! +${gain} XP`);
+    let next = this.xpForNext();
+    if(this.state.xp >= next) {
+      this.state.xp -= next;
+      this.state.level++;
+      this.log(`Level Aufstieg! Du bist jetzt Level ${this.state.level}!`);
+    }
+    this.updateUI();
+  }
+  
+  explore() {
+    let d = digimonDB[this.state.currentId-1];
+    let targetStage = Math.min(6, d.stage + Math.floor(Math.random()*2));
+    let candidates = digimonDB.filter(x => x.stage === targetStage);
+    let enemy = candidates[Math.floor(Math.random() * candidates.length)];
+    this.startBattle(enemy);
+  }
+  
+  startBattle(enemy) {
+    this.battleEnemy = enemy;
+    this.state.inBattle = true;
+    this.hideAll();
+    document.getElementById('battle-screen').classList.add('active');
+    document.getElementById('battle-btn').style.display = 'inline-block';
+    document.getElementById('battle-end-btn').style.display = 'none';
+    document.getElementById('battle-log').innerHTML = '';
+    
+    let pd = digimonDB[this.state.currentId-1];
+    let plvl = this.state.level;
+    let php = Math.floor(pd.maxHp * (1 + plvl*0.2));
+    let patk = Math.floor(pd.atk * (1 + plvl*0.15));
+    let pdef = Math.floor(pd.def * (1 + plvl*0.15));
+    let pspd = Math.floor(pd.spd * (1 + plvl*0.1));
+    
+    let elvl = Math.max(1, plvl + Math.floor(Math.random()*3) - 1);
+    let ehp = Math.floor(enemy.maxHp * (1 + elvl*0.2));
+    let eatk = Math.floor(enemy.atk * (1 + elvl*0.15));
+    let edef = Math.floor(enemy.def * (1 + elvl*0.15));
+    let espd = Math.floor(enemy.spd * (1 + elvl*0.1));
+    
+    this.state.battleState = {
+      player: { hp: php, maxHp: php, atk: patk, def: pdef, spd: pspd },
+      enemy: { hp: ehp, maxHp: ehp, atk: eatk, def: edef, spd: espd, name: enemy.name, id: enemy.id, stage: enemy.stage },
+      turn: 0,
+      over: false
+    };
+    
+    let bs = this.state.battleState;
+    bs.turn = bs.player.spd >= bs.enemy.spd ? 0 : 1;
+    
+    document.getElementById('battle-player-name').textContent = `${pd.name} (Lv.${plvl})`;
+    document.getElementById('battle-enemy-name').textContent = `${enemy.name} (Lv.${elvl})`;
+    this.updateBattleUI();
+    this.battleLog(`Ein wildes ${enemy.name} erscheint!`);
+    if(bs.turn === 1) setTimeout(() => this.enemyTurn(), 800);
+  }
+  
+  updateBattleUI() {
+    let bs = this.state.battleState;
+    let php = bs.player.hp, pmax = bs.player.maxHp;
+    let ehp = bs.enemy.hp, emax = bs.enemy.maxHp;
+    document.getElementById('player-hp').style.width = Math.max(0, (php/pmax)*100) + '%';
+    document.getElementById('player-hp').style.background = php > pmax*0.3 ? '#00e676' : '#ff5252';
+    document.getElementById('player-hp-text').textContent = `${Math.max(0,php)}/${pmax}`;
+    document.getElementById('enemy-hp').style.width = Math.max(0, (ehp/emax)*100) + '%';
+    document.getElementById('enemy-hp-text').textContent = `${Math.max(0,ehp)}/${emax}`;
+  }
+  
+  battleLog(msg) {
+    let el = document.getElementById('battle-log');
+    let div = document.createElement('div');
+    div.textContent = msg;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+  }
+  
+  battleTurn() {
+    if(!this.state.inBattle || this.state.battleState.over) return;
+    let bs = this.state.battleState;
+    if(bs.turn !== 0) return;
+    
+    let dmg = Math.max(1, Math.floor(bs.player.atk - bs.enemy.def * 0.5));
+    dmg += Math.floor(Math.random() * 4) - 2;
+    dmg = Math.max(1, dmg);
+    bs.enemy.hp -= dmg;
+    this.battleLog(`Du greifst an und verursachst ${dmg} Schaden!`);
+    this.updateBattleUI();
+    
+    if(bs.enemy.hp <= 0) {
+      this.winBattle();
+      return;
+    }
+    
+    bs.turn = 1;
+    setTimeout(() => this.enemyTurn(), 600);
+  }
+  
+  enemyTurn() {
+    let bs = this.state.battleState;
+    if(bs.over) return;
+    
+    let dmg = Math.max(1, Math.floor(bs.enemy.atk - bs.player.def * 0.5));
+    dmg += Math.floor(Math.random() * 4) - 2;
+    dmg = Math.max(1, dmg);
+    bs.player.hp -= dmg;
+    this.battleLog(`${bs.enemy.name} greift an und verursachst ${dmg} Schaden!`);
+    this.updateBattleUI();
+    
+    if(bs.player.hp <= 0) {
+      this.loseBattle();
+      return;
+    }
+    
+    bs.turn = 0;
+  }
+  
+  winBattle() {
+    let bs = this.state.battleState;
+    this.state.battleState.over = true;
+    let xpGain = Math.floor(30 + (bs.enemy.stage+1) * 20);
+    this.state.xp += xpGain;
+    this.state.unlocked.add(bs.enemy.id);
+    this.battleLog(`Sieg! Du erhältst ${xpGain} XP.`);
+    this.battleLog(`${bs.enemy.name} wurde ins Digi-Dex aufgenommen.`);
+    document.getElementById('battle-btn').style.display = 'none';
+    document.getElementById('battle-end-btn').style.display = 'inline-block';
+    
+    let next = this.xpForNext();
+    if(this.state.xp >= next) {
+      this.state.xp -= next;
+      this.state.level++;
+      this.battleLog(`Level Aufstieg! Du bist jetzt Level ${this.state.level}!`);
+    }
+  }
+  
+  loseBattle() {
+    this.state.battleState.over = true;
+    this.battleLog(`Niederlage... Du fliehst.`);
+    this.state.xp = Math.floor(this.state.xp * 0.5);
+    document.getElementById('battle-btn').style.display = 'none';
+    document.getElementById('battle-end-btn').style.display = 'inline-block';
+  }
+  
+  endBattle() {
+    this.state.inBattle = false;
+    this.toGame();
+  }
+  
+  tryEvolve() {
+    let d = digimonDB[this.state.currentId-1];
+    if(!d.evolvesTo || d.evolvesTo.length === 0) {
+      this.log('Keine weitere Evolution möglich!');
+      return;
+    }
+    let reqLvl = [1, 5, 10, 20, 35, 50, 70][d.stage+1] || 99;
+    if(this.state.level < reqLvl) {
+      this.log(`Evolution erfordert Level ${reqLvl}! (Du: ${this.state.level})`);
+      return;
+    }
+    
+    let options = d.evolvesTo.map(id => digimonDB[id-1]);
+    let names = options.map((o,i) => `${i+1}. ${o.name} (${STAGES[o.stage]})`).join('\n');
+    let choice = prompt(`Wähle deine Evolution:\n${names}\n\nNummer eingeben (1-${options.length}):`);
+    let idx = parseInt(choice) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= options.length) {
+      this.log('Evolution abgebrochen.');
+      return;
+    }
+    let next = options[idx];
+    this.state.currentId = next.id;
+    this.state.unlocked.add(next.id);
+    this.log(`Evolution! ${d.name} wurde zu ${next.name}!`);
+    this.updateUI();
+  }
+  
+  showTree() {
+    this.hideAll();
+    document.getElementById('tree-screen').classList.add('active');
+    this.renderTree();
+  }
+  
+  renderTree() {
+    const canvas = document.getElementById('tree-canvas');
+    const ctx = canvas.getContext('2d');
+    const nodeW = 60, nodeH = 60, gapX = 40, gapY = 120;
+    const rows = 7;
+    canvas.width = 10 * (nodeW + gapX) + gapX;
+    canvas.height = rows * (nodeH + gapY) + gapY;
+    
+    ctx.fillStyle = '#050a1f';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    
+    let positions = {};
+    STAGE_IDS.forEach((range, sIdx) => {
+      let y = gapY/2 + sIdx * (nodeH + gapY);
+      let totalW = range.count * nodeW + (range.count-1) * gapX;
+      let startX = (canvas.width - totalW) / 2;
+      for(let i=0; i < range.count; i++) {
+        let id = range.start + i;
+        let x = startX + i * (nodeW + gapX);
+        positions[id] = {x, y, cx: x+nodeW/2, cy: y+nodeH/2};
+      }
+    });
+    
+    evolutionLinks.forEach(link => {
+      let p1 = positions[link.from];
+      let p2 = positions[link.to];
+      if(!p1 || !p2) return;
+      ctx.beginPath();
+      ctx.moveTo(p1.cx, p1.cy + nodeH/2);
+      ctx.bezierCurveTo(p1.cx, p1.cy + nodeH/2 + gapY/2, p2.cx, p2.cy - nodeH/2 - gapY/2, p2.cx, p2.cy - nodeH/2);
+      if(link.type === 'standard') {
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.setLineDash([]);
+      } else if(link.type === 'alternate') {
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.setLineDash([5,5]);
+      } else if(link.type === 'reverse') {
+        ctx.strokeStyle = 'rgba(255,82,82,0.4)';
+        ctx.setLineDash([10,4]);
+      } else if(link.type === 'special') {
+        ctx.strokeStyle = 'rgba(233,30,99,0.5)';
+        ctx.setLineDash([2,2]);
+      }
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+    
+    digimonDB.forEach(d => {
+      let pos = positions[d.id];
+      if(!pos) return;
+      let isUnlocked = this.state.unlocked.has(d.id);
+      let isCurrent = this.state.currentId === d.id;
+      
+      if(isCurrent) {
+        ctx.shadowColor = d.color;
+        ctx.shadowBlur = 20;
+      } else if(isUnlocked) {
+        ctx.shadowColor = d.color;
+        ctx.shadowBlur = 8;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+      
+      ctx.fillStyle = isUnlocked ? 'rgba(0,0,0,0.8)' : 'rgba(20,20,20,0.5)';
+      ctx.strokeStyle = isUnlocked ? d.color : '#333';
+      ctx.lineWidth = isCurrent ? 3 : 2;
+      ctx.fillRect(pos.x, pos.y, nodeW, nodeH);
+      ctx.strokeRect(pos.x, pos.y, nodeW, nodeH);
+      ctx.shadowBlur = 0;
+      
+      if(isUnlocked) {
+        let miniCvs = document.createElement('canvas');
+        miniCvs.width = 32; miniCvs.height = 32;
+        drawPixelArt(miniCvs, d.id, d.stage, 0);
+        ctx.drawImage(miniCvs, pos.x + 14, pos.y + 4, 32, 32);
+      } else {
+        ctx.fillStyle = '#333';
+        ctx.font = '20px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('?', pos.cx, pos.cy + 7);
+      }
+      
+      ctx.fillStyle = isUnlocked ? d.color : '#555';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.name, pos.cx, pos.y + nodeH - 4);
+    });
+  }
+  
+  save() {
+    let data = JSON.stringify({
+      currentId: this.state.currentId,
+      level: this.state.level,
+      xp: this.state.xp,
+      unlocked: Array.from(this.state.unlocked),
+      beaten: Array.from(this.state.beaten)
+    });
+    localStorage.setItem('digimon_save', data);
+    this.log('Spiel gespeichert!');
+  }
+  
+  load() {
+    let data = localStorage.getItem('digimon_save');
+    if(!data) {
+      alert('Kein Speicherstand gefunden!');
+      return;
+    }
+    let parsed = JSON.parse(data);
+    if(digimonDB.length === 0) initDatabase();
+    this.state.currentId = parsed.currentId;
+    this.state.level = parsed.level;
+    this.state.xp = parsed.xp;
+    this.state.unlocked = new Set(parsed.unlocked);
+    this.state.beaten = new Set(parsed.beaten);
+    this.log('Spiel geladen!');
+    this.toGame();
+  }
+}
+
+const game = new Game();
+window.onload = () => game.start();
+</script>
+</body>
+</html>

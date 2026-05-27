@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N009" data-stage="Baby" data-type="Nature">
+  <title id="title">N009 Sprigglow sprite</title>
+  <desc id="desc">Original Baby Nature pixel creature for Pixel Evolution Arena. Glowing seedling lantern; nature/light bridge for safe squads.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.8s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="57,68 34,78 50,88" fill="#b7ff5f"/>
+    <polygon points="71,68 94,78 78,88" fill="#ecffd1"/>
+    <rect x="61" y="78" width="6" height="14" fill="#124a2c"/>
+    <rect x="50" y="88" width="8" height="8" fill="#124a2c"/>
+    <rect x="70" y="88" width="8" height="8" fill="#124a2c"/>
+    <polygon points="54,66 74,66 82,74 82,84 74,92 54,92 46,84 46,74" fill="#124a2c"/>
+    <polygon points="56,70 72,70 78,76 78,82 72,88 56,88 50,82 50,76" fill="#39c66f"/>
+    <rect x="54" y="74" width="12" height="6" fill="#ecffd1" opacity="0.75"/>
+    <rect x="59" y="78" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="62" y="84" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="65" y="78" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <g class="eyes">
+    <rect x="51" y="76" width="4" height="6" fill="#06180f"/>
+    <rect x="73" y="76" width="4" height="6" fill="#06180f"/>
+    </g>
+    <polygon points="42,84 18,68 28,108" fill="#124a2c" opacity="0.92"/>
+    <polygon points="86,84 110,68 100,108" fill="#124a2c" opacity="0.92"/>
+  </g>
+</svg>

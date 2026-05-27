@@ -1,0 +1,262 @@
+:host {
+  display: block;
+}
+
+.tab-nav {
+  position: relative;
+  grid-template-columns: minmax(0, max-content) minmax(280px, 1fr) minmax(166px, max-content);
+  gap: 0.5rem;
+  overflow: visible;
+}
+
+.tab-nav::before {
+  position: absolute;
+  inset: -3px 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(19, 216, 255, 0.5),
+    rgba(255, 85, 216, 0.42),
+    transparent
+  );
+  content: '';
+}
+
+.tab-cluster {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tab-button {
+  position: relative;
+  grid-template-columns: 34px minmax(0, 1fr);
+  min-width: 148px;
+  max-width: 190px;
+  overflow: hidden;
+  text-align: left;
+  white-space: normal;
+}
+
+.tab-button::after {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid transparent;
+  border-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2),
+      transparent 45%,
+      rgba(19, 216, 255, 0.2)
+    )
+    1;
+  content: '';
+  pointer-events: none;
+}
+
+.tab-button.active::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 0 42%,
+    rgba(255, 255, 255, 0.12) 48%,
+    transparent 54% 100%
+  );
+  content: '';
+  opacity: 0.6;
+}
+
+.tab-icon {
+  width: 34px;
+  height: 26px;
+  border-color: rgba(19, 216, 255, 0.62);
+  background: rgba(2, 12, 22, 0.76);
+  color: var(--line);
+  font-size: 0.62rem;
+  letter-spacing: 0;
+}
+
+.tab-copy,
+.link-copy,
+.legend-title {
+  display: grid;
+  min-width: 0;
+}
+
+.tab-label {
+  min-width: 0;
+  color: inherit;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.tab-status,
+.legend-kicker,
+.link-key small {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.58rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.tab-status,
+.link-key small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-legend {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+  gap: 0.65rem;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+.legend-title {
+  align-content: center;
+  border-right: 1px solid rgba(19, 216, 255, 0.26);
+  padding-right: 0.62rem;
+}
+
+.legend-title strong {
+  color: var(--line);
+  font-size: 0.78rem;
+  line-height: 1.05;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.legend-keys {
+  display: flex;
+  min-width: 0;
+  gap: 0.45rem;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.link-key {
+  flex: 0 0 auto;
+  min-width: 112px;
+  border: 1px solid rgba(19, 216, 255, 0.2);
+  padding: 0.26rem 0.42rem;
+  background:
+    linear-gradient(90deg, rgba(19, 216, 255, 0.08) 1px, transparent 1px), rgba(0, 0, 0, 0.18);
+  background-size:
+    12px 12px,
+    auto;
+}
+
+.link-key i {
+  width: 34px;
+}
+
+.link-key strong {
+  color: var(--text);
+  font-size: 0.64rem;
+  line-height: 1.05;
+}
+
+.link-key.branch {
+  border-color: rgba(255, 214, 77, 0.34);
+}
+
+.link-key.special {
+  border-color: rgba(255, 85, 216, 0.42);
+}
+
+.handbook-tab {
+  justify-self: end;
+  border-color: rgba(255, 85, 216, 0.65);
+  background:
+    linear-gradient(90deg, rgba(255, 85, 216, 0.16), rgba(19, 216, 255, 0.04)), rgba(0, 0, 0, 0.24);
+}
+
+.handbook-tab.active {
+  border-color: var(--special);
+  box-shadow: 0 0 20px rgba(255, 85, 216, 0.28);
+}
+
+.handbook-tab .tab-icon {
+  border-color: rgba(255, 85, 216, 0.7);
+  color: var(--special);
+}
+
+@media (max-width: 1180px) {
+  .tab-nav {
+    grid-template-columns: minmax(0, 1fr) minmax(158px, max-content);
+  }
+
+  .tab-cluster {
+    grid-column: 1 / -1;
+  }
+
+  .link-legend {
+    grid-column: 1;
+  }
+
+  .handbook-tab {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 820px) {
+  .tab-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(142px, auto);
+    overflow: visible;
+  }
+
+  .tab-button {
+    min-width: 126px;
+    max-width: 160px;
+    padding: 0.5rem 0.58rem;
+  }
+
+  .link-legend {
+    min-width: 0;
+  }
+
+  .legend-title strong {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .tab-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-cluster,
+  .link-legend,
+  .handbook-tab {
+    grid-column: 1;
+  }
+
+  .handbook-tab {
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .link-legend {
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  .legend-title {
+    border-right: 0;
+    border-bottom: 1px solid rgba(19, 216, 255, 0.22);
+    padding: 0 0 0.36rem;
+  }
+
+  .tab-status,
+  .link-key small {
+    white-space: normal;
+  }
+}

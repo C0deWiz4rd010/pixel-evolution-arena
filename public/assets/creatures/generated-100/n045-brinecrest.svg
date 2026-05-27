@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N045" data-stage="Rookie" data-type="Water">
+  <title id="title">N045 Brinecrest sprite</title>
+  <desc id="desc">Original Rookie Water pixel creature for Pixel Evolution Arena. Crested lizard with salt crystal fins; defensive water bruiser.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.5s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="26,76 8,90 28,96" fill="#9df7ff"/>
+    <polygon points="102,76 120,90 100,96" fill="#d6fdff"/>
+    <rect x="46" y="102" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="102" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <rect x="44" y="96" width="12" height="8" fill="#0b4b76"/>
+    <rect x="72" y="96" width="12" height="8" fill="#0b4b76"/>
+    <polygon points="46,58 82,58 92,68 92,90 82,100 46,100 36,90 36,68" fill="#0b4b76"/>
+    <polygon points="48,62 80,62 88,70 88,88 80,96 48,96 40,88 40,70" fill="#39b9ff"/>
+    <rect x="44" y="66" width="19" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="62" y="77" width="4" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <polygon points="53,41 75,41 83,49 83,61 75,69 53,69 45,61 45,49" fill="#0b4b76"/>
+    <polygon points="55,45 73,45 79,51 79,59 73,65 55,65 49,59 49,51" fill="#39b9ff"/>
+    <rect x="53" y="47" width="11" height="5" fill="#d6fdff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="54" width="6" height="8" fill="#041826"/>
+    <rect x="75" y="54" width="6" height="8" fill="#041826"/>
+    <rect x="48" y="55" width="2" height="2" fill="#9df7ff"/>
+    <rect x="76" y="55" width="2" height="2" fill="#9df7ff"/>
+    </g>
+    <rect x="46" y="82" width="36" height="6" fill="#d6fdff" opacity="0.85"/>
+    <rect x="54" y="74" width="20" height="4" fill="#9df7ff" opacity="0.8"/>
+  </g>
+</svg>

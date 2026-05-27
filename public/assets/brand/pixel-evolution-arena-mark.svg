@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Evolution Arena mark</title>
+  <desc id="desc">A brand-safe neon pixel creature arena emblem with cyan, magenta, and green circuit accents.</desc>
+  <defs>
+    <linearGradient id="panelFill" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0e1f35"/>
+      <stop offset="0.52" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#12091f"/>
+    </linearGradient>
+    <linearGradient id="rimStroke" x1="48" y1="80" x2="464" y2="432" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#19f8ff"/>
+      <stop offset="0.5" stop-color="#39ff88"/>
+      <stop offset="1" stop-color="#ff35d1"/>
+    </linearGradient>
+    <linearGradient id="creatureFill" x1="128" y1="170" x2="384" y2="358" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#102c3d"/>
+      <stop offset="0.55" stop-color="#0a1829"/>
+      <stop offset="1" stop-color="#211130"/>
+    </linearGradient>
+    <filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g shape-rendering="crispEdges">
+    <polygon points="96 40 416 40 472 96 472 370 384 464 128 464 40 370 40 96" fill="#050913"/>
+    <polygon points="104 52 408 52 460 104 460 364 378 452 134 452 52 364 52 104" fill="url(#panelFill)" stroke="url(#rimStroke)" stroke-width="8"/>
+    <polygon points="132 84 380 84 428 132 428 344 356 420 156 420 84 344 84 132" fill="none" stroke="#12324a" stroke-width="4"/>
+    <g opacity="0.42" stroke="#19f8ff" stroke-width="2">
+      <path d="M112 164H400"/>
+      <path d="M112 252H400"/>
+      <path d="M112 340H400"/>
+      <path d="M164 104V400"/>
+      <path d="M256 92V420"/>
+      <path d="M348 104V400"/>
+    </g>
+    <g fill="#39ff88" opacity="0.9">
+      <rect x="116" y="116" width="16" height="16"/>
+      <rect x="380" y="116" width="16" height="16"/>
+      <rect x="116" y="380" width="16" height="16"/>
+      <rect x="380" y="380" width="16" height="16"/>
+    </g>
+    <g aria-hidden="true">
+      <path d="M112 256H166V226H230V256H282V286H346V256H400" fill="none" stroke="#19f8ff" stroke-width="6"/>
+      <path d="M400 256l-22 -13v26z" fill="#19f8ff"/>
+      <path d="M196 226V194H316" fill="none" stroke="#ff35d1" stroke-width="5" stroke-dasharray="12 10"/>
+      <path d="M316 194l-18 -10v20z" fill="#ff35d1"/>
+      <rect x="124" y="248" width="16" height="16" fill="#7cff3a"/>
+      <rect x="166" y="218" width="16" height="16" fill="#18d2ff"/>
+      <rect x="208" y="248" width="16" height="16" fill="#ffe12b"/>
+      <rect x="250" y="278" width="16" height="16" fill="#ff9c24"/>
+      <rect x="292" y="186" width="16" height="16" fill="#ff453b"/>
+      <rect x="334" y="248" width="16" height="16" fill="#b663ff"/>
+      <rect x="376" y="248" width="16" height="16" fill="#ff55d8"/>
+    </g>
+    <g fill="none" stroke-linecap="square" stroke-linejoin="miter" filter="url(#softGlow)">
+      <path d="M256 116V156" stroke="#39ff88" stroke-width="8"/>
+      <path d="M208 136H304" stroke="#19f8ff" stroke-width="8"/>
+      <path d="M204 142L184 162" stroke="#19f8ff" stroke-width="8"/>
+      <path d="M308 142L328 162" stroke="#ff35d1" stroke-width="8"/>
+      <rect x="236" y="92" width="40" height="40" fill="#050913" stroke="#39ff88" stroke-width="8" transform="rotate(45 256 112)"/>
+      <rect x="248" y="104" width="16" height="16" fill="#39ff88" stroke="none"/>
+    </g>
+    <g filter="url(#softGlow)">
+      <polygon points="160 176 352 176 384 208 384 324 352 356 160 356 128 324 128 208" fill="url(#creatureFill)" stroke="#39ff88" stroke-width="8"/>
+      <rect x="116" y="228" width="28" height="64" fill="#102c3d" stroke="#19f8ff" stroke-width="6"/>
+      <rect x="368" y="228" width="28" height="64" fill="#211130" stroke="#ff35d1" stroke-width="6"/>
+      <rect x="184" y="232" width="44" height="44" fill="#19f8ff"/>
+      <rect x="196" y="244" width="20" height="20" fill="#050913"/>
+      <rect x="284" y="232" width="44" height="44" fill="#ff35d1"/>
+      <rect x="296" y="244" width="20" height="20" fill="#050913"/>
+      <rect x="204" y="306" width="104" height="12" fill="#39ff88"/>
+      <rect x="228" y="326" width="56" height="12" fill="#19f8ff"/>
+    </g>
+    <g fill="#050913" stroke="#19f8ff" stroke-width="6">
+      <rect x="152" y="372" width="56" height="32"/>
+      <rect x="304" y="372" width="56" height="32"/>
+    </g>
+    <g fill="#39ff88">
+      <rect x="168" y="384" width="24" height="8"/>
+      <rect x="320" y="384" width="24" height="8"/>
+    </g>
+  </g>
+</svg>

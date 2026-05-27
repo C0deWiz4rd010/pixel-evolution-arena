@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N083" data-stage="Mega" data-type="Water">
+  <title id="title">N083 Tidecrown sprite</title>
+  <desc id="desc">Original Mega Water pixel creature for Pixel Evolution Arena. Crowned leviathan-like wave crest; durable reward farmer.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.3s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.82s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#9df7ff" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#d6fdff" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="13,74 -5,88 15,94" fill="#9df7ff"/>
+    <polygon points="115,74 133,88 113,94" fill="#d6fdff"/>
+    <rect x="46" y="112" width="12" height="4" fill="#9df7ff" class="glow"/>
+    <rect x="62" y="112" width="14" height="4" fill="#d6fdff" class="glow"/>
+    <polygon points="64,20 52,38 76,38" fill="#d6fdff" opacity="0.9"/>
+    <rect x="44" y="66" width="48" height="4" fill="#9df7ff" opacity="0.7"/>
+    <rect x="37" y="106" width="12" height="8" fill="#0b4b76"/>
+    <rect x="79" y="106" width="12" height="8" fill="#0b4b76"/>
+    <rect x="33" y="108" width="4" height="4" fill="#9df7ff"/>
+    <rect x="91" y="108" width="4" height="4" fill="#9df7ff"/>
+    <polygon points="33,56 95,56 105,66 105,100 95,110 33,110 23,100 23,66" fill="#0b4b76"/>
+    <polygon points="35,60 93,60 101,68 101,98 93,106 35,106 27,98 27,68" fill="#39b9ff"/>
+    <rect x="31" y="64" width="28" height="6" fill="#d6fdff" opacity="0.75"/>
+    <rect x="45" y="86" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="56" y="80" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="68" y="86" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <rect x="79" y="80" width="5" height="12" fill="#9df7ff" class="glow" opacity="0.72"/>
+    <polygon points="42,30 82,30 90,38 90,64 82,72 42,72 34,64 34,38" fill="#0b4b76"/>
+    <polygon points="44,34 80,34 86,40 86,62 80,68 44,68 38,62 38,40" fill="#39b9ff"/>
+    <rect x="42" y="36" width="17" height="5" fill="#d6fdff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="49" width="6" height="8" fill="#041826"/>
+    <rect x="78" y="49" width="6" height="8" fill="#041826"/>
+    <rect x="45" y="50" width="2" height="2" fill="#9df7ff"/>
+    <rect x="79" y="50" width="2" height="2" fill="#9df7ff"/>
+    </g>
+    <polygon points="46,28 54,14 64,26 74,14 82,28" fill="#9df7ff" class="glow"/>
+    <polygon points="19,74 -5,58 5,98" fill="#0b4b76" opacity="0.92"/>
+    <polygon points="109,74 133,58 123,98" fill="#0b4b76" opacity="0.92"/>
+    <rect x="28" y="36" width="72" height="4" fill="#9df7ff" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#9df7ff" class="glow" opacity="0.36"/>
+    <rect x="42" y="114" width="58" height="3" fill="#d6fdff" class="scan" opacity="0.32"/>
+  </g>
+</svg>

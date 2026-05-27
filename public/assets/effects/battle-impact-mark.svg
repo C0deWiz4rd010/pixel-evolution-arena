@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="128" viewBox="0 0 160 128" role="img" aria-labelledby="title desc">
+  <title id="title">Battle impact mark</title>
+  <desc id="desc">Angular digital impact mark for arena hit overlays.</desc>
+  <g shape-rendering="crispEdges" fill="none" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M18 78h34l18-28h34l14-22" stroke="#ff453b" stroke-width="8"/>
+    <path d="M42 100h30l16-24h34l20-32" stroke="#ff9c24" stroke-width="6"/>
+    <path d="M28 50h24l16-24h28" stroke="#ffe12b" stroke-width="4"/>
+    <rect x="12" y="72" width="12" height="12" fill="#ff453b" stroke="none"/>
+    <rect x="134" y="38" width="12" height="12" fill="#ffe12b" stroke="none"/>
+  </g>
+</svg>

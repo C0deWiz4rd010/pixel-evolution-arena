@@ -1,0 +1,112 @@
+@if (monster; as selected) {
+  <aside class="hud-panel detail-panel stage-{{ stageClass(selected) }}">
+    <div class="detail-topline">
+      <span class="monster-id">{{ selected.id }}</span>
+      <span class="rarity">{{ selected.rarity }}</span>
+    </div>
+
+    <div class="detail-hero">
+      <span class="detail-icon sprite-node" aria-hidden="true">
+        @if (selected.unlocked && selected.spriteUrl) {
+          <img class="creature-sprite hero" [src]="selected.spriteUrl" alt="" />
+        } @else {
+          {{ selected.unlocked ? selected.icon : 'LOCK' }}
+        }
+      </span>
+      <div class="detail-identity">
+        <h2>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</h2>
+        <p>
+          <span>{{ selected.stage }}</span>
+          <span>{{ selected.type }}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="xp-bar">
+      <span>Level {{ selected.level }}</span>
+      <div class="bar-track"><span [style.width.%]="(selected.xp / selected.maxXp) * 100"></span></div>
+      <span>{{ selected.xp }} / {{ selected.maxXp }} XP</span>
+    </div>
+
+    <div class="stat-grid">
+      <span>HP <strong>{{ selected.hp }}</strong></span>
+      <span>ATK <strong>{{ selected.attack }}</strong></span>
+      <span>DEF <strong>{{ selected.defense }}</strong></span>
+      <span>SPD <strong>{{ selected.speed }}</strong></span>
+      <span>Power <strong>{{ game.getMonsterPower(selected) }}</strong></span>
+      <span>Status <strong>{{ selected.unlocked ? 'Unlocked' : 'Locked' }}</strong></span>
+    </div>
+
+    <div class="detail-actions">
+      <button type="button" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">
+        Add to Squad
+      </button>
+      @if (addToSquadReason(selected); as reason) {
+        <p class="action-note">{{ reason }}</p>
+      }
+    </div>
+
+    <section class="evolution-targets">
+      <h3>Possible Evolutions</h3>
+      @if (game.getEvolutionTargets(selected).length === 0) {
+        <p class="empty-note">This form is a current endpoint. Battle with another line to unlock more goals.</p>
+      }
+      @for (target of game.getEvolutionTargets(selected); track target.id) {
+        <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
+          <div class="target-head">
+            <span class="target-icon sprite-node" aria-hidden="true">
+              @if (target.spriteUrl) {
+                <img class="creature-sprite target" [src]="target.spriteUrl" alt="" loading="lazy" />
+              } @else {
+                {{ target.icon }}
+              }
+            </span>
+            <div class="target-copy">
+              <strong>{{ target.name }}</strong>
+              <span>{{ target.stage }} / {{ target.type }}</span>
+            </div>
+            <span class="monster-id">{{ target.id }}</span>
+          </div>
+
+          <div class="lab-readout">
+            <span class="lab-chip success-chip">
+              <small>Success</small>
+              <strong>{{ game.canEvolve(selected, target) ? '100%' : 'Gated' }}</strong>
+            </span>
+            <span class="lab-chip power-chip" [class.gain]="powerDelta(selected, target) >= 0">
+              <small>Power</small>
+              <strong>{{ powerDeltaLabel(selected, target) }}</strong>
+            </span>
+            <span class="lab-chip pin-chip" [class.pinned]="game.pinnedChaseId() === target.id">
+              <small>Chase</small>
+              @if (game.pinnedChaseId() === target.id) {
+                <button type="button" class="pin-action" (click)="game.unpinChaseTarget()">Unpin</button>
+              } @else if (!target.unlocked) {
+                <button type="button" class="pin-action" (click)="game.pinChaseTarget(target.id)">Pin</button>
+              } @else {
+                <strong>Online</strong>
+              }
+            </span>
+          </div>
+
+          <div class="requirements">
+            @for (status of game.getRequirementStatuses(selected, target); track status.label) {
+              <span [class.met]="status.met" [class.missing]="!status.met">
+                {{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }} / {{ status.required }}
+              </span>
+            }
+          </div>
+
+          <button type="button" [disabled]="!game.canEvolve(selected, target)" (click)="game.evolve(selected.id, target.id)">
+            {{ target.unlocked ? 'Unlocked' : game.canEvolve(selected, target) ? 'Evolve' : 'Requirements Missing' }}
+          </button>
+        </article>
+      }
+    </section>
+  </aside>
+} @else {
+  <aside class="hud-panel detail-panel">
+    <h2>No signal selected</h2>
+    <p>Select an unlocked creature to inspect evolution goals.</p>
+  </aside>
+}

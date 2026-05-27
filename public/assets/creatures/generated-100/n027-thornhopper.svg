@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N027" data-stage="Rookie" data-type="Nature">
+  <title id="title">N027 Thornhopper sprite</title>
+  <desc id="desc">Original Rookie Nature pixel creature for Pixel Evolution Arena. Grasshopper with thorn knees; evasive nature scout, good third squad slot.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.5s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.45s steps(1, end) infinite; }
+    .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .scan { animation: scan 3.46s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="57,49 34,59 50,69" fill="#b7ff5f"/>
+    <polygon points="71,49 94,59 78,69" fill="#ecffd1"/>
+    <rect x="61" y="59" width="6" height="14" fill="#124a2c"/>
+    <rect x="44" y="96" width="12" height="8" fill="#124a2c"/>
+    <rect x="72" y="96" width="12" height="8" fill="#124a2c"/>
+    <polygon points="46,64 82,64 92,74 92,90 82,100 46,100 36,90 36,74" fill="#124a2c"/>
+    <polygon points="48,68 80,68 88,76 88,88 80,96 48,96 40,88 40,76" fill="#39c66f"/>
+    <rect x="44" y="72" width="19" height="6" fill="#ecffd1" opacity="0.75"/>
+    <rect x="54" y="80" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="62" y="86" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <rect x="70" y="80" width="4" height="12" fill="#b7ff5f" class="glow" opacity="0.72"/>
+    <polygon points="47,47 69,47 77,55 77,67 69,75 47,75 39,67 39,55" fill="#124a2c"/>
+    <polygon points="49,51 67,51 73,57 73,65 67,71 49,71 43,65 43,57" fill="#39c66f"/>
+    <rect x="47" y="53" width="11" height="5" fill="#ecffd1" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="60" width="6" height="8" fill="#06180f"/>
+    <rect x="75" y="60" width="6" height="8" fill="#06180f"/>
+    <rect x="48" y="61" width="2" height="2" fill="#b7ff5f"/>
+    <rect x="76" y="61" width="2" height="2" fill="#b7ff5f"/>
+    </g>
+    <polygon points="46,55 20,45 32,65" fill="#b7ff5f"/>
+    <polygon points="82,55 108,45 96,65" fill="#b7ff5f"/>
+  </g>
+</svg>

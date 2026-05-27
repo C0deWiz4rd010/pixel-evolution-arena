@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N090" data-stage="Mega" data-type="Toxic">
+  <title id="title">N090 Corrosynth sprite</title>
+  <desc id="desc">Original Mega Toxic pixel creature for Pixel Evolution Arena. Synthetic corrosion golem; machine-toxic control endpoint.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.3s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 4s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#102000" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#e4ff47" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#f6ffb8" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="52" y="22" width="24" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="56" y="16" width="16" height="6" fill="#f6ffb8" opacity="0.8"/>
+    <rect x="31" y="68" width="8" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="89" y="78" width="10" height="10" fill="#f6ffb8" class="glow" opacity="0.7"/>
+    <rect x="47" y="106" width="6" height="12" fill="#e4ff47" class="glow"/>
+    <rect x="13" y="84" width="8" height="18" fill="#315700"/>
+    <rect x="107" y="76" width="8" height="18" fill="#315700"/>
+    <rect x="37" y="106" width="12" height="8" fill="#315700"/>
+    <rect x="79" y="106" width="12" height="8" fill="#315700"/>
+    <rect x="33" y="108" width="4" height="4" fill="#e4ff47"/>
+    <rect x="91" y="108" width="4" height="4" fill="#e4ff47"/>
+    <polygon points="33,56 95,56 105,66 105,100 95,110 33,110 23,100 23,66" fill="#315700"/>
+    <polygon points="35,60 93,60 101,68 101,98 93,106 35,106 27,98 27,68" fill="#91e536"/>
+    <rect x="31" y="64" width="28" height="6" fill="#f6ffb8" opacity="0.75"/>
+    <rect x="52" y="86" width="5" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="72" y="80" width="5" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <polygon points="40,30 84,30 92,38 92,64 84,72 40,72 32,64 32,38" fill="#315700"/>
+    <polygon points="42,34 82,34 88,40 88,62 82,68 42,68 36,62 36,40" fill="#91e536"/>
+    <rect x="40" y="36" width="18" height="5" fill="#f6ffb8" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="49" width="6" height="8" fill="#102000"/>
+    <rect x="78" y="49" width="6" height="8" fill="#102000"/>
+    <rect x="45" y="50" width="2" height="2" fill="#e4ff47"/>
+    <rect x="79" y="50" width="2" height="2" fill="#e4ff47"/>
+    </g>
+    <rect x="93" y="80" width="8" height="8" fill="#f6ffb8" class="glow" opacity="0.78"/>
+    <rect x="27" y="88" width="6" height="6" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="28" y="36" width="72" height="4" fill="#e4ff47" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#e4ff47" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#f6ffb8" class="scan" opacity="0.32"/>
+  </g>
+</svg>

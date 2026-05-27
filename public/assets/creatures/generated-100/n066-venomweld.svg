@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N066" data-stage="Champion" data-type="Toxic">
+  <title id="title">N066 Venomweld sprite</title>
+  <desc id="desc">Original Champion Toxic pixel creature for Pixel Evolution Arena. Toxic pipe lizard fused to metal plates; poison wall.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 4s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#102000" stroke-width="0" stroke-linejoin="miter">
+    <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="52" y="33" width="24" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="56" y="27" width="16" height="6" fill="#f6ffb8" opacity="0.8"/>
+    <rect x="38" y="74" width="8" height="8" fill="#e4ff47" class="glow"/>
+    <rect x="82" y="84" width="10" height="10" fill="#f6ffb8" class="glow" opacity="0.7"/>
+    <rect x="66" y="100" width="6" height="12" fill="#e4ff47" class="glow"/>
+    <rect x="41" y="100" width="12" height="8" fill="#315700"/>
+    <rect x="75" y="100" width="12" height="8" fill="#315700"/>
+    <rect x="37" y="102" width="4" height="4" fill="#e4ff47"/>
+    <rect x="87" y="102" width="4" height="4" fill="#e4ff47"/>
+    <polygon points="40,62 88,62 98,72 98,94 88,104 40,104 30,94 30,72" fill="#315700"/>
+    <polygon points="42,66 86,66 94,74 94,92 86,100 42,100 34,92 34,74" fill="#91e536"/>
+    <rect x="38" y="70" width="23" height="6" fill="#f6ffb8" opacity="0.75"/>
+    <rect x="49" y="87" width="4" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="58" y="81" width="4" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="66" y="87" width="4" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <rect x="75" y="81" width="4" height="12" fill="#e4ff47" class="glow" opacity="0.72"/>
+    <polygon points="48,41 76,41 84,49 84,67 76,75 48,75 40,67 40,49" fill="#315700"/>
+    <polygon points="50,45 74,45 80,51 80,65 74,71 50,71 44,65 44,51" fill="#91e536"/>
+    <rect x="48" y="47" width="13" height="5" fill="#f6ffb8" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="47" y="56" width="6" height="8" fill="#102000"/>
+    <rect x="75" y="56" width="6" height="8" fill="#102000"/>
+    <rect x="48" y="57" width="2" height="2" fill="#e4ff47"/>
+    <rect x="76" y="57" width="2" height="2" fill="#e4ff47"/>
+    </g>
+    <rect x="42" y="72" width="8" height="8" fill="#102000"/>
+    <rect x="78" y="72" width="8" height="8" fill="#102000"/>
+    <rect x="44" y="74" width="4" height="4" fill="#e4ff47" class="glow"/>
+    <rect x="80" y="74" width="4" height="4" fill="#e4ff47" class="glow"/>
+    <rect x="86" y="74" width="8" height="8" fill="#f6ffb8" class="glow" opacity="0.78"/>
+    <rect x="34" y="82" width="6" height="6" fill="#e4ff47" class="glow" opacity="0.72"/>
+  </g>
+</svg>

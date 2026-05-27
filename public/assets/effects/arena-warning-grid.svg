@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="128" viewBox="0 0 192 128" role="img" aria-labelledby="title desc">
+  <title id="title">Arena warning grid</title>
+  <desc id="desc">Crisp warning grid overlay for battle arena hazard states.</desc>
+  <g shape-rendering="crispEdges">
+    <rect width="192" height="128" fill="#050913"/>
+    <g stroke="#ff453b" stroke-width="2" opacity="0.6">
+      <path d="M0 16H192M0 48H192M0 80H192M0 112H192"/>
+      <path d="M16 0V128M48 0V128M80 0V128M112 0V128M144 0V128M176 0V128"/>
+    </g>
+    <path d="M24 96L96 24l72 72" fill="none" stroke="#ff9c24" stroke-width="6"/>
+    <rect x="90" y="58" width="12" height="28" fill="#ffe12b"/>
+    <rect x="90" y="94" width="12" height="10" fill="#ffe12b"/>
+  </g>
+</svg>

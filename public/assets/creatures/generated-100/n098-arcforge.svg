@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N098" data-stage="Special" data-type="Machine">
+  <title id="title">N098 Arcforge sprite</title>
+  <desc id="desc">Original Special Machine pixel creature for Pixel Evolution Arena. Arc-welder titan with lightning clamps; machine-fire fusion chase.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.7s steps(1, end) infinite; }
+    .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .scan { animation: scan 3.28s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#61f4ff" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#e6f8ff" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <rect x="60" y="15" width="8" height="16" fill="#334156"/>
+    <rect x="56" y="11" width="16" height="6" fill="#61f4ff" class="glow"/>
+    <rect x="42" y="72" width="8" height="8" fill="#0e1724"/>
+    <rect x="44" y="74" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="78" y="72" width="8" height="8" fill="#0e1724"/>
+    <rect x="80" y="74" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="30" y="98" width="68" height="4" fill="#61f4ff" class="glow" opacity="0.65"/>
+    <rect x="10" y="80" width="12" height="20" fill="#334156"/>
+    <rect x="106" y="80" width="12" height="20" fill="#334156"/>
+    <rect x="37" y="106" width="12" height="8" fill="#334156"/>
+    <rect x="79" y="106" width="12" height="8" fill="#334156"/>
+    <rect x="33" y="108" width="4" height="4" fill="#61f4ff"/>
+    <rect x="91" y="108" width="4" height="4" fill="#61f4ff"/>
+    <polygon points="100,86 124,76 118,92" fill="#334156"/>
+    <rect x="112" y="80" width="6" height="6" fill="#61f4ff"/>
+    <polygon points="32,56 96,56 106,66 106,100 96,110 32,110 22,100 22,66" fill="#334156"/>
+    <polygon points="34,60 94,60 102,68 102,98 94,106 34,106 26,98 26,68" fill="#9aa8bd"/>
+    <rect x="30" y="64" width="29" height="6" fill="#e6f8ff" opacity="0.75"/>
+    <rect x="62" y="80" width="5" height="12" fill="#61f4ff" class="glow" opacity="0.72"/>
+    <polygon points="36,29 80,29 88,37 88,65 80,73 36,73 28,65 28,37" fill="#334156"/>
+    <polygon points="38,33 78,33 84,39 84,63 78,69 38,69 32,63 32,39" fill="#9aa8bd"/>
+    <rect x="36" y="35" width="18" height="5" fill="#e6f8ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="49" width="6" height="8" fill="#0e1724"/>
+    <rect x="78" y="49" width="6" height="8" fill="#0e1724"/>
+    <rect x="45" y="50" width="2" height="2" fill="#61f4ff"/>
+    <rect x="79" y="50" width="2" height="2" fill="#61f4ff"/>
+    </g>
+    <rect x="34" y="66" width="8" height="8" fill="#0e1724"/>
+    <rect x="86" y="66" width="8" height="8" fill="#0e1724"/>
+    <rect x="36" y="68" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="88" y="68" width="4" height="4" fill="#61f4ff" class="glow"/>
+    <rect x="28" y="33" width="72" height="4" fill="#61f4ff" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#61f4ff" class="glow" opacity="0.36"/>
+    <rect x="30" y="114" width="58" height="3" fill="#e6f8ff" class="scan" opacity="0.32"/>
+  </g>
+</svg>

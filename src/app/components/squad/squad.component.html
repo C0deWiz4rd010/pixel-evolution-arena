@@ -1,0 +1,266 @@
+<div class="squad-layout squad-terminal">
+  <section class="hud-panel squad-builder squad-command">
+    <div class="section-heading squad-heading">
+      <div>
+        <span class="terminal-label">TEAM TERMINAL</span>
+        <h2>Squad Uplink</h2>
+        <p>Load three active signals, compare output, and patch coverage gaps.</p>
+      </div>
+      <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
+    </div>
+
+    <section class="preset-console" aria-label="Squad presets">
+      <div class="preset-head">
+        <span>Saved Presets</span>
+        <strong>{{ presets().length }}/3</strong>
+      </div>
+      <div class="preset-form">
+        <input
+          type="text"
+          maxlength="24"
+          placeholder="Name preset (e.g. Fire Rush)"
+          [value]="presetDraftName()"
+          (input)="onPresetDraftChange($any($event.target).value)"
+          aria-label="New preset name"
+        />
+        <button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button>
+      </div>
+      @if (presets().length > 0) {
+        <div class="preset-list">
+          @for (preset of presets(); track preset.id) {
+            <div class="preset-item">
+              <div>
+                <strong>{{ preset.name }}</strong>
+                <small>{{ preset.squadIds.length }} units</small>
+              </div>
+              <div class="preset-actions">
+                <button type="button" (click)="loadPreset(preset.id)">Load</button>
+                <button type="button" class="danger" (click)="deletePreset(preset.id)">Delete</button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-note preset-empty">Load a squad and save it. Three presets max; the oldest rotates out.</p>
+      }
+    </section>
+
+
+    <section class="active-squad-board" aria-label="Active squad slots">
+      <div class="board-head">
+        <div>
+          <span>ACTIVE LOADOUT</span>
+          <strong>{{ slotsFilled() }}/3 ONLINE</strong>
+        </div>
+        <div>
+          <span>TEAM OUTPUT</span>
+          <strong>{{ game.teamPower() }} PW</strong>
+        </div>
+      </div>
+
+      <div class="squad-slots">
+        @for (slot of squadSlots(); track slot.index) {
+          @if (slot.monster; as monster) {
+            <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
+              <div class="slot-chrome">
+                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
+                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
+                <em>{{ monster.stage }}</em>
+              </div>
+
+              <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
+                @if (monster.spriteUrl) {
+                  <img class="creature-sprite squad-sprite" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+                } @else {
+                  <span class="fallback-icon">{{ monster.icon }}</span>
+                }
+              </button>
+
+              <div class="slot-identity">
+                <span>{{ monster.id }} / {{ monster.type }}</span>
+                <h3>{{ monster.name }}</h3>
+              </div>
+
+              <div class="slot-stat-grid" aria-label="Squad member stats">
+                <span><small>ATK</small><strong>{{ monster.attack }}</strong></span>
+                <span><small>DEF</small><strong>{{ monster.defense }}</strong></span>
+                <span><small>SPD</small><strong>{{ monster.speed }}</strong></span>
+                <span><small>HP</small><strong>{{ monster.hp }}</strong></span>
+              </div>
+
+              <div class="slot-footer">
+                <span>LV {{ monster.level }}</span>
+                <strong>{{ power(monster) }} PW</strong>
+              </div>
+
+              <div class="slot-actions">
+                <button type="button" (click)="game.selectMonster(monster.id)">Inspect</button>
+                <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
+              </div>
+            </article>
+          } @else {
+            <article class="squad-slot empty">
+              <div class="slot-chrome">
+                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
+                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
+                <em>OFFLINE</em>
+              </div>
+              <p class="slot-role-detail">{{ slot.role.detail }}</p>
+              <span class="empty-node">+</span>
+              <h3>Signal Missing</h3>
+              @if (recommendedCandidate(); as candidate) {
+                <p>Best next link: {{ candidate.name }} / {{ candidate.type }}</p>
+                <button type="button" class="slot-quick-add" (click)="addRecommended()">Load Suggested</button>
+              } @else {
+                <p>No unlocked reserve signal.</p>
+              }
+            </article>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="candidate-strip reserve-terminal" aria-label="Unlocked reserve monsters">
+      <div class="strip-heading">
+        <h3>Reserve Uplink</h3>
+        <span>{{ candidates().length }} unlocked outside squad</span>
+      </div>
+
+      @if (candidates().length > 0) {
+        <div class="candidate-row">
+          @for (monster of candidates(); track monster.id) {
+            <button
+              type="button"
+              class="candidate-card stage-{{ game.stageClass(monster.stage) }}"
+              [class.recommended]="recommendedCandidateId() === monster.id"
+              [disabled]="slotsFilled() >= 3"
+              (click)="game.addToSquad(monster.id)"
+            >
+              <span class="candidate-id">{{ monster.id }}</span>
+              <span class="candidate-sprite">
+                @if (monster.spriteUrl) {
+                  <img class="creature-sprite candidate-sprite-img" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
+                } @else {
+                  {{ monster.icon }}
+                }
+              </span>
+              <strong>{{ monster.name }}</strong>
+              <small>{{ monster.stage }} / {{ monster.type }}</small>
+              <span class="candidate-power">PW {{ power(monster) }}</span>
+              <em>{{ slotsFilled() >= 3 ? 'Remove first' : candidateCue(monster) }}</em>
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="empty-note">All unlocked creatures are already online or the roster needs more Evolution Tree progress.</p>
+      }
+    </section>
+  </section>
+
+  <aside class="hud-panel team-summary squad-diagnostics">
+    <div class="diagnostic-header">
+      <span class="terminal-label">SQUAD DIAGNOSTICS</span>
+      <h2>Battle Readiness</h2>
+    </div>
+
+    <section class="power-benchmark state-{{ powerStatus() }}" aria-label="Power comparison">
+      <div class="benchmark-row">
+        <span>Team PW</span>
+        <strong>{{ game.teamPower() }}</strong>
+      </div>
+      <div class="benchmark-row enemy">
+        <span>{{ activeFormation().tier }} Grid</span>
+        <strong>{{ game.enemyPower() }}</strong>
+      </div>
+      <div class="power-track" aria-label="Team power match percent">
+        <span [style.width.%]="powerMatchPercent()"></span>
+      </div>
+      <p>{{ powerDeltaLabel() }}</p>
+      <p class="synergy-brief">{{ activeFormation().name }} // {{ arenaDirective().objective }}</p>
+    </section>
+
+    <section class="next-command tone-{{ nextAction().tone }}" aria-label="Recommended squad action">
+      <span>Next Command</span>
+      <h3>{{ nextAction().title }}</h3>
+      <p>{{ recommendation() }}</p>
+      @if (nextAction().tone === 'add' && recommendedCandidate(); as candidate) {
+        <button type="button" [disabled]="slotsFilled() >= 3" (click)="addRecommended()">Add {{ candidate.name }}</button>
+      }
+      @if (nextAction().tone === 'remove' && weakestMember(); as weakest) {
+        <button type="button" class="danger" (click)="removeWeakest()">Remove {{ weakest.name }}</button>
+      }
+    </section>
+
+    <section class="coverage-console" aria-label="Type coverage">
+      <div class="coverage-head">
+        <span>Type Coverage</span>
+        <strong>{{ coveredTypeCount() }}/{{ game.types.length }}</strong>
+      </div>
+      <div class="coverage-track">
+        <span [style.width.%]="coveragePercent()"></span>
+      </div>
+      <div class="coverage-list">
+        @for (item of coverageItems(); track item.type) {
+          <span class="coverage-node" [class.missing]="!item.covered">
+            <strong>{{ item.type }}</strong>
+            <em>{{ item.covered ? item.count + 'x' : 'MISS' }}</em>
+          </span>
+        }
+      </div>
+    </section>
+
+    <section class="coverage-console synergy-console" aria-label="Squad synergy and matchup readout">
+      <div class="coverage-head">
+        <span>Combat Signals</span>
+        <strong>{{ synergySignals().length > 0 ? synergySignals().length + ' active' : 'baseline' }}</strong>
+      </div>
+      <p class="synergy-brief">
+        {{ battleEdge().label }} // {{ battleEdge().detail }}
+      </p>
+      @if (synergySignals().length > 0) {
+        <div class="synergy-detail-list">
+          @for (signal of synergySignals(); track signal.id) {
+            <article class="synergy-detail">
+              <div class="synergy-detail-head">
+                <strong>{{ signal.label }}</strong>
+                <em>{{ formatModifier(signal.modifier) }}</em>
+              </div>
+              <p class="synergy-what">{{ signal.detail }}</p>
+              <p class="synergy-how"><span>How:</span> {{ signal.activation }}</p>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty-note">Three stronger signals or cleaner type spreads will unlock battle synergies.</p>
+      }
+      <div class="gap-row forecast-row">
+        <span>Next Arena State</span>
+        <strong>{{ dangerForecast().label }}</strong>
+      </div>
+      <p class="synergy-brief">{{ dangerForecast().detail }}</p>
+    </section>
+
+    <section class="gap-console" aria-label="Missing squad signals">
+      <div class="gap-row">
+        <span>Open Slots</span>
+        <strong>{{ emptySlots() }}</strong>
+      </div>
+      <div class="gap-row">
+        <span>Weakest Link</span>
+        <strong>{{ weakestMember()?.name ?? 'None' }}</strong>
+      </div>
+      <div class="missing-types">
+        <span>Missing Types</span>
+        @if (missingTypes().length > 0) {
+          <div>
+            @for (type of missingTypes(); track type) {
+              <strong>{{ type }}</strong>
+            }
+          </div>
+        } @else {
+          <strong>Full spectrum</strong>
+        }
+      </div>
+    </section>
+  </aside>
+</div>

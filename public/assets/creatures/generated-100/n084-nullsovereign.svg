@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N084" data-stage="Mega" data-type="Dark">
+  <title id="title">N084 Nullsovereign sprite</title>
+  <desc id="desc">Original Mega Dark pixel creature for Pixel Evolution Arena. Regal shadow core with broken crown; crit-risk prestige carry.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.3s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
+    .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .scan { animation: scan 4s linear infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
+    @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+    <rect x="18" y="22" width="92" height="84" fill="#d95dff" class="glow" opacity="0.08"/>
+    <rect x="22" y="18" width="84" height="92" fill="#f0c6ff" class="glow" opacity="0.06"/>
+    <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
+    <polygon points="46,38 30,22 38,50" fill="#1a1034"/>
+    <polygon points="82,38 98,22 90,50" fill="#1a1034"/>
+    <polygon points="25,66 103,66 113,76 113,118 103,128 25,128 15,118 15,76" fill="#070310" opacity="0.58"/>
+    <rect x="40" y="108" width="48" height="6" fill="#d95dff" class="glow" opacity="0.55"/>
+    <rect x="9" y="90" width="8" height="8" fill="#d95dff" class="glow"/>
+    <rect x="111" y="80" width="8" height="8" fill="#d95dff" class="glow"/>
+    <rect x="37" y="106" width="12" height="8" fill="#1a1034"/>
+    <rect x="79" y="106" width="12" height="8" fill="#1a1034"/>
+    <rect x="33" y="108" width="4" height="4" fill="#d95dff"/>
+    <rect x="91" y="108" width="4" height="4" fill="#d95dff"/>
+    <polygon points="33,58 95,58 105,68 105,100 95,110 33,110 23,100 23,68" fill="#1a1034"/>
+    <polygon points="35,62 93,62 101,70 101,98 93,106 35,106 27,98 27,70" fill="#7255f6"/>
+    <rect x="31" y="66" width="28" height="6" fill="#f0c6ff" opacity="0.75"/>
+    <rect x="52" y="87" width="5" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <rect x="72" y="81" width="5" height="12" fill="#d95dff" class="glow" opacity="0.72"/>
+    <polygon points="39,32 81,32 89,40 89,66 81,74 39,74 31,66 31,40" fill="#1a1034"/>
+    <polygon points="41,36 79,36 85,42 85,64 79,70 41,70 35,64 35,42" fill="#7255f6"/>
+    <rect x="39" y="38" width="17" height="5" fill="#f0c6ff" opacity="0.7"/>
+    <g class="eyes">
+    <rect x="44" y="51" width="6" height="8" fill="#070310"/>
+    <rect x="78" y="51" width="6" height="8" fill="#070310"/>
+    <rect x="45" y="52" width="2" height="2" fill="#d95dff"/>
+    <rect x="79" y="52" width="2" height="2" fill="#d95dff"/>
+    </g>
+    <polygon points="46,30 54,16 64,28 74,16 82,30" fill="#d95dff" class="glow"/>
+    <polygon points="19,76 -5,60 5,100" fill="#1a1034" opacity="0.92"/>
+    <polygon points="109,76 133,60 123,100" fill="#1a1034" opacity="0.92"/>
+    <rect x="44" y="70" width="40" height="8" fill="#070310" opacity="0.86"/>
+    <rect x="60" y="68" width="8" height="12" fill="#d95dff" class="glow" opacity="0.75"/>
+    <rect x="35" y="68" width="8" height="8" fill="#070310"/>
+    <rect x="85" y="68" width="8" height="8" fill="#070310"/>
+    <rect x="37" y="70" width="4" height="4" fill="#d95dff" class="glow"/>
+    <rect x="87" y="70" width="4" height="4" fill="#d95dff" class="glow"/>
+    <rect x="28" y="38" width="72" height="4" fill="#d95dff" class="scan" opacity="0.38"/>
+    <rect x="22" y="108" width="84" height="4" fill="#d95dff" class="glow" opacity="0.36"/>
+    <rect x="34" y="114" width="58" height="3" fill="#f0c6ff" class="scan" opacity="0.32"/>
+  </g>
+</svg>

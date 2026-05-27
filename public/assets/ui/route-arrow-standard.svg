@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="48" viewBox="0 0 192 48" role="img" aria-labelledby="title desc">
+  <title id="title">Standard route arrow</title>
+  <desc id="desc">Cyan orthogonal route arrow for standard evolution paths.</desc>
+  <g shape-rendering="crispEdges">
+    <path d="M8 24H156" stroke="#19f8ff" stroke-width="6"/>
+    <polygon points="156 8 188 24 156 40" fill="#19f8ff"/>
+    <rect x="8" y="18" width="12" height="12" fill="#9cf6ff"/>
+  </g>
+</svg>
