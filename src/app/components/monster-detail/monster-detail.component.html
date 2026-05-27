@@ -68,6 +68,27 @@
             <span class="monster-id">{{ target.id }}</span>
           </div>
 
+          <div class="lab-readout">
+            <span class="lab-chip success-chip">
+              <small>Success</small>
+              <strong>{{ game.canEvolve(selected, target) ? '100%' : 'Gated' }}</strong>
+            </span>
+            <span class="lab-chip power-chip" [class.gain]="powerDelta(selected, target) >= 0">
+              <small>Power</small>
+              <strong>{{ powerDeltaLabel(selected, target) }}</strong>
+            </span>
+            <span class="lab-chip pin-chip" [class.pinned]="game.pinnedChaseId() === target.id">
+              <small>Chase</small>
+              @if (game.pinnedChaseId() === target.id) {
+                <button type="button" class="pin-action" (click)="game.unpinChaseTarget()">Unpin</button>
+              } @else if (!target.unlocked) {
+                <button type="button" class="pin-action" (click)="game.pinChaseTarget(target.id)">Pin</button>
+              } @else {
+                <strong>Online</strong>
+              }
+            </span>
+          </div>
+
           <div class="requirements">
             @for (status of game.getRequirementStatuses(selected, target); track status.label) {
               <span [class.met]="status.met" [class.missing]="!status.met">

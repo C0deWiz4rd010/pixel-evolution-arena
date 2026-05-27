@@ -302,8 +302,10 @@
 :host ::ng-deep .tree-node .monster-card {
   position: relative;
   z-index: 1;
-  min-height: 188px;
-  padding: 0.44rem 0.44rem 0.52rem;
+  min-height: 210px;
+  padding: 0.42rem 0.44rem 0.5rem;
+  grid-template-rows: auto 118px auto auto;
+  gap: 0.32rem;
   background:
     radial-gradient(circle at 50% 34%, color-mix(in srgb, currentColor 32%, transparent), transparent 48%),
     linear-gradient(180deg, color-mix(in srgb, currentColor 18%, transparent), rgba(0, 0, 0, 0.62));
@@ -318,8 +320,10 @@
 }
 
 :host ::ng-deep .tree-node .monster-icon {
-  min-height: 122px;
-  margin: 0.04rem 0 0.12rem;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
   border-width: 2px;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
@@ -329,21 +333,37 @@
 }
 
 :host ::ng-deep .tree-node .monster-icon .creature-sprite {
-  width: 104px;
-  height: 104px;
-  transform: scale(1.14);
-  filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 12px 14px rgba(0, 0, 0, 0.56)) saturate(1.32);
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 0 10px currentColor) saturate(1.24);
+}
+
+:host ::ng-deep .tree-node .monster-caption {
+  position: relative;
+  z-index: 1;
+  padding: 0.18rem 0.22rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  background: rgba(0, 0, 0, 0.42);
+  text-align: center;
+  clip-path: var(--chamfer-tight);
 }
 
 :host ::ng-deep .tree-node .monster-name {
+  display: block;
+  overflow: visible;
   color: var(--text);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 900;
   text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.08;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.78);
 }
 
 :host ::ng-deep .tree-node .monster-meta {
-  font-size: 0.6rem;
+  display: block;
+  font-size: 0.58rem;
   text-align: center;
 }
 
@@ -369,13 +389,15 @@
 :host ::ng-deep .tree-node.selected-source .monster-card,
 :host ::ng-deep .tree-node.selected-target .monster-card,
 :host ::ng-deep .tree-node.ready-target .monster-card {
-  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 2px currentColor,
+    0 0 22px color-mix(in srgb, currentColor 38%, transparent);
 }
 
 :host ::ng-deep .tree-node.selected-source .monster-icon .creature-sprite,
 :host ::ng-deep .tree-node.selected-target .monster-icon .creature-sprite,
 :host ::ng-deep .tree-node.ready-target .monster-icon .creature-sprite {
-  transform: scale(1.2);
+  filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 42%, transparent)) saturate(1.4);
 }
 
 .tree-command-strip {
@@ -594,4 +616,61 @@
   .stage-row::after {
     display: block;
   }
+}
+
+.tree-node.pinned-chase-node {
+  filter: drop-shadow(0 0 12px rgba(131, 255, 69, 0.42));
+  position: relative;
+}
+
+.tree-node.pinned-chase-node::after {
+  content: 'PIN';
+  position: absolute;
+  top: -0.32rem;
+  right: -0.32rem;
+  z-index: 2;
+  padding: 0.16rem 0.34rem;
+  border: 1px solid var(--success);
+  background: rgba(0, 0, 0, 0.78);
+  color: var(--success);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 8px currentColor;
+  clip-path: var(--chamfer-tight);
+}
+
+.tree-node.ready-target {
+  animation: pulse-ready 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-ready {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(131, 255, 69, 0.32));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(131, 255, 69, 0.65));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-node.ready-target {
+    animation: none;
+    filter: drop-shadow(0 0 12px rgba(131, 255, 69, 0.42));
+  }
+}
+
+.monster-row {
+  position: relative;
+}
+
+.monster-row::before {
+  content: '';
+  position: absolute;
+  inset: 0.18rem 0.4rem;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 6px;
+  opacity: 0;
+  background: transparent;
 }

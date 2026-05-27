@@ -63,6 +63,18 @@ describe('save state service', () => {
         selectedMonsterId: firstMonster.id,
         squadIds: [firstMonster.id],
         inventory: ['Armor Core'],
+        winStreak: 2,
+        bestWinStreak: 4,
+        claimedMilestones: [3],
+        squadPresets: [
+          {
+            id: 'preset-1',
+            name: 'Starter Trio',
+            squadIds: [firstMonster.id],
+          },
+        ],
+        pinnedChaseId: firstMonster.id,
+        claimedStageMilestones: ['Baby'],
       },
       monsters: [serializeMonsterProgress(firstMonster)],
       battleLogs: [{ text: 'Saved battle log.', type: 'info' }],
@@ -77,13 +89,124 @@ describe('save state service', () => {
       },
     });
 
-    expect(snapshot?.saveVersion).toBe(1);
+    expect(snapshot?.saveVersion).toBe(5);
     expect(service.syncState()).toBe('ready');
 
     const loaded = service.loadState();
     expect(loaded?.player.coins).toBe(999);
+    expect(loaded?.player.winStreak).toBe(2);
+    expect(loaded?.player.bestWinStreak).toBe(4);
+    expect(loaded?.player.claimedMilestones).toEqual([3]);
+    expect(loaded?.player.squadPresets[0].name).toBe('Starter Trio');
+    expect(loaded?.player.pinnedChaseId).toBe(firstMonster.id);
+    expect(loaded?.player.claimedStageMilestones).toEqual(['Baby']);
     expect(loaded?.battleLogs[0].text).toBe('Saved battle log.');
     expect(service.lastSavedAt()).toBeTypeOf('string');
+  });
+
+  it('migrates a v1 snapshot by filling in streak and milestone defaults', () => {
+    globalThis.localStorage.setItem(
+      'pixel-evolution-arena.save',
+      JSON.stringify({
+        saveVersion: 1,
+        savedAt: new Date().toISOString(),
+        player: {
+          coins: 500,
+          dnaShards: 20,
+          battlesFought: 5,
+          battlesWon: 3,
+          selectedMonsterId: MONSTERS[0].id,
+          squadIds: [MONSTERS[0].id],
+          inventory: ['Armor Core'],
+        },
+        monsters: [serializeMonsterProgress(MONSTERS[0])],
+        battleLogs: [{ text: 'Legacy log.', type: 'info' }],
+        lastReward: null,
+        lastBattleThreat: null,
+      }),
+    );
+
+    const service = new SaveStateService();
+    const loaded = service.loadState();
+
+    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.player.coins).toBe(500);
+    expect(loaded?.player.winStreak).toBe(0);
+    expect(loaded?.player.bestWinStreak).toBe(0);
+    expect(loaded?.player.claimedMilestones).toEqual([]);
+    expect(loaded?.player.squadPresets).toEqual([]);
+    expect(loaded?.player.pinnedChaseId).toBeNull();
+    expect(loaded?.player.claimedStageMilestones).toEqual([]);
+  });
+
+  it('migrates a v2 snapshot by attaching an empty preset list', () => {
+    globalThis.localStorage.setItem(
+      'pixel-evolution-arena.save',
+      JSON.stringify({
+        saveVersion: 2,
+        savedAt: new Date().toISOString(),
+        player: {
+          coins: 700,
+          dnaShards: 30,
+          battlesFought: 8,
+          battlesWon: 5,
+          selectedMonsterId: MONSTERS[0].id,
+          squadIds: [MONSTERS[0].id],
+          inventory: ['Shadow Gem'],
+          winStreak: 1,
+          bestWinStreak: 3,
+          claimedMilestones: [3],
+        },
+        monsters: [serializeMonsterProgress(MONSTERS[0])],
+        battleLogs: [],
+        lastReward: null,
+        lastBattleThreat: null,
+      }),
+    );
+
+    const service = new SaveStateService();
+    const loaded = service.loadState();
+
+    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.player.squadPresets).toEqual([]);
+    expect(loaded?.player.winStreak).toBe(1);
+    expect(loaded?.player.pinnedChaseId).toBeNull();
+    expect(loaded?.player.claimedStageMilestones).toEqual([]);
+  });
+
+  it('migrates a v3 snapshot by filling in pin and stage-milestone defaults', () => {
+    globalThis.localStorage.setItem(
+      'pixel-evolution-arena.save',
+      JSON.stringify({
+        saveVersion: 3,
+        savedAt: new Date().toISOString(),
+        player: {
+          coins: 900,
+          dnaShards: 40,
+          battlesFought: 12,
+          battlesWon: 7,
+          selectedMonsterId: MONSTERS[0].id,
+          squadIds: [MONSTERS[0].id],
+          inventory: [],
+          winStreak: 0,
+          bestWinStreak: 4,
+          claimedMilestones: [3, 5],
+          squadPresets: [],
+        },
+        monsters: [serializeMonsterProgress(MONSTERS[0])],
+        battleLogs: [],
+        lastReward: null,
+        lastBattleThreat: null,
+      }),
+    );
+
+    const service = new SaveStateService();
+    const loaded = service.loadState();
+
+    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.player.pinnedChaseId).toBeNull();
+    expect(loaded?.player.claimedStageMilestones).toEqual([]);
+    expect(loaded?.player.claimedMilestones).toEqual([3, 5]);
   });
 
   it('restores saved monster progress onto the base roster', () => {

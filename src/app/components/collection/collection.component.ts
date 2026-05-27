@@ -5,6 +5,13 @@ import { GameStateService } from '../../services/game-state.service';
 
 type StatusFilter = 'All' | 'Unlocked' | 'Locked';
 type RequirementStatusView = ReturnType<GameStateService['getRequirementStatuses']>[number];
+type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable';
+
+interface FilterPresetView {
+  id: FilterPresetId;
+  label: string;
+  detail: string;
+}
 
 interface StageStat {
   stage: MonsterStage;
@@ -65,9 +72,45 @@ export class CollectionComponent {
   readonly typeFilter = signal<MonsterType | 'All'>('All');
   readonly rarityFilter = signal<MonsterRarity | 'All'>('All');
   readonly statusFilter = signal<StatusFilter>('All');
+  readonly searchTerm = signal('');
+  readonly activePreset = signal<FilterPresetId | null>(null);
 
-  readonly filteredMonsters = computed(() =>
-    this.game.monsters().filter((monster) => {
+  readonly filterPresets: FilterPresetView[] = [
+    { id: 'ready-soon', label: 'Ready Soon', detail: 'Locked targets whose requirements are 80%+ complete.' },
+    { id: 'item-gated', label: 'Item-Gated', detail: 'Locked targets that need an item from your inventory.' },
+    { id: 'special-route', label: 'Special Route', detail: 'Targets on the Special stage (branch routes).' },
+    { id: 'reachable', label: 'Reachable Now', detail: 'Locked targets you can evolve into right away.' },
+  ];
+
+  readonly readinessIndex = computed(() => {
+    const sourceIndex = this.sourceIndex();
+    const map = new Map<string, { ready: boolean; percent: number; itemGate: string | null; sourceUnlocked: boolean }>();
+
+    for (const target of this.game.monsters()) {
+      if (target.unlocked) {
+        continue;
+      }
+
+      const source = sourceIndex.get(target.id)?.find((candidate) => candidate.unlocked) ?? null;
+      const requirements = source ? this.game.getRequirementStatuses(source, target) : [];
+      const met = requirements.filter((req) => req.met).length;
+      const percent = requirements.length === 0 ? 0 : Math.round((met / requirements.length) * 100);
+      const ready = source ? this.game.canEvolve(source, target) : false;
+      const itemGate = target.requirements?.item ?? null;
+
+      map.set(target.id, { ready, percent, itemGate, sourceUnlocked: source !== null });
+    }
+
+    return map;
+  });
+
+  readonly filteredMonsters = computed(() => {
+    const search = this.searchTerm().trim().toLowerCase();
+    const preset = this.activePreset();
+    const readiness = this.readinessIndex();
+    const inventory = new Set(this.game.player().inventory);
+
+    return this.game.monsters().filter((monster) => {
       const stageMatch = this.stageFilter() === 'All' || monster.stage === this.stageFilter();
       const typeMatch = this.typeFilter() === 'All' || monster.type === this.typeFilter();
       const rarityMatch = this.rarityFilter() === 'All' || monster.rarity === this.rarityFilter();
@@ -75,9 +118,42 @@ export class CollectionComponent {
         this.statusFilter() === 'All' ||
         (this.statusFilter() === 'Unlocked' && monster.unlocked) ||
         (this.statusFilter() === 'Locked' && !monster.unlocked);
-      return stageMatch && typeMatch && rarityMatch && statusMatch;
-    }),
-  );
+
+      if (!(stageMatch && typeMatch && rarityMatch && statusMatch)) {
+        return false;
+      }
+
+      if (search) {
+        const haystack = `${monster.id} ${monster.name}`.toLowerCase();
+        if (!haystack.includes(search)) {
+          return false;
+        }
+      }
+
+      if (preset) {
+        const info = readiness.get(monster.id);
+        if (preset === 'ready-soon') {
+          if (monster.unlocked || !info || info.percent < 80) {
+            return false;
+          }
+        } else if (preset === 'item-gated') {
+          if (monster.unlocked || !info?.itemGate || !inventory.has(info.itemGate)) {
+            return false;
+          }
+        } else if (preset === 'special-route') {
+          if (monster.stage !== 'Special') {
+            return false;
+          }
+        } else if (preset === 'reachable') {
+          if (monster.unlocked || !info?.ready) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  });
 
   readonly filteredSummary = computed(() => {
     const monsters = this.filteredMonsters();
@@ -162,6 +238,30 @@ export class CollectionComponent {
     return index;
   });
 
+  readonly pinnedChaseProgress = computed<ChaseTarget | null>(() => {
+    const pinned = this.game.pinnedChase();
+    if (!pinned || pinned.unlocked) {
+      return null;
+    }
+    const source = this.sourceIndex().get(pinned.id)?.find((candidate) => candidate.unlocked) ?? null;
+    const requirements = source ? this.game.getRequirementStatuses(source, pinned) : [];
+    const missing = requirements.filter((req) => !req.met);
+    const ready = source ? this.game.canEvolve(source, pinned) : false;
+    const percent =
+      requirements.length === 0 ? 0 : this.percent(requirements.length - missing.length, requirements.length);
+
+    return {
+      target: pinned,
+      source,
+      className: this.game.stageClass(pinned.stage),
+      requirements,
+      missing,
+      ready,
+      percent,
+      actionLabel: this.chaseActionLabel(ready, source, missing),
+    };
+  });
+
   readonly nextChase = computed<ChaseTarget | null>(() => {
     const stageOrder = new Map(this.game.stages.map((stage, index) => [stage, index]));
     const candidates = this.game
@@ -211,6 +311,24 @@ export class CollectionComponent {
     this.typeFilter.set('All');
     this.rarityFilter.set('All');
     this.statusFilter.set('All');
+    this.searchTerm.set('');
+    this.activePreset.set(null);
+  }
+
+  togglePreset(id: FilterPresetId): void {
+    this.activePreset.set(this.activePreset() === id ? null : id);
+  }
+
+  onSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  pinChase(id: string): void {
+    this.game.pinChaseTarget(id);
+  }
+
+  unpinChase(): void {
+    this.game.unpinChaseTarget();
   }
 
   setStatusFilter(status: StatusFilter): void {

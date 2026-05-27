@@ -71,12 +71,40 @@
 * {
   box-sizing: border-box;
   letter-spacing: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) rgba(0, 0, 0, 0.5);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(2, 8, 16, 0.6);
+  border: 1px solid rgba(19, 216, 255, 0.12);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(19, 216, 255, 0.62), rgba(19, 216, 255, 0.28));
+  border: 1px solid rgba(19, 216, 255, 0.42);
+  box-shadow: 0 0 8px rgba(19, 216, 255, 0.32) inset;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(19, 216, 255, 0.82), rgba(19, 216, 255, 0.42));
+  box-shadow: 0 0 12px rgba(19, 216, 255, 0.55) inset;
+}
+
+*::-webkit-scrollbar-corner {
+  background: rgba(2, 8, 16, 0.6);
 }
 
 html,
 body {
   min-height: 100%;
   margin: 0;
+  overflow-x: hidden;
   background:
     linear-gradient(90deg, rgba(19, 216, 255, 0.05) 1px, transparent 1px),
     linear-gradient(rgba(19, 216, 255, 0.05) 1px, transparent 1px),
@@ -133,8 +161,7 @@ button {
 
 button:hover:not(:disabled) {
   border-color: var(--line-bright);
-  box-shadow: 0 0 16px rgba(19, 216, 255, 0.34);
-  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(19, 216, 255, 0.38);
 }
 
 button:focus-visible,
@@ -292,7 +319,7 @@ li {
 
 .hud-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(124px, 0.82fr)) minmax(220px, 1.35fr);
+  grid-template-columns: repeat(6, minmax(118px, 0.78fr)) minmax(220px, 1.3fr);
   gap: 0.42rem;
   min-width: 0;
 }
@@ -352,6 +379,16 @@ li {
 
 .stat-chip.selected {
   grid-template-columns: 58px minmax(0, 1fr) auto;
+}
+
+.stat-chip.streak.streak-active {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
+.stat-chip.streak.streak-active strong {
+  color: var(--success);
+  text-shadow: 0 0 12px currentColor;
 }
 
 .selected-icon {
@@ -1353,6 +1390,31 @@ app-monster-card {
   white-space: nowrap;
 }
 
+.mini-milestone,
+.mini-loss-hint {
+  margin: 0 0 0.42rem;
+  padding: 0.32rem 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.32);
+  font-size: 0.6rem;
+  line-height: 1.22;
+  clip-path: var(--chamfer-tight);
+}
+
+.mini-milestone {
+  border-color: var(--success);
+  background: linear-gradient(90deg, rgba(131, 255, 69, 0.16), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--success);
+  text-transform: uppercase;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.mini-loss-hint {
+  border-color: var(--danger);
+  background: linear-gradient(90deg, rgba(255, 86, 77, 0.16), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--danger);
+}
+
 .squad-slots {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1599,9 +1661,8 @@ app-monster-card {
   .manual-stat:hover {
     border-color: color-mix(in srgb, currentColor 72%, var(--line-bright));
     box-shadow:
-      0 0 0 1px color-mix(in srgb, currentColor 22%, transparent) inset,
-      0 0 20px color-mix(in srgb, currentColor 24%, transparent);
-    transform: translateY(-2px);
+      0 0 0 1px color-mix(in srgb, currentColor 28%, transparent) inset,
+      0 0 22px color-mix(in srgb, currentColor 30%, transparent);
   }
 
   .monster-card:hover:not(:disabled) .creature-sprite,
@@ -1610,7 +1671,6 @@ app-monster-card {
   .target-card:hover .creature-sprite,
   .squad-slot:hover .creature-sprite {
     filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 34%, transparent)) saturate(1.28);
-    transform: translateY(-1px) scale(1.035);
   }
 }
 
@@ -1939,7 +1999,7 @@ app-monster-card {
   }
 
   .hud-stats {
-    grid-template-columns: repeat(5, minmax(116px, 1fr)) minmax(210px, 1.35fr);
+    grid-template-columns: repeat(6, minmax(108px, 1fr)) minmax(210px, 1.3fr);
   }
 
   .brand-copy h1 {

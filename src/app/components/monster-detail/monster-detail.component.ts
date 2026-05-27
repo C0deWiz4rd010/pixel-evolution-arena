@@ -36,4 +36,13 @@ export class MonsterDetailComponent {
   requirementMarker(met: boolean): string {
     return met ? 'OK' : 'MISS';
   }
+
+  powerDelta(source: Monster, target: Monster): number {
+    return this.game.getMonsterPower(target) - this.game.getMonsterPower(source);
+  }
+
+  powerDeltaLabel(source: Monster, target: Monster): string {
+    const delta = this.powerDelta(source, target);
+    return `${delta >= 0 ? '+' : ''}${delta} PW`;
+  }
 }

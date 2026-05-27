@@ -65,7 +65,9 @@
                 [class.endpoint-node]="monster.evolutionTargets.length === 0"
                 [class.special-route-node]="isSpecialRoute(monster)"
                 [class.locked-node]="!monster.unlocked"
+                [class.pinned-chase-node]="game.pinnedChaseId() === monster.id"
                 [attr.data-route]="nodeRouteTag(monster)"
+                [attr.data-family]="familyId(monster)"
               >
                 <span class="route-stem route-stem-in" aria-hidden="true"></span>
                 <app-monster-card
@@ -197,6 +199,12 @@
             <span>XP +{{ reward.xp }}</span>
             <span>{{ reward.item ?? 'No item' }}</span>
           </div>
+          @if (reward.milestoneLabel) {
+            <p class="mini-milestone">{{ reward.milestoneLabel }}</p>
+          }
+          @if (reward.lossHint) {
+            <p class="mini-loss-hint">{{ reward.lossHint }}</p>
+          }
         } @else {
           <p class="empty-note">Start a battle to push XP, coins, DNA, and item drops.</p>
         }

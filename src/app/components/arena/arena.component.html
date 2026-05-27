@@ -103,6 +103,31 @@
           <strong>{{ powerDeltaLabel() }}</strong>
         </div>
 
+        <div class="battle-category" role="radiogroup" aria-label="Battle category">
+          <span class="category-label">Run Category</span>
+          <div class="category-options">
+            @for (category of battleCategories; track category.id) {
+              <button
+                type="button"
+                class="category-option category-{{ category.id }}"
+                [class.active]="activeBattleCategoryId() === category.id"
+                role="radio"
+                [attr.aria-checked]="activeBattleCategoryId() === category.id"
+                (click)="setBattleCategory(category.id)"
+              >
+                <strong>{{ category.shortLabel }}</strong>
+                <small>{{ category.detail }}</small>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="battle-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
+          <span class="outlook-label">Forecast</span>
+          <strong>{{ battleOutlook().label }}</strong>
+          <small>{{ battleOutlook().detail }}</small>
+        </div>
+
         <button type="button" class="primary-action start-battle-action" (click)="game.startBattle()">
           Start Battle
         </button>
@@ -173,6 +198,18 @@
 
       @if (reward.item) {
         <p class="reward-item">Item found: {{ reward.item }}</p>
+      }
+
+      @if (reward.won && (reward.streakBonusCoins || reward.streakBonusXp)) {
+        <p class="reward-streak">Streak x{{ reward.streakAfter }} bonus: +{{ reward.streakBonusCoins || 0 }} Coins / +{{ reward.streakBonusXp || 0 }} XP</p>
+      }
+
+      @if (reward.milestoneLabel) {
+        <p class="reward-milestone">{{ reward.milestoneLabel }}</p>
+      }
+
+      @if (reward.lossHint) {
+        <p class="loss-hint">{{ reward.lossHint }}</p>
       }
     } @else {
       <section class="result-banner standby">

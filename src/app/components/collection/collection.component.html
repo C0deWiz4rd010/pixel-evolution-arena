@@ -75,6 +75,33 @@
         }
         <button type="button" class="reset-control" (click)="resetFilters()">Reset</button>
       </div>
+
+      <div class="filter-preset-row" role="group" aria-label="Filter presets">
+        @for (preset of filterPresets; track preset.id) {
+          <button
+            type="button"
+            class="filter-preset"
+            [class.active]="activePreset() === preset.id"
+            [attr.title]="preset.detail"
+            (click)="togglePreset(preset.id)"
+          >
+            {{ preset.label }}
+          </button>
+        }
+      </div>
+
+      <div class="search-row">
+        <label class="archive-search">
+          <span>Search</span>
+          <input
+            type="search"
+            placeholder="Name or ID (M042, splash...)"
+            [value]="searchTerm()"
+            (input)="onSearch($any($event.target).value)"
+            aria-label="Search by name or ID"
+          />
+        </label>
+      </div>
     </section>
 
     <section class="stage-band-strip" aria-label="Stage coverage">
@@ -112,12 +139,18 @@
             class="dex-card stage-{{ game.stageClass(monster.stage) }}"
             [class.selected]="game.player().selectedMonsterId === monster.id"
             [class.locked]="!monster.unlocked"
+            [class.pinned]="game.pinnedChaseId() === monster.id"
             (click)="selectMonster(monster.id)"
             role="listitem"
           >
             <span class="dex-card-top">
               <span class="monster-id">{{ monster.id }}</span>
-              <span>{{ monster.unlocked ? 'ONLINE' : 'LOCKED' }}</span>
+              <span>
+                {{ monster.unlocked ? 'ONLINE' : 'LOCKED' }}
+                @if (game.pinnedChaseId() === monster.id) {
+                  <em class="pin-badge" aria-label="Pinned chase target">[PIN]</em>
+                }
+              </span>
             </span>
 
             <span class="dex-sprite" [class.silhouette]="!monster.unlocked" aria-hidden="true">
@@ -149,7 +182,55 @@
   </section>
 
   <aside class="hud-panel collection-summary dex-side">
-    @if (nextChase(); as chase) {
+    @if (pinnedChaseProgress(); as chase) {
+      <section class="chase-panel pinned-chase stage-{{ chase.className }}">
+        <div class="side-heading">
+          <span>Pinned Chase</span>
+          <strong>{{ chase.ready ? 'READY' : chase.percent + '% SYNC' }}</strong>
+        </div>
+
+        <div class="chase-target">
+          <span class="chase-sprite" aria-hidden="true">
+            @if (chase.target.spriteUrl) {
+              <img [src]="chase.target.spriteUrl" alt="" loading="lazy" />
+            } @else {
+              {{ chase.target.icon }}
+            }
+          </span>
+          <div>
+            <span class="monster-id">{{ chase.target.id }}</span>
+            <h3>{{ chase.target.name }}</h3>
+            <p>{{ chase.target.stage }} / {{ chase.target.type }} / {{ chase.target.rarity }}</p>
+          </div>
+        </div>
+
+        <div class="chase-source">
+          <span>Source</span>
+          <strong>{{ chase.source?.name ?? 'Unknown line' }}</strong>
+        </div>
+
+        <div class="chase-progress">
+          <span>{{ chase.actionLabel }}</span>
+          <div><i [style.width.%]="chase.percent"></i></div>
+        </div>
+
+        <div class="requirements compact-requirements">
+          @for (status of chase.requirements; track status.label) {
+            <span [class.met]="status.met" [class.missing]="!status.met">
+              {{ status.label }} {{ status.current }} / {{ status.required }}
+            </span>
+          }
+        </div>
+
+        <div class="chase-actions">
+          @if (chase.source; as source) {
+            <button type="button" (click)="selectMonster(source.id)">Trace Source</button>
+          }
+          <button type="button" (click)="selectMonster(chase.target.id)">Inspect Target</button>
+          <button type="button" class="danger" (click)="unpinChase()">Unpin</button>
+        </div>
+      </section>
+    } @else if (nextChase(); as chase) {
       <section class="chase-panel stage-{{ chase.className }}">
         <div class="side-heading">
           <span>Next Chase</span>
@@ -194,6 +275,7 @@
             <button type="button" (click)="selectMonster(source.id)">Trace Source</button>
           }
           <button type="button" (click)="selectMonster(chase.target.id)">Inspect Target</button>
+          <button type="button" (click)="pinChase(chase.target.id)">Pin</button>
         </div>
       </section>
     }
@@ -234,6 +316,16 @@
             >SPD <strong>{{ selected.speed }}</strong></span
           >
         </div>
+
+        @if (!selected.unlocked) {
+          <div class="record-pin-row">
+            @if (game.pinnedChaseId() === selected.id) {
+              <button type="button" class="danger" (click)="unpinChase()">Unpin Chase</button>
+            } @else {
+              <button type="button" (click)="pinChase(selected.id)">Pin as Chase</button>
+            }
+          </div>
+        }
       </section>
     }
 

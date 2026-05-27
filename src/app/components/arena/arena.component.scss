@@ -187,8 +187,7 @@
 
 .combatant.command-card:hover {
   border-color: color-mix(in srgb, currentColor 82%, white);
-  box-shadow: 0 0 18px color-mix(in srgb, currentColor 26%, transparent);
-  transform: translateY(-1px);
+  box-shadow: 0 0 22px color-mix(in srgb, currentColor 32%, transparent);
 }
 
 .combatant-frame {
@@ -422,6 +421,137 @@
   text-shadow: 0 0 12px currentColor;
 }
 
+.battle-category {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.32rem;
+  padding: 0.42rem 0.48rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.32);
+  clip-path: var(--chamfer-tight);
+}
+
+.category-label {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.category-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.category-option {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.4rem 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  clip-path: var(--chamfer-tight);
+  transition: border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.category-option strong {
+  color: var(--text);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.category-option small {
+  color: var(--muted);
+  font-size: 0.6rem;
+  line-height: 1.18;
+  white-space: normal;
+}
+
+.category-option:hover {
+  border-color: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 0 14px rgba(19, 216, 255, 0.22);
+}
+
+.category-option.active {
+  border-color: var(--a);
+  box-shadow: 0 0 14px var(--as);
+}
+
+.category-option.category-training.active {
+  --a: var(--success);
+  --as: rgba(131, 255, 69, 0.24);
+}
+
+.category-option.category-standard.active {
+  --a: var(--line);
+  --as: rgba(19, 216, 255, 0.24);
+}
+
+.category-option.category-risk.active {
+  --a: var(--danger);
+  --as: rgba(255, 86, 77, 0.24);
+}
+
+.battle-outlook {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 0.18rem 0.5rem;
+  align-items: center;
+  padding: 0.42rem 0.5rem;
+  border: 1px solid var(--outlook-color, rgba(255, 255, 255, 0.18));
+  background: linear-gradient(90deg, var(--outlook-tint, transparent), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--outlook-color, var(--text));
+  clip-path: var(--chamfer-tight);
+}
+
+.battle-outlook.outlook-low {
+  --outlook-color: var(--danger);
+  --outlook-tint: rgba(255, 86, 77, 0.18);
+}
+
+.battle-outlook.outlook-even {
+  --outlook-color: var(--line);
+  --outlook-tint: rgba(19, 216, 255, 0.18);
+}
+
+.battle-outlook.outlook-strong {
+  --outlook-color: var(--success);
+  --outlook-tint: rgba(131, 255, 69, 0.2);
+}
+
+.battle-outlook .outlook-label {
+  grid-row: span 2;
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.battle-outlook strong {
+  color: currentColor;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.battle-outlook small {
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.22;
+  white-space: normal;
+}
+
 .start-battle-action {
   position: relative;
   z-index: 1;
@@ -467,6 +597,38 @@
 
 .reward-item {
   color: var(--dna);
+}
+
+.reward-streak,
+.reward-milestone,
+.loss-hint {
+  margin: 0;
+  padding: 0.42rem 0.54rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.32);
+  font-size: 0.68rem;
+  clip-path: var(--chamfer-tight);
+}
+
+.reward-streak {
+  border-color: var(--line);
+  background: linear-gradient(90deg, rgba(19, 216, 255, 0.16), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--text);
+}
+
+.reward-milestone {
+  border-color: var(--success);
+  background: linear-gradient(90deg, rgba(131, 255, 69, 0.18), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--success);
+  text-shadow: 0 0 12px currentColor;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.loss-hint {
+  border-color: var(--danger);
+  background: linear-gradient(90deg, rgba(255, 86, 77, 0.18), transparent 60%), rgba(0, 0, 0, 0.32);
+  color: var(--danger);
 }
 
 .battle-analysis {
@@ -552,6 +714,18 @@
 @media (max-width: 1020px) {
   .battle-terminal {
     min-height: 0;
+  }
+
+  .category-options {
+    grid-template-columns: 1fr;
+  }
+
+  .battle-outlook {
+    grid-template-columns: 1fr;
+  }
+
+  .battle-outlook .outlook-label {
+    grid-row: auto;
   }
 
   .terminal-heading {

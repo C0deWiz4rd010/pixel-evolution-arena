@@ -528,3 +528,89 @@
     height: 72px;
   }
 }
+
+.filter-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+  margin-top: 0.4rem;
+}
+
+.filter-preset {
+  padding: 0.32rem 0.62rem;
+  border: 1px solid rgba(19, 216, 255, 0.32);
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: var(--chamfer-tight);
+  transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.filter-preset:hover {
+  border-color: var(--line);
+}
+
+.filter-preset.active {
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.28);
+}
+
+.search-row {
+  margin-top: 0.42rem;
+}
+
+.archive-search {
+  display: grid;
+  gap: 0.24rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.archive-search input {
+  padding: 0.46rem 0.58rem;
+  border: 1px solid rgba(19, 216, 255, 0.32);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  text-transform: none;
+  clip-path: var(--chamfer-tight);
+}
+
+.archive-search input:focus {
+  border-color: var(--line);
+  outline: none;
+  box-shadow: 0 0 12px rgba(19, 216, 255, 0.32);
+}
+
+.dex-card.pinned {
+  border-color: var(--success);
+  box-shadow: 0 0 16px rgba(131, 255, 69, 0.28);
+}
+
+.pin-badge {
+  margin-left: 0.32rem;
+  color: var(--success);
+  font-style: normal;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.chase-panel.pinned-chase {
+  border-color: var(--success);
+  box-shadow: 0 0 16px rgba(131, 255, 69, 0.18);
+}
+
+.record-pin-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.42rem;
+}
+
+.record-pin-row button {
+  padding: 0.34rem 0.62rem;
+}

@@ -76,6 +76,47 @@ export class EvolutionTreeComponent {
     return [squad[0] ?? null, squad[1] ?? null, squad[2] ?? null];
   });
 
+  readonly familyIndex = computed<Map<string, string>>(() => {
+    const monsters = this.game.monsters();
+    const sourceIndex = new Map<string, string[]>();
+    for (const source of monsters) {
+      for (const targetId of source.evolutionTargets) {
+        const list = sourceIndex.get(targetId) ?? [];
+        list.push(source.id);
+        sourceIndex.set(targetId, list);
+      }
+    }
+
+    const familyMap = new Map<string, string>();
+    const resolveRoot = (id: string, seen: Set<string>): string => {
+      if (familyMap.has(id)) {
+        return familyMap.get(id)!;
+      }
+      if (seen.has(id)) {
+        return id;
+      }
+      seen.add(id);
+      const parents = sourceIndex.get(id) ?? [];
+      if (parents.length === 0) {
+        familyMap.set(id, id);
+        return id;
+      }
+      const root = resolveRoot(parents[0], seen);
+      familyMap.set(id, root);
+      return root;
+    };
+
+    for (const monster of monsters) {
+      resolveRoot(monster.id, new Set());
+    }
+
+    return familyMap;
+  });
+
+  familyId(monster: Monster): string {
+    return this.familyIndex().get(monster.id) ?? monster.id;
+  }
+
   readonly battleDelta = computed(() => this.game.teamPower() - this.game.enemyPower());
   readonly arenaDirective = this.game.arenaDirective;
   readonly activeFormation = this.game.activeFormation;

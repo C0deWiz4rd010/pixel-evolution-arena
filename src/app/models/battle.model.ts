@@ -38,4 +38,9 @@ export interface BattleReward {
   xp: number;
   item?: string;
   won: boolean;
+  streakBonusCoins?: number;
+  streakBonusXp?: number;
+  streakAfter?: number;
+  milestoneLabel?: string;
+  lossHint?: string;
 }

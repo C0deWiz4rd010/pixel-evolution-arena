@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
+import { BattleCategoryId } from '../../rules/battle.rules';
 
 @Component({
   selector: 'app-arena',
@@ -23,6 +24,14 @@ export class ArenaComponent {
   readonly squadTypeEdge = this.game.squadTypePressure;
   readonly enemyTypeEdge = this.game.enemyTypePressure;
   readonly synergySignals = this.game.squadSynergies;
+  readonly battleCategories = this.game.battleCategories;
+  readonly activeBattleCategoryId = this.game.battleCategoryId;
+  readonly activeBattleCategory = this.game.battleCategory;
+  readonly battleOutlook = this.game.battleOutlook;
+
+  setBattleCategory(id: BattleCategoryId): void {
+    this.game.setBattleCategory(id);
+  }
 
   readonly powerDeltaLabel = computed(() => {
     const delta = this.powerDelta();

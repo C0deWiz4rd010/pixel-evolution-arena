@@ -28,6 +28,24 @@
       <span class="stat-label">Battles Won</span>
       <strong>{{ game.player().battlesWon }}</strong>
     </div>
+    <div
+      class="stat-chip streak"
+      [class.streak-active]="game.winStreak() > 0"
+      [attr.title]="'Best streak: x' + game.bestWinStreak()"
+    >
+      <span class="stat-icon">ST</span>
+      <span class="stat-label">Win Streak</span>
+      <strong>{{ game.streakLabel() }}</strong>
+      <small>Best x{{ game.bestWinStreak() }}</small>
+    </div>
+    @if (game.pinnedChase(); as pinned) {
+      <div class="stat-chip chase" title="Pinned chase target">
+        <span class="stat-icon">PN</span>
+        <span class="stat-label">Chase</span>
+        <strong>{{ pinned.name }}</strong>
+        <small>{{ pinned.stage }} / {{ pinned.id }}</small>
+      </div>
+    }
     <div class="stat-chip save">
       <span class="stat-icon">SV</span>
       <span class="stat-label">Save Core</span>

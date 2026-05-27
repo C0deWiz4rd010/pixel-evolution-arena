@@ -122,7 +122,7 @@ Exit criteria:
 
 ## Phase 4: Battle Depth
 
-Status: next
+Status: completed
 
 Goal:
 
@@ -148,7 +148,7 @@ Exit criteria:
 
 ## Phase 5: Evolution And Roster Expansion
 
-Status: queued
+Status: in progress (Batch 1: M051–M065 shipped)
 
 Goal:
 
@@ -172,7 +172,7 @@ Exit criteria:
 
 ## Phase 6: Squad Depth
 
-Status: queued
+Status: completed
 
 Goal:
 
@@ -191,7 +191,7 @@ Exit criteria:
 
 ## Phase 7: Collection As Planning Tool
 
-Status: queued
+Status: completed
 
 Goal:
 
@@ -210,7 +210,7 @@ Exit criteria:
 
 ## Phase 8: Feel And Polish
 
-Status: queued
+Status: completed (initial pass — audio hook + magnitude-coupled effect tuning shipped)
 
 Goal:
 

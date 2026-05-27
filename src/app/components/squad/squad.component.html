@@ -9,6 +9,43 @@
       <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
     </div>
 
+    <section class="preset-console" aria-label="Squad presets">
+      <div class="preset-head">
+        <span>Saved Presets</span>
+        <strong>{{ presets().length }}/3</strong>
+      </div>
+      <div class="preset-form">
+        <input
+          type="text"
+          maxlength="24"
+          placeholder="Name preset (e.g. Fire Rush)"
+          [value]="presetDraftName()"
+          (input)="onPresetDraftChange($any($event.target).value)"
+          aria-label="New preset name"
+        />
+        <button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button>
+      </div>
+      @if (presets().length > 0) {
+        <div class="preset-list">
+          @for (preset of presets(); track preset.id) {
+            <div class="preset-item">
+              <div>
+                <strong>{{ preset.name }}</strong>
+                <small>{{ preset.squadIds.length }} units</small>
+              </div>
+              <div class="preset-actions">
+                <button type="button" (click)="loadPreset(preset.id)">Load</button>
+                <button type="button" class="danger" (click)="deletePreset(preset.id)">Delete</button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-note preset-empty">Load a squad and save it. Three presets max; the oldest rotates out.</p>
+      }
+    </section>
+
+
     <section class="active-squad-board" aria-label="Active squad slots">
       <div class="board-head">
         <div>
@@ -27,7 +64,7 @@
             <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
               <div class="slot-chrome">
                 <span class="slot-number">S-0{{ slot.index + 1 }}</span>
-                <span>{{ slot.role }}</span>
+                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
                 <em>{{ monster.stage }}</em>
               </div>
 
@@ -65,9 +102,10 @@
             <article class="squad-slot empty">
               <div class="slot-chrome">
                 <span class="slot-number">S-0{{ slot.index + 1 }}</span>
-                <span>{{ slot.role }}</span>
+                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
                 <em>OFFLINE</em>
               </div>
+              <p class="slot-role-detail">{{ slot.role.detail }}</p>
               <span class="empty-node">+</span>
               <h3>Signal Missing</h3>
               @if (recommendedCandidate(); as candidate) {
@@ -180,12 +218,16 @@
         {{ battleEdge().label }} // {{ battleEdge().detail }}
       </p>
       @if (synergySignals().length > 0) {
-        <div class="coverage-list synergy-list">
+        <div class="synergy-detail-list">
           @for (signal of synergySignals(); track signal.id) {
-            <span class="coverage-node synergy-node">
-              <strong>{{ signal.label }}</strong>
-              <em>{{ formatModifier(signal.modifier) }}</em>
-            </span>
+            <article class="synergy-detail">
+              <div class="synergy-detail-head">
+                <strong>{{ signal.label }}</strong>
+                <em>{{ formatModifier(signal.modifier) }}</em>
+              </div>
+              <p class="synergy-what">{{ signal.detail }}</p>
+              <p class="synergy-how"><span>How:</span> {{ signal.activation }}</p>
+            </article>
           }
         </div>
       } @else {

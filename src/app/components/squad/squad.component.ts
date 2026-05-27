@@ -1,10 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Monster, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { getSlotRole, SlotRoleDescriptor } from '../../rules/squad.rules';
 
 interface SquadSlotView {
   index: number;
-  role: string;
+  role: SlotRoleDescriptor;
   monster: Monster | null;
 }
 
@@ -28,16 +29,17 @@ interface NextActionView {
 export class SquadComponent {
   readonly game = inject(GameStateService);
 
-  private readonly slotRoles = ['VANGUARD', 'SYNC CORE', 'ANCHOR'];
-
   readonly squadSlots = computed<SquadSlotView[]>(() => {
     const squad = this.game.squad();
     return [0, 1, 2].map((index) => ({
       index,
-      role: this.slotRoles[index],
+      role: getSlotRole(index),
       monster: squad[index] ?? null,
     }));
   });
+
+  readonly presetDraftName = signal('');
+  readonly presets = computed(() => this.game.player().squadPresets);
 
   readonly slotsFilled = computed(() => this.game.squad().length);
   readonly emptySlots = computed(() => 3 - this.slotsFilled());
@@ -225,6 +227,30 @@ export class SquadComponent {
 
   formatModifier(value: number): string {
     return `${value > 0 ? '+' : ''}${Math.round(value * 100)}%`;
+  }
+
+  onPresetDraftChange(name: string): void {
+    this.presetDraftName.set(name);
+  }
+
+  savePreset(): void {
+    const name = this.presetDraftName().trim();
+    if (!name) {
+      return;
+    }
+
+    const saved = this.game.saveSquadPreset(name);
+    if (saved) {
+      this.presetDraftName.set('');
+    }
+  }
+
+  loadPreset(id: string): void {
+    this.game.loadSquadPreset(id);
+  }
+
+  deletePreset(id: string): void {
+    this.game.deleteSquadPreset(id);
   }
 
   private candidateScore(monster: Monster): number {

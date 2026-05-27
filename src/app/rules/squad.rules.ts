@@ -11,6 +11,7 @@ export interface TeamSynergy {
   id: string;
   label: string;
   detail: string;
+  activation: string;
   modifier: number;
 }
 
@@ -45,30 +46,94 @@ export function evaluateSquadSynergies(squad: Monster[]): TeamSynergy[] {
   const synergies: TeamSynergy[] = [];
 
   if (squad.length === 3 && uniqueTypes === squad.length) {
-    synergies.push({ id: 'spectrum', label: 'Spectrum Protocol', detail: 'Three different types widen your clean-hit routes.', modifier: 0.09 });
+    synergies.push({
+      id: 'spectrum',
+      label: 'Spectrum Protocol',
+      detail: 'Three different types widen your clean-hit routes.',
+      activation: 'Fill all three slots with three distinct types.',
+      modifier: 0.09,
+    });
   }
 
   if (duplicateTypeCount >= 2) {
-    synergies.push({ id: 'mirror', label: 'Twin Pulse', detail: 'Shared typing sharpens combo timing and follow-up pressure.', modifier: 0.07 });
+    synergies.push({
+      id: 'mirror',
+      label: 'Twin Pulse',
+      detail: 'Shared typing sharpens combo timing and follow-up pressure.',
+      activation: 'Place at least two units of the same type in the squad.',
+      modifier: 0.07,
+    });
   }
 
   if (averageSpeed >= 72) {
-    synergies.push({ id: 'velocity', label: 'Velocity Chain', detail: 'High speed creates first-strike tempo.', modifier: 0.05 });
+    synergies.push({
+      id: 'velocity',
+      label: 'Velocity Chain',
+      detail: 'High speed creates first-strike tempo.',
+      activation: 'Keep the squad average speed at 72 or higher.',
+      modifier: 0.05,
+    });
   }
 
   if (averageDefense >= 72) {
-    synergies.push({ id: 'bulwark', label: 'Bulwark Mesh', detail: 'Defensive overlap blunts incoming counter pressure.', modifier: 0.05 });
+    synergies.push({
+      id: 'bulwark',
+      label: 'Bulwark Mesh',
+      detail: 'Defensive overlap blunts incoming counter pressure.',
+      activation: 'Keep the squad average defense at 72 or higher.',
+      modifier: 0.05,
+    });
   }
 
   if (averageAttack >= 78) {
-    synergies.push({ id: 'ruin', label: 'Ruin Drive', detail: 'Heavy attack values break enemy pacing faster.', modifier: 0.05 });
+    synergies.push({
+      id: 'ruin',
+      label: 'Ruin Drive',
+      detail: 'Heavy attack values break enemy pacing faster.',
+      activation: 'Keep the squad average attack at 78 or higher.',
+      modifier: 0.05,
+    });
   }
 
   if (squad.length === 3 && stages.size >= 2) {
-    synergies.push({ id: 'ladder', label: 'Ladder Sync', detail: 'Mixed stages smooth the curve between tempo and durability.', modifier: 0.04 });
+    synergies.push({
+      id: 'ladder',
+      label: 'Ladder Sync',
+      detail: 'Mixed stages smooth the curve between tempo and durability.',
+      activation: 'Fill all three slots with at least two distinct stages.',
+      modifier: 0.04,
+    });
   }
 
   return synergies;
+}
+
+export interface SlotRoleDescriptor {
+  id: 'vanguard' | 'core' | 'anchor';
+  label: string;
+  detail: string;
+}
+
+export const SQUAD_SLOT_ROLES: SlotRoleDescriptor[] = [
+  {
+    id: 'vanguard',
+    label: 'VANGUARD',
+    detail: 'Leads the line. Takes the first hit and sets the tempo. Prefers high HP or speed.',
+  },
+  {
+    id: 'core',
+    label: 'SYNC CORE',
+    detail: 'Synergy anchor. Drives combo type matchups and stabilizes the modifier stack.',
+  },
+  {
+    id: 'anchor',
+    label: 'ANCHOR',
+    detail: 'Cleanup unit. Holds the back line and finishes weakened enemies with high attack or defense.',
+  },
+];
+
+export function getSlotRole(index: number): SlotRoleDescriptor {
+  return SQUAD_SLOT_ROLES[Math.max(0, Math.min(SQUAD_SLOT_ROLES.length - 1, index))];
 }
 
 export function calculateSquadBattleModifier(synergies: TeamSynergy[], typePressureModifier: number): number {

@@ -3,6 +3,83 @@ import { Monster, MonsterType } from '../models/monster.model';
 import { TeamSynergy } from './squad.rules';
 import { getTypeMatchupValue, TypeMatchupValue, TypePressureSummary } from './type-matchup.rules';
 
+export const WIN_STREAK_MILESTONES: readonly number[] = [3, 5, 10, 25];
+
+export interface StreakBonus {
+  coins: number;
+  xp: number;
+}
+
+export function calculateStreakBonus(streakAfterWin: number, baseReward: BattleReward): StreakBonus {
+  if (streakAfterWin < 2) {
+    return { coins: 0, xp: 0 };
+  }
+
+  const tier = Math.min(5, streakAfterWin - 1);
+  return {
+    coins: Math.round(baseReward.coins * 0.08 * tier),
+    xp: Math.round(baseReward.xp * 0.05 * tier),
+  };
+}
+
+export function applyStreakBonus(reward: BattleReward, bonus: StreakBonus, streakAfter: number): BattleReward {
+  if (bonus.coins === 0 && bonus.xp === 0) {
+    return { ...reward, streakAfter };
+  }
+
+  return {
+    ...reward,
+    coins: reward.coins + bonus.coins,
+    xp: reward.xp + bonus.xp,
+    streakBonusCoins: bonus.coins,
+    streakBonusXp: bonus.xp,
+    streakAfter,
+  };
+}
+
+export function findCrossedMilestone(previousWins: number, currentWins: number, claimed: readonly number[]): number | null {
+  for (const threshold of WIN_STREAK_MILESTONES) {
+    if (previousWins < threshold && currentWins >= threshold && !claimed.includes(threshold)) {
+      return threshold;
+    }
+  }
+  return null;
+}
+
+export function milestoneLabel(threshold: number): string {
+  return `Milestone reached: ${threshold} battles won`;
+}
+
+export interface LossHintParams {
+  squad: Monster[];
+  enemies: EnemyMonster[];
+  teamPower: number;
+  enemyPower: number;
+  typePressureLabel: string;
+  squadSize: number;
+}
+
+export function generateLossHint(params: LossHintParams): string {
+  const gap = params.teamPower - params.enemyPower;
+
+  if (params.squadSize < 3) {
+    return `Squad gap: only ${params.squadSize}/3 slots filled. Add a unit before the next run.`;
+  }
+
+  if (gap <= -120) {
+    const weakest = [...params.squad].sort((a, b) => a.attack + a.defense - (b.attack + b.defense))[0];
+    return weakest
+      ? `Power gap ${gap}: train or replace ${weakest.name} to close the net.`
+      : `Power gap ${gap}: train a squad unit before retrying.`;
+  }
+
+  if (gap <= -40) {
+    return `Power gap ${gap}: small deficit. Level up your lead unit or rotate in a stronger reserve.`;
+  }
+
+  return `Coverage signal: ${params.typePressureLabel}. Swap a type to flip the matchup.`;
+}
+
 export interface ArenaThreatProfile {
   id: 'standard' | 'volatile' | 'hazard' | 'boss';
   label: string;
@@ -10,6 +87,109 @@ export interface ArenaThreatProfile {
   enemyModifier: number;
   rewardModifier: number;
   itemBonus: number;
+}
+
+export type BattleCategoryId = 'training' | 'standard' | 'risk';
+
+export interface BattleCategoryProfile {
+  id: BattleCategoryId;
+  label: string;
+  shortLabel: string;
+  detail: string;
+  enemyModifier: number;
+  rewardModifier: number;
+  itemBonus: number;
+}
+
+export const BATTLE_CATEGORIES: BattleCategoryProfile[] = [
+  {
+    id: 'training',
+    label: 'Training Run',
+    shortLabel: 'Training',
+    detail: 'Softer enemies, smaller payout. Safe XP for new lineups.',
+    enemyModifier: -0.08,
+    rewardModifier: 0.82,
+    itemBonus: -0.04,
+  },
+  {
+    id: 'standard',
+    label: 'Standard Sim',
+    shortLabel: 'Standard',
+    detail: 'Baseline arena pressure with the default reward curve.',
+    enemyModifier: 0,
+    rewardModifier: 1,
+    itemBonus: 0,
+  },
+  {
+    id: 'risk',
+    label: 'Risk Run',
+    shortLabel: 'Risk',
+    detail: 'Tougher enemies and higher reward and item odds.',
+    enemyModifier: 0.12,
+    rewardModifier: 1.22,
+    itemBonus: 0.08,
+  },
+];
+
+export function getBattleCategoryProfile(id: BattleCategoryId): BattleCategoryProfile {
+  return BATTLE_CATEGORIES.find((category) => category.id === id) ?? BATTLE_CATEGORIES[1];
+}
+
+export type BattleOutlookTone = 'low' | 'even' | 'strong';
+
+export interface BattleOutlook {
+  tone: BattleOutlookTone;
+  label: string;
+  detail: string;
+  ratio: number;
+}
+
+export interface BattleOutlookParams {
+  teamPower: number;
+  enemyPower: number;
+  playerModifier: number;
+  enemyModifier: number;
+  hasSquad: boolean;
+}
+
+export function predictBattleOutlook(params: BattleOutlookParams): BattleOutlook {
+  if (!params.hasSquad) {
+    return {
+      tone: 'low',
+      label: 'No Signal',
+      detail: 'Add at least one squad unit to read a battle forecast.',
+      ratio: 0,
+    };
+  }
+
+  const adjustedTeam = Math.max(1, params.teamPower * (1 + params.playerModifier));
+  const adjustedEnemy = Math.max(1, params.enemyPower * (1 + params.enemyModifier));
+  const ratio = adjustedTeam / adjustedEnemy;
+
+  if (ratio >= 1.18) {
+    return {
+      tone: 'strong',
+      label: 'Strong Win Outlook',
+      detail: 'Simulation favors your squad. Expect a clean win.',
+      ratio,
+    };
+  }
+
+  if (ratio >= 0.92) {
+    return {
+      tone: 'even',
+      label: 'Even Match',
+      detail: 'Simulation is close. Synergy and type edges decide the run.',
+      ratio,
+    };
+  }
+
+  return {
+    tone: 'low',
+    label: 'Low Win Outlook',
+    detail: 'Enemy net outpaces your squad. Train or rotate before pressing in.',
+    ratio,
+  };
 }
 
 export interface BattleResolutionParams {
