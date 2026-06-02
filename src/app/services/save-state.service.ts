@@ -177,6 +177,44 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         ? player.claimedStageMilestones.map((entry) => String(entry))
         : [],
       audioEnabled: typeof player.audioEnabled === 'boolean' ? player.audioEnabled : false,
+      overdriveCharge: typeof player.overdriveCharge === 'number' ? clamp(player.overdriveCharge, 0, 100) : 0,
+      claimedAchievements: Array.isArray(player.claimedAchievements)
+        ? player.claimedAchievements.map((entry) => String(entry))
+        : [],
+      combatStats: sanitizeCombatStats(player.combatStats),
+      dailyDirective: sanitizeDailyDirective(player.dailyDirective),
     },
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function sanitizeCombatStats(stats: unknown): SaveStateSnapshot['player']['combatStats'] {
+  const candidate = (stats ?? {}) as Partial<SaveStateSnapshot['player']['combatStats']>;
+  const num = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0);
+  return {
+    criticalWins: num(candidate.criticalWins),
+    overdrivesUsed: num(candidate.overdrivesUsed),
+    itemsUsed: num(candidate.itemsUsed),
+    flawlessWins: num(candidate.flawlessWins),
+    gauntletBestWave: num(candidate.gauntletBestWave),
+  };
+}
+
+function sanitizeDailyDirective(directive: unknown): SaveStateSnapshot['player']['dailyDirective'] {
+  if (!directive || typeof directive !== 'object') {
+    return null;
+  }
+  const candidate = directive as Partial<NonNullable<SaveStateSnapshot['player']['dailyDirective']>>;
+  if (typeof candidate.dateKey !== 'string' || typeof candidate.objectiveId !== 'string') {
+    return null;
+  }
+  return {
+    dateKey: candidate.dateKey,
+    objectiveId: candidate.objectiveId,
+    progress: typeof candidate.progress === 'number' ? Math.max(0, candidate.progress) : 0,
+    claimed: candidate.claimed === true,
   };
 }

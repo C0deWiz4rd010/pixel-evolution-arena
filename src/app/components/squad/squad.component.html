@@ -133,8 +133,9 @@
               type="button"
               class="candidate-card stage-{{ game.stageClass(monster.stage) }}"
               [class.recommended]="recommendedCandidateId() === monster.id"
-              [disabled]="slotsFilled() >= 3"
-              (click)="game.addToSquad(monster.id)"
+              [class.swap-ready]="canSwapCandidate(monster)"
+              [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)"
+              (click)="addOrSwapCandidate(monster)"
             >
               <span class="candidate-id">{{ monster.id }}</span>
               <span class="candidate-sprite">
@@ -147,7 +148,7 @@
               <strong>{{ monster.name }}</strong>
               <small>{{ monster.stage }} / {{ monster.type }}</small>
               <span class="candidate-power">PW {{ power(monster) }}</span>
-              <em>{{ slotsFilled() >= 3 ? 'Remove first' : candidateCue(monster) }}</em>
+              <em>{{ candidateActionLabel(monster) }}</em>
             </button>
           }
         </div>
@@ -187,7 +188,7 @@
         <button type="button" [disabled]="slotsFilled() >= 3" (click)="addRecommended()">Add {{ candidate.name }}</button>
       }
       @if (nextAction().tone === 'remove' && weakestMember(); as weakest) {
-        <button type="button" class="danger" (click)="removeWeakest()">Remove {{ weakest.name }}</button>
+        <button type="button" class="swap-action" (click)="replaceRecommended()">Swap Weakest</button>
       }
     </section>
 

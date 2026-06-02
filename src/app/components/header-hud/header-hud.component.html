@@ -8,22 +8,22 @@
   </div>
 
   <div class="hud-stats" aria-label="Player resources and selected monster">
-    <div class="stat-chip coins">
+    <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
       <span class="stat-icon">CR</span>
       <span class="stat-label">Coins</span>
       <strong>{{ game.player().coins }}</strong>
     </div>
-    <div class="stat-chip dna">
+    <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
       <span class="stat-icon">DN</span>
       <span class="stat-label">DNA Shards</span>
       <strong>{{ game.player().dnaShards }}</strong>
     </div>
-    <div class="stat-chip power">
+    <div class="stat-chip power" [class.stat-pulse]="pulseFor('power')()">
       <span class="stat-icon">PW</span>
       <span class="stat-label">Team Power</span>
       <strong>{{ game.teamPower() }}</strong>
     </div>
-    <div class="stat-chip wins">
+    <div class="stat-chip wins" [class.stat-pulse]="pulseFor('wins')()">
       <span class="stat-icon">WN</span>
       <span class="stat-label">Battles Won</span>
       <strong>{{ game.player().battlesWon }}</strong>
@@ -31,12 +31,39 @@
     <div
       class="stat-chip streak"
       [class.streak-active]="game.winStreak() > 0"
+      [class.stat-pulse]="pulseFor('streak')()"
       [attr.title]="'Best streak: x' + game.bestWinStreak()"
     >
       <span class="stat-icon">ST</span>
       <span class="stat-label">Win Streak</span>
       <strong>{{ game.streakLabel() }}</strong>
       <small>Best x{{ game.bestWinStreak() }}</small>
+    </div>
+    <div
+      class="stat-chip overdrive"
+      [class.od-ready]="game.overdriveReady()"
+      [class.od-armed]="game.overdriveArmed()"
+      title="Overdrive core charge"
+    >
+      <span class="stat-icon">OD</span>
+      <span class="stat-label">Overdrive</span>
+      <strong>{{ game.overdriveReady() ? (game.overdriveArmed() ? 'ARM' : 'RDY') : game.overdrivePercent() + '%' }}</strong>
+    </div>
+    <div
+      class="stat-chip daily"
+      [class.daily-done]="game.dailyComplete()"
+      [attr.title]="game.dailyObjective().detail"
+    >
+      <span class="stat-icon">DY</span>
+      <span class="stat-label">Daily</span>
+      <strong>{{ game.dailyDirective().progress }}/{{ game.dailyObjective().goal }}</strong>
+      <small>{{ game.dailyComplete() ? 'Cleared' : game.dailyObjective().label }}</small>
+    </div>
+    <div class="stat-chip next-command tone-{{ game.nextCommand().tone }}" [attr.title]="game.nextCommand().detail">
+      <span class="stat-icon">NX</span>
+      <span class="stat-label">Next</span>
+      <strong>{{ game.nextCommand().status }}</strong>
+      <small>{{ game.nextCommand().tab }}</small>
     </div>
     @if (game.pinnedChase(); as pinned) {
       <div class="stat-chip chase" title="Pinned chase target">

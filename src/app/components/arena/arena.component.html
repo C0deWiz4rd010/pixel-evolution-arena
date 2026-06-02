@@ -1,4 +1,9 @@
-<div class="arena-layout arena-terminal-shell">
+<div
+  class="arena-layout arena-terminal-shell"
+  [class.battle-engaging]="anim.isPlaying()"
+  [class.battle-shake]="anim.shake()"
+  [attr.data-flash]="anim.flash()"
+>
   <section
     class="hud-panel arena-stage battle-terminal"
     [class.is-blocked]="terminalTone() === 'is-blocked'"
@@ -24,6 +29,17 @@
         <div class="formation-heading">
           <span>Allied Formation</span>
           <strong>{{ game.squad().length }}/3 Units</strong>
+        </div>
+
+        <div class="formation-hp-bar player-bar hp-{{ playerHpClass() }}" aria-label="Allied formation health">
+          <span class="hp-fill" [style.width.%]="anim.playerHpPercent()"></span>
+          <span class="hp-label">ALLY {{ anim.playerHpPercent() }}%</span>
+        </div>
+
+        <div class="popup-layer" aria-hidden="true">
+          @for (popup of playerPopups(); track popup.id) {
+            <span class="damage-popup damage-player" [class.critical]="popup.critical" [style.--popup-offset.px]="popup.offset">-{{ popup.amount }}</span>
+          }
         </div>
 
         <div class="combatant-stack">
@@ -103,24 +119,88 @@
           <strong>{{ powerDeltaLabel() }}</strong>
         </div>
 
-        <div class="battle-category" role="radiogroup" aria-label="Battle category">
-          <span class="category-label">Run Category</span>
-          <div class="category-options">
-            @for (category of battleCategories; track category.id) {
-              <button
-                type="button"
-                class="category-option category-{{ category.id }}"
-                [class.active]="activeBattleCategoryId() === category.id"
-                role="radio"
-                [attr.aria-checked]="activeBattleCategoryId() === category.id"
-                (click)="setBattleCategory(category.id)"
-              >
-                <strong>{{ category.shortLabel }}</strong>
-                <small>{{ category.detail }}</small>
+        <div class="command-deck">
+          <div class="deck-row" role="radiogroup" aria-label="Battle mode">
+            <span class="deck-label">Mode</span>
+            <div class="pill-row">
+              <button type="button" class="deck-pill" [class.active]="battleMode() === 'standard'" role="radio" [attr.aria-checked]="battleMode() === 'standard'" (click)="setBattleMode('standard')">Standard</button>
+              <button type="button" class="deck-pill mode-gauntlet" [class.active]="battleMode() === 'gauntlet'" role="radio" [attr.aria-checked]="battleMode() === 'gauntlet'" (click)="setBattleMode('gauntlet')">
+                Gauntlet@if (battleMode() === 'gauntlet') { <small>W{{ gauntletWave() + 1 }}</small> }
               </button>
-            }
+            </div>
+          </div>
+
+          <div class="deck-row" role="radiogroup" aria-label="Battle stance">
+            <span class="deck-label">Stance</span>
+            <div class="pill-row">
+              @for (stance of battleStances; track stance.id) {
+                <button type="button" class="deck-pill stance-{{ stance.id }}" [class.active]="activeBattleStanceId() === stance.id" role="radio" [attr.aria-checked]="activeBattleStanceId() === stance.id" [title]="stance.detail" (click)="setBattleStance(stance.id)">{{ stance.shortLabel }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="deck-row" role="radiogroup" aria-label="Run category">
+            <span class="deck-label">Risk</span>
+            <div class="pill-row">
+              @for (category of battleCategories; track category.id) {
+                <button type="button" class="deck-pill category-{{ category.id }}" [class.active]="activeBattleCategoryId() === category.id" role="radio" [attr.aria-checked]="activeBattleCategoryId() === category.id" [title]="category.detail" (click)="setBattleCategory(category.id)">{{ category.shortLabel }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="deck-row overdrive-row">
+            <span class="deck-label">Overdrive</span>
+            <div class="overdrive-control">
+              <span class="overdrive-meter" [class.ready]="overdriveReady()" [class.armed]="overdriveArmed()">
+                <span class="overdrive-fill" [style.width.%]="overdrivePercent()"></span>
+                <span class="overdrive-text">{{ overdriveReady() ? (overdriveArmed() ? 'ARMED / ' + leadOverdriveName() : 'READY') : overdrivePercent() + '%' }}</span>
+              </span>
+              <button type="button" class="deck-pill overdrive-arm" [class.armed]="overdriveArmed()" [disabled]="!overdriveReady()" (click)="toggleOverdrive()">{{ overdriveArmed() ? 'Disarm' : 'Arm OD' }}</button>
+            </div>
+          </div>
+
+          <div class="deck-row loadout-row">
+            <span class="deck-label">Loadout</span>
+            <div class="loadout-control">
+              @for (slot of [0, 1]; track slot) {
+                @if (equippedConsumables()[slot]; as name) {
+                  <button type="button" class="loadout-chip filled" (click)="toggleConsumable(name)" [title]="'Unequip ' + name">{{ name }} x</button>
+                } @else {
+                  <span class="loadout-chip empty">Slot {{ slot + 1 }}</span>
+                }
+              }
+              <details class="fabricator">
+                <summary>Items / Fabricator</summary>
+                <div class="fab-grid">
+                  @for (entry of ownedConsumables(); track entry.def.name) {
+                    <div class="fab-item">
+                      <span class="fab-icon">{{ entry.def.icon }}</span>
+                      <span class="fab-name"><strong>{{ entry.def.name }}</strong><small>{{ entry.def.detail }}</small></span>
+                      <span class="fab-owned">x{{ entry.count }}</span>
+                      <button type="button" class="fab-equip" [class.active]="isEquipped(entry.def.name)" [disabled]="entry.count === 0 && !isEquipped(entry.def.name)" (click)="toggleConsumable(entry.def.name)">{{ isEquipped(entry.def.name) ? 'On' : 'Equip' }}</button>
+                      <button type="button" class="fab-buy" (click)="buyConsumable(entry.def.name)">{{ entry.def.cost }} CR</button>
+                    </div>
+                  }
+                </div>
+              </details>
+            </div>
           </div>
         </div>
+
+        <section class="battle-outlook battle-coach outlook-even" aria-label="Battle coach recommendation">
+          <div>
+            <span>Tactic Coach</span>
+            <strong>{{ battleCoach().title }}</strong>
+            <small>{{ battleCoach().detail }}</small>
+          </div>
+          <div class="coach-loadout">
+            <span>{{ battleCoach().stanceId }} / {{ battleCoach().categoryId }}</span>
+            <strong>{{ battleCoach().itemName ?? 'No item needed' }}</strong>
+          </div>
+          <button type="button" [disabled]="game.squad().length === 0" (click)="applyBattleCoach()">
+            {{ battleCoach().actionLabel }}
+          </button>
+        </section>
 
         <div class="battle-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
           <span class="outlook-label">Forecast</span>
@@ -128,8 +208,14 @@
           <small>{{ battleOutlook().detail }}</small>
         </div>
 
-        <button type="button" class="primary-action start-battle-action" (click)="game.startBattle()">
-          Start Battle
+        <button
+          type="button"
+          class="primary-action start-battle-action"
+          [class.is-playing]="anim.isPlaying()"
+          [disabled]="anim.isPlaying() || game.squad().length === 0"
+          (click)="game.startBattle()"
+        >
+          {{ startBattleLabel() }}
         </button>
       </section>
 
@@ -137,6 +223,17 @@
         <div class="formation-heading">
           <span>{{ activeFormation().name }}</span>
           <strong>{{ game.enemies.length }} Units / {{ enemyTypeEdge().label }}</strong>
+        </div>
+
+        <div class="formation-hp-bar enemy-bar hp-{{ enemyHpClass() }}" aria-label="Enemy formation health">
+          <span class="hp-fill" [style.width.%]="anim.enemyHpPercent()"></span>
+          <span class="hp-label">ENEMY {{ anim.enemyHpPercent() }}%</span>
+        </div>
+
+        <div class="popup-layer" aria-hidden="true">
+          @for (popup of enemyPopups(); track popup.id) {
+            <span class="damage-popup damage-enemy" [class.critical]="popup.critical" [style.--popup-offset.px]="popup.offset">-{{ popup.amount }}</span>
+          }
         </div>
 
         <div class="combatant-stack">

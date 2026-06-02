@@ -1,6 +1,8 @@
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterType } from '../models/monster.model';
+import { BattleEvent } from './combat.engine';
 import { TeamSynergy } from './squad.rules';
+import { STATUS_DEFS } from './status.rules';
 import { getTypeMatchupValue, TypeMatchupValue, TypePressureSummary } from './type-matchup.rules';
 
 export const WIN_STREAK_MILESTONES: readonly number[] = [3, 5, 10, 25];
@@ -135,6 +137,92 @@ export function getBattleCategoryProfile(id: BattleCategoryId): BattleCategoryPr
   return BATTLE_CATEGORIES.find((category) => category.id === id) ?? BATTLE_CATEGORIES[1];
 }
 
+// --- Hybrid control: stance ---
+
+export type BattleStanceId = 'aggressive' | 'balanced' | 'defensive';
+
+export interface BattleStanceProfile {
+  id: BattleStanceId;
+  label: string;
+  shortLabel: string;
+  detail: string;
+  /** Bonus to the player roll. */
+  attackMod: number;
+  /** Reduces incoming damage in the event timeline. */
+  mitigation: number;
+}
+
+export const BATTLE_STANCES: BattleStanceProfile[] = [
+  {
+    id: 'aggressive',
+    label: 'Aggressive',
+    shortLabel: 'Aggro',
+    detail: 'Full offense: more damage, less cover.',
+    attackMod: 0.1,
+    mitigation: -0.08,
+  },
+  {
+    id: 'balanced',
+    label: 'Balanced',
+    shortLabel: 'Balance',
+    detail: 'Balanced stance with no hard tradeoff.',
+    attackMod: 0,
+    mitigation: 0,
+  },
+  {
+    id: 'defensive',
+    label: 'Defensive',
+    shortLabel: 'Guard',
+    detail: 'Safer line: less damage, more durability.',
+    attackMod: -0.05,
+    mitigation: 0.16,
+  },
+];
+
+export function getBattleStanceProfile(id: BattleStanceId): BattleStanceProfile {
+  return BATTLE_STANCES.find((stance) => stance.id === id) ?? BATTLE_STANCES[1];
+}
+
+// --- Hybrid control: Overdrive ---
+
+export const OVERDRIVE_MAX = 100;
+export const OVERDRIVE_ATTACK_BONUS = 0.18;
+
+/** Charge tick after battle; wins charge faster. */
+export function chargeOverdrive(current: number, won: boolean): number {
+  const gain = won ? 34 : 18;
+  return Math.max(0, Math.min(OVERDRIVE_MAX, current + gain));
+}
+
+export function canArmOverdrive(charge: number): boolean {
+  return charge >= OVERDRIVE_MAX;
+}
+
+/**
+ * Builds the reward object from win/crit/multiplier.
+ * Extracted so the combat engine uses the same tuned math.
+ */
+export function buildReward(won: boolean, criticalHit: boolean, rewardMultiplier: number): BattleReward {
+  const rewardScale = criticalHit
+    ? rewardMultiplier * 1.18
+    : won
+      ? rewardMultiplier
+      : 0.88 + (rewardMultiplier - 1) * 0.55;
+  return won
+    ? {
+        won,
+        coins: Math.round(120 * rewardScale),
+        dnaShards: Math.max(3, Math.round(8 * rewardScale)),
+        xp: Math.max(24, Math.round(35 * rewardScale)),
+      }
+    : {
+        won,
+        coins: Math.max(24, Math.round(30 * rewardScale)),
+        dnaShards: Math.max(2, Math.round(2 * rewardScale)),
+        xp: Math.max(10, Math.round(12 * rewardScale)),
+      };
+}
+
 export type BattleOutlookTone = 'low' | 'even' | 'strong';
 
 export interface BattleOutlook {
@@ -206,6 +294,7 @@ export interface BattleResolutionResult {
   reward: BattleReward;
   playerRoll: number;
   enemyRoll: number;
+  criticalHit: boolean;
 }
 
 export interface BattleLogBuildParams {
@@ -216,6 +305,7 @@ export interface BattleLogBuildParams {
   threat: ArenaThreatProfile;
   playerRoll: number;
   enemyRoll: number;
+  criticalHit: boolean;
   synergyLead: TeamSynergy | null;
   typePressure: TypePressureSummary;
   randomFrom: <T>(items: T[]) => T;
@@ -223,25 +313,15 @@ export interface BattleLogBuildParams {
 }
 
 export function resolveBattle(params: BattleResolutionParams): BattleResolutionResult {
-  const playerRoll = params.teamPower * (1 + params.playerModifier) * params.randomBetween(0.88, 1.14);
-  const enemyRoll = params.enemyPower * (1 + params.enemyModifier) * params.randomBetween(0.88, 1.14);
+  const playerBase = params.teamPower * (1 + params.playerModifier);
+  const enemyBase = params.enemyPower * (1 + params.enemyModifier);
+  const playerRoll = playerBase * params.randomBetween(0.86, 1.18);
+  const enemyRoll = enemyBase * params.randomBetween(0.86, 1.18);
   const won = playerRoll >= enemyRoll;
-  const rewardScale = won ? params.rewardMultiplier : 0.88 + (params.rewardMultiplier - 1) * 0.55;
-  const reward: BattleReward = won
-    ? {
-        won,
-        coins: Math.round(120 * rewardScale),
-        dnaShards: Math.max(3, Math.round(8 * rewardScale)),
-        xp: Math.max(24, Math.round(35 * rewardScale)),
-      }
-    : {
-        won,
-        coins: Math.max(24, Math.round(30 * rewardScale)),
-        dnaShards: Math.max(2, Math.round(2 * rewardScale)),
-        xp: Math.max(10, Math.round(12 * rewardScale)),
-      };
+  const criticalHit = won && playerRoll >= enemyRoll * 1.28;
+  const reward = buildReward(won, criticalHit, params.rewardMultiplier);
 
-  return { won, reward, playerRoll, enemyRoll };
+  return { won, reward, playerRoll, enemyRoll, criticalHit };
 }
 
 export function calculateEnemyBattleModifier(baseModifier: number, typePressureModifier: number): number {
@@ -255,21 +335,46 @@ export function shouldAwardItem(won: boolean, chance: number, randomValue: numbe
 export function buildBattleLogs(params: BattleLogBuildParams): BattleLog[] {
   const attackerA = params.randomFrom(params.squad);
   const attackerB = params.randomFrom(params.squad);
+  const attackerC = params.squad.length >= 3 ? params.randomFrom(params.squad) : attackerA;
   const defenderA = params.randomFrom(params.enemies);
   const defenderB = params.randomFrom(params.enemies);
+  const defenderC = params.randomFrom(params.enemies);
   const matchupA = getTypeMatchupValue(attackerA.type, defenderA.type);
   const matchupB = getTypeMatchupValue(attackerB.type, defenderB.type);
+  const matchupC = getTypeMatchupValue(attackerC.type, defenderC.type);
+  const critMultiplier = params.criticalHit ? 1.6 : 1;
   const damageA = Math.max(
     12,
-    Math.round(attackerA.attack * params.randomBetween(0.42, 0.74) * (1 + matchupA * 0.16) - defenderA.defense * 0.12),
+    Math.round(attackerA.attack * params.randomBetween(0.42, 0.74) * (1 + matchupA * 0.16) * critMultiplier - defenderA.defense * 0.12),
   );
   const damageB = Math.max(
     10,
     Math.round(attackerB.attack * params.randomBetween(0.36, 0.68) * (1 + matchupB * 0.16) - defenderB.defense * 0.1),
   );
+  const damageC = Math.max(
+    8,
+    Math.round(attackerC.attack * params.randomBetween(0.32, 0.58) * (1 + matchupC * 0.14) - defenderC.defense * 0.09),
+  );
   const flavorA = typeVerb(attackerA.type, params.randomFrom);
   const flavorB = typeVerb(attackerB.type, params.randomFrom);
+  const flavorC = typeVerb(attackerC.type, params.randomFrom);
   const rollMargin = Math.round(params.playerRoll - params.enemyRoll);
+  const comboActive = params.synergyLead !== null && params.squad.length >= 2;
+
+  const outcomeLines: BattleLog[] = params.criticalHit
+    ? [
+        { text: `CRITICAL OVERLOAD - squad decimates enemy formation in a single coordinated burst!`, type: 'reward' },
+        { text: `Decisive win! (+${rollMargin} sim margin)`, type: 'reward' },
+      ]
+    : params.reward.won
+      ? [
+          { text: `Enemy team loses momentum at ${rollMargin >= 120 ? 'full collapse' : 'the edge of the grid'}.`, type: 'info' },
+          { text: `Your squad wins the battle! (+${rollMargin} sim)`, type: 'reward' },
+        ]
+      : [
+          { text: 'Enemy team regains momentum and compresses the arena line.', type: 'info' },
+          { text: `Your squad is forced to retreat. (${rollMargin} sim)`, type: 'system' },
+        ];
 
   return [
     { text: `Arena battle started // ${params.formation.name} // ${params.formation.tier} // ${params.threat.label}.`, type: 'info' },
@@ -279,43 +384,126 @@ export function buildBattleLogs(params: BattleLogBuildParams): BattleLog[] {
       : []),
     { text: `${params.typePressure.label}: ${params.typePressure.detail}`, type: 'info' },
     {
-      text: `${attackerA.name} uses ${flavorA} on ${defenderA.name} for ${damageA} damage.${matchupSuffix(matchupA, attackerA.type, defenderA.type)}`,
+      text: `${attackerA.name} opens with ${flavorA} on ${defenderA.name} for ${damageA} damage.${params.criticalHit ? ' CRITICAL!' : matchupSuffix(matchupA, attackerA.type, defenderA.type)}`,
       type: 'damage',
     },
-    { text: matchupB < 0 ? `${defenderB.name} resists the angle and pushes the line back.` : `${defenderB.name} absorbs part of the hit and counters.`, type: 'damage' },
+    {
+      text: matchupB < 0 ? `${defenderB.name} resists the angle and pushes the line back.` : `${defenderB.name} absorbs part of the hit and counters.`,
+      type: 'damage',
+    },
     {
       text: `${attackerB.name} follows with ${flavorB} for ${damageB} damage.${matchupSuffix(matchupB, attackerB.type, defenderB.type)}`,
       type: 'damage',
     },
+    ...(comboActive
+      ? [{ text: `COMBO: ${attackerC.name} chains ${flavorC} into ${defenderC.name} for ${damageC} bonus damage!`, type: 'damage' as const }]
+      : [{ text: `${attackerC.name} applies ${flavorC} for ${damageC} residual damage.`, type: 'damage' as const }]),
+    ...outcomeLines,
     {
-      text: params.reward.won
-        ? `Enemy team loses momentum at ${rollMargin >= 120 ? 'full collapse' : 'the edge of the grid'}.`
-        : 'Enemy team regains momentum and compresses the arena line.',
-      type: 'info',
-    },
-    {
-      text: params.reward.won
-        ? `Your squad wins the battle! (${rollMargin >= 0 ? '+' : ''}${rollMargin} sim)`
-        : `Your squad is forced to retreat. (${rollMargin} sim)`,
-      type: params.reward.won ? 'reward' : 'system',
-    },
-    {
-      text: `Rewards: +${params.reward.coins} Coins, +${params.reward.dnaShards} DNA Shards, +${params.reward.xp} XP.${params.formation.tier !== 'Scout' ? ` ${params.formation.tier} cache active.` : ''}${params.threat.rewardModifier > 1 ? ` ${params.threat.label} boost active.` : ''}`,
+      text: `Rewards: +${params.reward.coins} Coins, +${params.reward.dnaShards} DNA, +${params.reward.xp} XP.${params.criticalHit ? ' Critical bonus applied.' : ''}${params.formation.tier !== 'Scout' ? ` ${params.formation.tier} cache active.` : ''}${params.threat.rewardModifier > 1 ? ` ${params.threat.label} boost active.` : ''}`,
       type: 'reward',
     },
   ];
 }
 
+export interface EventLogBuildParams {
+  events: BattleEvent[];
+  reward: BattleReward;
+  formation: ArenaFormation;
+  threat: ArenaThreatProfile;
+  marginScore: number;
+  criticalHit: boolean;
+  won: boolean;
+}
+
+/**
+ * Translates the combat event timeline into readable battle logs.
+ * Moves, status effects, and Overdrive stay visible without parsing flavor text.
+ */
+export function buildBattleLogsFromEvents(params: EventLogBuildParams): BattleLog[] {
+  const logs: BattleLog[] = [
+    { text: `Arena battle started // ${params.formation.name} // ${params.formation.tier} // ${params.threat.label}.`, type: 'info' },
+    { text: `Objective: ${params.formation.objective}`, type: 'info' },
+  ];
+
+  for (const event of params.events) {
+    const line = eventToLog(event);
+    if (line) {
+      logs.push(line);
+    }
+  }
+
+  logs.push({
+    text: `Rewards: +${params.reward.coins} Coins, +${params.reward.dnaShards} DNA, +${params.reward.xp} XP.${params.criticalHit ? ' Critical bonus applied.' : ''}${params.formation.tier !== 'Scout' ? ` ${params.formation.tier} cache active.` : ''}${params.threat.rewardModifier > 1 ? ` ${params.threat.label} boost active.` : ''}`,
+    type: 'reward',
+  });
+
+  return logs;
+}
+
+function eventToLog(event: BattleEvent): BattleLog | null {
+  switch (event.kind) {
+    case 'intro':
+      return event.text ? { text: event.text, type: 'info' } : null;
+    case 'item':
+      return { text: `Combat item deployed: ${event.text}.`, type: 'info' };
+    case 'heal':
+      return { text: `${event.actorName} repairs ${event.amount} HP.`, type: 'info' };
+    case 'shield':
+      return { text: `${event.actorName} raises ${statusLabel(event.status)}.`, type: 'info' };
+    case 'strike': {
+      if (!event.amount) {
+        return { text: `${event.actorName}'s ${event.moveName} misses ${event.targetName}.`, type: 'info' };
+      }
+      return {
+        text: `${event.actorName} hits ${event.targetName} with ${event.moveName} for ${event.amount} damage.${effectivenessSuffix(event.effective, event.moveType, event.actorName)}`,
+        type: 'damage',
+      };
+    }
+    case 'status-apply':
+      return event.side === 'player' && !event.targetName
+        ? { text: `${event.actorName} channels ${statusLabel(event.status)}.`, type: 'info' }
+        : { text: `${event.targetName} is afflicted with ${statusLabel(event.status)}.`, type: 'damage' };
+    case 'status-tick':
+      if ((event.amount ?? 0) < 0) {
+        return { text: `${event.actorName} regenerates ${Math.abs(event.amount ?? 0)} HP.`, type: 'info' };
+      }
+      return { text: `${event.actorName} takes ${event.amount} ${statusLabel(event.status)} damage.`, type: 'damage' };
+    case 'overdrive':
+      return { text: `OVERDRIVE - ${event.actorName} unleashes ${event.moveName} on ${event.targetName} for ${event.amount} damage!`, type: 'reward' };
+    case 'faint':
+      return event.text ? { text: event.text, type: event.side === 'player' ? 'system' : 'damage' } : null;
+    case 'outcome':
+      return null; // Reward-Zeile folgt separat.
+    default:
+      return null;
+  }
+}
+
+function statusLabel(status: BattleEvent['status']): string {
+  return status ? STATUS_DEFS[status].label : 'effect';
+}
+
+function effectivenessSuffix(effective: BattleEvent['effective'], type: MonsterType | undefined, actor: string | undefined): string {
+  if (effective === 1) {
+    return ` ${type ?? actor} pressure cracks the guard.`;
+  }
+  if (effective === -1) {
+    return ' The typing dulls the strike.';
+  }
+  return '';
+}
+
 function typeVerb(type: MonsterType, randomFrom: <T>(items: T[]) => T): string {
   const verbs: Record<MonsterType, string[]> = {
-    Nature: ['Vine Lash', 'Thorn Surge'],
-    Fire: ['Blaze Rush', 'Ember Fang'],
-    Water: ['Aqua Slash', 'Pressure Wave'],
-    Dark: ['Shadow Feint', 'Void Cut'],
-    Light: ['Prism Flash', 'Solar Pulse'],
-    Machine: ['Gear Burst', 'Servo Strike'],
-    Beast: ['Fang Break', 'Claw Rush'],
-    Toxic: ['Venom Mist', 'Ooze Shot'],
+    Nature: ['Vine Lash', 'Thorn Surge', 'Root Bind', 'Spore Burst', 'Canopy Crush'],
+    Fire: ['Blaze Rush', 'Ember Fang', 'Inferno Wave', 'Cinder Claw', 'Magma Slam'],
+    Water: ['Aqua Slash', 'Pressure Wave', 'Frost Bite', 'Tide Crash', 'Current Rend'],
+    Dark: ['Shadow Feint', 'Void Cut', 'Null Strike', 'Eclipse Surge', 'Phantom Rend'],
+    Light: ['Prism Flash', 'Solar Pulse', 'Radiant Beam', 'Nova Burst', 'Aura Lance'],
+    Machine: ['Gear Burst', 'Servo Strike', 'Overcharge', 'Drill Press', 'Arc Cannon'],
+    Beast: ['Fang Break', 'Claw Rush', 'Stone Charge', 'Boulder Slam', 'Rending Roar'],
+    Toxic: ['Venom Mist', 'Ooze Shot', 'Acid Barrage', 'Plague Swarm', 'Corrode Bite'],
   };
 
   return randomFrom(verbs[type]);

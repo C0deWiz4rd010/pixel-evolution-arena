@@ -3,6 +3,17 @@
   <app-header-hud />
   <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
 
+  <section class="mission-strip tone-{{ game.nextCommand().tone }}" aria-label="Recommended next command">
+    <div class="mission-copy">
+      <span>{{ game.nextCommand().status }}</span>
+      <strong>{{ game.nextCommand().title }}</strong>
+      <p>{{ game.nextCommand().detail }}</p>
+    </div>
+    <button type="button" (click)="setActiveTab(game.nextCommand().tab)">
+      {{ game.nextCommand().actionLabel }}
+    </button>
+  </section>
+
   <section class="play-surface">
     @switch (activeTab()) {
       @case ('Evolution Tree') {
@@ -17,9 +28,19 @@
       @case ('Collection') {
         <app-collection />
       }
+      @case ('Medals') {
+        <app-medals />
+      }
       @case ('Handbook') {
         <app-handbook />
       }
     }
   </section>
+
+  <footer class="hotkey-hint" aria-label="Keyboard shortcuts">
+    <span><kbd>1</kbd>-<kbd>6</kbd> Tabs</span>
+    <span><kbd>Space</kbd> Start Battle</span>
+  </footer>
 </main>
+
+<app-toast-stack />

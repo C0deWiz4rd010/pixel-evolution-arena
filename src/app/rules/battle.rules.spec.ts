@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
   BATTLE_CATEGORIES,
+  BATTLE_STANCES,
+  OVERDRIVE_MAX,
   applyStreakBonus,
+  buildReward,
   calculateEnemyBattleModifier,
   calculateStreakBonus,
+  canArmOverdrive,
+  chargeOverdrive,
   findCrossedMilestone,
   generateLossHint,
   getBattleCategoryProfile,
+  getBattleStanceProfile,
   predictBattleOutlook,
   resolveBattle,
 } from './battle.rules';
@@ -25,11 +31,12 @@ describe('battle rules', () => {
     });
 
     expect(result.won).toBe(true);
+    expect(result.criticalHit).toBe(true);
     expect(result.reward).toMatchObject({
       won: true,
-      coins: 144,
-      dnaShards: 10,
-      xp: 42,
+      coins: 170,
+      dnaShards: 11,
+      xp: 50,
     });
   });
 
@@ -184,6 +191,32 @@ describe('battle rules', () => {
       squadSize: 3,
     });
     expect(hint).toMatch(/Coverage signal/);
+  });
+
+  it('exposes three stances with an aggressive/defensive trade-off', () => {
+    expect(BATTLE_STANCES.map((stance) => stance.id)).toEqual(['aggressive', 'balanced', 'defensive']);
+    expect(getBattleStanceProfile('aggressive').attackMod).toBeGreaterThan(0);
+    expect(getBattleStanceProfile('aggressive').mitigation).toBeLessThan(0);
+    expect(getBattleStanceProfile('defensive').attackMod).toBeLessThan(0);
+    expect(getBattleStanceProfile('defensive').mitigation).toBeGreaterThan(0);
+    expect(getBattleStanceProfile('balanced')).toMatchObject({ attackMod: 0, mitigation: 0 });
+  });
+
+  it('falls back to the balanced stance for an unknown id', () => {
+    expect(getBattleStanceProfile('unknown' as never).id).toBe('balanced');
+  });
+
+  it('charges overdrive faster on a win and caps it, then arms when full', () => {
+    expect(chargeOverdrive(0, true)).toBe(34);
+    expect(chargeOverdrive(0, false)).toBe(18);
+    expect(chargeOverdrive(90, true)).toBe(OVERDRIVE_MAX);
+    expect(canArmOverdrive(OVERDRIVE_MAX)).toBe(true);
+    expect(canArmOverdrive(OVERDRIVE_MAX - 1)).toBe(false);
+  });
+
+  it('builds rewards identically to the resolveBattle path', () => {
+    expect(buildReward(true, true, 1.2)).toMatchObject({ won: true, coins: 170, dnaShards: 11, xp: 50 });
+    expect(buildReward(false, false, 1.35)).toMatchObject({ won: false, coins: 32, dnaShards: 2, xp: 13 });
   });
 });
 

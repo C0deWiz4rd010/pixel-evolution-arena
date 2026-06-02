@@ -165,9 +165,12 @@ button:hover:not(:disabled) {
 }
 
 button:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--line-bright);
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--line-bright);
   outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--bg), 0 0 16px rgba(156, 246, 255, 0.6);
 }
 
 button:disabled {
@@ -211,6 +214,7 @@ li {
   min-height: 100dvh;
   margin: 0 auto;
   padding: 0.75rem;
+  overflow-x: clip;
 }
 
 .play-surface {
@@ -319,9 +323,13 @@ li {
 
 .hud-stats {
   display: grid;
-  grid-template-columns: repeat(6, minmax(118px, 0.78fr)) minmax(220px, 1.3fr);
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
   gap: 0.42rem;
   min-width: 0;
+}
+
+.stat-chip.selected {
+  grid-column: span 2;
 }
 
 .stat-chip {
@@ -389,6 +397,43 @@ li {
 .stat-chip.streak.streak-active strong {
   color: var(--success);
   text-shadow: 0 0 12px currentColor;
+}
+
+.stat-chip.overdrive .stat-icon {
+  color: var(--dna);
+}
+
+.stat-chip.overdrive.od-ready {
+  border-color: var(--dna);
+  box-shadow: 0 0 14px rgba(187, 105, 255, 0.32);
+}
+
+.stat-chip.overdrive.od-ready strong {
+  color: var(--dna);
+  text-shadow: 0 0 12px currentColor;
+}
+
+.stat-chip.overdrive.od-armed {
+  border-color: var(--coin);
+  box-shadow: 0 0 16px rgba(255, 220, 66, 0.4);
+}
+
+.stat-chip.overdrive.od-armed strong {
+  color: var(--coin);
+  text-shadow: 0 0 12px currentColor;
+}
+
+.stat-chip.daily .stat-icon {
+  color: var(--coin);
+}
+
+.stat-chip.daily.daily-done {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
+.stat-chip.daily.daily-done strong {
+  color: var(--success);
 }
 
 .selected-icon {
@@ -658,8 +703,8 @@ li {
 }
 
 .tree-layout {
-  height: calc(100dvh - 178px);
-  min-height: 650px;
+  height: calc(100dvh - 172px);
+  min-height: 440px;
 }
 
 .tree-panel,
@@ -1679,7 +1724,7 @@ app-monster-card {
 }
 
 .collection-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
 }
 
 .collection-stats {
@@ -1994,12 +2039,8 @@ app-monster-card {
 }
 
 @media (max-width: 1400px) {
-  .header-hud {
-    grid-template-columns: 1fr;
-  }
-
   .hud-stats {
-    grid-template-columns: repeat(6, minmax(108px, 1fr)) minmax(210px, 1.3fr);
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
 
   .brand-copy h1 {
@@ -2028,6 +2069,10 @@ app-monster-card {
 }
 
 @media (max-width: 1180px) {
+  .header-hud {
+    grid-template-columns: 1fr;
+  }
+
   .tree-layout,
   .squad-layout,
   .arena-layout,
@@ -2035,6 +2080,10 @@ app-monster-card {
   .handbook-layout {
     height: auto;
     min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .medals-layout {
     grid-template-columns: 1fr;
   }
 

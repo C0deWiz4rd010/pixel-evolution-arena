@@ -14,6 +14,7 @@ export class TabNavigationComponent {
     { label: 'Squad', icon: 'SQ', signal: '3 slots' },
     { label: 'Arena', icon: 'VS', signal: 'Rewards' },
     { label: 'Collection', icon: 'DEX', signal: 'Filters' },
+    { label: 'Medals', icon: 'MDL', signal: 'Achievements' },
   ];
 
   readonly handbookTab = { label: 'Handbook', icon: 'MAN', signal: 'Manual/Data' };

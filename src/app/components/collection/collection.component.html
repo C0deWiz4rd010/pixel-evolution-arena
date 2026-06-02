@@ -226,6 +226,9 @@
           @if (chase.source; as source) {
             <button type="button" (click)="selectMonster(source.id)">Trace Source</button>
           }
+          @if (chase.ready) {
+            <button type="button" class="ready-action" (click)="evolveChase(chase)">Evolve Now</button>
+          }
           <button type="button" (click)="selectMonster(chase.target.id)">Inspect Target</button>
           <button type="button" class="danger" (click)="unpinChase()">Unpin</button>
         </div>
@@ -273,6 +276,9 @@
         <div class="chase-actions">
           @if (chase.source; as source) {
             <button type="button" (click)="selectMonster(source.id)">Trace Source</button>
+          }
+          @if (chase.ready) {
+            <button type="button" class="ready-action" (click)="evolveChase(chase)">Evolve Now</button>
           }
           <button type="button" (click)="selectMonster(chase.target.id)">Inspect Target</button>
           <button type="button" (click)="pinChase(chase.target.id)">Pin</button>

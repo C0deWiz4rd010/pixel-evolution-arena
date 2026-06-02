@@ -327,6 +327,14 @@ export class CollectionComponent {
     this.game.pinChaseTarget(id);
   }
 
+  evolveChase(chase: ChaseTarget): void {
+    if (!chase.ready || !chase.source) {
+      return;
+    }
+
+    this.game.evolve(chase.source.id, chase.target.id);
+  }
+
   unpinChase(): void {
     this.game.unpinChaseTarget();
   }

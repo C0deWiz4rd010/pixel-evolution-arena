@@ -213,7 +213,38 @@ export class SquadComponent {
       return;
     }
 
-    this.game.addToSquad(candidate.id);
+    this.addOrSwapCandidate(candidate);
+  }
+
+  addOrSwapCandidate(candidate: Monster): void {
+    if (this.slotsFilled() < 3) {
+      this.game.addToSquad(candidate.id);
+      return;
+    }
+
+    const weakest = this.weakestMember();
+    if (weakest && this.power(candidate) > this.power(weakest)) {
+      this.game.replaceSquadMember(weakest.id, candidate.id);
+    }
+  }
+
+  canSwapCandidate(candidate: Monster): boolean {
+    const weakest = this.weakestMember();
+    return this.slotsFilled() >= 3 && Boolean(weakest && this.power(candidate) > this.power(weakest));
+  }
+
+  candidateActionLabel(candidate: Monster): string {
+    if (this.slotsFilled() < 3) {
+      return this.candidateCue(candidate);
+    }
+
+    if (this.canSwapCandidate(candidate)) {
+      const weakest = this.weakestMember();
+      const gain = weakest ? this.power(candidate) - this.power(weakest) : 0;
+      return `Swap weakest +${gain} PW`;
+    }
+
+    return 'No power gain';
   }
 
   removeWeakest(): void {
@@ -223,6 +254,16 @@ export class SquadComponent {
     }
 
     this.game.removeFromSquad(weakest.id);
+  }
+
+  replaceRecommended(): void {
+    const candidate = this.recommendedCandidate();
+    const weakest = this.weakestMember();
+    if (!candidate || !weakest || this.power(candidate) <= this.power(weakest)) {
+      return;
+    }
+
+    this.game.replaceSquadMember(weakest.id, candidate.id);
   }
 
   formatModifier(value: number): string {

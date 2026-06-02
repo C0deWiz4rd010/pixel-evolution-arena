@@ -126,8 +126,8 @@
 
 .squad-slot {
   position: relative;
-  grid-template-rows: auto minmax(124px, 1fr) auto auto auto auto;
-  min-height: 364px;
+  grid-template-rows: auto minmax(92px, 1fr) auto auto auto auto;
+  min-height: 264px;
   overflow: hidden;
   border-color: currentColor;
   background:
@@ -176,7 +176,7 @@
 .empty-node {
   display: grid;
   width: 100%;
-  min-height: 142px;
+  min-height: 104px;
   place-items: center;
   border-color: currentColor;
   background:
@@ -187,8 +187,8 @@
 }
 
 .squad-sprite {
-  width: 136px;
-  height: 136px;
+  width: 96px;
+  height: 96px;
   filter: drop-shadow(0 0 12px currentColor) saturate(1.2);
 }
 
@@ -258,7 +258,8 @@
 
 .slot-actions button,
 .slot-quick-add,
-.next-command button {
+.next-command button,
+.swap-action {
   min-height: 34px;
   font-size: 0.68rem;
 }
@@ -283,7 +284,8 @@
 }
 
 .slot-quick-add,
-.next-command button {
+.next-command button,
+.swap-action {
   color: var(--success);
 }
 
@@ -314,6 +316,11 @@
 
 .candidate-card.recommended {
   box-shadow: 0 0 0 1px currentColor, 0 0 18px color-mix(in srgb, currentColor 28%, transparent);
+}
+
+.candidate-card.swap-ready {
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .candidate-card.recommended::after {
@@ -527,12 +534,12 @@
   }
 
   .squad-slot {
-    min-height: 326px;
+    min-height: 248px;
   }
 
   .squad-sprite {
-    width: 118px;
-    height: 118px;
+    width: 104px;
+    height: 104px;
   }
 
   .candidate-row {

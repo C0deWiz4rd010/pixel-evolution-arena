@@ -60,3 +60,10 @@ Use this checklist during Angular implementation.
 - Phase 7 (Collection planning) shipped: chase pinning with HUD chip, filter presets (Ready Soon, Item-Gated, Special Route, Reachable), name/ID search, stage-completion bonus (+200 coins, +10 DNA).
 - Phase 8 (initial polish): optional `AudioService` toggle (Handbook), reward cues for win/loss/evolve/item/level-up, scrollbar restyled to match the HUD blueprint, monster-card hover-jump and name-clipping fixed.
 - Save format migrated through v1→v5 with in-place upgrades preserving existing progress.
+
+2026-06-02:
+
+- `npm.cmd run test -- --run` passed (64 tests / 11 files).
+- `npm.cmd run build` passed with existing budget warnings only: initial bundle 502.56 kB vs 500 kB warning, Arena SCSS 19.69 kB vs 14 kB warning.
+- `npm.cmd run test:e2e` passed (7 Playwright smoke tests).
+- Phase 10 improvements shipped: global Next Command guidance in shell/HUD, Arena Tactic Coach, direct Collection `Evolve Now` for ready chase targets, full-squad reserve swapping when a stronger candidate is available, ASCII cleanup for touched runtime UI strings, and smoke coverage for the new flows.
