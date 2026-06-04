@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { StatsCodexComponent } from '../stats-codex/stats-codex.component';
 
 interface ManualRule {
   code: string;
@@ -30,6 +31,7 @@ const STAGE_GLYPHS: Record<MonsterStage, string> = {
 
 @Component({
   selector: 'app-handbook',
+  imports: [StatsCodexComponent],
   templateUrl: './handbook.component.html',
   styleUrl: './handbook.component.scss',
 })

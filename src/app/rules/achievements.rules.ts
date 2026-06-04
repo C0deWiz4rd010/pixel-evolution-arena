@@ -10,6 +10,8 @@ export interface AchievementMetrics {
   itemsUsed: number;
   flawlessWins: number;
   gauntletBestWave: number;
+  prismaticCount: number;
+  bossesDefeated: number;
 }
 
 export interface AchievementProgress {

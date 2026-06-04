@@ -22,11 +22,17 @@
       @case ('Squad') {
         <app-squad />
       }
+      @case ('Forge') {
+        <app-forge />
+      }
       @case ('Arena') {
         <app-arena />
       }
       @case ('Collection') {
         <app-collection />
+      }
+      @case ('Campaign') {
+        <app-campaign />
       }
       @case ('Medals') {
         <app-medals />
@@ -34,13 +40,17 @@
       @case ('Handbook') {
         <app-handbook />
       }
+      @case ('Settings') {
+        <app-settings />
+      }
     }
   </section>
 
   <footer class="hotkey-hint" aria-label="Keyboard shortcuts">
-    <span><kbd>1</kbd>-<kbd>6</kbd> Tabs</span>
+    <span><kbd>1</kbd>-<kbd>9</kbd> Tabs</span>
     <span><kbd>Space</kbd> Start Battle</span>
   </footer>
 </main>
 
+<app-onboarding (navigate)="setActiveTab($event)" />
 <app-toast-stack />

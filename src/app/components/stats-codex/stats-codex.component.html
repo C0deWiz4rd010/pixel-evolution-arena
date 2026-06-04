@@ -1,0 +1,74 @@
+<section class="codex" aria-label="Statistics and Codex">
+  <article class="codex-card">
+    <h3>Lifetime Stats</h3>
+    <div class="stat-grid">
+      @for (stat of lifetimeStats(); track stat.label) {
+        <div class="stat-cell">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="codex-card">
+    <h3>Type Matchup Chart</h3>
+    <p class="codex-hint">Rows attack columns. ▲ strong · ▼ weak · · neutral.</p>
+    <div class="type-chart-scroll">
+      <table class="type-chart">
+        <thead>
+          <tr>
+            <th class="corner">ATK \ DEF</th>
+            @for (type of types; track type) {
+              <th>{{ typeCode(type) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of typeChart(); track row.attacker) {
+            <tr>
+              <th class="row-head">{{ typeCode(row.attacker) }}</th>
+              @for (cell of row.cells; track cell.defender) {
+                <td class="chart-cell {{ cellClass(cell.value) }}">{{ cellGlyph(cell.value) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="codex-card">
+    <h3>Status Glossary</h3>
+    <div class="glossary-list">
+      @for (status of statusGlossary; track status.id) {
+        <div class="glossary-row kind-{{ status.kind }}">
+          <span class="glossary-icon">{{ status.icon }}</span>
+          <div>
+            <strong>{{ status.label }} <em>{{ status.kind }}</em></strong>
+            <small>{{ status.detail }} ({{ status.duration }} rounds)</small>
+          </div>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="codex-card">
+    <h3>Bestiary <small>{{ bestiaryCount().found }}/{{ bestiaryCount().total }} discovered</small></h3>
+    <div class="bestiary-grid">
+      @for (entry of bestiary(); track entry.id) {
+        <div class="bestiary-cell" [class.undiscovered]="!entry.discovered">
+          <div class="bestiary-art">
+            @if (entry.spriteUrl) {
+              <img [src]="entry.spriteUrl" [alt]="entry.discovered ? entry.name : 'Undiscovered'" loading="lazy" />
+            } @else {
+              <span>{{ entry.icon }}</span>
+            }
+          </div>
+          <strong>{{ entry.discovered ? entry.name : '???' }}</strong>
+          <small>{{ entry.discovered ? entry.type : 'Unknown' }}</small>
+        </div>
+      }
+    </div>
+  </article>
+</section>

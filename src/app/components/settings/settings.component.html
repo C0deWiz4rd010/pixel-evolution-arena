@@ -1,0 +1,94 @@
+<section class="settings-view" aria-label="Settings">
+  <header class="settings-head">
+    <div>
+      <span>System // Configuration</span>
+      <h2>Settings</h2>
+      <p>Audio, accessibility, and local save management. Everything stays on this device.</p>
+    </div>
+    <div class="save-state-chip">
+      <span>Save</span>
+      <strong>{{ game.saveStatusLabel() }}</strong>
+      <small>{{ game.lastSavedLabel() }}</small>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <article class="settings-card">
+      <h3>Audio</h3>
+      <label class="toggle-row">
+        <span>Sound effects</span>
+        <button type="button" class="pill" [class.on]="audio.enabled()" (click)="toggleAudio()">
+          {{ audio.enabled() ? 'ON' : 'OFF' }}
+        </button>
+      </label>
+      <label class="toggle-row">
+        <span>Background music</span>
+        <button type="button" class="pill" [class.on]="audio.musicEnabled()" (click)="toggleMusic()">
+          {{ audio.musicEnabled() ? 'ON' : 'OFF' }}
+        </button>
+      </label>
+      <label class="slider-row">
+        <span>Master volume <strong>{{ volumePercent() }}%</strong></span>
+        <input type="range" min="0" max="100" [value]="volumePercent()" (input)="onVolumeInput($event)" aria-label="Master volume" />
+      </label>
+    </article>
+
+    <article class="settings-card">
+      <h3>Accessibility &amp; Motion</h3>
+      <label class="toggle-row">
+        <span>Colorblind-safe type glyphs</span>
+        <button type="button" class="pill" [class.on]="settings().colorblindMode" (click)="toggleColorblind()">
+          {{ settings().colorblindMode ? 'ON' : 'OFF' }}
+        </button>
+      </label>
+      <label class="slider-row">
+        <span>Effect intensity <strong>{{ intensityPercent() }}%</strong></span>
+        <input type="range" min="0" max="100" [value]="intensityPercent()" (input)="onIntensityInput($event)" aria-label="Effect intensity" />
+      </label>
+      <p class="hint">Reduced-motion from your OS still fully disables animation regardless of this slider.</p>
+    </article>
+
+    <article class="settings-card">
+      <h3>Save Export</h3>
+      <p class="hint">Generate a portable code of your current progress.</p>
+      <div class="btn-row">
+        <button type="button" (click)="generateExport()">Generate Code</button>
+        <button type="button" (click)="copyExport()">{{ copied() ? 'Copied!' : 'Copy' }}</button>
+      </div>
+      @if (exportCode()) {
+        <textarea class="code-box" readonly rows="3" [value]="exportCode()"></textarea>
+      }
+    </article>
+
+    <article class="settings-card">
+      <h3>Save Import</h3>
+      <p class="hint">Paste a code to restore progress. This overwrites your current run.</p>
+      <textarea
+        class="code-box"
+        rows="3"
+        placeholder="Paste save code here"
+        [value]="importCode()"
+        (input)="importCode.set($any($event.target).value)"
+      ></textarea>
+      <div class="btn-row">
+        <button type="button" [disabled]="!importCode().trim()" (click)="applyImport()">Import Save</button>
+      </div>
+    </article>
+
+    <article class="settings-card danger">
+      <h3>Reset Run</h3>
+      <p class="hint">Restore the starter squad and wipe all local progress.</p>
+      @if (!confirmingReset()) {
+        <button type="button" class="danger-btn" [disabled]="!game.hasProgressToReset()" (click)="requestReset()">Reset Progress</button>
+      } @else {
+        <div class="confirm-row">
+          <span>Are you sure? This cannot be undone.</span>
+          <div class="btn-row">
+            <button type="button" class="danger-btn" (click)="confirmReset()">Yes, reset</button>
+            <button type="button" (click)="cancelReset()">Cancel</button>
+          </div>
+        </div>
+      }
+    </article>
+  </div>
+</section>

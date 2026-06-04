@@ -5,7 +5,7 @@ import { GameStateService } from '../../services/game-state.service';
 
 type StatusFilter = 'All' | 'Unlocked' | 'Locked';
 type RequirementStatusView = ReturnType<GameStateService['getRequirementStatuses']>[number];
-type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable';
+type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable' | 'prismatic';
 
 interface FilterPresetView {
   id: FilterPresetId;
@@ -80,6 +80,7 @@ export class CollectionComponent {
     { id: 'item-gated', label: 'Item-Gated', detail: 'Locked targets that need an item from your inventory.' },
     { id: 'special-route', label: 'Special Route', detail: 'Targets on the Special stage (branch routes).' },
     { id: 'reachable', label: 'Reachable Now', detail: 'Locked targets you can evolve into right away.' },
+    { id: 'prismatic', label: 'Prismatic', detail: 'Only prismatic (shiny) variants you have discovered.' },
   ];
 
   readonly readinessIndex = computed(() => {
@@ -146,6 +147,10 @@ export class CollectionComponent {
           }
         } else if (preset === 'reachable') {
           if (monster.unlocked || !info?.ready) {
+            return false;
+          }
+        } else if (preset === 'prismatic') {
+          if (!monster.prismatic) {
             return false;
           }
         }

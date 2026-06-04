@@ -3,7 +3,8 @@ import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
-import { CombatStats, PlayerState, SquadPreset } from '../models/player-state.model';
+import { CombatStats, DEFAULT_SETTINGS, PlayerSettings, PlayerState, SquadPreset } from '../models/player-state.model';
+import { GearInstance } from '../models/gear.model';
 import { serializeMonsterProgress } from '../models/save-state.model';
 import {
   ArenaThreatProfile,
@@ -43,6 +44,13 @@ import {
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
 import { evaluateTypePressure } from '../rules/type-matchup.rules';
 import { applyXpToSquad } from '../rules/xp.rules';
+import { GEAR_DEFS } from '../data/gear.data';
+import { GearSlot } from '../models/gear.model';
+import { applyGearToMonster, canAfford, forgeCost, getGearDef, getGearInstance, gearInstanceBonus, clampTier } from '../rules/gear.rules';
+import { BOSSES, BossDef, getBossForBattle } from '../data/bosses.data';
+import { CAMPAIGN_CHAPTERS, CampaignChapter } from '../data/campaign.data';
+import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapter } from '../rules/campaign.rules';
+import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -95,6 +103,13 @@ const STARTER_PLAYER_STATE: PlayerState = {
   claimedAchievements: [],
   combatStats: { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 },
   dailyDirective: null,
+  ownedGear: [],
+  gearLoadout: {},
+  defeatedBosses: [],
+  claimedChapters: [],
+  encounteredEnemies: [],
+  tutorialDone: false,
+  settings: { ...DEFAULT_SETTINGS },
 };
 
 const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 };
@@ -165,6 +180,8 @@ export class GameStateService {
       itemsUsed: player.combatStats.itemsUsed,
       flawlessWins: player.combatStats.flawlessWins,
       gauntletBestWave: player.combatStats.gauntletBestWave,
+      prismaticCount: this.monsters().filter((monster) => monster.prismatic).length,
+      bossesDefeated: player.defeatedBosses.length,
     };
   });
   readonly achievementProgress = computed(() => evaluateAchievements(this.achievementMetrics(), this.player().claimedAchievements));
@@ -199,7 +216,13 @@ export class GameStateService {
 
   readonly squad = computed(() => this.player().squadIds.map((id) => this.getMonsterById(id)).filter((monster): monster is Monster => Boolean(monster)));
 
-  readonly teamPower = computed(() => this.squad().reduce((total, monster) => total + getMonsterPower(monster), 0));
+  /** Squad with gear + prismatic bonuses folded in — used for battle and power. */
+  readonly effectiveSquad = computed(() => {
+    const player = this.player();
+    return this.squad().map((monster) => applyGearToMonster(monster, player.gearLoadout, player.ownedGear));
+  });
+
+  readonly teamPower = computed(() => this.effectiveSquad().reduce((total, monster) => total + getMonsterPower(monster), 0));
 
   readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
 
@@ -275,6 +298,49 @@ export class GameStateService {
     }
     return `x${streak}`;
   });
+
+  // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
+  readonly gearDefs = GEAR_DEFS;
+  readonly bosses = BOSSES;
+  readonly campaignChapters = CAMPAIGN_CHAPTERS;
+
+  readonly settings = computed(() => this.player().settings);
+
+  /** Named boss for the upcoming run, if it is a Boss Surge battle. */
+  readonly activeBoss = computed<BossDef | null>(() =>
+    this.upcomingArenaThreat().id === 'boss' ? getBossForBattle(this.player().battlesFought + 1) : null,
+  );
+
+  readonly bossCodex = computed(() =>
+    BOSSES.map((boss) => ({ boss, defeated: this.player().defeatedBosses.includes(boss.id) })),
+  );
+
+  readonly campaignMetrics = computed<CampaignMetrics>(() => {
+    const player = this.player();
+    return {
+      battlesWon: player.battlesWon,
+      unlockedCount: this.unlockedCount(),
+      bestWinStreak: player.bestWinStreak,
+      flawlessWins: player.combatStats.flawlessWins,
+      defeatedBosses: player.defeatedBosses.length,
+      stageMilestones: player.claimedStageMilestones.length,
+      gauntletBestWave: player.combatStats.gauntletBestWave,
+    };
+  });
+
+  readonly campaignProgress = computed<ChapterProgress[]>(() => evaluateCampaign(this.campaignMetrics(), this.player().claimedChapters));
+  readonly claimableChapter = computed(() => findClaimableChapter(this.campaignMetrics(), this.player().claimedChapters));
+
+  /** Owned gear with resolved definition + tier bonus, for the Forge UI. */
+  readonly ownedGearDetailed = computed(() =>
+    this.player().ownedGear.map((instance) => ({
+      instance,
+      def: getGearDef(instance.defId)!,
+      bonus: gearInstanceBonus(instance),
+    })).filter((entry) => entry.def),
+  );
+
+  readonly prismaticCount = computed(() => this.monsters().filter((monster) => monster.prismatic).length);
 
   readonly pinnedChaseId = computed(() => this.player().pinnedChaseId);
   readonly pinnedChase = computed(() => {
@@ -438,11 +504,13 @@ export class GameStateService {
       this.lastReward.set(savedState.lastReward ? { ...savedState.lastReward } : null);
       this.lastBattleThreat.set(savedState.lastBattleThreat ? { ...savedState.lastBattleThreat } : null);
       this.audio.setEnabled(this.player().audioEnabled);
+      this.audio.setMasterVolume(this.player().settings.masterVolume);
       this.ensureDailyDirectiveState();
       return;
     }
 
     this.audio.setEnabled(this.player().audioEnabled);
+    this.audio.setMasterVolume(this.player().settings.masterVolume);
     this.ensureDailyDirectiveState();
     this.persistState();
   }
@@ -693,6 +761,225 @@ export class GameStateService {
     this.persistState();
   }
 
+  // --- Prismatic variants (shiny system) ---
+  private readonly PRISMATIC_WIN_CHANCE = 0.04;
+
+  private rollPrismaticVariant(): void {
+    if (Math.random() > this.PRISMATIC_WIN_CHANCE) {
+      return;
+    }
+    const eligible = this.squad().filter((monster) => monster.unlocked && !monster.prismatic);
+    if (eligible.length === 0) {
+      return;
+    }
+    const chosen = this.randomFrom(eligible);
+    this.monsters.update((monsters) => monsters.map((monster) => (monster.id === chosen.id ? { ...monster, prismatic: true } : monster)));
+    this.prependLog(`Prismatic surge! ${chosen.name} turned prismatic (+8% stats).`, 'reward');
+    this.audio.play('evolve');
+    this.toast.push({
+      title: 'Prismatic Variant',
+      message: `${chosen.name} is now prismatic — a rare shimmer and a permanent stat boost.`,
+      tone: 'evolution',
+      icon: '✦',
+      durationMs: 5200,
+    });
+    this.checkAchievements();
+  }
+
+  // --- Gear / Forge ---
+  getEffectiveMonster(monster: Monster): Monster {
+    const player = this.player();
+    return applyGearToMonster(monster, player.gearLoadout, player.ownedGear);
+  }
+
+  getEquippedGear(monsterId: string, slot: GearSlot) {
+    const instanceId = this.player().gearLoadout[monsterId]?.[slot];
+    const instance = getGearInstance(this.player().ownedGear, instanceId);
+    if (!instance) {
+      return null;
+    }
+    return { instance, def: getGearDef(instance.defId)!, bonus: gearInstanceBonus(instance) };
+  }
+
+  forgeGear(defId: string): void {
+    const def = getGearDef(defId);
+    if (!def) {
+      return;
+    }
+    const cost = forgeCost(def, 0);
+    if (!canAfford(cost, this.player().coins, this.player().dnaShards)) {
+      this.toast.push({ title: 'Forge Blocked', message: `${def.name} needs ${cost.coins} CR + ${cost.dnaShards} DNA.`, tone: 'warn', icon: '!', durationMs: 3200 });
+      return;
+    }
+    const instance = { instanceId: `gear-${Date.now()}-${Math.floor(Math.random() * 1000)}`, defId, tier: 1 };
+    this.player.update((player) => ({
+      ...player,
+      coins: player.coins - cost.coins,
+      dnaShards: player.dnaShards - cost.dnaShards,
+      ownedGear: [...player.ownedGear, instance],
+    }));
+    this.audio.play('forge');
+    this.toast.push({ title: 'Gear Forged', message: `${def.name} (T1) added to your gear locker.`, tone: 'info', icon: def.icon, durationMs: 3400 });
+    this.persistState();
+  }
+
+  upgradeGear(instanceId: string): void {
+    const instance = getGearInstance(this.player().ownedGear, instanceId);
+    const def = instance ? getGearDef(instance.defId) : null;
+    if (!instance || !def) {
+      return;
+    }
+    if (instance.tier >= 5) {
+      this.toast.push({ title: 'Max Tier', message: `${def.name} is already at the maximum tier.`, tone: 'warn', icon: '!', durationMs: 2800 });
+      return;
+    }
+    const cost = forgeCost(def, instance.tier);
+    if (!canAfford(cost, this.player().coins, this.player().dnaShards)) {
+      this.toast.push({ title: 'Upgrade Blocked', message: `Needs ${cost.coins} CR + ${cost.dnaShards} DNA.`, tone: 'warn', icon: '!', durationMs: 3200 });
+      return;
+    }
+    this.player.update((player) => ({
+      ...player,
+      coins: player.coins - cost.coins,
+      dnaShards: player.dnaShards - cost.dnaShards,
+      ownedGear: player.ownedGear.map((entry) => (entry.instanceId === instanceId ? { ...entry, tier: clampTier(entry.tier + 1) } : entry)),
+    }));
+    this.audio.play('forge');
+    this.toast.push({ title: 'Gear Upgraded', message: `${def.name} reached tier ${instance.tier + 1}.`, tone: 'reward', icon: def.icon, durationMs: 3200 });
+    this.persistState();
+  }
+
+  equipGear(monsterId: string, instanceId: string): void {
+    const instance = getGearInstance(this.player().ownedGear, instanceId);
+    const def = instance ? getGearDef(instance.defId) : null;
+    if (!instance || !def) {
+      return;
+    }
+    this.player.update((player) => {
+      const loadout = cloneGearLoadout(player.gearLoadout);
+      // An instance can only be equipped in one place — remove it elsewhere.
+      for (const slots of Object.values(loadout)) {
+        for (const slot of Object.keys(slots) as GearSlot[]) {
+          if (slots[slot] === instanceId) {
+            delete slots[slot];
+          }
+        }
+      }
+      loadout[monsterId] = { ...(loadout[monsterId] ?? {}), [def.slot]: instanceId };
+      return { ...player, gearLoadout: loadout };
+    });
+    this.persistState();
+  }
+
+  unequipGear(monsterId: string, slot: GearSlot): void {
+    this.player.update((player) => {
+      const loadout = cloneGearLoadout(player.gearLoadout);
+      if (loadout[monsterId]) {
+        delete loadout[monsterId][slot];
+      }
+      return { ...player, gearLoadout: loadout };
+    });
+    this.persistState();
+  }
+
+  // --- Settings + accessibility ---
+  setMasterVolume(value: number): void {
+    const clamped = Math.max(0, Math.min(1, value));
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, masterVolume: clamped } }));
+    this.audio.setMasterVolume(clamped);
+    this.persistState();
+  }
+
+  toggleColorblindMode(): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, colorblindMode: !player.settings.colorblindMode } }));
+    this.persistState();
+  }
+
+  setEffectIntensity(value: number): void {
+    const clamped = Math.max(0, Math.min(1, value));
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, effectIntensity: clamped } }));
+    this.persistState();
+  }
+
+  toggleMusic(): boolean {
+    return this.audio.toggleMusic();
+  }
+
+  // --- Campaign ---
+  claimChapter(chapterId: string): void {
+    const claimable = this.claimableChapter();
+    if (!claimable || claimable.id !== chapterId) {
+      return;
+    }
+    const chapter: CampaignChapter = claimable;
+    const forgedGear = chapter.reward.gearDefId
+      ? { instanceId: `gear-${Date.now()}-${Math.floor(Math.random() * 1000)}`, defId: chapter.reward.gearDefId, tier: 1 }
+      : null;
+    this.player.update((player) => ({
+      ...player,
+      coins: player.coins + chapter.reward.coins,
+      dnaShards: player.dnaShards + chapter.reward.dnaShards,
+      claimedChapters: [...player.claimedChapters, chapter.id],
+      ownedGear: forgedGear ? [...player.ownedGear, forgedGear] : player.ownedGear,
+    }));
+    this.prependLog(`${chapter.title} cleared: ${chapter.reward.lore}`, 'reward');
+    this.audio.play('level-up');
+    this.toast.push({
+      title: 'Chapter Cleared',
+      message: `${chapter.title} — +${chapter.reward.coins} CR, +${chapter.reward.dnaShards} DNA${forgedGear ? ' + gear' : ''}.`,
+      tone: 'reward',
+      icon: '▣',
+      durationMs: 4800,
+    });
+    this.persistState();
+  }
+
+  // --- Onboarding ---
+  completeTutorial(): void {
+    if (this.player().tutorialDone) {
+      return;
+    }
+    this.player.update((player) => ({ ...player, tutorialDone: true }));
+    this.persistState();
+  }
+
+  // --- Save export / import ---
+  exportSave(): string {
+    const snapshot: SaveStateSnapshot = {
+      player: clonePlayerState(this.player()),
+      monsters: this.monsters().map((monster) => serializeMonsterProgress(monster)),
+      battleLogs: cloneBattleLogs(this.battleLogs()),
+      lastReward: this.lastReward() ? { ...this.lastReward()! } : null,
+      lastBattleThreat: this.lastBattleThreat() ? { ...this.lastBattleThreat()! } : null,
+      saveVersion: SAVE_STATE_VERSION,
+      savedAt: new Date().toISOString(),
+    };
+    return base64Encode(JSON.stringify(snapshot));
+  }
+
+  importSave(code: string): boolean {
+    try {
+      const parsed = JSON.parse(base64Decode(code.trim())) as Partial<SaveStateSnapshot>;
+      if (!parsed || typeof parsed !== 'object' || !parsed.player || !Array.isArray(parsed.monsters)) {
+        return false;
+      }
+      this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), parsed.monsters));
+      this.player.set(sanitizePlayerState(parsed.player as PlayerState));
+      this.battleLogs.set(Array.isArray(parsed.battleLogs) && parsed.battleLogs.length ? cloneBattleLogs(parsed.battleLogs) : createStarterBattleLogs());
+      this.lastReward.set(parsed.lastReward ? { ...parsed.lastReward } : null);
+      this.lastBattleThreat.set(parsed.lastBattleThreat ? { ...parsed.lastBattleThreat } : null);
+      this.audio.setEnabled(this.player().audioEnabled);
+      this.audio.setMasterVolume(this.player().settings.masterVolume);
+      this.ensureDailyDirectiveState();
+      this.persistState();
+      this.toast.push({ title: 'Save Imported', message: 'Progress restored from your code.', tone: 'success', icon: 'IN', durationMs: 3600 });
+      return true;
+    } catch {
+      this.toast.push({ title: 'Import Failed', message: 'That save code could not be read.', tone: 'warn', icon: '!', durationMs: 3600 });
+      return false;
+    }
+  }
+
   getEvolutionTargets(monster: Monster): Monster[] {
     return monster.evolutionTargets.map((targetId) => this.getMonsterById(targetId)).filter((target): target is Monster => Boolean(target));
   }
@@ -794,7 +1081,7 @@ export class GameStateService {
     const isGauntlet = this.battleMode() === 'gauntlet';
     const gauntletStartWave = this.gauntletWave();
     const sim = simulateBattle({
-      squad,
+      squad: this.effectiveSquad(),
       enemies: this.enemies,
       playerModifier: this.squadBattleModifier(),
       enemyModifier: this.enemyBattleModifier(),
@@ -902,10 +1189,27 @@ export class GameStateService {
       dailyClaimedNow = true;
     }
 
+    // Boss encounter: named boss on every fifth (Boss Surge) battle.
+    const isBoss = threat.id === 'boss';
+    const activeBoss = isBoss ? getBossForBattle(currentPlayer.battlesFought + 1) : null;
+    const bossNewlyDefeated = activeBoss && sim.won && !currentPlayer.defeatedBosses.includes(activeBoss.id) ? activeBoss : null;
+
+    // Fast-clear (flawless) boss kills pay a bonus.
+    let bossBonusCoins = 0;
+    let bossBonusDna = 0;
+    if (activeBoss && sim.won) {
+      const multiplier = sim.flawless ? activeBoss.fastClearBonus : 1;
+      bossBonusCoins = Math.round(activeBoss.reward.coins * multiplier);
+      bossBonusDna = Math.round(activeBoss.reward.dnaShards * multiplier);
+    }
+
+    // Bestiary: record every enemy seen this run.
+    const encounteredAfter = Array.from(new Set([...currentPlayer.encounteredEnemies, ...this.enemies.map((enemy) => enemy.id ?? enemy.name)]));
+
     this.player.update((player) => ({
       ...player,
-      coins: player.coins + reward.coins + dailyBonusCoins,
-      dnaShards: player.dnaShards + reward.dnaShards + dailyBonusDna,
+      coins: player.coins + reward.coins + dailyBonusCoins + bossBonusCoins,
+      dnaShards: player.dnaShards + reward.dnaShards + dailyBonusDna + bossBonusDna,
       battlesFought: player.battlesFought + 1,
       battlesWon: nextBattlesWon,
       inventory: item ? [...inventoryAfter, item] : inventoryAfter,
@@ -916,7 +1220,26 @@ export class GameStateService {
       overdriveCharge,
       combatStats,
       dailyDirective: daily,
+      defeatedBosses: bossNewlyDefeated ? [...player.defeatedBosses, bossNewlyDefeated.id] : player.defeatedBosses,
+      encounteredEnemies: encounteredAfter,
     }));
+
+    // Prismatic (shiny) variant chance on a win: upgrade a random eligible squad member.
+    if (sim.won) {
+      this.rollPrismaticVariant();
+    }
+
+    if (bossNewlyDefeated) {
+      this.prependLog(`Boss defeated: ${bossNewlyDefeated.name} added to the Boss Codex.`, 'reward');
+      this.audio.play('boss');
+      this.toast.push({
+        title: 'Boss Down',
+        message: `${bossNewlyDefeated.name} — Codex updated. +${bossBonusCoins} CR, +${bossBonusDna} DNA.`,
+        tone: 'reward',
+        icon: bossNewlyDefeated.icon,
+        durationMs: 4600,
+      });
+    }
 
     this.overdriveArmed.set(false);
     this.equippedConsumables.set([]);
@@ -1228,7 +1551,22 @@ function clonePlayerState(player: PlayerState): PlayerState {
     claimedAchievements: [...player.claimedAchievements],
     combatStats: { ...player.combatStats },
     dailyDirective: player.dailyDirective ? { ...player.dailyDirective } : null,
+    ownedGear: player.ownedGear.map((entry) => ({ ...entry })),
+    gearLoadout: cloneGearLoadout(player.gearLoadout),
+    defeatedBosses: [...player.defeatedBosses],
+    claimedChapters: [...player.claimedChapters],
+    encounteredEnemies: [...player.encounteredEnemies],
+    tutorialDone: player.tutorialDone,
+    settings: { ...player.settings },
   };
+}
+
+function cloneGearLoadout(loadout: PlayerState['gearLoadout']): PlayerState['gearLoadout'] {
+  const result: PlayerState['gearLoadout'] = {};
+  for (const [monsterId, slots] of Object.entries(loadout)) {
+    result[monsterId] = { ...slots };
+  }
+  return result;
 }
 
 function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
@@ -1265,7 +1603,29 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     claimedAchievements: Array.isArray(player.claimedAchievements) ? [...player.claimedAchievements] : [],
     combatStats: { ...STARTER_COMBAT_STATS, ...(player.combatStats ?? {}) },
     dailyDirective: player.dailyDirective ?? null,
+    ownedGear: Array.isArray(player.ownedGear) ? player.ownedGear.map((entry) => ({ ...entry })) : [],
+    gearLoadout: player.gearLoadout ? cloneGearLoadout(player.gearLoadout) : {},
+    defeatedBosses: Array.isArray(player.defeatedBosses) ? [...player.defeatedBosses] : [],
+    claimedChapters: Array.isArray(player.claimedChapters) ? [...player.claimedChapters] : [],
+    encounteredEnemies: Array.isArray(player.encounteredEnemies) ? [...player.encounteredEnemies] : [],
+    tutorialDone: player.tutorialDone === true,
+    settings: sanitizeSettings(player.settings),
   };
+}
+
+function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings {
+  if (!settings) {
+    return { ...DEFAULT_SETTINGS };
+  }
+  return {
+    masterVolume: clampUnit(settings.masterVolume ?? DEFAULT_SETTINGS.masterVolume),
+    colorblindMode: settings.colorblindMode === true,
+    effectIntensity: clampUnit(settings.effectIntensity ?? 1),
+  };
+}
+
+function clampUnit(value: number): number {
+  return Math.max(0, Math.min(1, value));
 }
 
 function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
@@ -1329,6 +1689,24 @@ function rarityWeight(rarity: MonsterRarity): number {
   };
 
   return weights[rarity];
+}
+
+function base64Encode(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+function base64Decode(value: string): string {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 function formatSaveTimestamp(savedAt: string | null): string {

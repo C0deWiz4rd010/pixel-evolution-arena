@@ -12,7 +12,9 @@ export type AchievementMetric =
   | 'overdrivesUsed'
   | 'itemsUsed'
   | 'flawlessWins'
-  | 'gauntletBestWave';
+  | 'gauntletBestWave'
+  | 'prismaticCount'
+  | 'bossesDefeated';
 
 export interface AchievementDef {
   id: string;
@@ -38,4 +40,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'tactician', label: 'Field Tactician', detail: 'Setze 10 Kampf-Items ein.', icon: '◆', metric: 'itemsUsed', goal: 10, reward: { coins: 220, dnaShards: 7 } },
   { id: 'flawless-10', label: 'Untouchable', detail: 'Gewinne 10 Kämpfe makellos (ohne Verlust).', icon: '❖', metric: 'flawlessWins', goal: 10, reward: { coins: 360, dnaShards: 11 } },
   { id: 'gauntlet-10', label: 'Gauntlet Diver', detail: 'Erreiche Welle 10 im Endlos-Gauntlet.', icon: '∞', metric: 'gauntletBestWave', goal: 10, reward: { coins: 500, dnaShards: 16 } },
+  { id: 'prismatic-1', label: 'Prismatic Spark', detail: 'Entdecke deine erste prismatische Variante.', icon: '✦', metric: 'prismaticCount', goal: 1, reward: { coins: 300, dnaShards: 12 } },
+  { id: 'prismatic-3', label: 'Spectrum Hunter', detail: 'Besitze 3 prismatische Varianten.', icon: '✦', metric: 'prismaticCount', goal: 3, reward: { coins: 700, dnaShards: 24 } },
+  { id: 'boss-1', label: 'Crown Breaker', detail: 'Besiege deinen ersten benannten Boss.', icon: '♛', metric: 'bossesDefeated', goal: 1, reward: { coins: 360, dnaShards: 12 } },
+  { id: 'boss-all', label: 'Loop Warden', detail: 'Besiege alle benannten Bosse.', icon: '♛', metric: 'bossesDefeated', goal: 3, reward: { coins: 900, dnaShards: 30 } },
 ];

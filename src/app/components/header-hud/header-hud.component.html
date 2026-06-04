@@ -11,17 +11,17 @@
     <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
       <span class="stat-icon">CR</span>
       <span class="stat-label">Coins</span>
-      <strong>{{ game.player().coins }}</strong>
+      <strong [appCountUp]="game.player().coins"></strong>
     </div>
     <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
       <span class="stat-icon">DN</span>
       <span class="stat-label">DNA Shards</span>
-      <strong>{{ game.player().dnaShards }}</strong>
+      <strong [appCountUp]="game.player().dnaShards"></strong>
     </div>
     <div class="stat-chip power" [class.stat-pulse]="pulseFor('power')()">
       <span class="stat-icon">PW</span>
       <span class="stat-label">Team Power</span>
-      <strong>{{ game.teamPower() }}</strong>
+      <strong [appCountUp]="game.teamPower()"></strong>
     </div>
     <div class="stat-chip wins" [class.stat-pulse]="pulseFor('wins')()">
       <span class="stat-icon">WN</span>

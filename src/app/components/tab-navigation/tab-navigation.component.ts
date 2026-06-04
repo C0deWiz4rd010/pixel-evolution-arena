@@ -12,9 +12,12 @@ export class TabNavigationComponent {
   readonly tabs = [
     { label: 'Evolution Tree', icon: 'TREE', signal: 'Node map' },
     { label: 'Squad', icon: 'SQ', signal: '3 slots' },
+    { label: 'Forge', icon: 'FRG', signal: 'Gear' },
     { label: 'Arena', icon: 'VS', signal: 'Rewards' },
     { label: 'Collection', icon: 'DEX', signal: 'Filters' },
+    { label: 'Campaign', icon: 'CMP', signal: 'Chapters' },
     { label: 'Medals', icon: 'MDL', signal: 'Achievements' },
+    { label: 'Settings', icon: 'SET', signal: 'Audio/Save' },
   ];
 
   readonly handbookTab = { label: 'Handbook', icon: 'MAN', signal: 'Manual/Data' };

@@ -7,14 +7,37 @@ import { HandbookComponent } from './components/handbook/handbook.component';
 import { HeaderHudComponent } from './components/header-hud/header-hud.component';
 import { MedalsComponent } from './components/medals/medals.component';
 import { SquadComponent } from './components/squad/squad.component';
+import { ForgeComponent } from './components/forge/forge.component';
+import { CampaignComponent } from './components/campaign/campaign.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
 import { BattleAnimationService } from './services/battle-animation.service';
 import { GameStateService } from './services/game-state.service';
 
-type AppTab = 'Evolution Tree' | 'Squad' | 'Arena' | 'Collection' | 'Medals' | 'Handbook';
+type AppTab =
+  | 'Evolution Tree'
+  | 'Squad'
+  | 'Forge'
+  | 'Arena'
+  | 'Collection'
+  | 'Campaign'
+  | 'Medals'
+  | 'Handbook'
+  | 'Settings';
 
-const TAB_ORDER: AppTab[] = ['Evolution Tree', 'Squad', 'Arena', 'Collection', 'Medals', 'Handbook'];
+const TAB_ORDER: AppTab[] = [
+  'Evolution Tree',
+  'Squad',
+  'Forge',
+  'Arena',
+  'Collection',
+  'Campaign',
+  'Medals',
+  'Handbook',
+  'Settings',
+];
 
 @Component({
   selector: 'app-root',
@@ -24,10 +47,14 @@ const TAB_ORDER: AppTab[] = ['Evolution Tree', 'Squad', 'Arena', 'Collection', '
     TabNavigationComponent,
     EvolutionTreeComponent,
     SquadComponent,
+    ForgeComponent,
     ArenaComponent,
     CollectionComponent,
+    CampaignComponent,
     MedalsComponent,
     HandbookComponent,
+    SettingsComponent,
+    OnboardingComponent,
     ToastStackComponent,
   ],
   templateUrl: './app.component.html',
@@ -58,7 +85,7 @@ export class AppComponent {
       }
     }
 
-    if (event.key >= '1' && event.key <= '6') {
+    if (event.key >= '1' && event.key <= '9') {
       const index = Number.parseInt(event.key, 10) - 1;
       const tab = TAB_ORDER[index];
       if (tab) {

@@ -109,6 +109,7 @@ export class SaveStateService {
             defense: saved.defense,
             speed: saved.speed,
             hp: saved.hp,
+            prismatic: saved.prismatic === true,
           }
         : { ...monster, evolutionTargets: [...monster.evolutionTargets] };
     });
@@ -183,7 +184,47 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         : [],
       combatStats: sanitizeCombatStats(player.combatStats),
       dailyDirective: sanitizeDailyDirective(player.dailyDirective),
+      ownedGear: Array.isArray(player.ownedGear)
+        ? player.ownedGear
+            .filter((entry) => entry && typeof entry.instanceId === 'string' && typeof entry.defId === 'string')
+            .map((entry) => ({ instanceId: String(entry.instanceId), defId: String(entry.defId), tier: clamp(Number(entry.tier) || 1, 1, 5) }))
+        : [],
+      gearLoadout: sanitizeGearLoadout(player.gearLoadout),
+      defeatedBosses: Array.isArray(player.defeatedBosses) ? player.defeatedBosses.map((entry) => String(entry)) : [],
+      claimedChapters: Array.isArray(player.claimedChapters) ? player.claimedChapters.map((entry) => String(entry)) : [],
+      encounteredEnemies: Array.isArray(player.encounteredEnemies) ? player.encounteredEnemies.map((entry) => String(entry)) : [],
+      tutorialDone: player.tutorialDone === true,
+      settings: sanitizeSettings(player.settings),
     },
+  };
+}
+
+function sanitizeGearLoadout(value: unknown): SaveStateSnapshot['player']['gearLoadout'] {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+  const result: SaveStateSnapshot['player']['gearLoadout'] = {};
+  for (const [monsterId, slots] of Object.entries(value as Record<string, unknown>)) {
+    if (!slots || typeof slots !== 'object') {
+      continue;
+    }
+    const entry: Record<string, string> = {};
+    for (const [slot, instanceId] of Object.entries(slots as Record<string, unknown>)) {
+      if (typeof instanceId === 'string' && (slot === 'core' || slot === 'plate' || slot === 'drive' || slot === 'relic')) {
+        entry[slot] = instanceId;
+      }
+    }
+    result[monsterId] = entry;
+  }
+  return result;
+}
+
+function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings'] {
+  const candidate = (value ?? {}) as Partial<SaveStateSnapshot['player']['settings']>;
+  return {
+    masterVolume: typeof candidate.masterVolume === 'number' ? clamp(candidate.masterVolume, 0, 1) : 0.7,
+    colorblindMode: candidate.colorblindMode === true,
+    effectIntensity: typeof candidate.effectIntensity === 'number' ? clamp(candidate.effectIntensity, 0, 1) : 1,
   };
 }
 
