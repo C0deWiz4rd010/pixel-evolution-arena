@@ -1,11 +1,15 @@
 import { DailyDirectiveState } from '../rules/daily.rules';
 import { GearInstance, GearLoadout } from '../models/gear.model';
+import { ExpeditionState } from '../models/expedition.model';
 
 export interface SquadPreset {
   id: string;
   name: string;
   squadIds: string[];
 }
+
+export type AccentTheme = 'aurora' | 'ember' | 'mono';
+export type LanguageCode = 'en' | 'de';
 
 /** Player-tunable presentation + accessibility settings. */
 export interface PlayerSettings {
@@ -15,6 +19,12 @@ export interface PlayerSettings {
   colorblindMode: boolean;
   /** Scale decorative effect intensity 0..1 (1 = full). */
   effectIntensity: number;
+  /** UI accent palette. */
+  accentTheme: AccentTheme;
+  /** UI language. */
+  language: LanguageCode;
+  /** Enable the optional Active Combat Beat timing prompt. */
+  combatBeats: boolean;
 }
 
 /** Cumulative combat stats that feed medals. */
@@ -62,10 +72,17 @@ export interface PlayerState {
   tutorialDone: boolean;
   /** Presentation + accessibility settings. */
   settings: PlayerSettings;
+  /** Active Expedition run, or null when not in a run. */
+  expedition: ExpeditionState | null;
+  /** Meta-currency banked from Expedition clears. */
+  expeditionCores: number;
 }
 
 export const DEFAULT_SETTINGS: PlayerSettings = {
   masterVolume: 0.7,
   colorblindMode: false,
   effectIntensity: 1,
+  accentTheme: 'aurora',
+  language: 'en',
+  combatBeats: false,
 };

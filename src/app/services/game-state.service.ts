@@ -51,6 +51,12 @@ import { BOSSES, BossDef, getBossForBattle } from '../data/bosses.data';
 import { CAMPAIGN_CHAPTERS, CampaignChapter } from '../data/campaign.data';
 import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapter } from '../rules/campaign.rules';
 import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
+import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
+import { resolveMutator } from '../rules/mutators.rules';
+import { activeSquadTraits, squadTraitBonus } from '../rules/traits.rules';
+import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
+import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
+import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -110,6 +116,8 @@ const STARTER_PLAYER_STATE: PlayerState = {
   encounteredEnemies: [],
   tutorialDone: false,
   settings: { ...DEFAULT_SETTINGS },
+  expedition: null,
+  expeditionCores: 0,
 };
 
 const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 };
@@ -270,11 +278,25 @@ export class GameStateService {
 
   readonly enemyTypePressure = computed(() => evaluateTypePressure(this.activeEnemies().map((enemy) => enemy.type), this.squad().map((monster) => monster.type), true));
 
-  readonly squadBattleModifier = computed(() => calculateSquadBattleModifier(this.squadSynergies(), this.squadTypePressure().modifier));
+  // --- Signature traits + battlefield mutators (additive, neutral by default) ---
+  readonly activeMutator = computed<MutatorDef>(() => getMutatorForBattle(this.player().battlesFought + 1));
+  readonly squadTraits = computed(() => activeSquadTraits(this.squad()));
+  readonly traitBonus = computed(() => squadTraitBonus(this.squad()));
+  readonly mutatorModifier = computed(() => resolveMutator(this.activeMutator(), this.squad().map((monster) => monster.type)));
+
+  readonly squadBattleModifier = computed(
+    () =>
+      calculateSquadBattleModifier(this.squadSynergies(), this.squadTypePressure().modifier) +
+      this.traitBonus().attackBonus +
+      this.mutatorModifier().playerAttackBonus,
+  );
 
   readonly enemyBattleModifier = computed(() =>
     calculateEnemyBattleModifier(
-      this.activeFormation().enemyModifier + this.upcomingArenaThreat().enemyModifier + this.battleCategory().enemyModifier,
+      this.activeFormation().enemyModifier +
+        this.upcomingArenaThreat().enemyModifier +
+        this.battleCategory().enemyModifier +
+        this.mutatorModifier().enemyModifier,
       this.enemyTypePressure().modifier,
     ),
   );
@@ -943,6 +965,204 @@ export class GameStateService {
     this.persistState();
   }
 
+  // --- Expedition (roguelite) ---
+  readonly expedition = computed(() => this.player().expedition);
+  readonly expeditionActive = computed(() => this.player().expedition?.status === 'active');
+  readonly expeditionReachable = computed(() => {
+    const exp = this.player().expedition;
+    return exp ? reachableNodes(exp) : [];
+  });
+  readonly expeditionRelics = computed(() =>
+    (this.player().expedition?.relicIds ?? []).map((id) => getRelicDef(id)).filter((def): def is NonNullable<typeof def> => Boolean(def)),
+  );
+  readonly expeditionCores = computed(() => this.player().expeditionCores);
+  readonly relicDefs = RELIC_DEFS;
+  /** Transient relic options the player may pick from a reward/shop node. */
+  readonly relicChoices = signal<string[]>([]);
+
+  startExpedition(): void {
+    if (this.squad().length === 0) {
+      this.toast.push({ title: 'Squad Required', message: 'Load a squad before launching an expedition.', tone: 'warn', icon: '!', durationMs: 3200 });
+      return;
+    }
+    const state = generateExpedition((Date.now() ^ Math.floor(Math.random() * 0xffffff)) >>> 0);
+    this.relicChoices.set([]);
+    this.player.update((player) => ({ ...player, expedition: state }));
+    this.prependLog('Expedition launched. Descend the grid node by node.', 'system');
+    this.audio.play('menu');
+    this.persistState();
+  }
+
+  abandonExpedition(): void {
+    this.relicChoices.set([]);
+    this.player.update((player) => ({ ...player, expedition: null }));
+    this.prependLog('Expedition abandoned.', 'system');
+    this.persistState();
+  }
+
+  /** Banks accrued Cores and clears the finished run. */
+  claimExpedition(): void {
+    const exp = this.player().expedition;
+    if (!exp || exp.status === 'active') {
+      return;
+    }
+    const relics = relicBonus(exp.relicIds);
+    const payout = exp.status === 'won' ? exp.rewardCores + relics.coresOnClear : Math.floor(exp.rewardCores * 0.5);
+    this.player.update((player) => ({ ...player, expedition: null, expeditionCores: player.expeditionCores + payout }));
+    this.prependLog(`Expedition ${exp.status === 'won' ? 'cleared' : 'ended'}: +${payout} Cores banked.`, 'reward');
+    this.audio.play(exp.status === 'won' ? 'win' : 'loss');
+    this.toast.push({
+      title: exp.status === 'won' ? 'Expedition Cleared' : 'Expedition Ended',
+      message: `+${payout} Cores banked to your meta-progress.`,
+      tone: exp.status === 'won' ? 'success' : 'warn',
+      icon: 'CO',
+      durationMs: 4200,
+    });
+    this.persistState();
+  }
+
+  pickExpeditionRelic(relicId: string): void {
+    if (!this.relicChoices().includes(relicId)) {
+      return;
+    }
+    const def = getRelicDef(relicId);
+    this.player.update((player) => {
+      if (!player.expedition) {
+        return player;
+      }
+      return { ...player, expedition: { ...player.expedition, relicIds: [...player.expedition.relicIds, relicId] } };
+    });
+    this.relicChoices.set([]);
+    if (def) {
+      this.prependLog(`Relic acquired: ${def.name}.`, 'reward');
+      this.audio.play('item');
+    }
+    this.persistState();
+  }
+
+  enterExpeditionNode(nodeId: string): void {
+    const exp = this.player().expedition;
+    if (!exp || exp.status !== 'active' || !exp.reachableIds.includes(nodeId) || this.relicChoices().length > 0) {
+      return;
+    }
+    const node = getNode(exp, nodeId);
+    if (!node) {
+      return;
+    }
+
+    if (node.type === 'battle' || node.type === 'elite' || node.type === 'boss') {
+      this.resolveExpeditionBattle(exp, node.id, node.type, node.row);
+      return;
+    }
+
+    let next: ExpeditionState = clearNode(exp, nodeId);
+    let message = '';
+    if (node.type === 'rest') {
+      const heal = Math.round(exp.maxHp * 0.32);
+      next = { ...next, hp: Math.min(exp.maxHp, exp.hp + heal), lastEvent: `Rest node: recovered ${heal} run HP.` };
+      message = `Rest node: +${heal} run HP.`;
+    } else if (node.type === 'shop') {
+      next = { ...next, lastEvent: 'Shop node: choose a relic.' };
+      message = 'Shop node: pick a relic.';
+      this.relicChoices.set(rollRelicChoices((exp.seed ^ nodeHash(nodeId)) >>> 0, exp.relicIds));
+    } else {
+      // event: random boon/bane
+      const roll = Math.random();
+      if (roll < 0.45) {
+        this.relicChoices.set(rollRelicChoices((exp.seed ^ nodeHash(nodeId)) >>> 0, exp.relicIds));
+        next = { ...next, lastEvent: 'Event: a cache of relics appears.' };
+        message = 'Event: relic cache — pick one.';
+      } else if (roll < 0.75) {
+        next = { ...next, rewardCores: next.rewardCores + 4, lastEvent: 'Event: +4 Cores.' };
+        message = 'Event: +4 Cores.';
+      } else {
+        const dmg = Math.round(exp.maxHp * 0.12);
+        next = { ...next, hp: Math.max(0, exp.hp - dmg), lastEvent: `Event: hazard, -${dmg} run HP.` };
+        message = `Event: hazard -${dmg} run HP.`;
+        if (next.hp <= 0) {
+          next = { ...next, status: 'lost' };
+        }
+      }
+    }
+
+    this.player.update((player) => ({ ...player, expedition: next }));
+    if (message) {
+      this.prependLog(`Expedition — ${message}`, 'info');
+    }
+    this.persistState();
+  }
+
+  private resolveExpeditionBattle(exp: ExpeditionState, nodeId: string, type: ExpeditionNodeType, depth: number): void {
+    const relics = relicBonus(exp.relicIds);
+    const eliteBump = type === 'elite' ? 0.12 : type === 'boss' ? 0.25 : 0;
+    const growth = 1 + 0.12 * depth + eliteBump;
+    const baseFormation = this.arenaFormations[depth % this.arenaFormations.length];
+    const enemies = baseFormation.enemies.map((enemy) => ({
+      ...enemy,
+      name: `${enemy.name}`,
+      hp: Math.round(enemy.hp * growth),
+      attack: Math.round(enemy.attack * growth),
+      defense: Math.round(enemy.defense * growth),
+      speed: Math.round(enemy.speed * growth),
+    }));
+
+    const sim = simulateBattle({
+      squad: this.effectiveSquad(),
+      enemies,
+      playerModifier: this.squadBattleModifier() + relics.attackBonus,
+      enemyModifier: calculateEnemyBattleModifier(0.04 + 0.04 * depth + eliteBump, 0),
+      stanceAttackMod: 0,
+      stanceMitigation: relics.mitigation,
+      overdrive: false,
+      overdriveAttackBonus: OVERDRIVE_ATTACK_BONUS,
+      consumables: [],
+      synergyLabel: this.squadSynergies()[0]?.label ?? null,
+      randomBetween: (min, max) => this.randomBetween(min, max),
+      randomFrom: <T>(items: T[]) => this.randomFrom(items),
+    });
+
+    if (sim.won) {
+      const cleared = clearNode(exp, nodeId);
+      const cores = type === 'boss' ? 15 : type === 'elite' ? 6 : 3;
+      const heal = Math.round(relics.healOnWin * exp.maxHp);
+      const rewardMult = relics.rewardMultiplier * (type === 'boss' ? 1.6 : type === 'elite' ? 1.25 : 1);
+      const reward = buildReward(true, sim.criticalHit, rewardMult);
+      const xpResult = applyXpToSquad(this.monsters(), this.player().squadIds, reward.xp);
+      this.monsters.set(xpResult.updatedMonsters);
+
+      const next: ExpeditionState = {
+        ...cleared,
+        hp: Math.min(exp.maxHp, exp.hp + heal),
+        rewardCores: cleared.rewardCores + cores,
+        lastEvent: `${type} cleared: +${reward.coins} CR, +${reward.dnaShards} DNA, +${cores} Cores.`,
+      };
+      this.player.update((player) => ({
+        ...player,
+        coins: player.coins + reward.coins,
+        dnaShards: player.dnaShards + reward.dnaShards,
+        expedition: next,
+      }));
+      if (type === 'elite' || type === 'boss') {
+        this.relicChoices.set(rollRelicChoices((exp.seed ^ nodeHash(nodeId)) >>> 0, exp.relicIds));
+      }
+      this.prependLog(`Expedition — ${type} node cleared (+${cores} Cores).`, 'reward');
+      this.audio.play(type === 'boss' ? 'boss' : 'win');
+    } else {
+      const cost = type === 'boss' ? 40 : type === 'elite' ? 28 : 18;
+      const hp = Math.max(0, exp.hp - cost);
+      const next: ExpeditionState = {
+        ...exp,
+        hp,
+        status: hp <= 0 ? 'lost' : 'active',
+        lastEvent: hp <= 0 ? 'Run ended — out of run HP.' : `Repelled: -${cost} run HP.`,
+      };
+      this.player.update((player) => ({ ...player, expedition: next }));
+      this.prependLog(`Expedition — battle lost (-${cost} run HP).`, 'system');
+      this.audio.play('loss');
+    }
+    this.persistState();
+  }
+
   // --- Save export / import ---
   exportSave(): string {
     const snapshot: SaveStateSnapshot = {
@@ -1086,7 +1306,7 @@ export class GameStateService {
       playerModifier: this.squadBattleModifier(),
       enemyModifier: this.enemyBattleModifier(),
       stanceAttackMod: stance.attackMod,
-      stanceMitigation: stance.mitigation,
+      stanceMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
       overdrive: overdriveArmed,
       overdriveAttackBonus: OVERDRIVE_ATTACK_BONUS,
       consumables: toCombatEffects(equipped),
@@ -1095,7 +1315,8 @@ export class GameStateService {
       randomFrom: <T>(items: T[]) => this.randomFrom(items),
     });
     const gauntletRewardBoost = isGauntlet ? 1 + 0.08 * gauntletStartWave : 1;
-    const rewardMultiplier = formation.rewardModifier * threat.rewardModifier * category.rewardModifier * gauntletRewardBoost;
+    const rewardMultiplier =
+      formation.rewardModifier * threat.rewardModifier * category.rewardModifier * gauntletRewardBoost * (1 + this.traitBonus().rewardBonus);
     const baseReward = buildReward(sim.won, sim.criticalHit, rewardMultiplier);
     const currentPlayer = this.player();
     const nextStreak = sim.won ? currentPlayer.winStreak + 1 : 0;
@@ -1558,6 +1779,17 @@ function clonePlayerState(player: PlayerState): PlayerState {
     encounteredEnemies: [...player.encounteredEnemies],
     tutorialDone: player.tutorialDone,
     settings: { ...player.settings },
+    expedition: player.expedition ? cloneExpedition(player.expedition) : null,
+    expeditionCores: player.expeditionCores,
+  };
+}
+
+function cloneExpedition(state: NonNullable<PlayerState['expedition']>): NonNullable<PlayerState['expedition']> {
+  return {
+    ...state,
+    relicIds: [...state.relicIds],
+    reachableIds: [...state.reachableIds],
+    map: state.map.map((node) => ({ ...node, nextIds: [...node.nextIds] })),
   };
 }
 
@@ -1610,6 +1842,8 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     encounteredEnemies: Array.isArray(player.encounteredEnemies) ? [...player.encounteredEnemies] : [],
     tutorialDone: player.tutorialDone === true,
     settings: sanitizeSettings(player.settings),
+    expedition: player.expedition ? cloneExpedition(player.expedition) : null,
+    expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
   };
 }
 
@@ -1621,6 +1855,9 @@ function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings 
     masterVolume: clampUnit(settings.masterVolume ?? DEFAULT_SETTINGS.masterVolume),
     colorblindMode: settings.colorblindMode === true,
     effectIntensity: clampUnit(settings.effectIntensity ?? 1),
+    accentTheme: settings.accentTheme === 'ember' || settings.accentTheme === 'mono' ? settings.accentTheme : 'aurora',
+    language: settings.language === 'de' ? 'de' : 'en',
+    combatBeats: settings.combatBeats === true,
   };
 }
 
@@ -1689,6 +1926,14 @@ function rarityWeight(rarity: MonsterRarity): number {
   };
 
   return weights[rarity];
+}
+
+function nodeHash(nodeId: string): number {
+  let hash = 0;
+  for (let i = 0; i < nodeId.length; i += 1) {
+    hash = (Math.imul(hash, 31) + nodeId.charCodeAt(i)) | 0;
+  }
+  return hash >>> 0;
 }
 
 function base64Encode(value: string): string {

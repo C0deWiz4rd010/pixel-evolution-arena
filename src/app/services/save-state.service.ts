@@ -195,8 +195,21 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
       encounteredEnemies: Array.isArray(player.encounteredEnemies) ? player.encounteredEnemies.map((entry) => String(entry)) : [],
       tutorialDone: player.tutorialDone === true,
       settings: sanitizeSettings(player.settings),
+      expedition: sanitizeExpedition(player.expedition),
+      expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
     },
   };
+}
+
+function sanitizeExpedition(value: unknown): SaveStateSnapshot['player']['expedition'] {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const candidate = value as Partial<NonNullable<SaveStateSnapshot['player']['expedition']>>;
+  if (!Array.isArray(candidate.map) || typeof candidate.seed !== 'number') {
+    return null;
+  }
+  return value as SaveStateSnapshot['player']['expedition'];
 }
 
 function sanitizeGearLoadout(value: unknown): SaveStateSnapshot['player']['gearLoadout'] {
@@ -221,10 +234,15 @@ function sanitizeGearLoadout(value: unknown): SaveStateSnapshot['player']['gearL
 
 function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings'] {
   const candidate = (value ?? {}) as Partial<SaveStateSnapshot['player']['settings']>;
+  const accent = candidate.accentTheme;
+  const lang = candidate.language;
   return {
     masterVolume: typeof candidate.masterVolume === 'number' ? clamp(candidate.masterVolume, 0, 1) : 0.7,
     colorblindMode: candidate.colorblindMode === true,
     effectIntensity: typeof candidate.effectIntensity === 'number' ? clamp(candidate.effectIntensity, 0, 1) : 1,
+    accentTheme: accent === 'ember' || accent === 'mono' ? accent : 'aurora',
+    language: lang === 'de' ? 'de' : 'en',
+    combatBeats: candidate.combatBeats === true,
   };
 }
 
