@@ -1,7 +1,16 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/** First-run onboarding overlay blocks the UI; dismiss it before interacting. */
+async function dismissOnboarding(page: Page): Promise<void> {
+  const skip = page.getByRole('button', { name: 'Skip' });
+  if (await skip.isVisible().catch(() => false)) {
+    await skip.click();
+  }
+}
 
 test('tabs switch and collection filters can be reset', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await expect(page.getByLabel('Recommended next command')).toContainText(/OPEN SLOT|EVOLVE READY|CHASE READY/i);
@@ -19,6 +28,7 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
 
 test('empty squad is blocked in arena and can be rebuilt from squad tab', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Squad/i }).click();
@@ -35,6 +45,7 @@ test('empty squad is blocked in arena and can be rebuilt from squad tab', async 
 
 test('default route can evolve and battles produce rewards', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await expect(page.getByRole('heading', { name: 'Evolution Tree' })).toBeVisible();
@@ -52,6 +63,7 @@ test('default route can evolve and battles produce rewards', async ({ page }) =>
 
 test('arena exposes hybrid controls and the medals tab lists achievements', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Arena/i }).click();
@@ -70,6 +82,7 @@ test('arena exposes hybrid controls and the medals tab lists achievements', asyn
 
 test('collection can evolve a reachable chase directly', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Collection/i }).click();
@@ -82,6 +95,7 @@ test('collection can evolve a reachable chase directly', async ({ page }) => {
 
 test('full squads can swap in stronger reserve candidates', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Squad/i }).click();
@@ -99,6 +113,7 @@ test('full squads can swap in stronger reserve candidates', async ({ page }) => 
 
 test('progress survives reload and reset restores the starter state', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
   const detailPanel = page.locator('aside.detail-panel');
 
