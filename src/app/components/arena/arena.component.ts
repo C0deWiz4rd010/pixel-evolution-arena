@@ -5,6 +5,7 @@ import { BattleCategoryId, BattleStanceId } from '../../rules/battle.rules';
 import { getMonsterMoves, getOverdriveMove } from '../../rules/moves.rules';
 import { Monster } from '../../models/monster.model';
 import { PixiBattleStageComponent } from '../pixi-battle-stage/pixi-battle-stage.component';
+import { CombatBeatComponent } from '../combat-beat/combat-beat.component';
 
 interface BattleCoachPlan {
   title: string;
@@ -17,7 +18,7 @@ interface BattleCoachPlan {
 
 @Component({
   selector: 'app-arena',
-  imports: [PixiBattleStageComponent],
+  imports: [PixiBattleStageComponent, CombatBeatComponent],
   templateUrl: './arena.component.html',
   styleUrl: './arena.component.scss',
 })

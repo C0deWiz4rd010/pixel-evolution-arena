@@ -124,6 +124,7 @@ const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, 
 
 const MAX_SQUAD_PRESETS = 3;
 const MAX_LOADOUT = 2;
+const COMBO_BONUS = 0.06;
 const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
 
 const STARTER_BATTLE_LOGS: BattleLog[] = [
@@ -167,6 +168,17 @@ export class GameStateService {
   readonly overdriveArmed = signal(false);
   /** Transient loadout: up to two consumables for the next battle. */
   readonly equippedConsumables = signal<string[]>([]);
+  /** Transient, capped Active-Combat-Beat bonus applied to the next battle. */
+  readonly comboCharge = signal(0);
+
+  /** Records a combat-beat result; success grants a small capped attack bonus. */
+  chargeCombo(success: boolean): void {
+    this.comboCharge.set(success ? COMBO_BONUS : 0);
+    if (success) {
+      this.audio.play('level-up');
+      this.toast.push({ title: 'Beat Landed', message: `Overdrive primed: +${Math.round(COMBO_BONUS * 100)}% next battle.`, tone: 'success', icon: '♪', durationMs: 2600 });
+    }
+  }
 
   readonly overdriveCharge = computed(() => this.player().overdriveCharge);
   readonly overdrivePercent = computed(() => Math.round(this.player().overdriveCharge));
@@ -1318,7 +1330,7 @@ export class GameStateService {
     const sim = simulateBattle({
       squad: this.effectiveSquad(),
       enemies: this.enemies,
-      playerModifier: this.squadBattleModifier(),
+      playerModifier: this.squadBattleModifier() + this.comboCharge(),
       enemyModifier: this.enemyBattleModifier(),
       stanceAttackMod: stance.attackMod,
       stanceMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
@@ -1479,6 +1491,7 @@ export class GameStateService {
 
     this.overdriveArmed.set(false);
     this.equippedConsumables.set([]);
+    this.comboCharge.set(0);
     this.gauntletWave.set(nextGauntletWave);
 
     const logs = buildBattleLogsFromEvents({

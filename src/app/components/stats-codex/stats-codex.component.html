@@ -39,6 +39,22 @@
   </article>
 
   <article class="codex-card">
+    <h3>Signature Traits</h3>
+    <p class="codex-hint">Each type grants a passive when it is in your squad (distinct traits stack).</p>
+    <div class="glossary-list">
+      @for (entry of traitGlossary; track entry.type) {
+        <div class="glossary-row">
+          <span class="glossary-icon">{{ typeCode(entry.type) }}</span>
+          <div>
+            <strong>{{ entry.trait.name }} <em>{{ entry.type }}</em></strong>
+            <small>{{ entry.trait.detail }}</small>
+          </div>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="codex-card">
     <h3>Status Glossary</h3>
     <div class="glossary-list">
       @for (status of statusGlossary; track status.id) {

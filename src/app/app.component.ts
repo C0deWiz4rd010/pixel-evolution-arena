@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { ArenaComponent } from './components/arena/arena.component';
 import { ArenaEffectsComponent } from './components/arena-effects/arena-effects.component';
 import { CollectionComponent } from './components/collection/collection.component';
@@ -69,6 +69,16 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<AppTab>('Evolution Tree');
+
+  /** Screen-reader announcement for the latest battle outcome. */
+  readonly liveAnnouncement = computed(() => {
+    const reward = this.game.lastReward();
+    if (!reward) {
+      return '';
+    }
+    const result = reward.won ? 'Victory' : 'Retreat';
+    return `${result}. ${reward.coins} coins, ${reward.dnaShards} DNA, ${reward.xp} XP.`;
+  });
 
   constructor() {
     // Reflect presentation settings onto <html> so global CSS can theme + adapt.

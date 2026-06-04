@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { GameStateService } from '../../services/game-state.service';
 import { STATUS_DEFS } from '../../rules/status.rules';
 import { getTypeMatchupValue } from '../../rules/type-matchup.rules';
+import { TYPE_TRAITS } from '../../data/traits.data';
 import { ARENA_FORMATIONS } from '../../data/enemies.data';
 import { MonsterType } from '../../models/monster.model';
 
@@ -17,6 +18,7 @@ export class StatsCodexComponent {
 
   readonly statusGlossary = Object.values(STATUS_DEFS);
   readonly types = this.game.types;
+  readonly traitGlossary = this.types.map((type) => ({ type, trait: TYPE_TRAITS[type] }));
 
   readonly lifetimeStats = computed(() => {
     const player = this.game.player();

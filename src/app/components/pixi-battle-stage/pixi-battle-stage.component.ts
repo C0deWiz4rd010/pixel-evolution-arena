@@ -132,6 +132,7 @@ export class PixiBattleStageComponent {
   private mediaQuery: MediaQueryList | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private seenPopupIds = new Set<number>();
+  private seenCueIds = new Set<number>();
   private lastPhase = 'idle';
   private shakeTime = 0;
   private banner: PixiText | null = null;
@@ -186,10 +187,28 @@ export class PixiBattleStageComponent {
           continue;
         }
         this.seenPopupIds.add(popup.id);
-        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset);
+        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive);
       }
       if (this.seenPopupIds.size > 256) {
         this.seenPopupIds = new Set(popups.map((p) => p.id));
+      }
+    });
+
+    // Status-effect cues -> floating status glyph over the carrying side.
+    effect(() => {
+      const cues = this.anim.statusCues();
+      if (!this.app) {
+        return;
+      }
+      for (const cue of cues) {
+        if (this.seenCueIds.has(cue.id)) {
+          continue;
+        }
+        this.seenCueIds.add(cue.id);
+        this.spawnStatusIcon(cue.side, cue.icon);
+      }
+      if (this.seenCueIds.size > 256) {
+        this.seenCueIds = new Set(cues.map((c) => c.id));
       }
     });
 
@@ -447,7 +466,14 @@ export class PixiBattleStageComponent {
     this.root?.sortChildren?.();
   }
 
-  private onDamageBeat(side: StageSide, amount: number, critical: boolean, offset: number): void {
+  private onDamageBeat(
+    side: StageSide,
+    amount: number,
+    critical: boolean,
+    offset: number,
+    effective?: -1 | 0 | 1,
+    overdrive?: boolean,
+  ): void {
     // `side` is the side that TAKES damage.
     const attackerSide: StageSide = side === 'player' ? 'enemy' : 'player';
     const attacker = this.leadOf(attackerSide);
@@ -460,6 +486,48 @@ export class PixiBattleStageComponent {
       target.hit = 1;
     }
     this.spawnFloatingNumber(target, amount, critical, offset);
+
+    if (effective) {
+      this.spawnLabel(target, effective > 0 ? 'SUPER' : 'RESIST', effective > 0 ? 0x9dff5a : 0x9fb0c8, -28);
+    }
+    if (overdrive) {
+      this.spawnLabel(target, 'OVERDRIVE', 0xffd23c, -50);
+      this.shakeTime = 0.42;
+    }
+  }
+
+  private spawnLabel(target: StageUnit | null, text: string, color: number, dy: number): void {
+    const pixi = this.pixi;
+    if (!pixi || !this.root || !target) {
+      return;
+    }
+    const label = new pixi.Text({
+      text,
+      style: { fill: color, fontSize: 16, fontFamily: 'monospace', fontWeight: '800', letterSpacing: 1 },
+    });
+    label.anchor.set(0.5, 1);
+    label.position.set(target.baseX, target.baseY - UNIT_SPRITE_HEIGHT - 24 + dy);
+    this.root.addChild(label);
+    this.floaters.push({ text: label, life: 1, maxLife: 1, vy: 30 });
+  }
+
+  private spawnStatusIcon(side: StageSide, icon: string): void {
+    const pixi = this.pixi;
+    if (!pixi || !this.root) {
+      return;
+    }
+    const target = this.leadOf(side);
+    if (!target) {
+      return;
+    }
+    const label = new pixi.Text({
+      text: icon,
+      style: { fill: 0xffffff, fontSize: 22, fontFamily: 'monospace' },
+    });
+    label.anchor.set(0.5, 1);
+    label.position.set(target.baseX + (side === 'player' ? -26 : 26), target.baseY - UNIT_SPRITE_HEIGHT - 6);
+    this.root.addChild(label);
+    this.floaters.push({ text: label, life: 1.1, maxLife: 1.1, vy: 22 });
   }
 
   private spawnFloatingNumber(target: StageUnit | null, amount: number, critical: boolean, offset: number): void {

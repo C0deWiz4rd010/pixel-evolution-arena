@@ -564,7 +564,9 @@ export class ArenaEffectsComponent {
     const primary = new three.Color(cue.color);
     const accent = new three.Color(cue.accentColor);
 
-    for (let index = 0; index < cue.particleBurst; index += 1) {
+    const intensity = Math.max(0.15, this.game.settings().effectIntensity);
+    const burstCount = Math.max(1, Math.round(cue.particleBurst * intensity));
+    for (let index = 0; index < burstCount; index += 1) {
       const useAccent = index % 3 === 0;
       const color = useAccent ? accent : primary;
       const origin = this.burstOrigin(cue.kind);

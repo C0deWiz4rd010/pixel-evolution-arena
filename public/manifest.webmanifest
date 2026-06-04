@@ -1,0 +1,25 @@
+{
+  "name": "Pixel Evolution Arena",
+  "short_name": "Pixel Arena",
+  "description": "Build a squad of original pixel creatures, win quick arena sims, evolve, and run roguelite expeditions — fully offline and local.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060b16",
+  "theme_color": "#0a1424",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/brand/pixel-evolution-arena-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { BattleEvent } from '../rules/combat.engine';
+import { STATUS_DEFS, StatusId } from '../rules/status.rules';
 
 export type BattlePhase = 'idle' | 'engage' | 'exchange' | 'finale' | 'cooldown';
 export type BattleFlashTone = 'victory' | 'defeat' | 'crit';
@@ -11,6 +12,19 @@ export interface DamagePopup {
   side: DamageSide;
   critical: boolean;
   offset: number;
+  spawnedAt: number;
+  /** -1 resisted, 0 neutral, 1 super effective (drives a Pixi pop). */
+  effective?: -1 | 0 | 1;
+  /** True when this hit was the Overdrive beat. */
+  overdrive?: boolean;
+}
+
+/** A floating status icon cue consumed by the Pixi stage. */
+export interface StatusCue {
+  id: number;
+  side: DamageSide;
+  icon: string;
+  label: string;
   spawnedAt: number;
 }
 
@@ -29,11 +43,13 @@ export class BattleAnimationService {
   readonly flash = signal<BattleFlashTone | null>(null);
   readonly outcome = signal<'victory' | 'defeat' | null>(null);
   readonly popups = signal<DamagePopup[]>([]);
+  readonly statusCues = signal<StatusCue[]>([]);
   readonly shake = signal(false);
 
   readonly isPlaying = computed(() => this.phase() !== 'idle');
 
   private popupSeed = 0;
+  private cueSeed = 0;
   private timers: ReturnType<typeof setTimeout>[] = [];
 
   reset(): void {
@@ -44,6 +60,7 @@ export class BattleAnimationService {
     this.flash.set(null);
     this.outcome.set(null);
     this.popups.set([]);
+    this.statusCues.set([]);
     this.shake.set(false);
   }
 
@@ -53,6 +70,7 @@ export class BattleAnimationService {
     }
 
     this.popups.set([]);
+    this.statusCues.set([]);
     this.playerHpPercent.set(100);
     this.enemyHpPercent.set(100);
     this.flash.set(null);
@@ -71,6 +89,14 @@ export class BattleAnimationService {
       this.scheduleTimer(() => this.applyHit(hit, params, index), trigger);
     });
 
+    // Interleave status-effect cues onto the same exchange window.
+    deriveStatusCues(params.events)
+      .slice(0, 5)
+      .forEach((cue, index) => {
+        const trigger = exchangeStart + 220 + index * exchangeStep;
+        this.scheduleTimer(() => this.spawnStatusCue(cue.side, cue.icon, cue.label), trigger);
+      });
+
     const finaleAt = exchangeStart + 120 + damageHits.length * exchangeStep + 240;
     this.scheduleTimer(() => this.enterFinale(params), finaleAt);
 
@@ -84,9 +110,13 @@ export class BattleAnimationService {
     }, restAt);
   }
 
-  private applyHit(hit: { amount: number; side: DamageSide; critical?: boolean }, params: BattlePlayParams, index: number): void {
+  private applyHit(
+    hit: { amount: number; side: DamageSide; critical?: boolean; effective?: -1 | 0 | 1; overdrive?: boolean },
+    params: BattlePlayParams,
+    index: number,
+  ): void {
     const isCritical = Boolean(hit.critical);
-    this.spawnPopup(hit.amount, hit.side, isCritical);
+    this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive);
 
     if (hit.side === 'enemy') {
       const targetReduction = params.won
@@ -125,7 +155,7 @@ export class BattleAnimationService {
     this.triggerShake();
   }
 
-  private spawnPopup(amount: number, side: DamageSide, critical: boolean): void {
+  private spawnPopup(amount: number, side: DamageSide, critical: boolean, effective?: -1 | 0 | 1, overdrive?: boolean): void {
     const id = ++this.popupSeed;
     const popup: DamagePopup = {
       id,
@@ -134,11 +164,22 @@ export class BattleAnimationService {
       critical,
       offset: Math.round((Math.random() - 0.5) * 60),
       spawnedAt: Date.now(),
+      effective,
+      overdrive,
     };
     this.popups.update((current) => [...current.slice(-5), popup]);
     this.scheduleTimer(() => {
       this.popups.update((current) => current.filter((entry) => entry.id !== id));
     }, 1100);
+  }
+
+  private spawnStatusCue(side: DamageSide, icon: string, label: string): void {
+    const id = ++this.cueSeed;
+    const cue: StatusCue = { id, side, icon, label, spawnedAt: Date.now() };
+    this.statusCues.update((current) => [...current.slice(-5), cue]);
+    this.scheduleTimer(() => {
+      this.statusCues.update((current) => current.filter((entry) => entry.id !== id));
+    }, 1300);
   }
 
   private triggerShake(): void {
@@ -164,16 +205,48 @@ export class BattleAnimationService {
  * Leitet die animierten Treffer aus der Event-Timeline ab (ersetzt den alten
  * Regex-Hack). `side` ist hier die Seite, die Schaden NIMMT.
  */
-function deriveHits(events: BattleEvent[]): { amount: number; side: DamageSide; critical: boolean }[] {
-  const hits: { amount: number; side: DamageSide; critical: boolean }[] = [];
+interface DerivedHit {
+  amount: number;
+  side: DamageSide;
+  critical: boolean;
+  effective?: -1 | 0 | 1;
+  overdrive?: boolean;
+}
+
+function deriveHits(events: BattleEvent[]): DerivedHit[] {
+  const hits: DerivedHit[] = [];
   for (const event of events) {
     if (event.kind === 'overdrive' && event.amount) {
-      hits.push({ amount: event.amount, side: 'enemy', critical: true });
+      hits.push({ amount: event.amount, side: 'enemy', critical: true, effective: event.effective, overdrive: true });
     } else if (event.kind === 'strike' && event.amount) {
-      hits.push({ amount: event.amount, side: event.side === 'player' ? 'enemy' : 'player', critical: Boolean(event.critical) });
+      hits.push({
+        amount: event.amount,
+        side: event.side === 'player' ? 'enemy' : 'player',
+        critical: Boolean(event.critical),
+        effective: event.effective,
+      });
     } else if (event.kind === 'status-tick' && (event.amount ?? 0) > 0) {
       hits.push({ amount: event.amount ?? 0, side: event.side === 'player' ? 'player' : 'enemy', critical: false });
     }
   }
   return hits;
+}
+
+/** Status-application cues mapped to the side that visibly carries the icon. */
+function deriveStatusCues(events: BattleEvent[]): { side: DamageSide; icon: string; label: string }[] {
+  const cues: { side: DamageSide; icon: string; label: string }[] = [];
+  for (const event of events) {
+    if ((event.kind === 'status-apply' || event.kind === 'shield') && event.status) {
+      const def = STATUS_DEFS[event.status as StatusId];
+      if (!def) {
+        continue;
+      }
+      // Buffs sit on the actor; dots/debuffs on the opposite side.
+      const actorIsPlayer = event.side === 'player';
+      const onActor = def.kind === 'buff';
+      const side: DamageSide = (onActor ? actorIsPlayer : !actorIsPlayer) ? 'player' : 'enemy';
+      cues.push({ side, icon: def.icon, label: def.label });
+    }
+  }
+  return cues;
 }
