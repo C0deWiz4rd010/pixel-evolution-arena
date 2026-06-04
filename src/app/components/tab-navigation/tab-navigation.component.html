@@ -9,7 +9,7 @@
       >
         <span class="tab-icon">{{ tab.icon }}</span>
         <span class="tab-copy">
-          <span class="tab-label">{{ tab.label }}</span>
+          <span class="tab-label">{{ 'tab.' + tab.label | t }}</span>
           <span class="tab-status">{{ tab.signal }}</span>
         </span>
       </button>
@@ -42,7 +42,7 @@
   >
     <span class="tab-icon">{{ handbookTab.icon }}</span>
     <span class="tab-copy">
-      <span class="tab-label">{{ handbookTab.label }}</span>
+      <span class="tab-label">{{ 'tab.' + handbookTab.label | t }}</span>
       <span class="tab-status">{{ handbookTab.signal }}</span>
     </span>
   </button>

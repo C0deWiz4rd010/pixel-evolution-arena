@@ -26,7 +26,22 @@ export type TranslationKey =
   | 'expedition.launch'
   | 'expedition.cores'
   | 'expedition.abandon'
-  | 'onboarding.start';
+  | 'onboarding.start'
+  | 'onboarding.skip'
+  | 'onboarding.back'
+  | 'onboarding.next'
+  | 'footer.tabs'
+  | 'footer.startBattle'
+  | 'tab.Evolution Tree'
+  | 'tab.Squad'
+  | 'tab.Forge'
+  | 'tab.Arena'
+  | 'tab.Expedition'
+  | 'tab.Collection'
+  | 'tab.Campaign'
+  | 'tab.Medals'
+  | 'tab.Handbook'
+  | 'tab.Settings';
 
 type Dictionary = Record<TranslationKey, string>;
 
@@ -53,6 +68,21 @@ const EN: Dictionary = {
   'expedition.cores': 'Cores',
   'expedition.abandon': 'Abandon',
   'onboarding.start': 'Start Playing',
+  'onboarding.skip': 'Skip',
+  'onboarding.back': 'Back',
+  'onboarding.next': 'Next',
+  'footer.tabs': 'Tabs',
+  'footer.startBattle': 'Start Battle',
+  'tab.Evolution Tree': 'Evolution Tree',
+  'tab.Squad': 'Squad',
+  'tab.Forge': 'Forge',
+  'tab.Arena': 'Arena',
+  'tab.Expedition': 'Expedition',
+  'tab.Collection': 'Collection',
+  'tab.Campaign': 'Campaign',
+  'tab.Medals': 'Medals',
+  'tab.Handbook': 'Handbook',
+  'tab.Settings': 'Settings',
 };
 
 const DE: Dictionary = {
@@ -78,6 +108,21 @@ const DE: Dictionary = {
   'expedition.cores': 'Kerne',
   'expedition.abandon': 'Abbrechen',
   'onboarding.start': 'Los geht’s',
+  'onboarding.skip': 'Überspringen',
+  'onboarding.back': 'Zurück',
+  'onboarding.next': 'Weiter',
+  'footer.tabs': 'Tabs',
+  'footer.startBattle': 'Kampf starten',
+  'tab.Evolution Tree': 'Evolutionsbaum',
+  'tab.Squad': 'Truppe',
+  'tab.Forge': 'Schmiede',
+  'tab.Arena': 'Arena',
+  'tab.Expedition': 'Expedition',
+  'tab.Collection': 'Sammlung',
+  'tab.Campaign': 'Kampagne',
+  'tab.Medals': 'Medaillen',
+  'tab.Handbook': 'Handbuch',
+  'tab.Settings': 'Einstellungen',
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Dictionary> = { en: EN, de: DE };

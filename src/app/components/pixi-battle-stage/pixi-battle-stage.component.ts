@@ -124,6 +124,8 @@ export class PixiBattleStageComponent {
   private app: PixiApplication | null = null;
   private root: PixiContainer | null = null;
   private floor: PixiGraphics | null = null;
+  private bgWash: PixiGraphics | null = null;
+  private washColor = 0x12d8ff;
   private readonly units: StageUnit[] = [];
   private readonly floaters: FloatingNumber[] = [];
   private readonly textureCache = new Map<string, PixiTexture>();
@@ -228,6 +230,18 @@ export class PixiBattleStageComponent {
         this.shakeTime = 0.38;
       }
     });
+
+    // Battlefield mutator -> ambient wash tint.
+    effect(() => {
+      const tint = this.game.activeMutator().tint;
+      this.washColor = hexToColor(tint);
+      if (this.app) {
+        this.drawWash();
+        if (this.reducedMotion()) {
+          this.renderStaticFrame();
+        }
+      }
+    });
   }
 
   private rosterSignature = '';
@@ -260,6 +274,9 @@ export class PixiBattleStageComponent {
       this.root = new this.pixi.Container();
       app.stage.addChild(this.root);
       this.drawFloor();
+      this.bgWash = new this.pixi.Graphics();
+      this.root.addChildAt(this.bgWash, 0);
+      this.drawWash();
 
       this.banner = new this.pixi.Text({
         text: '',
@@ -308,12 +325,23 @@ export class PixiBattleStageComponent {
       this.width = next;
       this.app.renderer.resize(this.width, STAGE_HEIGHT);
       this.drawFloor();
+      this.drawWash();
       this.layoutUnits();
       if (this.reducedMotion()) {
         this.renderStaticFrame();
       }
     });
     this.resizeObserver.observe(hostEl);
+  }
+
+  private drawWash(): void {
+    if (!this.bgWash) {
+      return;
+    }
+    this.bgWash
+      .clear()
+      .rect(0, 0, this.width, STAGE_HEIGHT)
+      .fill({ color: this.washColor, alpha: this.reducedMotion() ? 0.05 : 0.09 });
   }
 
   private drawFloor(): void {
@@ -739,9 +767,16 @@ export class PixiBattleStageComponent {
     this.root = null;
     this.floor = null;
     this.banner = null;
+    this.bgWash = null;
     this.textureCache.clear();
     app?.destroy(true, { children: true, texture: false });
   }
+}
+
+/** Parses a '#rrggbb' string into a 0xRRGGBB number (falls back to cyan). */
+function hexToColor(hex: string): number {
+  const parsed = Number.parseInt(hex.replace('#', ''), 16);
+  return Number.isFinite(parsed) ? parsed : 0x12d8ff;
 }
 
 /** Smoothly cycling pastel tint for prismatic units (Pixi tint as 0xRRGGBB). */

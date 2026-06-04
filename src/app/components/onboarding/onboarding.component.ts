@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 interface OnboardingStep {
   title: string;
@@ -38,6 +39,7 @@ const STEPS: OnboardingStep[] = [
 @Component({
   selector: 'app-onboarding',
   standalone: true,
+  imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',

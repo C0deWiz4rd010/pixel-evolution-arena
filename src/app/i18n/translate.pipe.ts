@@ -10,7 +10,7 @@ import { TranslationKey, translate } from './translations';
 export class TranslatePipe implements PipeTransform {
   private readonly game = inject(GameStateService);
 
-  transform(key: TranslationKey): string {
-    return translate(this.game.settings().language, key);
+  transform(key: TranslationKey | string): string {
+    return translate(this.game.settings().language, key as TranslationKey);
   }
 }

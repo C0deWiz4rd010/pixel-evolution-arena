@@ -14,6 +14,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
+import { TranslatePipe } from './i18n/translate.pipe';
 import { BattleAnimationService } from './services/battle-animation.service';
 import { GameStateService } from './services/game-state.service';
 
@@ -60,6 +61,7 @@ const TAB_ORDER: AppTab[] = [
     SettingsComponent,
     OnboardingComponent,
     ToastStackComponent,
+    TranslatePipe,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

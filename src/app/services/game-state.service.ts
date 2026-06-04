@@ -1912,6 +1912,11 @@ function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boo
     (player.overdriveCharge ?? 0) !== 0 ||
     (player.claimedAchievements?.length ?? 0) > 0 ||
     hasCombatProgress(player.combatStats) ||
+    (player.ownedGear?.length ?? 0) > 0 ||
+    (player.defeatedBosses?.length ?? 0) > 0 ||
+    (player.claimedChapters?.length ?? 0) > 0 ||
+    (player.expeditionCores ?? 0) > 0 ||
+    player.expedition != null ||
     (player.dailyDirective ? player.dailyDirective.progress > 0 || player.dailyDirective.claimed : false)
   ) {
     return true;
@@ -1927,7 +1932,8 @@ function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boo
       monster.attack !== starter.attack ||
       monster.defense !== starter.defense ||
       monster.speed !== starter.speed ||
-      monster.hp !== starter.hp
+      monster.hp !== starter.hp ||
+      (monster.prismatic === true) !== (starter.prismatic === true)
     );
   });
 }
