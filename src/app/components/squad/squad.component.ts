@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Monster, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { getSlotRole, SlotRoleDescriptor } from '../../rules/squad.rules';
+import { GridNavDirective } from '../../directives/grid-nav.directive';
 
 interface SquadSlotView {
   index: number;
@@ -23,6 +24,7 @@ interface NextActionView {
 
 @Component({
   selector: 'app-squad',
+  imports: [GridNavDirective],
   templateUrl: './squad.component.html',
   styleUrl: './squad.component.scss',
 })

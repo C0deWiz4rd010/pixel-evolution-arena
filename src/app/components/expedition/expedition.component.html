@@ -2,11 +2,11 @@
   <header class="exp-head">
     <div>
       <span>Deep Grid // Roguelite Run</span>
-      <h2>Expedition</h2>
+      <h2>{{ 'expedition.title' | t }}</h2>
       <p>Descend a branching grid with your squad. Collect run-only relics, survive on a shared HP budget, and bank Cores on a clear.</p>
     </div>
     <div class="cores-chip">
-      <span>Cores</span>
+      <span>{{ 'expedition.cores' | t }}</span>
       <strong>{{ cores() }}</strong>
     </div>
   </header>
@@ -22,7 +22,7 @@
           <span>Depth {{ state.depth }}/7</span>
           <span>Cores banked: {{ state.rewardCores }}</span>
         </div>
-        <button type="button" class="ghost" (click)="abandon()">Abandon</button>
+        <button type="button" class="ghost" (click)="abandon()">{{ 'expedition.abandon' | t }}</button>
       </div>
 
       <div class="relics-row" aria-label="Collected relics">
@@ -72,7 +72,7 @@
         <h3>Launch an Expedition</h3>
         <p>A run is self-contained: temporary relics, a shared HP budget, and escalating nodes ending in a boss. Win to bank Cores; relics vanish at the end.</p>
         <button type="button" class="primary" [disabled]="game.squad().length === 0" (click)="launch()">
-          {{ game.squad().length === 0 ? 'Load a squad first' : 'Launch Expedition' }}
+          {{ game.squad().length === 0 ? 'Load a squad first' : ('expedition.launch' | t) }}
         </button>
       </div>
       <div class="relic-legend">

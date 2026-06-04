@@ -1,11 +1,12 @@
 import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 @Component({
   selector: 'app-campaign',
   standalone: true,
-  imports: [UpperCasePipe],
+  imports: [UpperCasePipe, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './campaign.component.html',
   styleUrl: './campaign.component.scss',

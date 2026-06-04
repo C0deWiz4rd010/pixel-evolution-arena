@@ -2,7 +2,7 @@
   <header class="forge-head">
     <div>
       <span>Fabricator // Gear Forge</span>
-      <h2>Forge</h2>
+      <h2>{{ 'forge.title' | t }}</h2>
       <p>Forge persistent gear, upgrade tiers with DNA, and equip it to your squad for permanent power.</p>
     </div>
     <div class="resource-chip">
@@ -13,7 +13,7 @@
 
   <div class="forge-columns">
     <article class="forge-panel">
-      <h3>Blueprints</h3>
+      <h3>{{ 'forge.blueprints' | t }}</h3>
       <div class="blueprint-grid">
         @for (def of defs; track def.id) {
           <div class="blueprint">
@@ -35,7 +35,7 @@
     </article>
 
     <article class="forge-panel">
-      <h3>Gear Locker <small>({{ owned().length }})</small></h3>
+      <h3>{{ 'forge.locker' | t }} <small>({{ owned().length }})</small></h3>
       @if (owned().length === 0) {
         <p class="empty">No gear forged yet. Forge a blueprint to begin.</p>
       } @else {
@@ -61,7 +61,7 @@
     </article>
 
     <article class="forge-panel">
-      <h3>Equip Squad</h3>
+      <h3>{{ 'forge.equip' | t }}</h3>
       @if (squad().length === 0) {
         <p class="empty">Add creatures to your squad to equip gear.</p>
       } @else {

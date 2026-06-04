@@ -2,7 +2,7 @@
   <header class="campaign-head">
     <div>
       <span>Story // Deep Grid</span>
-      <h2>Campaign</h2>
+      <h2>{{ 'campaign.title' | t }}</h2>
       <p>Ordered chapters that turn the endless arena into a journey. Clear objectives to claim one-time rewards.</p>
     </div>
     @if (activeBoss(); as boss) {
@@ -43,7 +43,7 @@
   </div>
 
   <section class="boss-codex" aria-label="Boss Codex">
-    <h3>Boss Codex</h3>
+    <h3>{{ 'campaign.bossCodex' | t }}</h3>
     <div class="boss-grid">
       @for (entry of bossCodex(); track entry.boss.id) {
         <article class="boss-card" [class.defeated]="entry.defeated">

@@ -132,7 +132,7 @@
         <span class="scan-count">{{ filteredSummary().total }} matches</span>
       </div>
 
-      <div class="collection-grid dex-grid" role="list">
+      <div class="collection-grid dex-grid" role="list" appGridNav=".dex-card" aria-label="Creature archive grid, use arrow keys to navigate">
         @for (monster of filteredMonsters(); track monster.id) {
           <button
             type="button"

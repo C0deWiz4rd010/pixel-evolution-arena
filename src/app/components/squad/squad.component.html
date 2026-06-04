@@ -127,7 +127,7 @@
       </div>
 
       @if (candidates().length > 0) {
-        <div class="candidate-row">
+        <div class="candidate-row" appGridNav=".candidate-card" aria-label="Reserve creatures, use arrow keys to navigate">
           @for (monster of candidates(); track monster.id) {
             <button
               type="button"

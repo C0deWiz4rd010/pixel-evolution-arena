@@ -41,7 +41,13 @@ export type TranslationKey =
   | 'tab.Campaign'
   | 'tab.Medals'
   | 'tab.Handbook'
-  | 'tab.Settings';
+  | 'tab.Settings'
+  | 'forge.title'
+  | 'forge.blueprints'
+  | 'forge.locker'
+  | 'forge.equip'
+  | 'campaign.title'
+  | 'campaign.bossCodex';
 
 type Dictionary = Record<TranslationKey, string>;
 
@@ -83,6 +89,12 @@ const EN: Dictionary = {
   'tab.Medals': 'Medals',
   'tab.Handbook': 'Handbook',
   'tab.Settings': 'Settings',
+  'forge.title': 'Forge',
+  'forge.blueprints': 'Blueprints',
+  'forge.locker': 'Gear Locker',
+  'forge.equip': 'Equip Squad',
+  'campaign.title': 'Campaign',
+  'campaign.bossCodex': 'Boss Codex',
 };
 
 const DE: Dictionary = {
@@ -123,6 +135,12 @@ const DE: Dictionary = {
   'tab.Medals': 'Medaillen',
   'tab.Handbook': 'Handbuch',
   'tab.Settings': 'Einstellungen',
+  'forge.title': 'Schmiede',
+  'forge.blueprints': 'Baupläne',
+  'forge.locker': 'Ausrüstungslager',
+  'forge.equip': 'Truppe ausrüsten',
+  'campaign.title': 'Kampagne',
+  'campaign.bossCodex': 'Boss-Kodex',
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Dictionary> = { en: EN, de: DE };

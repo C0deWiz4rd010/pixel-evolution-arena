@@ -3,6 +3,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { GearDef, GearInstance, GearSlot, GEAR_SLOTS } from '../../models/gear.model';
 import { describeGearBonus, forgeCost, gearInstanceBonus, getGearDef } from '../../rules/gear.rules';
 import { Monster } from '../../models/monster.model';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 const SLOT_LABEL: Record<GearSlot, string> = {
   core: 'Core',
@@ -14,6 +15,7 @@ const SLOT_LABEL: Record<GearSlot, string> = {
 @Component({
   selector: 'app-forge',
   standalone: true,
+  imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './forge.component.html',
   styleUrl: './forge.component.scss',

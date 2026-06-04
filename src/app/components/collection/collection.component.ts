@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { GridNavDirective } from '../../directives/grid-nav.directive';
 
 type StatusFilter = 'All' | 'Unlocked' | 'Locked';
 type RequirementStatusView = ReturnType<GameStateService['getRequirementStatuses']>[number];
@@ -59,7 +60,7 @@ interface ChaseTarget {
 
 @Component({
   selector: 'app-collection',
-  imports: [FormsModule],
+  imports: [FormsModule, GridNavDirective],
   templateUrl: './collection.component.html',
   styleUrl: './collection.component.scss',
 })
