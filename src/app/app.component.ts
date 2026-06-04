@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, effect, inject, signal } from '@angular/core';
 import { ArenaComponent } from './components/arena/arena.component';
 import { ArenaEffectsComponent } from './components/arena-effects/arena-effects.component';
 import { CollectionComponent } from './components/collection/collection.component';
@@ -9,6 +9,7 @@ import { MedalsComponent } from './components/medals/medals.component';
 import { SquadComponent } from './components/squad/squad.component';
 import { ForgeComponent } from './components/forge/forge.component';
 import { CampaignComponent } from './components/campaign/campaign.component';
+import { ExpeditionComponent } from './components/expedition/expedition.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
@@ -21,6 +22,7 @@ type AppTab =
   | 'Squad'
   | 'Forge'
   | 'Arena'
+  | 'Expedition'
   | 'Collection'
   | 'Campaign'
   | 'Medals'
@@ -32,6 +34,7 @@ const TAB_ORDER: AppTab[] = [
   'Squad',
   'Forge',
   'Arena',
+  'Expedition',
   'Collection',
   'Campaign',
   'Medals',
@@ -49,6 +52,7 @@ const TAB_ORDER: AppTab[] = [
     SquadComponent,
     ForgeComponent,
     ArenaComponent,
+    ExpeditionComponent,
     CollectionComponent,
     CampaignComponent,
     MedalsComponent,
@@ -65,6 +69,21 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<AppTab>('Evolution Tree');
+
+  constructor() {
+    // Reflect presentation settings onto <html> so global CSS can theme + adapt.
+    effect(() => {
+      const settings = this.game.settings();
+      if (typeof document === 'undefined') {
+        return;
+      }
+      const root = document.documentElement;
+      root.dataset['accent'] = settings.accentTheme;
+      root.dataset['colorblind'] = settings.colorblindMode ? 'on' : 'off';
+      root.dataset['reducedFx'] = settings.effectIntensity < 0.5 ? 'on' : 'off';
+      root.lang = settings.language;
+    });
+  }
 
   setActiveTab(tab: string): void {
     this.activeTab.set(tab as AppTab);

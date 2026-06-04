@@ -184,3 +184,28 @@ button {
   font-size: 0.84rem;
   color: #ffd7d7;
 }
+
+.segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(6, 12, 24, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(60, 120, 200, 0.3);
+}
+
+.seg {
+  padding: 5px 11px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.76rem;
+  color: #9fb4d6;
+  background: transparent;
+  box-shadow: none;
+
+  &.on {
+    color: #04121f;
+    background: linear-gradient(180deg, var(--accent-1, #4dd2ff), color-mix(in srgb, var(--accent-1, #4dd2ff) 70%, #000));
+  }
+}

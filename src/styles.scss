@@ -2237,3 +2237,73 @@ app-monster-card {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== Round-2 expansion: theming, battlefield banners, accessibility ===== */
+
+:root {
+  --accent-1: #18c8ff;
+  --accent-2: #7cff3a;
+}
+:root[data-accent='ember'] {
+  --accent-1: #ff8a3a;
+  --accent-2: #ffd23c;
+}
+:root[data-accent='mono'] {
+  --accent-1: #9fb8d8;
+  --accent-2: #d6e6ff;
+}
+
+/* Accent tint on prominent shared surfaces (legacy components keep their palette). */
+.mission-strip button,
+.primary {
+  background-image: linear-gradient(180deg, var(--accent-1), color-mix(in srgb, var(--accent-1) 70%, #000));
+}
+
+.battlefield-banners {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 10px;
+}
+.mutator-chip {
+  --mutator-tint: #12d8ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: #eaf4ff;
+  background: color-mix(in srgb, var(--mutator-tint) 22%, rgba(8, 14, 28, 0.85));
+  box-shadow: inset 0 0 0 1px var(--mutator-tint);
+  b {
+    color: var(--mutator-tint);
+  }
+}
+.trait-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  color: #d9ffe6;
+  background: rgba(124, 255, 58, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(124, 255, 58, 0.4);
+}
+
+/* Colorblind-safe: reinforce type/status text with weight + dotted underline. */
+:root[data-colorblind='on'] .type-chip,
+:root[data-colorblind='on'] .monster-meta,
+:root[data-colorblind='on'] .stat-label {
+  font-weight: 700 !important;
+  text-decoration: underline dotted currentColor 1px;
+  text-underline-offset: 2px;
+}
+
+/* Effect intensity hook: dampen heavy decorative glows when reduced. */
+:root[data-reduced-fx='on'] .creature-sprite,
+:root[data-reduced-fx='on'] .prismatic-sheen {
+  filter: none !important;
+  animation-duration: 6s !important;
+}

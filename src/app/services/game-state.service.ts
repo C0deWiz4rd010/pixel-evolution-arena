@@ -923,6 +923,21 @@ export class GameStateService {
     this.persistState();
   }
 
+  setAccentTheme(theme: PlayerSettings['accentTheme']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, accentTheme: theme } }));
+    this.persistState();
+  }
+
+  setLanguage(language: PlayerSettings['language']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, language } }));
+    this.persistState();
+  }
+
+  toggleCombatBeats(): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, combatBeats: !player.settings.combatBeats } }));
+    this.persistState();
+  }
+
   toggleMusic(): boolean {
     return this.audio.toggleMusic();
   }

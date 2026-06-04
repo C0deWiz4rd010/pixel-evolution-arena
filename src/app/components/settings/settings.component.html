@@ -49,6 +49,33 @@
     </article>
 
     <article class="settings-card">
+      <h3>Presentation &amp; Gameplay</h3>
+      <label class="toggle-row">
+        <span>{{ 'settings.accent' | t }}</span>
+        <span class="segmented">
+          @for (theme of accentThemes; track theme.id) {
+            <button type="button" class="seg" [class.on]="settings().accentTheme === theme.id" (click)="setAccent(theme.id)">{{ theme.label }}</button>
+          }
+        </span>
+      </label>
+      <label class="toggle-row">
+        <span>{{ 'settings.language' | t }}</span>
+        <span class="segmented">
+          @for (lang of languages; track lang.id) {
+            <button type="button" class="seg" [class.on]="settings().language === lang.id" (click)="setLanguage(lang.id)">{{ lang.label }}</button>
+          }
+        </span>
+      </label>
+      <label class="toggle-row">
+        <span>{{ 'settings.combatBeats' | t }}</span>
+        <button type="button" class="pill" [class.on]="settings().combatBeats" (click)="toggleCombatBeats()">
+          {{ settings().combatBeats ? ('common.on' | t) : ('common.off' | t) }}
+        </button>
+      </label>
+      <p class="hint">Combat beats add an optional timing prompt during battles for a small, capped bonus.</p>
+    </article>
+
+    <article class="settings-card">
       <h3>Save Export</h3>
       <p class="hint">Generate a portable code of your current progress.</p>
       <div class="btn-row">

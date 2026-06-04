@@ -14,6 +14,7 @@ export class TabNavigationComponent {
     { label: 'Squad', icon: 'SQ', signal: '3 slots' },
     { label: 'Forge', icon: 'FRG', signal: 'Gear' },
     { label: 'Arena', icon: 'VS', signal: 'Rewards' },
+    { label: 'Expedition', icon: 'EXP', signal: 'Roguelite' },
     { label: 'Collection', icon: 'DEX', signal: 'Filters' },
     { label: 'Campaign', icon: 'CMP', signal: 'Chapters' },
     { label: 'Medals', icon: 'MDL', signal: 'Achievements' },

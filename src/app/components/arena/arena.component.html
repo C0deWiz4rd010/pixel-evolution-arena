@@ -24,6 +24,15 @@
       </div>
     </div>
 
+    <div class="battlefield-banners" aria-label="Battlefield conditions">
+      <span class="mutator-chip" [style.--mutator-tint]="game.activeMutator().tint" [title]="game.activeMutator().detail">
+        <b>{{ game.activeMutator().icon }}</b> {{ game.activeMutator().name }}
+      </span>
+      @for (trait of game.squadTraits(); track trait.id) {
+        <span class="trait-chip" [title]="trait.detail">✦ {{ trait.name }}</span>
+      }
+    </div>
+
     <app-pixi-battle-stage class="pixi-battle-stage" />
 
     <div class="combat-matrix">

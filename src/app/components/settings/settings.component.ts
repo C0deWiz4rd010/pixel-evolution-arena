@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormsModule } from '@angular/forms';
 import { GameStateService } from '../../services/game-state.service';
 import { AudioService } from '../../services/audio.service';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { AccentTheme, LanguageCode } from '../../models/player-state.model';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -16,6 +18,27 @@ export class SettingsComponent {
   readonly audio = inject(AudioService);
 
   readonly settings = this.game.settings;
+  readonly accentThemes: { id: AccentTheme; label: string }[] = [
+    { id: 'aurora', label: 'Aurora' },
+    { id: 'ember', label: 'Ember' },
+    { id: 'mono', label: 'Mono' },
+  ];
+  readonly languages: { id: LanguageCode; label: string }[] = [
+    { id: 'en', label: 'English' },
+    { id: 'de', label: 'Deutsch' },
+  ];
+
+  setAccent(theme: AccentTheme): void {
+    this.game.setAccentTheme(theme);
+  }
+
+  setLanguage(language: LanguageCode): void {
+    this.game.setLanguage(language);
+  }
+
+  toggleCombatBeats(): void {
+    this.game.toggleCombatBeats();
+  }
   readonly volumePercent = computed(() => Math.round(this.settings().masterVolume * 100));
   readonly intensityPercent = computed(() => Math.round(this.settings().effectIntensity * 100));
 
