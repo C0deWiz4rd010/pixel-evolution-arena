@@ -132,6 +132,28 @@
           <strong>{{ powerDeltaLabel() }}</strong>
         </div>
 
+        <section class="readiness-console" aria-label="Run readiness checklist">
+          <div class="readiness-head">
+            <div>
+              <span>Run Readiness</span>
+              <strong>{{ readinessPercent() }}% SYNced</strong>
+            </div>
+            <div class="readiness-meter" aria-hidden="true">
+              <i [style.width.%]="readinessPercent()"></i>
+            </div>
+          </div>
+
+          <div class="readiness-grid">
+            @for (check of readinessChecks(); track check.label) {
+              <article class="readiness-node tone-{{ check.tone }}" [class.ready]="check.ready">
+                <span>{{ check.label }}</span>
+                <strong>{{ check.value }}</strong>
+                <small>{{ check.detail }}</small>
+              </article>
+            }
+          </div>
+        </section>
+
         <div class="command-deck">
           <div class="deck-row" role="radiogroup" aria-label="Battle mode">
             <span class="deck-label">Mode</span>
@@ -292,6 +314,32 @@
       </div>
       <strong>{{ terminalStatus() }}</strong>
     </div>
+
+    <section class="reward-forecast" aria-label="Reward forecast">
+      <div class="forecast-head">
+        <span>Reward Forecast</span>
+        <strong>{{ multiplierLabel(rewardForecast().multiplier) }} PAYOUT</strong>
+      </div>
+      <div class="forecast-grid">
+        <span><small>Win</small><strong>+{{ rewardForecast().win.coins }} CR</strong></span>
+        <span><small>DNA</small><strong>+{{ rewardForecast().win.dnaShards }}</strong></span>
+        <span><small>XP</small><strong>+{{ rewardForecast().win.xp }}</strong></span>
+        <span><small>Item</small><strong>{{ rewardForecast().itemChancePercent }}%</strong></span>
+      </div>
+      <p>
+        Loss safety: +{{ rewardForecast().loss.coins }} CR / +{{ rewardForecast().loss.dnaShards }} DNA /
+        +{{ rewardForecast().loss.xp }} XP.
+        @if (rewardForecast().streakBonus.coins > 0 || rewardForecast().streakBonus.xp > 0) {
+          Streak x{{ rewardForecast().nextStreak }} adds +{{ rewardForecast().streakBonus.coins }} CR /
+          +{{ rewardForecast().streakBonus.xp }} XP.
+        }
+      </p>
+      @if (nextBattleMilestone(); as milestone) {
+        <p class="milestone-forecast">
+          Milestone: {{ milestone.winsNeeded }} win{{ milestone.winsNeeded === 1 ? '' : 's' }} until {{ milestone.threshold }} total.
+        </p>
+      }
+    </section>
 
     @if (game.lastReward(); as reward) {
       <section class="result-banner" [class.victory]="reward.won" [class.retreat]="!reward.won">

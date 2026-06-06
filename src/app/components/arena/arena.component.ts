@@ -16,6 +16,14 @@ interface BattleCoachPlan {
   actionLabel: string;
 }
 
+interface ReadinessCheck {
+  label: string;
+  value: string;
+  detail: string;
+  ready: boolean;
+  tone: 'ready' | 'warn' | 'boost';
+}
+
 @Component({
   selector: 'app-arena',
   imports: [PixiBattleStageComponent, CombatBeatComponent],
@@ -69,6 +77,71 @@ export class ArenaComponent {
   readonly activeBattleCategoryId = this.game.battleCategoryId;
   readonly activeBattleCategory = this.game.battleCategory;
   readonly battleOutlook = this.game.battleOutlook;
+  readonly rewardForecast = this.game.arenaRewardForecast;
+  readonly nextBattleMilestone = this.game.nextBattleMilestone;
+
+  readonly readinessChecks = computed<ReadinessCheck[]>(() => {
+    const squadSize = this.game.squad().length;
+    const outlook = this.battleOutlook();
+    const typeEdge = this.squadTypeEdge();
+    const reward = this.rewardForecast();
+
+    return [
+      {
+        label: 'Squad',
+        value: `${squadSize}/3`,
+        detail: squadSize === 3 ? 'Full formation loaded.' : 'Fill every slot to stabilize battle rolls.',
+        ready: squadSize === 3,
+        tone: squadSize === 3 ? 'ready' : 'warn',
+      },
+      {
+        label: 'Forecast',
+        value: outlook.label,
+        detail: outlook.detail,
+        ready: outlook.tone !== 'low',
+        tone: outlook.tone === 'strong' ? 'boost' : outlook.tone === 'even' ? 'ready' : 'warn',
+      },
+      {
+        label: 'Type Edge',
+        value: typeEdge.label,
+        detail: typeEdge.detail,
+        ready: typeEdge.modifier >= 0,
+        tone: typeEdge.modifier > 0 ? 'boost' : typeEdge.modifier === 0 ? 'ready' : 'warn',
+      },
+      {
+        label: 'Loadout',
+        value: `${this.equippedConsumables().length}/2`,
+        detail:
+          this.equippedConsumables().length > 0
+            ? 'Consumable support armed for the next run.'
+            : 'Equip a consumable for risky or boss runs.',
+        ready: this.equippedConsumables().length > 0 || outlook.tone === 'strong',
+        tone: this.equippedConsumables().length > 0 ? 'boost' : outlook.tone === 'strong' ? 'ready' : 'warn',
+      },
+      {
+        label: 'Payout',
+        value: `${reward.itemChancePercent}% item`,
+        detail: `Win preview: +${reward.win.coins} CR / +${reward.win.dnaShards} DNA / +${reward.win.xp} XP.`,
+        ready: reward.itemChancePercent >= 25,
+        tone: reward.itemChancePercent >= 33 ? 'boost' : 'ready',
+      },
+      {
+        label: 'Overdrive',
+        value: this.overdriveReady() ? (this.overdriveArmed() ? 'ARMED' : 'READY') : `${this.overdrivePercent()}%`,
+        detail: this.overdriveReady()
+          ? 'Spend it on a valuable run or keep banking it.'
+          : 'Battles charge the core. Wins charge faster.',
+        ready: this.overdriveReady(),
+        tone: this.overdriveArmed() ? 'boost' : this.overdriveReady() ? 'ready' : 'warn',
+      },
+    ];
+  });
+
+  readonly readinessPercent = computed(() => {
+    const checks = this.readinessChecks();
+    const ready = checks.filter((check) => check.ready).length;
+    return Math.round((ready / checks.length) * 100);
+  });
 
   setBattleCategory(id: BattleCategoryId): void {
     this.game.setBattleCategory(id);
@@ -247,4 +320,8 @@ export class ArenaComponent {
 
     return reward.won ? 'is-victory' : 'is-retreat';
   });
+
+  multiplierLabel(value: number): string {
+    return `${value.toFixed(2)}x`;
+  }
 }

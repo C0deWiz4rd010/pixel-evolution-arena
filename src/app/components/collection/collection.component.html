@@ -182,6 +182,42 @@
   </section>
 
   <aside class="hud-panel collection-summary dex-side">
+    <section class="chase-queue-panel" aria-label="Chase queue">
+      <div class="side-heading">
+        <span>Chase Queue</span>
+        <strong>{{ chaseQueue().length }} TARGETS</strong>
+      </div>
+
+      @if (chaseQueue().length > 0) {
+        <div class="chase-queue-list">
+          @for (chase of chaseQueue(); track chase.target.id) {
+            <article class="queue-target stage-{{ chase.className }}" [class.ready]="chase.ready" [class.pinned]="game.pinnedChaseId() === chase.target.id">
+              <div class="queue-main">
+                <span class="monster-id">{{ chase.target.id }}</span>
+                <strong>{{ chase.target.name }}</strong>
+                <small>{{ chase.percent }}% / {{ chase.actionLabel }}</small>
+              </div>
+              <div class="queue-meter" aria-hidden="true"><i [style.width.%]="chase.percent"></i></div>
+              <div class="queue-actions">
+                @if (chase.source; as source) {
+                  <button type="button" (click)="selectMonster(source.id)">Trace</button>
+                }
+                @if (chase.ready) {
+                  <button type="button" class="ready-action" (click)="evolveChase(chase)">Evolve Now</button>
+                } @else {
+                  <button type="button" (click)="pinChase(chase.target.id)">
+                    {{ game.pinnedChaseId() === chase.target.id ? 'Pinned' : 'Pin' }}
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty-note">No reachable locked routes remain in the current archive.</p>
+      }
+    </section>
+
     @if (pinnedChaseProgress(); as chase) {
       <section class="chase-panel pinned-chase stage-{{ chase.className }}">
         <div class="side-heading">

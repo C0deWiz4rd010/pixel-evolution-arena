@@ -268,6 +268,19 @@ export class CollectionComponent {
     };
   });
 
+  readonly chaseQueue = computed<ChaseTarget[]>(() =>
+    this.game.evolutionCandidates().slice(0, 3).map((candidate) => ({
+      target: candidate.target,
+      source: candidate.source,
+      className: this.game.stageClass(candidate.target.stage),
+      requirements: candidate.requirements,
+      missing: candidate.missing,
+      ready: candidate.ready,
+      percent: candidate.percent,
+      actionLabel: this.chaseActionLabel(candidate.ready, candidate.source, candidate.missing),
+    })),
+  );
+
   readonly nextChase = computed<ChaseTarget | null>(() => {
     const stageOrder = new Map(this.game.stages.map((stage, index) => [stage, index]));
     const candidates = this.game

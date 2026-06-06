@@ -67,3 +67,11 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with existing budget warnings only: initial bundle 502.56 kB vs 500 kB warning, Arena SCSS 19.69 kB vs 14 kB warning.
 - `npm.cmd run test:e2e` passed (7 Playwright smoke tests).
 - Phase 10 improvements shipped: global Next Command guidance in shell/HUD, Arena Tactic Coach, direct Collection `Evolve Now` for ready chase targets, full-squad reserve swapping when a stronger candidate is available, ASCII cleanup for touched runtime UI strings, and smoke coverage for the new flows.
+
+2026-06-06:
+
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed with existing warnings: Arena SCSS warning budget (19.69 kB vs 14 kB warning) and Pixi CommonJS warning for `@xmldom/xmldom`.
+- `npm.cmd run test:e2e` passed (13 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x1100 and mobile 390x844. Verified Auto Build Best Squad, Arena Run Readiness, Reward Forecast, Collection Chase Queue, direct Evolution Tree route action, and mobile HUD wrapping. Playwright screenshots produced only WebGL ReadPixels capture warnings.
+- Phase 11 shipped: Arena readiness and reward forecasting, battle milestone preview, Squad auto-build plus shape diagnostics, direct Tree route actions, Monster Detail training plans, Collection Chase Queue, sharper locked/selected card treatment, mobile HUD/tab readability fixes, and Pages deploy trigger for `develop`.

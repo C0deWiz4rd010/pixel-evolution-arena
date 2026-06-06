@@ -29,6 +29,34 @@
     0 0 18px rgba(180, 120, 255, 0.4);
 }
 
+.monster-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(90deg, transparent 0 46%, color-mix(in srgb, currentColor 22%, transparent) 47% 53%, transparent 54% 100%),
+    repeating-linear-gradient(180deg, transparent 0 7px, rgba(255, 255, 255, 0.045) 7px 8px);
+  opacity: 0.42;
+  mix-blend-mode: screen;
+}
+
+.monster-card.locked::before {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 86, 77, 0.16) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(180deg, transparent 0 6px, rgba(255, 255, 255, 0.045) 6px 7px);
+  opacity: 0.62;
+}
+
+.monster-card.selected::before {
+  opacity: 0.72;
+}
+
+.monster-card.locked .sprite-node {
+  filter: grayscale(1) contrast(1.24) drop-shadow(0 0 10px rgba(255, 86, 77, 0.45));
+}
+
 .prismatic-sheen {
   position: absolute;
   inset: 0;

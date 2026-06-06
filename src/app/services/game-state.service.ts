@@ -14,6 +14,7 @@ import {
   BattleCategoryProfile,
   BattleStanceId,
   OVERDRIVE_ATTACK_BONUS,
+  WIN_STREAK_MILESTONES,
   applyStreakBonus,
   buildBattleLogsFromEvents,
   buildReward,
@@ -88,6 +89,26 @@ export interface NextCommand {
   detail: string;
   actionLabel: string;
   tone: 'blocked' | 'ready' | 'battle' | 'squad' | 'collection' | 'meta';
+}
+
+export interface ArenaRewardForecast {
+  win: BattleReward;
+  loss: BattleReward;
+  itemChancePercent: number;
+  multiplier: number;
+  nextStreak: number;
+  streakBonus: StreakBonusPreview;
+}
+
+export interface StreakBonusPreview {
+  coins: number;
+  xp: number;
+}
+
+export interface BattleMilestonePreview {
+  threshold: number;
+  winsNeeded: number;
+  label: string;
 }
 
 const STARTER_PLAYER_STATE: PlayerState = {
@@ -323,6 +344,34 @@ export class GameStateService {
     }),
   );
 
+  readonly arenaRewardForecast = computed<ArenaRewardForecast>(() => {
+    const formation = this.activeFormation();
+    const threat = this.upcomingArenaThreat();
+    const category = this.battleCategory();
+    const gauntletRewardBoost = this.battleMode() === 'gauntlet' ? 1 + 0.08 * this.gauntletWave() : 1;
+    const multiplier =
+      formation.rewardModifier *
+      threat.rewardModifier *
+      category.rewardModifier *
+      gauntletRewardBoost *
+      (1 + this.traitBonus().rewardBonus);
+    const baseWin = buildReward(true, false, multiplier);
+    const nextStreak = this.player().winStreak + 1;
+    const streakBonus = calculateStreakBonus(nextStreak, baseWin);
+    const win = applyStreakBonus(baseWin, streakBonus, nextStreak);
+    const loss = buildReward(false, false, multiplier);
+    const itemChance = Math.min(0.65, Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus));
+
+    return {
+      win,
+      loss,
+      itemChancePercent: Math.round(itemChance * 100),
+      multiplier,
+      nextStreak,
+      streakBonus,
+    };
+  });
+
   readonly winStreak = computed(() => this.player().winStreak);
   readonly bestWinStreak = computed(() => this.player().bestWinStreak);
   readonly streakLabel = computed(() => {
@@ -331,6 +380,23 @@ export class GameStateService {
       return 'No streak';
     }
     return `x${streak}`;
+  });
+
+  readonly nextBattleMilestone = computed<BattleMilestonePreview | null>(() => {
+    const player = this.player();
+    const next = WIN_STREAK_MILESTONES.find(
+      (threshold) => player.battlesWon < threshold && !player.claimedMilestones.includes(threshold),
+    );
+
+    if (next === undefined) {
+      return null;
+    }
+
+    return {
+      threshold: next,
+      winsNeeded: next - player.battlesWon,
+      label: milestoneLabel(next),
+    };
   });
 
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
@@ -641,6 +707,47 @@ export class GameStateService {
 
   clearSquad(): void {
     this.player.update((player) => ({ ...player, squadIds: [] }));
+    this.persistState();
+  }
+
+  autoBuildBestSquad(): void {
+    const selected: Monster[] = [];
+    const unlocked = this.monsters().filter((monster) => monster.unlocked);
+
+    while (selected.length < 3 && selected.length < unlocked.length) {
+      const chosen = unlocked
+        .filter((monster) => !selected.some((entry) => entry.id === monster.id))
+        .sort((left, right) => this.scoreSquadAutofillCandidate(right, selected) - this.scoreSquadAutofillCandidate(left, selected))[0];
+
+      if (!chosen) {
+        break;
+      }
+
+      selected.push(chosen);
+    }
+
+    const nextIds = selected.map((monster) => monster.id);
+    const currentIds = this.player().squadIds;
+    if (nextIds.join('|') === currentIds.join('|')) {
+      this.toast.push({
+        title: 'Squad Already Tuned',
+        message: 'The strongest available three-signal loadout is already online.',
+        tone: 'info',
+        icon: 'SQ',
+        durationMs: 2800,
+      });
+      return;
+    }
+
+    this.player.update((player) => ({ ...player, squadIds: nextIds }));
+    this.prependLog(`Auto-built squad: ${selected.map((monster) => monster.name).join(' / ')}.`, 'info');
+    this.toast.push({
+      title: 'Squad Auto-Built',
+      message: `${selected.length}/3 slots tuned for power and type spread.`,
+      tone: 'success',
+      icon: 'SQ',
+      durationMs: 3400,
+    });
     this.persistState();
   }
 
@@ -1767,6 +1874,17 @@ export class GameStateService {
 
   private randomBetween(min: number, max: number): number {
     return min + Math.random() * (max - min);
+  }
+
+  private scoreSquadAutofillCandidate(monster: Monster, selected: Monster[]): number {
+    const selectedTypes = new Set(selected.map((entry) => entry.type));
+    const selectedStages = new Set(selected.map((entry) => entry.stage));
+    const typeBonus = selectedTypes.has(monster.type) ? 0 : 150;
+    const stageBonus = selectedStages.has(monster.stage) ? 0 : 45;
+    const prismaticBonus = monster.prismatic ? 60 : 0;
+    const stageRank = this.stages.indexOf(monster.stage) * 12;
+
+    return getMonsterPower(monster) + typeBonus + stageBonus + prismaticBonus + stageRank;
   }
 }
 

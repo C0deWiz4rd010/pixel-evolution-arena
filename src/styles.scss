@@ -2123,10 +2123,16 @@ app-monster-card {
 
   .brand-copy h1 {
     font-size: clamp(1.22rem, 7vw, 1.55rem);
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .brand-copy p {
     font-size: clamp(0.56rem, 3.15vw, 0.78rem);
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .hud-stats,
@@ -2140,12 +2146,22 @@ app-monster-card {
   }
 
   .stat-chip {
-    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-columns: 34px minmax(0, 1fr) minmax(64px, auto);
     min-height: 44px;
   }
 
   .stat-chip.selected {
     grid-template-columns: 58px minmax(0, 1fr) auto;
+  }
+
+  .stat-chip strong {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .stat-chip.streak strong,
+  .stat-chip.next-command strong {
+    font-size: 0.92rem;
   }
 
   .tab-nav {
@@ -2290,6 +2306,173 @@ app-monster-card {
   color: #d9ffe6;
   background: rgba(124, 255, 58, 0.12);
   box-shadow: inset 0 0 0 1px rgba(124, 255, 58, 0.4);
+}
+
+.readiness-console {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.44rem;
+  border: 1px solid rgba(19, 216, 255, 0.26);
+  background: linear-gradient(90deg, rgba(19, 216, 255, 0.08), transparent 70%), rgba(0, 0, 0, 0.3);
+  clip-path: var(--chamfer);
+}
+
+.readiness-head {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(90px, 1fr);
+  gap: 0.42rem;
+  align-items: center;
+}
+
+.readiness-head span,
+.forecast-head span,
+.readiness-node span,
+.forecast-grid small {
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.readiness-head strong,
+.forecast-head strong {
+  display: block;
+  margin-top: 0.08rem;
+  color: var(--line-bright);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.readiness-meter {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(19, 216, 255, 0.34);
+  background: rgba(0, 0, 0, 0.42);
+  clip-path: var(--chamfer-tight);
+}
+
+.readiness-meter i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--danger), var(--coin), var(--success));
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.35);
+}
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.28rem;
+}
+
+.readiness-node {
+  display: grid;
+  gap: 0.08rem;
+  min-height: 60px;
+  padding: 0.32rem 0.38rem;
+  border: 1px solid var(--readiness-color, rgba(255, 255, 255, 0.15));
+  background: linear-gradient(90deg, var(--readiness-tint, transparent), transparent 70%), rgba(0, 0, 0, 0.28);
+  clip-path: var(--chamfer-tight);
+}
+
+.readiness-node.tone-ready {
+  --readiness-color: var(--line);
+  --readiness-tint: rgba(19, 216, 255, 0.14);
+}
+
+.readiness-node.tone-warn {
+  --readiness-color: var(--danger);
+  --readiness-tint: rgba(255, 86, 77, 0.14);
+}
+
+.readiness-node.tone-boost {
+  --readiness-color: var(--success);
+  --readiness-tint: rgba(131, 255, 69, 0.16);
+}
+
+.readiness-node strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.readiness-node.ready strong {
+  color: var(--readiness-color);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.readiness-node small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.54rem;
+  line-height: 1.2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.reward-forecast {
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.46rem 0.52rem;
+  border: 1px solid rgba(131, 255, 69, 0.3);
+  background: linear-gradient(90deg, rgba(131, 255, 69, 0.1), transparent 60%), rgba(0, 0, 0, 0.3);
+  clip-path: var(--chamfer);
+}
+
+.forecast-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+.forecast-grid span {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  padding: 0.28rem 0.32rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.26);
+  clip-path: var(--chamfer-tight);
+}
+
+.forecast-grid strong {
+  overflow: hidden;
+  color: var(--success);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reward-forecast p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.24;
+}
+
+.reward-forecast .milestone-forecast {
+  color: var(--coin);
+  text-transform: uppercase;
+}
+
+@media (max-width: 1020px) {
+  .readiness-head,
+  .readiness-grid,
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Colorblind-safe: reinforce type/status text with weight + dotted underline. */

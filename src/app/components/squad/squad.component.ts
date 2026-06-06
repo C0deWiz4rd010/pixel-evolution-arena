@@ -22,6 +22,20 @@ interface NextActionView {
   tone: 'add' | 'remove' | 'battle' | 'unlock';
 }
 
+interface TeamShapeStat {
+  label: string;
+  value: number;
+  percent: number;
+  tone: 'attack' | 'defense' | 'speed' | 'hp';
+}
+
+interface RoleFitView {
+  role: SlotRoleDescriptor;
+  monster: Monster | null;
+  score: number;
+  label: string;
+}
+
 @Component({
   selector: 'app-squad',
   imports: [GridNavDirective],
@@ -125,6 +139,33 @@ export class SquadComponent {
   readonly dangerForecast = this.game.upcomingArenaThreat;
   readonly activeFormation = this.game.activeFormation;
   readonly arenaDirective = this.game.arenaDirective;
+
+  readonly teamShapeStats = computed<TeamShapeStat[]>(() => {
+    const squad = this.game.squad();
+    const slotCount = Math.max(1, squad.length);
+    const target = slotCount * 92;
+    const sum = (key: 'attack' | 'defense' | 'speed' | 'hp') => squad.reduce((total, monster) => total + monster[key], 0);
+
+    return [
+      { label: 'Attack', value: sum('attack'), percent: this.statPercent(sum('attack'), target), tone: 'attack' },
+      { label: 'Defense', value: sum('defense'), percent: this.statPercent(sum('defense'), target), tone: 'defense' },
+      { label: 'Speed', value: sum('speed'), percent: this.statPercent(sum('speed'), target), tone: 'speed' },
+      { label: 'HP Grid', value: sum('hp'), percent: this.statPercent(sum('hp'), target), tone: 'hp' },
+    ];
+  });
+
+  readonly roleFits = computed<RoleFitView[]>(() =>
+    this.squadSlots().map((slot) => {
+      const monster = slot.monster;
+      const score = monster ? this.roleFitScore(monster, slot.index) : 0;
+      return {
+        role: slot.role,
+        monster,
+        score,
+        label: monster ? this.roleFitLabel(score) : 'Offline',
+      };
+    }),
+  );
 
   readonly nextAction = computed<NextActionView>(() => {
     const candidate = this.recommendedCandidate();
@@ -268,6 +309,10 @@ export class SquadComponent {
     this.game.replaceSquadMember(weakest.id, candidate.id);
   }
 
+  autoBuildSquad(): void {
+    this.game.autoBuildBestSquad();
+  }
+
   formatModifier(value: number): string {
     return `${value > 0 ? '+' : ''}${Math.round(value * 100)}%`;
   }
@@ -303,5 +348,33 @@ export class SquadComponent {
     const upgradeBonus = weakest ? Math.max(0, this.power(monster) - this.power(weakest)) * 3 : 0;
 
     return this.power(monster) + missingCoverageBonus + openSlotBonus + upgradeBonus;
+  }
+
+  private statPercent(value: number, target: number): number {
+    return Math.max(0, Math.min(100, Math.round((value / target) * 100)));
+  }
+
+  private roleFitScore(monster: Monster, index: number): number {
+    if (index === 0) {
+      return this.statPercent(monster.hp + monster.speed, 185);
+    }
+
+    if (index === 1) {
+      return this.statPercent(monster.attack + monster.defense + monster.speed, 250);
+    }
+
+    return this.statPercent(monster.attack + monster.defense, 190);
+  }
+
+  private roleFitLabel(score: number): string {
+    if (score >= 88) {
+      return 'Prime fit';
+    }
+
+    if (score >= 68) {
+      return 'Stable fit';
+    }
+
+    return 'Needs tuning';
   }
 }

@@ -51,7 +51,7 @@ test('default route can evolve and battles produce rewards', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'Evolution Tree' })).toBeVisible();
   const detailPanel = page.locator('aside.detail-panel');
   await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
-  await detailPanel.getByRole('button', { name: 'Evolve' }).first().click();
+  await page.getByRole('button', { name: /Evolve Splashfang/i }).click();
   await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
 
   await nav.getByRole('button', { name: /Arena/i }).click();
@@ -59,6 +59,24 @@ test('default route can evolve and battles produce rewards', async ({ page }) =>
 
   await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
   await expect(page.getByText(/XP \+\d+/)).toBeVisible();
+});
+
+test('auto build loads a full squad and arena shows run readiness forecast', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Squad/i }).click();
+  await page.getByRole('button', { name: 'Clear Squad' }).click();
+  await page.getByRole('button', { name: 'Auto Build Best Squad' }).click();
+  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Battle Readiness' })).toBeVisible();
+  await expect(page.getByLabel('Squad stat shape')).toContainText('Squad Shape');
+
+  await nav.getByRole('button', { name: /Arena/i }).click();
+  await expect(page.getByLabel('Run readiness checklist')).toContainText('Run Readiness');
+  await expect(page.getByLabel('Reward forecast')).toContainText(/Reward Forecast/i);
+  await expect(page.getByRole('button', { name: /Start Battle|Queue Next Battle|Retry Battle/i })).toBeEnabled();
 });
 
 test('arena exposes hybrid controls and the medals tab lists achievements', async ({ page }) => {
@@ -86,6 +104,7 @@ test('collection can evolve a reachable chase directly', async ({ page }) => {
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Collection/i }).click();
+  await expect(page.getByLabel('Chase queue')).toContainText('Chase Queue');
   await page.getByRole('button', { name: 'Reachable Now' }).click();
   await page.getByRole('button', { name: 'Evolve Now' }).first().click();
 

@@ -71,6 +71,8 @@ export class EvolutionTreeComponent {
     return selected ? this.selectedTargets().filter((target) => this.game.canEvolve(selected, target)) : [];
   });
 
+  readonly primarySelectedTarget = computed(() => this.readySelectedTargets()[0] ?? this.selectedTargets().find((target) => !target.unlocked) ?? null);
+
   readonly squadSlots = computed<(Monster | null)[]>(() => {
     const squad = this.game.squad();
     return [squad[0] ?? null, squad[1] ?? null, squad[2] ?? null];
@@ -261,6 +263,53 @@ export class EvolutionTreeComponent {
 
     const missing = this.missingRequirementLabels(source, target).slice(0, 2);
     return missing.length > 0 ? `NEEDS ${missing.join(' + ')}` : 'LOCKED';
+  }
+
+  executePrimaryRouteAction(): void {
+    const selected = this.game.selectedMonster();
+    const target = this.primarySelectedTarget();
+
+    if (!selected || !target) {
+      return;
+    }
+
+    if (this.game.canEvolve(selected, target)) {
+      this.game.evolve(selected.id, target.id);
+      return;
+    }
+
+    if (!target.unlocked) {
+      this.game.pinChaseTarget(target.id);
+    }
+  }
+
+  primaryRouteActionDisabled(): boolean {
+    const target = this.primarySelectedTarget();
+    return !target || target.unlocked;
+  }
+
+  primaryRouteActionReady(source: Monster): boolean {
+    const target = this.primarySelectedTarget();
+    return Boolean(target && this.game.canEvolve(source, target));
+  }
+
+  primaryRouteActionLabel(): string {
+    const selected = this.game.selectedMonster();
+    const target = this.primarySelectedTarget();
+
+    if (!selected || !target) {
+      return 'Select Route';
+    }
+
+    if (this.game.canEvolve(selected, target)) {
+      return `Evolve ${target.name}`;
+    }
+
+    if (target.unlocked) {
+      return 'Route Online';
+    }
+
+    return `Pin ${target.name}`;
   }
 
   private missingRequirementLabels(source: Monster, target: Monster): string[] {
