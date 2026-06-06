@@ -1,12 +1,13 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { CountUpDirective } from '../../directives/count-up.directive';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 type PulseKey = 'coins' | 'dna' | 'power' | 'wins' | 'streak';
 
 @Component({
   selector: 'app-header-hud',
-  imports: [CountUpDirective],
+  imports: [CountUpDirective, TranslatePipe],
   templateUrl: './header-hud.component.html',
   styleUrl: './header-hud.component.scss',
 })

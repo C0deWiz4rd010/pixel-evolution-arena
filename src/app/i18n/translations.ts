@@ -47,7 +47,23 @@ export type TranslationKey =
   | 'forge.locker'
   | 'forge.equip'
   | 'campaign.title'
-  | 'campaign.bossCodex';
+  | 'campaign.bossCodex'
+  | 'hud.coins'
+  | 'hud.dna'
+  | 'hud.power'
+  | 'hud.wins'
+  | 'hud.streak'
+  | 'hud.overdrive'
+  | 'hud.daily'
+  | 'hud.next'
+  | 'hud.chase'
+  | 'hud.save'
+  | 'hud.selected'
+  | 'collection.title'
+  | 'common.all'
+  | 'common.unlocked'
+  | 'common.locked'
+  | 'common.reset';
 
 type Dictionary = Record<TranslationKey, string>;
 
@@ -95,6 +111,22 @@ const EN: Dictionary = {
   'forge.equip': 'Equip Squad',
   'campaign.title': 'Campaign',
   'campaign.bossCodex': 'Boss Codex',
+  'hud.coins': 'Coins',
+  'hud.dna': 'DNA Shards',
+  'hud.power': 'Team Power',
+  'hud.wins': 'Battles Won',
+  'hud.streak': 'Win Streak',
+  'hud.overdrive': 'Overdrive',
+  'hud.daily': 'Daily',
+  'hud.next': 'Next',
+  'hud.chase': 'Chase',
+  'hud.save': 'Save Core',
+  'hud.selected': 'Selected',
+  'collection.title': 'Digital Archive',
+  'common.all': 'All',
+  'common.unlocked': 'Unlocked',
+  'common.locked': 'Locked',
+  'common.reset': 'Reset',
 };
 
 const DE: Dictionary = {
@@ -141,6 +173,22 @@ const DE: Dictionary = {
   'forge.equip': 'Truppe ausrüsten',
   'campaign.title': 'Kampagne',
   'campaign.bossCodex': 'Boss-Kodex',
+  'hud.coins': 'Münzen',
+  'hud.dna': 'DNA-Splitter',
+  'hud.power': 'Team-Stärke',
+  'hud.wins': 'Siege',
+  'hud.streak': 'Siegesserie',
+  'hud.overdrive': 'Overdrive',
+  'hud.daily': 'Täglich',
+  'hud.next': 'Nächstes',
+  'hud.chase': 'Jagd',
+  'hud.save': 'Speicher-Kern',
+  'hud.selected': 'Ausgewählt',
+  'collection.title': 'Digitales Archiv',
+  'common.all': 'Alle',
+  'common.unlocked': 'Freigeschaltet',
+  'common.locked': 'Gesperrt',
+  'common.reset': 'Zurücksetzen',
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Dictionary> = { en: EN, de: DE };
