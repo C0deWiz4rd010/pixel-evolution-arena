@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Output, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -75,6 +75,21 @@ export class OnboardingComponent {
 
   skip(): void {
     this.finish();
+  }
+
+  /** Dismiss with Escape for a less trapping first-run experience. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.visible()) {
+      this.finish();
+    }
+  }
+
+  /** Clicking the backdrop (outside the card) also dismisses. */
+  onScrimClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('onboarding-scrim')) {
+      this.finish();
+    }
   }
 
   private finish(): void {

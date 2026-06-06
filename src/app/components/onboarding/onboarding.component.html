@@ -1,5 +1,5 @@
 @if (visible()) {
-  <div class="onboarding-scrim" role="dialog" aria-modal="true" aria-label="Getting started">
+  <div class="onboarding-scrim" role="dialog" aria-modal="true" aria-label="Getting started" (click)="onScrimClick($event)">
     <div class="onboarding-card">
       <div class="step-dots" aria-hidden="true">
         @for (step of steps; track $index) {
