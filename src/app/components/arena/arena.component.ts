@@ -79,6 +79,8 @@ export class ArenaComponent {
   readonly battleOutlook = this.game.battleOutlook;
   readonly rewardForecast = this.game.arenaRewardForecast;
   readonly nextBattleMilestone = this.game.nextBattleMilestone;
+  readonly arenaMomentum = this.game.arenaMomentum;
+  readonly arenaObjectiveCards = this.game.arenaObjectiveCards;
 
   readonly readinessChecks = computed<ReadinessCheck[]>(() => {
     const squadSize = this.game.squad().length;

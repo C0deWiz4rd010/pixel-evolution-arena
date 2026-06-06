@@ -86,3 +86,15 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed. Initial bundle stayed under budget at 649.98 kB; existing warnings remain Arena SCSS budget and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Quick Ops layout, Collection single-scroll metrics, and no console/page errors.
+
+2026-06-06 Phase 13:
+
+- Added `docs/phase-13-arena-momentum-todo.md` with the completed 14-point implementation todo.
+- Added Arena Momentum derived from squad status, win chain, forecast, overdrive, and risk outlook.
+- Added Arena Objective Stack for daily directive, next evolution chase, and battle milestone progress.
+- Added a compact Sim Field overlay so the Pixi stage has readable standby state without hiding creatures.
+- Fixed the wide Arena layout so the terminal grows with its command stack instead of clipping the Start Battle action.
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed with warnings: initial bundle 656.66 kB vs 650 kB warning, existing Arena SCSS warning, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Momentum, Objective Stack, Sim Field overlay, unclipped Start Battle action, Quick Ops bounds, and no console/page errors.

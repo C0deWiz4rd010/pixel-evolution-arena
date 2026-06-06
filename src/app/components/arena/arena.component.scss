@@ -1185,15 +1185,14 @@
   cursor: not-allowed;
 }
 
-/* Wide screens: arena fits the viewport; only the log feed scrolls internally. */
+/* Wide screens: let the Arena grow with its command stack instead of clipping actions. */
 @media (min-width: 1200px) {
   .arena-terminal-shell {
-    height: calc(100dvh - 172px);
     min-height: 540px;
   }
 
   .battle-terminal {
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 }

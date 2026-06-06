@@ -111,6 +111,24 @@ export interface BattleMilestonePreview {
   label: string;
 }
 
+export interface ArenaMomentumPanel {
+  title: string;
+  status: string;
+  detail: string;
+  meterPercent: number;
+  nextGoalLabel: string;
+  rewardHint: string;
+  tone: 'blocked' | 'building' | 'hot' | 'charged' | 'risk';
+}
+
+export interface ArenaObjectiveCard {
+  label: string;
+  value: string;
+  detail: string;
+  progressPercent: number;
+  tone: 'daily' | 'evolution' | 'milestone';
+}
+
 const STARTER_PLAYER_STATE: PlayerState = {
   coins: 1200,
   dnaShards: 45,
@@ -397,6 +415,86 @@ export class GameStateService {
       winsNeeded: next - player.battlesWon,
       label: milestoneLabel(next),
     };
+  });
+
+  readonly arenaMomentum = computed<ArenaMomentumPanel>(() => {
+    const squadSize = this.squad().length;
+    const forecast = this.arenaRewardForecast();
+    if (squadSize === 0) {
+      return {
+        title: 'Momentum Offline',
+        status: 'Squad Required',
+        detail: 'Load at least one allied signal before the Arena can build a battle chain.',
+        meterPercent: 0,
+        nextGoalLabel: '0/3 squad online',
+        rewardHint: 'Rewards unlock once a squad enters the sim.',
+        tone: 'blocked',
+      };
+    }
+
+    const player = this.player();
+    const streak = player.winStreak;
+    const nextGoal = WIN_STREAK_MILESTONES.find((threshold) => streak < threshold) ?? streak + 1;
+    const winsNeeded = Math.max(1, nextGoal - streak);
+    const outlook = this.battleOutlook();
+    const tone: ArenaMomentumPanel['tone'] = this.overdriveReady()
+      ? 'charged'
+      : outlook.tone === 'low'
+        ? 'risk'
+        : streak >= 3
+          ? 'hot'
+          : 'building';
+
+    return {
+      title: streak > 0 ? `Chain x${streak}` : 'Ignition Run',
+      status: this.overdriveReady() ? 'Overdrive Banked' : streak > 0 ? 'Momentum Live' : 'Chain Ready',
+      detail:
+        tone === 'risk'
+          ? 'Forecast is unstable. Guard, Training, or a stronger slot protects the next run.'
+          : tone === 'charged'
+            ? 'Spend the charged core on a boss, gauntlet push, or high-value Risk run.'
+            : streak > 0
+              ? 'Keep winning to stack payout pressure and push the next milestone.'
+              : 'The next win starts the bonus chain and charges Overdrive faster.',
+      meterPercent: Math.min(100, Math.round((streak / nextGoal) * 100)),
+      nextGoalLabel: `${winsNeeded} win${winsNeeded === 1 ? '' : 's'} to x${nextGoal}`,
+      rewardHint: `Next win: +${forecast.win.coins} CR / +${forecast.win.xp} XP / ${forecast.itemChancePercent}% item.`,
+      tone,
+    };
+  });
+
+  readonly arenaObjectiveCards = computed<ArenaObjectiveCard[]>(() => {
+    const daily = this.dailyObjective();
+    const directive = this.dailyDirective();
+    const chase = this.pinnedChaseId()
+      ? this.evolutionCandidates().find((candidate) => candidate.target.id === this.pinnedChaseId()) ?? this.nextEvolutionCandidate()
+      : this.nextEvolutionCandidate();
+    const milestone = this.nextBattleMilestone();
+    const dailyDone = this.dailyComplete();
+
+    return [
+      {
+        label: 'Daily Directive',
+        value: dailyDone ? 'Claimed' : `${directive.progress}/${daily.goal}`,
+        detail: daily.label,
+        progressPercent: dailyDone ? 100 : Math.round((directive.progress / daily.goal) * 100),
+        tone: 'daily',
+      },
+      {
+        label: chase ? 'Next Evolution' : 'Roster Network',
+        value: chase ? `${chase.percent}%` : `${this.unlockedCount()}/${this.monsters().length}`,
+        detail: chase ? `${chase.target.name}: ${chase.missing[0]?.label ?? 'ready now'}` : 'All current chase routes are complete.',
+        progressPercent: chase ? chase.percent : 100,
+        tone: 'evolution',
+      },
+      {
+        label: 'Battle Milestone',
+        value: milestone ? `${milestone.winsNeeded} wins` : 'Cleared',
+        detail: milestone ? milestone.label : 'All milestone rewards claimed.',
+        progressPercent: milestone ? Math.round(((milestone.threshold - milestone.winsNeeded) / milestone.threshold) * 100) : 100,
+        tone: 'milestone',
+      },
+    ];
   });
 
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---

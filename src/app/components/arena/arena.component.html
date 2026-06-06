@@ -35,7 +35,14 @@
 
     <app-combat-beat />
 
-    <app-pixi-battle-stage class="pixi-battle-stage" />
+    <div class="stage-shell" [class.stage-live]="anim.isPlaying()">
+      <app-pixi-battle-stage class="pixi-battle-stage" />
+      <div class="stage-standby" aria-hidden="true">
+        <span>Sim Field</span>
+        <strong>{{ activeFormation().name }}</strong>
+        <small>{{ arenaThreat().label }} // {{ game.teamPower() }} vs {{ game.enemyPower() }}</small>
+      </div>
+    </div>
 
     <div class="combat-matrix">
       <section class="formation-panel player-side" aria-label="Your squad formation">
@@ -131,6 +138,21 @@
           <span>{{ pressureLabel() }}</span>
           <strong>{{ powerDeltaLabel() }}</strong>
         </div>
+
+        <section class="momentum-console momentum-{{ arenaMomentum().tone }}" aria-label="Arena momentum">
+          <div class="momentum-copy">
+            <span>{{ arenaMomentum().status }}</span>
+            <strong>{{ arenaMomentum().title }}</strong>
+            <small>{{ arenaMomentum().detail }}</small>
+          </div>
+          <div class="momentum-meter" aria-hidden="true">
+            <i [style.width.%]="arenaMomentum().meterPercent"></i>
+          </div>
+          <div class="momentum-footer">
+            <span>{{ arenaMomentum().nextGoalLabel }}</span>
+            <strong>{{ arenaMomentum().rewardHint }}</strong>
+          </div>
+        </section>
 
         <section class="readiness-console" aria-label="Run readiness checklist">
           <div class="readiness-head">
@@ -338,6 +360,23 @@
         <p class="milestone-forecast">
           Milestone: {{ milestone.winsNeeded }} win{{ milestone.winsNeeded === 1 ? '' : 's' }} until {{ milestone.threshold }} total.
         </p>
+      }
+    </section>
+
+    <section class="objective-stack" aria-label="Arena objective stack">
+      <div class="objective-heading">
+        <span>Objective Stack</span>
+        <strong>3 Live Signals</strong>
+      </div>
+      @for (objective of arenaObjectiveCards(); track objective.label) {
+        <article class="objective-card objective-{{ objective.tone }}">
+          <div>
+            <span>{{ objective.label }}</span>
+            <strong>{{ objective.value }}</strong>
+            <small>{{ objective.detail }}</small>
+          </div>
+          <i aria-hidden="true"><b [style.width.%]="objective.progressPercent"></b></i>
+        </article>
       }
     </section>
 

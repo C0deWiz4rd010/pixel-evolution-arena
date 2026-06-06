@@ -42,7 +42,7 @@ test('quick commands rebuild squad, launch battle, and expose ready evolution', 
   await expect(quickCommands.getByRole('button', { name: /Evolve Ready/i })).toBeEnabled();
 
   await quickCommands.getByRole('button', { name: /Run Battle/i }).click();
-  await expect(page.getByRole('heading', { name: 'Arena' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
   await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
 });
 
@@ -119,7 +119,12 @@ test('auto build loads a full squad and arena shows run readiness forecast', asy
 
   await nav.getByRole('button', { name: /Arena/i }).click();
   await expect(page.getByLabel('Run readiness checklist')).toContainText('Run Readiness');
+  await expect(page.getByLabel('Arena momentum')).toContainText(/Ignition Run|Chain x/i);
+  await expect(page.getByLabel('Arena momentum')).toContainText(/Next win|Rewards unlock/i);
   await expect(page.getByLabel('Reward forecast')).toContainText(/Reward Forecast/i);
+  await expect(page.getByLabel('Arena objective stack')).toContainText('Daily Directive');
+  await expect(page.getByLabel('Arena objective stack')).toContainText('Next Evolution');
+  await expect(page.getByLabel('Arena objective stack')).toContainText('Battle Milestone');
   await expect(page.getByRole('button', { name: /Start Battle|Queue Next Battle|Retry Battle/i })).toBeEnabled();
 });
 
