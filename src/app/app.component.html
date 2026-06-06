@@ -14,6 +14,21 @@
     </button>
   </section>
 
+  <section class="quick-command-bar" aria-label="Quick commands">
+    <button type="button" (click)="autoBuildSquad()">
+      <span class="quick-icon">SQ</span>
+      <span class="quick-label">Auto Squad</span>
+    </button>
+    <button type="button" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()">
+      <span class="quick-icon">EV</span>
+      <span class="quick-label">Evolve Ready</span>
+    </button>
+    <button type="button" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()">
+      <span class="quick-icon">BT</span>
+      <span class="quick-label">Run Battle</span>
+    </button>
+  </section>
+
   <section class="play-surface">
     @switch (activeTab()) {
       @case ('Evolution Tree') {

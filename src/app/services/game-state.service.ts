@@ -1375,6 +1375,16 @@ export class GameStateService {
     this.persistState();
   }
 
+  evolveReadyCandidate(): boolean {
+    const candidate = this.readyEvolutionCandidate();
+    if (!candidate?.source) {
+      return false;
+    }
+
+    this.evolve(candidate.source.id, candidate.target.id);
+    return true;
+  }
+
   private awardStageMilestoneIfComplete(stage: MonsterStage): void {
     const player = this.player();
     if (player.claimedStageMilestones.includes(stage)) {

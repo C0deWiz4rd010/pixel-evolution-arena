@@ -14,6 +14,7 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await expect(page.getByLabel('Recommended next command')).toContainText(/OPEN SLOT|EVOLVE READY|CHASE READY/i);
+  await expect(page.getByLabel('Quick commands')).toContainText('Auto Squad');
 
   await nav.getByRole('button', { name: /Collection/i }).click();
   await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
@@ -24,6 +25,49 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await expect(page.getByRole('button', { name: 'All', exact: true }).first()).toHaveClass(/active/);
+});
+
+test('quick commands rebuild squad, launch battle, and expose ready evolution', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+  const quickCommands = page.getByLabel('Quick commands');
+
+  await nav.getByRole('button', { name: /Squad/i }).click();
+  await page.getByRole('button', { name: 'Clear Squad' }).click();
+  await expect(page.getByText('0/3 ONLINE')).toBeVisible();
+
+  await quickCommands.getByRole('button', { name: /Auto Squad/i }).click();
+  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
+  await expect(quickCommands.getByRole('button', { name: /Evolve Ready/i })).toBeEnabled();
+
+  await quickCommands.getByRole('button', { name: /Run Battle/i }).click();
+  await expect(page.getByRole('heading', { name: 'Arena' })).toBeVisible();
+  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
+});
+
+test('collection and detail panels use the document scrollbar only', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Collection/i }).click();
+  await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
+
+  const collectionScroll = await page.locator('.dex-side').evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { maxHeight: style.maxHeight, overflowY: style.overflowY };
+  });
+  expect(collectionScroll).toEqual({ maxHeight: 'none', overflowY: 'visible' });
+
+  await nav.getByRole('button', { name: /Evolution Tree/i }).click();
+  await expect(page.getByRole('heading', { name: 'Evolution Tree' })).toBeVisible();
+
+  const detailScroll = await page.locator('aside.detail-panel').first().evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { maxHeight: style.maxHeight, overflowY: style.overflowY };
+  });
+  expect(detailScroll).toEqual({ maxHeight: 'none', overflowY: 'visible' });
 });
 
 test('empty squad is blocked in arena and can be rebuilt from squad tab', async ({ page }) => {

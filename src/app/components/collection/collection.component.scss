@@ -4,12 +4,10 @@
 }
 
 .dex-side {
-  position: sticky;
-  top: 0.75rem;
+  position: relative;
   align-self: start;
-  max-height: calc(100dvh - 180px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-height: none;
+  overflow: visible;
 }
 
 .dex-header,

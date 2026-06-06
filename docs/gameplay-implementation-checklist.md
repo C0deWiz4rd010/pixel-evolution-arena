@@ -75,3 +75,14 @@ Use this checklist during Angular implementation.
 - `npm.cmd run test:e2e` passed (13 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x1100 and mobile 390x844. Verified Auto Build Best Squad, Arena Run Readiness, Reward Forecast, Collection Chase Queue, direct Evolution Tree route action, and mobile HUD wrapping. Playwright screenshots produced only WebGL ReadPixels capture warnings.
 - Phase 11 shipped: Arena readiness and reward forecasting, battle milestone preview, Squad auto-build plus shape diagnostics, direct Tree route actions, Monster Detail training plans, Collection Chase Queue, sharper locked/selected card treatment, mobile HUD/tab readability fixes, and Pages deploy trigger for `develop`.
+
+2026-06-06 Phase 12:
+
+- Added `docs/phase-12-scrollbar-and-quick-ops-todo.md` with the completed 14-point implementation todo.
+- Removed nested vertical scrolling from the Collection right rail and global detail panels so the document scrollbar is the only page-level vertical scroller.
+- Added global Quick Ops for Auto Squad, ready evolution, and Run Battle, keeping fast loop actions reachable from every tab.
+- Added Playwright coverage for Quick Ops and the single-scroll panel behavior.
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed. Initial bundle stayed under budget at 649.98 kB; existing warnings remain Arena SCSS budget and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Quick Ops layout, Collection single-scroll metrics, and no console/page errors.

@@ -71,6 +71,7 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<AppTab>('Evolution Tree');
+  readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
 
   /** Screen-reader announcement for the latest battle outcome. */
   readonly liveAnnouncement = computed(() => {
@@ -100,6 +101,26 @@ export class AppComponent {
   setActiveTab(tab: string): void {
     this.activeTab.set(tab as AppTab);
     globalThis.requestAnimationFrame(() => globalThis.scrollTo({ top: 0, behavior: 'auto' }));
+  }
+
+  autoBuildSquad(): void {
+    this.game.autoBuildBestSquad();
+    this.setActiveTab('Squad');
+  }
+
+  evolveReadyCandidate(): void {
+    if (this.game.evolveReadyCandidate()) {
+      this.setActiveTab('Evolution Tree');
+    }
+  }
+
+  runBattleNow(): void {
+    if (!this.canStartQuickBattle()) {
+      return;
+    }
+
+    this.setActiveTab('Arena');
+    this.game.startBattle();
   }
 
   @HostListener('window:keydown', ['$event'])

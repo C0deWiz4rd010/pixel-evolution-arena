@@ -75,6 +75,47 @@
   box-shadow: 0 0 14px color-mix(in srgb, currentColor 24%, transparent);
 }
 
+.quick-command-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.48rem;
+  margin: 0 0 0.75rem;
+  padding: 0.42rem;
+  border: 1px solid rgba(19, 216, 255, 0.2);
+}
+
+.quick-command-bar button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.42rem;
+  align-items: center;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0.38rem 0.5rem;
+  border-color: rgba(19, 216, 255, 0.34);
+}
+
+.quick-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid currentColor;
+  color: var(--line-bright);
+  font-size: 0.58rem;
+  clip-path: var(--chamfer-tight);
+}
+
+.quick-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
 .hotkey-hint {
   display: flex;
   flex-wrap: wrap;
@@ -117,6 +158,10 @@
 
   .mission-strip button {
     width: 100%;
+  }
+
+  .quick-command-bar {
+    grid-template-columns: 1fr;
   }
 
   .hotkey-hint {

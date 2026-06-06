@@ -1074,8 +1074,8 @@ app-monster-card {
   position: sticky;
   top: 0.75rem;
   align-self: start;
-  max-height: calc(100dvh - 1.5rem);
-  overflow: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .detail-topline,
