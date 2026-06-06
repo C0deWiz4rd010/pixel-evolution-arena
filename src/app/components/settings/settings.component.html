@@ -15,18 +15,32 @@
   <div class="settings-grid">
     <article class="settings-card">
       <h3>Audio</h3>
-      <label class="toggle-row">
+      <div class="toggle-row" role="group" aria-label="Sound effects">
         <span>Sound effects</span>
-        <button type="button" class="pill" [class.on]="audio.enabled()" (click)="toggleAudio()">
+        <button
+          type="button"
+          class="pill"
+          [class.on]="audio.enabled()"
+          [attr.aria-pressed]="audio.enabled()"
+          aria-label="Toggle sound effects"
+          (click)="toggleAudio()"
+        >
           {{ audio.enabled() ? 'ON' : 'OFF' }}
         </button>
-      </label>
-      <label class="toggle-row">
+      </div>
+      <div class="toggle-row" role="group" aria-label="Background music">
         <span>Background music</span>
-        <button type="button" class="pill" [class.on]="audio.musicEnabled()" (click)="toggleMusic()">
+        <button
+          type="button"
+          class="pill"
+          [class.on]="audio.musicEnabled()"
+          [attr.aria-pressed]="audio.musicEnabled()"
+          aria-label="Toggle background music"
+          (click)="toggleMusic()"
+        >
           {{ audio.musicEnabled() ? 'ON' : 'OFF' }}
         </button>
-      </label>
+      </div>
       <label class="slider-row">
         <span>Master volume <strong>{{ volumePercent() }}%</strong></span>
         <input type="range" min="0" max="100" [value]="volumePercent()" (input)="onVolumeInput($event)" aria-label="Master volume" />
@@ -35,12 +49,19 @@
 
     <article class="settings-card">
       <h3>Accessibility &amp; Motion</h3>
-      <label class="toggle-row">
+      <div class="toggle-row" role="group" aria-label="Colorblind-safe type glyphs">
         <span>Colorblind-safe type glyphs</span>
-        <button type="button" class="pill" [class.on]="settings().colorblindMode" (click)="toggleColorblind()">
+        <button
+          type="button"
+          class="pill"
+          [class.on]="settings().colorblindMode"
+          [attr.aria-pressed]="settings().colorblindMode"
+          aria-label="Toggle colorblind-safe type glyphs"
+          (click)="toggleColorblind()"
+        >
           {{ settings().colorblindMode ? 'ON' : 'OFF' }}
         </button>
-      </label>
+      </div>
       <label class="slider-row">
         <span>Effect intensity <strong>{{ intensityPercent() }}%</strong></span>
         <input type="range" min="0" max="100" [value]="intensityPercent()" (input)="onIntensityInput($event)" aria-label="Effect intensity" />
@@ -50,28 +71,53 @@
 
     <article class="settings-card">
       <h3>Presentation &amp; Gameplay</h3>
-      <label class="toggle-row">
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.accent' | t">
         <span>{{ 'settings.accent' | t }}</span>
         <span class="segmented">
           @for (theme of accentThemes; track theme.id) {
-            <button type="button" class="seg" [class.on]="settings().accentTheme === theme.id" (click)="setAccent(theme.id)">{{ theme.label }}</button>
+            <button
+              type="button"
+              class="seg"
+              [class.on]="settings().accentTheme === theme.id"
+              [attr.aria-pressed]="settings().accentTheme === theme.id"
+              [attr.aria-label]="(('settings.accent' | t)) + ': ' + theme.label"
+              (click)="setAccent(theme.id)"
+            >
+              {{ theme.label }}
+            </button>
           }
         </span>
-      </label>
-      <label class="toggle-row">
+      </div>
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.language' | t">
         <span>{{ 'settings.language' | t }}</span>
         <span class="segmented">
           @for (lang of languages; track lang.id) {
-            <button type="button" class="seg" [class.on]="settings().language === lang.id" (click)="setLanguage(lang.id)">{{ lang.label }}</button>
+            <button
+              type="button"
+              class="seg"
+              [class.on]="settings().language === lang.id"
+              [attr.aria-pressed]="settings().language === lang.id"
+              [attr.aria-label]="(('settings.language' | t)) + ': ' + lang.label"
+              (click)="setLanguage(lang.id)"
+            >
+              {{ lang.label }}
+            </button>
           }
         </span>
-      </label>
-      <label class="toggle-row">
+      </div>
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.combatBeats' | t">
         <span>{{ 'settings.combatBeats' | t }}</span>
-        <button type="button" class="pill" [class.on]="settings().combatBeats" (click)="toggleCombatBeats()">
+        <button
+          type="button"
+          class="pill"
+          [class.on]="settings().combatBeats"
+          [attr.aria-pressed]="settings().combatBeats"
+          [attr.aria-label]="'settings.combatBeats' | t"
+          (click)="toggleCombatBeats()"
+        >
           {{ settings().combatBeats ? ('common.on' | t) : ('common.off' | t) }}
         </button>
-      </label>
+      </div>
       <p class="hint">Combat beats add an optional timing prompt during battles for a small, capped bonus.</p>
     </article>
 
@@ -83,7 +129,7 @@
         <button type="button" (click)="copyExport()">{{ copied() ? 'Copied!' : 'Copy' }}</button>
       </div>
       @if (exportCode()) {
-        <textarea class="code-box" readonly rows="3" [value]="exportCode()"></textarea>
+        <textarea class="code-box" readonly rows="3" [value]="exportCode()" aria-label="Exported save code"></textarea>
       }
     </article>
 
@@ -94,6 +140,7 @@
         class="code-box"
         rows="3"
         placeholder="Paste save code here"
+        aria-label="Save code to import"
         [value]="importCode()"
         (input)="importCode.set($any($event.target).value)"
       ></textarea>

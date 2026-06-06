@@ -76,7 +76,7 @@ test('language toggle translates the tab navigation', async ({ page }) => {
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Settings/i }).click();
-  await page.getByRole('button', { name: 'Deutsch', exact: true }).click();
+  await page.getByRole('button', { name: /:\s*Deutsch$/ }).click();
 
   // Collection -> "Sammlung", Squad -> "Truppe" once German is active.
   await expect(nav).toContainText('Sammlung');
