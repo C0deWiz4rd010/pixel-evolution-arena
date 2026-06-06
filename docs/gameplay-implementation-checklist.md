@@ -98,3 +98,16 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 656.66 kB vs 650 kB warning, existing Arena SCSS warning, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Momentum, Objective Stack, Sim Field overlay, unclipped Start Battle action, Quick Ops bounds, and no console/page errors.
+
+2026-06-06 Phase 14:
+
+- Added `docs/phase-14-operations-deck-todo.md` with the completed 17-point implementation todo.
+- Synced `develop` forward to the current `main` state before starting the next gameplay pass.
+- Added pure operations rules for squad auto-equip planning and forge quick recommendations, plus unit coverage for the new logic.
+- Added a global Operations Deck with live evolution, forge, campaign, and expedition command cards.
+- Added Forge Command, Campaign Command, and Expedition Relay strips so those tabs surface actionable state immediately.
+- Added one-click auto-equip, forge quick action, campaign quick-claim, and expedition launch/bank shortcuts.
+- `npm.cmd run test -- --run` passed (96 tests / 17 files).
+- `npm.cmd run build` passed with warnings: initial bundle 681.26 kB vs 650 kB warning, existing Arena SCSS warning, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (16 Playwright smoke tests) after setting Playwright to one worker for stable dev-server-backed browser smoke runs.
+- Browser smoke passed on desktop 1440x900 and mobile 390x844 with no console or page errors; verified Operations Deck, Forge Command, Expedition Relay, and the updated quick-action flow.

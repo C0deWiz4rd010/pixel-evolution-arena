@@ -29,6 +29,37 @@
     </button>
   </section>
 
+  <section class="operations-deck" aria-label="Operations deck">
+    <div class="operations-head">
+      <div>
+        <span>Operations // Meta Loop</span>
+        <h2>Operations Deck</h2>
+        <p>Keep the squad moving between evolution, forge, campaign, and expedition without losing tempo.</p>
+      </div>
+      <strong>{{ game.operationsCards().length }} LIVE SIGNALS</strong>
+    </div>
+
+    <div class="operations-grid">
+      @for (card of game.operationsCards(); track card.id) {
+        <article class="ops-card tone-{{ card.tone }}">
+          <div class="ops-topline">
+            <span>{{ card.label }}</span>
+            <strong>{{ card.metric }}</strong>
+          </div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.detail }}</p>
+          <div class="ops-progress" aria-hidden="true">
+            <i [style.width.%]="card.progressPercent"></i>
+          </div>
+          <div class="ops-footer">
+            <small>{{ card.status }}</small>
+            <button type="button" (click)="runOperationsCard(card)">{{ card.actionLabel }}</button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
   <section class="play-surface">
     @switch (activeTab()) {
       @case ('Evolution Tree') {

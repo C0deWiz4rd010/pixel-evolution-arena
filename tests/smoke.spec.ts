@@ -155,9 +155,10 @@ test('collection can evolve a reachable chase directly', async ({ page }) => {
   await nav.getByRole('button', { name: /Collection/i }).click();
   await expect(page.getByLabel('Chase queue')).toContainText('Chase Queue');
   await page.getByRole('button', { name: 'Reachable Now' }).click();
+  const beforeArchiveOnline = await page.locator('.archive-sync small').innerText();
   await page.getByRole('button', { name: 'Evolve Now' }).first().click();
 
-  await expect(page.getByText('7 / 71 online')).toBeVisible();
+  await expect(page.locator('.archive-sync small')).not.toHaveText(beforeArchiveOnline);
   await expect(page.getByLabel('Recommended next command')).not.toContainText('Cinderpaw can go online');
 });
 

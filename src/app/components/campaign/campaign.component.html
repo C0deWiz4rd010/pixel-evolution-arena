@@ -14,6 +14,24 @@
     }
   </header>
 
+  <section class="campaign-command" aria-label="Campaign command">
+    <div class="campaign-command-copy">
+      <span>Campaign Command</span>
+      <strong>{{ commandTitle() }}</strong>
+      <p>{{ commandDetail() }}</p>
+    </div>
+    <div class="campaign-command-metrics">
+      <span>Claimed <strong>{{ game.player().claimedChapters.length }}/{{ game.campaignChapters.length }}</strong></span>
+      <span>Boss Codex <strong>{{ game.player().defeatedBosses.length }}/{{ game.bosses.length }}</strong></span>
+      <span>Best Streak <strong>x{{ game.bestWinStreak() }}</strong></span>
+    </div>
+    @if (claimable(); as chapter) {
+      <button type="button" class="claim" (click)="claim(chapter.id)">Claim Chapter</button>
+    } @else {
+      <div class="campaign-command-state">{{ commandState() | uppercase }}</div>
+    }
+  </section>
+
   <div class="chapter-track">
     @for (entry of progress(); track entry.chapter.id) {
       <article class="chapter-card status-{{ entry.status }}">

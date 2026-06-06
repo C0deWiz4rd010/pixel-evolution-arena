@@ -16,7 +16,7 @@ import { TabNavigationComponent } from './components/tab-navigation/tab-navigati
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
 import { TranslatePipe } from './i18n/translate.pipe';
 import { BattleAnimationService } from './services/battle-animation.service';
-import { GameStateService } from './services/game-state.service';
+import { GameStateService, OperationsCard } from './services/game-state.service';
 
 type AppTab =
   | 'Evolution Tree'
@@ -121,6 +121,47 @@ export class AppComponent {
 
     this.setActiveTab('Arena');
     this.game.startBattle();
+  }
+
+  runOperationsCard(card: OperationsCard): void {
+    switch (card.id) {
+      case 'chase':
+        if (this.game.readyEvolutionCandidate()) {
+          this.evolveReadyCandidate();
+          return;
+        }
+        this.setActiveTab(card.tab);
+        return;
+      case 'forge':
+        if (card.tab === 'Squad') {
+          this.setActiveTab('Squad');
+          return;
+        }
+        this.setActiveTab('Forge');
+        this.game.runForgeQuickAction();
+        return;
+      case 'campaign':
+        this.setActiveTab('Campaign');
+        this.game.claimReadyChapter();
+        return;
+      case 'expedition': {
+        const expedition = this.game.expedition();
+        if (!expedition) {
+          if (this.game.squad().length === 0) {
+            this.setActiveTab('Squad');
+            return;
+          }
+          this.setActiveTab('Expedition');
+          this.game.startExpedition();
+          return;
+        }
+        this.setActiveTab('Expedition');
+        if (expedition.status !== 'active') {
+          this.game.claimExpedition();
+        }
+        return;
+      }
+    }
   }
 
   @HostListener('window:keydown', ['$event'])

@@ -11,6 +11,23 @@
     </div>
   </header>
 
+  <section class="forge-command" aria-label="Forge command">
+    <div class="forge-command-copy">
+      <span>Forge Command</span>
+      <strong>{{ quickRecommendation().title }}</strong>
+      <p>{{ quickRecommendation().detail }}</p>
+    </div>
+    <div class="forge-command-stats">
+      <span>Coverage <strong>{{ loadoutPlan().assignedSlots }}/{{ loadoutPlan().totalSlots }}</strong></span>
+      <span>Projected <strong>+{{ loadoutPlan().powerGain }} PWR</strong></span>
+      <span>Metric <strong>{{ quickRecommendation().metric }}</strong></span>
+    </div>
+    <div class="forge-command-actions">
+      <button type="button" class="ghost-action" [disabled]="loadoutPlan().assignedSlots === 0" (click)="autoEquip()">Auto Equip Best</button>
+      <button type="button" (click)="runQuickAction()">{{ quickRecommendation().actionLabel }}</button>
+    </div>
+  </section>
+
   <div class="forge-columns">
     <article class="forge-panel">
       <h3>{{ 'forge.blueprints' | t }}</h3>

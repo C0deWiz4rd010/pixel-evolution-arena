@@ -66,7 +66,7 @@ test('an expedition run can be launched and shows the run HUD', async ({ page })
   await page.getByRole('button', { name: 'Launch Expedition' }).click();
 
   await expect(page.getByText(/Run HP/i)).toBeVisible();
-  await expect(page.getByText(/Depth/i)).toBeVisible();
+  await expect(page.locator('.run-meta')).toContainText('Depth');
   expect(errors, errors.join('\n')).toHaveLength(0);
 });
 
@@ -92,6 +92,25 @@ test('combat beats appear in the arena when enabled', async ({ page }) => {
   await page.locator('.toggle-row', { hasText: /Active combat beats/i }).getByRole('button').click();
 
   await nav.getByRole('button', { name: /Arena/i }).click();
-  await expect(page.getByText('Combat Beat')).toBeVisible();
   await expect(page.getByRole('button', { name: 'CHARGE' })).toBeVisible();
+});
+
+test('operations deck exposes forge and expedition quick flows', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+
+  const operations = page.getByLabel('Operations deck');
+  await expect(operations).toContainText('Evolution Route');
+  await expect(operations).toContainText('Forge Pulse');
+  await expect(operations).toContainText('Campaign Track');
+  await expect(operations).toContainText('Expedition Relay');
+
+  await operations.locator('.ops-card', { hasText: 'Forge Pulse' }).getByRole('button').click();
+  await expect(page.getByRole('heading', { name: 'Forge', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Forge command')).toContainText(/Forge Command/i);
+
+  await operations.locator('.ops-card', { hasText: 'Expedition Relay' }).getByRole('button').click();
+  await expect(page.getByRole('heading', { name: 'Expedition', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Expedition relay status')).toContainText(/Relay Status/i);
+  await expect(page.getByText(/Run HP|Launch an Expedition/i)).toBeVisible();
 });

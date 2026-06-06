@@ -58,6 +58,7 @@ import { activeSquadTraits, squadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
+import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -70,7 +71,17 @@ export interface ArenaRunDirective {
   tacticalHint: string;
 }
 
-export type GameSectionName = 'Evolution Tree' | 'Squad' | 'Arena' | 'Collection' | 'Medals' | 'Handbook';
+export type GameSectionName =
+  | 'Evolution Tree'
+  | 'Squad'
+  | 'Forge'
+  | 'Arena'
+  | 'Expedition'
+  | 'Collection'
+  | 'Campaign'
+  | 'Medals'
+  | 'Handbook'
+  | 'Settings';
 
 export interface EvolutionCandidate {
   target: Monster;
@@ -127,6 +138,19 @@ export interface ArenaObjectiveCard {
   detail: string;
   progressPercent: number;
   tone: 'daily' | 'evolution' | 'milestone';
+}
+
+export interface OperationsCard {
+  id: 'chase' | 'forge' | 'campaign' | 'expedition';
+  tab: GameSectionName;
+  label: string;
+  status: string;
+  title: string;
+  detail: string;
+  metric: string;
+  progressPercent: number;
+  tone: 'ready' | 'meta' | 'warning' | 'info';
+  actionLabel: string;
 }
 
 const STARTER_PLAYER_STATE: PlayerState = {
@@ -538,6 +562,20 @@ export class GameStateService {
     })).filter((entry) => entry.def),
   );
 
+  readonly squadLoadoutPlan = computed<SquadLoadoutPlan>(() =>
+    buildSquadLoadoutPlan(this.squad(), this.player().ownedGear, this.player().gearLoadout),
+  );
+
+  readonly forgeQuickRecommendation = computed<ForgeQuickRecommendation>(() =>
+    recommendForgeQuickAction({
+      squad: this.squad(),
+      ownedGear: this.player().ownedGear,
+      currentLoadout: this.player().gearLoadout,
+      coins: this.player().coins,
+      dnaShards: this.player().dnaShards,
+    }),
+  );
+
   readonly prismaticCount = computed(() => this.monsters().filter((monster) => monster.prismatic).length);
 
   readonly pinnedChaseId = computed(() => this.player().pinnedChaseId);
@@ -591,6 +629,130 @@ export class GameStateService {
 
   readonly readyEvolutionCandidate = computed(() => this.evolutionCandidates().find((candidate) => candidate.ready) ?? null);
   readonly nextEvolutionCandidate = computed(() => this.evolutionCandidates()[0] ?? null);
+  readonly nextCampaignEntry = computed(() => this.campaignProgress().find((entry) => entry.status !== 'claimed') ?? this.campaignProgress()[0] ?? null);
+
+  readonly operationsCards = computed<OperationsCard[]>(() => {
+    const chase = this.pinnedChaseId()
+      ? this.evolutionCandidates().find((candidate) => candidate.target.id === this.pinnedChaseId()) ?? this.nextEvolutionCandidate()
+      : this.nextEvolutionCandidate();
+    const forge = this.forgeQuickRecommendation();
+    const expedition = this.expedition();
+    const chapter = this.claimableChapter() ?? this.nextCampaignEntry()?.chapter ?? null;
+    const chapterProgress = this.nextCampaignEntry();
+
+    return [
+      {
+        id: 'chase',
+        tab: chase?.ready ? 'Evolution Tree' : 'Collection',
+        label: 'Evolution Route',
+        status: chase?.ready ? 'READY' : chase ? 'TRACKING' : 'SYNCED',
+        title: chase ? `${chase.target.name} ${chase.ready ? 'can go online' : 'is the next chase'}` : 'Current chase routes are clear',
+        detail: chase
+          ? chase.ready
+            ? `${chase.source?.name ?? 'Source'} meets every requirement. Convert the route now for a clean power jump.`
+            : `${chase.missing[0]?.label ?? 'Progress the source line'} is the next blocker to remove.`
+          : 'No reachable locked evolutions remain right now. Use the Archive to scout deeper routes.',
+        metric: chase ? `${chase.percent}% sync` : `${this.unlockedCount()}/${this.monsters().length} online`,
+        progressPercent: chase ? chase.percent : 100,
+        tone: chase?.ready ? 'ready' : 'meta',
+        actionLabel: chase?.ready ? 'Evolve Now' : 'Open Archive',
+      },
+      {
+        id: 'forge',
+        tab: forge.kind === 'blocked' ? 'Squad' : 'Forge',
+        label: 'Forge Pulse',
+        status:
+          forge.kind === 'equip'
+            ? 'AUTO-EQUIP'
+            : forge.kind === 'forge'
+              ? 'FORGE READY'
+              : forge.kind === 'upgrade'
+                ? 'UPGRADE READY'
+                : forge.kind === 'blocked'
+                  ? 'BLOCKED'
+                  : 'STABLE',
+        title: forge.title,
+        detail: forge.detail,
+        metric: forge.metric,
+        progressPercent: forge.progressPercent,
+        tone: forge.kind === 'blocked' ? 'warning' : forge.kind === 'open' ? 'info' : 'ready',
+        actionLabel: forge.actionLabel,
+      },
+      {
+        id: 'campaign',
+        tab: 'Campaign',
+        label: 'Campaign Track',
+        status: this.claimableChapter() ? 'CLAIM READY' : chapterProgress?.status === 'locked' ? 'LOCKED' : 'IN PROGRESS',
+        title: chapter ? chapter.title : 'Campaign synced',
+        detail: this.claimableChapter()
+          ? `${chapter?.reward.lore ?? 'Reward ready.'}`
+          : chapterProgress
+            ? `${chapterProgress.chapter.objective.label} (${chapterProgress.current}/${chapterProgress.goal}).`
+            : 'Every current chapter reward has already been claimed.',
+        metric: this.claimableChapter()
+          ? `+${chapter?.reward.coins ?? 0} CR / +${chapter?.reward.dnaShards ?? 0} DNA`
+          : chapterProgress
+            ? `${chapterProgress.current}/${chapterProgress.goal}`
+            : `${this.player().claimedChapters.length}/${this.campaignChapters.length} claimed`,
+        progressPercent: this.claimableChapter() ? 100 : chapterProgress?.percent ?? 100,
+        tone: this.claimableChapter() ? 'ready' : chapterProgress?.status === 'locked' ? 'warning' : 'meta',
+        actionLabel: this.claimableChapter() ? 'Claim Chapter' : 'Open Campaign',
+      },
+      {
+        id: 'expedition',
+        tab: expedition ? 'Expedition' : this.squad().length === 0 ? 'Squad' : 'Expedition',
+        label: 'Expedition Relay',
+        status:
+          !expedition
+            ? this.squad().length === 0
+              ? 'SQUAD REQUIRED'
+              : 'READY'
+            : expedition.status === 'active'
+              ? 'RUN ACTIVE'
+              : 'BANK CORES',
+        title:
+          !expedition
+            ? 'Deep-grid run on standby'
+            : expedition.status === 'active'
+              ? `Depth ${expedition.depth}/7 // run live`
+              : expedition.status === 'won'
+                ? 'Clear complete - bank the core haul'
+                : 'Run ended - salvage the remaining cores',
+        detail:
+          !expedition
+            ? this.squad().length === 0
+              ? 'Load a squad before launching an expedition.'
+              : 'Temporary relics and shared run HP make this the best side loop for meta growth.'
+            : expedition.status === 'active'
+              ? `${expedition.lastEvent} Reach the boss to convert the run into permanent cores.`
+              : `${expedition.lastEvent} Claim now to bank the payout.`,
+        metric:
+          !expedition
+            ? `${this.expeditionCores()} banked`
+            : expedition.status === 'active'
+              ? `HP ${expedition.hp}/${expedition.maxHp}`
+              : `${expedition.rewardCores} run cores`,
+        progressPercent:
+          !expedition
+            ? this.squad().length === 0
+              ? Math.round((this.squad().length / 3) * 100)
+              : 100
+            : expedition.status === 'active'
+              ? Math.round((expedition.depth / 7) * 100)
+              : 100,
+        tone:
+          !expedition
+            ? this.squad().length === 0
+              ? 'warning'
+              : 'ready'
+            : expedition.status === 'active'
+              ? 'meta'
+              : 'ready',
+        actionLabel:
+          !expedition ? (this.squad().length === 0 ? 'Load Squad' : 'Launch Run') : expedition.status === 'active' ? 'Resume Run' : 'Bank Cores',
+      },
+    ];
+  });
 
   readonly nextCommand = computed<NextCommand>(() => {
     const squadSize = this.squad().length;
@@ -1121,6 +1283,88 @@ export class GameStateService {
     this.persistState();
   }
 
+  autoEquipBestGear(): boolean {
+    const squad = this.squad();
+    if (squad.length === 0) {
+      this.toast.push({ title: 'Squad Required', message: 'Load a squad before auto-equipping gear.', tone: 'warn', icon: '!', durationMs: 3200 });
+      return false;
+    }
+
+    const plan = this.squadLoadoutPlan();
+    if (plan.assignedSlots === 0) {
+      this.toast.push({ title: 'No Gear Ready', message: 'Forge or claim gear first so the squad has something to equip.', tone: 'warn', icon: '!', durationMs: 3400 });
+      return false;
+    }
+
+    if (plan.assignedSlots === plan.currentEquippedSlots && plan.powerGain <= 0) {
+      this.toast.push({ title: 'Loadout Stable', message: 'The squad is already carrying the best available gear set.', tone: 'info', icon: 'OK', durationMs: 3200 });
+      return false;
+    }
+
+    const nextLoadout = cloneGearLoadout(this.player().gearLoadout);
+    const squadIds = new Set(squad.map((monster) => monster.id));
+    const usedByPlan = new Set<string>();
+    for (const slots of Object.values(plan.loadout)) {
+      for (const slot of Object.keys(slots) as GearSlot[]) {
+        const instanceId = slots[slot];
+        if (instanceId) {
+          usedByPlan.add(instanceId);
+        }
+      }
+    }
+
+    for (const [monsterId, slots] of Object.entries(nextLoadout)) {
+      for (const slot of Object.keys(slots) as GearSlot[]) {
+        if (usedByPlan.has(slots[slot]!)) {
+          delete nextLoadout[monsterId][slot];
+        }
+      }
+      if (squadIds.has(monsterId)) {
+        delete nextLoadout[monsterId];
+      }
+    }
+
+    for (const monster of squad) {
+      if (plan.loadout[monster.id]) {
+        nextLoadout[monster.id] = { ...plan.loadout[monster.id] };
+      }
+    }
+
+    this.player.update((player) => ({ ...player, gearLoadout: nextLoadout }));
+    this.audio.play('forge');
+    this.toast.push({
+      title: 'Loadout Synced',
+      message: `Auto-equipped ${plan.assignedSlots}/${plan.totalSlots} slots. Projected team power +${plan.powerGain}.`,
+      tone: 'success',
+      icon: 'GE',
+      durationMs: 3800,
+    });
+    this.persistState();
+    return true;
+  }
+
+  runForgeQuickAction(): boolean {
+    const recommendation = this.forgeQuickRecommendation();
+    switch (recommendation.kind) {
+      case 'equip':
+        return this.autoEquipBestGear();
+      case 'forge':
+        if (recommendation.defId) {
+          this.forgeGear(recommendation.defId);
+          return true;
+        }
+        return false;
+      case 'upgrade':
+        if (recommendation.instanceId) {
+          this.upgradeGear(recommendation.instanceId);
+          return true;
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
+
   // --- Settings + accessibility ---
   setMasterVolume(value: number): void {
     const clamped = Math.max(0, Math.min(1, value));
@@ -1160,6 +1404,15 @@ export class GameStateService {
   }
 
   // --- Campaign ---
+  claimReadyChapter(): boolean {
+    const claimable = this.claimableChapter();
+    if (!claimable) {
+      return false;
+    }
+    this.claimChapter(claimable.id);
+    return true;
+  }
+
   claimChapter(chapterId: string): void {
     const claimable = this.claimableChapter();
     if (!claimable || claimable.id !== chapterId) {

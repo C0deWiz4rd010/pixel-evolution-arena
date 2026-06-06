@@ -11,6 +11,22 @@
     </div>
   </header>
 
+  <section class="relay-panel" aria-label="Expedition relay status">
+    <div class="relay-copy">
+      <span>Relay Status</span>
+      <strong>{{ relayStatus().title }}</strong>
+      <p>{{ relayStatus().detail }}</p>
+    </div>
+    <div class="relay-metrics">
+      <span>Banked <strong>{{ cores() }}</strong></span>
+      <span>Squad <strong>{{ game.squad().length }}/3</strong></span>
+      <span>Relics <strong>{{ run()?.relicIds?.length ?? 0 }}</strong></span>
+    </div>
+    <button type="button" class="primary relay-action" [disabled]="relayStatus().action === 'Load Squad'" (click)="quickAction()">
+      {{ relayStatus().action }}
+    </button>
+  </section>
+
   @if (run(); as state) {
     @if (state.status === 'active') {
       <div class="run-hud">

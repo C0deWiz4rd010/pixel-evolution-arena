@@ -27,6 +27,8 @@ export class ForgeComponent {
   readonly slotLabel = SLOT_LABEL;
   readonly defs = this.game.gearDefs;
   readonly owned = this.game.ownedGearDetailed;
+  readonly loadoutPlan = this.game.squadLoadoutPlan;
+  readonly quickRecommendation = this.game.forgeQuickRecommendation;
 
   readonly selectedMonsterId = signal<string | null>(null);
 
@@ -100,6 +102,14 @@ export class ForgeComponent {
     if (monster) {
       this.game.unequipGear(monster.id, slot);
     }
+  }
+
+  autoEquip(): void {
+    this.game.autoEquipBestGear();
+  }
+
+  runQuickAction(): void {
+    this.game.runForgeQuickAction();
   }
 
   /** Base vs. geared stat line for the selected monster. */

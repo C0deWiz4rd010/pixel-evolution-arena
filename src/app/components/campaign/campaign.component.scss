@@ -32,6 +32,61 @@
   }
 }
 
+.campaign-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.9fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(16, 26, 48, 0.92), rgba(8, 14, 28, 0.95));
+  box-shadow: inset 0 0 0 1px rgba(120, 200, 255, 0.3);
+}
+
+.campaign-command-copy {
+  display: grid;
+  gap: 4px;
+  span {
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(150, 200, 255, 0.75);
+  }
+  strong {
+    color: #e6f0ff;
+    font-size: 0.94rem;
+  }
+  p {
+    margin: 0;
+    color: rgba(200, 215, 240, 0.74);
+    font-size: 0.78rem;
+  }
+}
+
+.campaign-command-metrics {
+  display: grid;
+  gap: 6px;
+  span {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.76rem;
+    color: rgba(190, 210, 240, 0.78);
+  }
+  strong {
+    color: #9fe0ff;
+  }
+}
+
+.campaign-command-state {
+  min-width: 108px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  text-align: center;
+  color: #aacbff;
+  background: rgba(34, 52, 88, 0.7);
+}
+
 .boss-warning {
   display: flex;
   flex-direction: column;
@@ -272,4 +327,15 @@ button.claim {
   margin: 2px 0 0;
   font-size: 0.78rem;
   color: #9fe0ff;
+}
+
+@media (max-width: 900px) {
+  .campaign-command {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-command-state,
+  button.claim {
+    width: 100%;
+  }
 }
