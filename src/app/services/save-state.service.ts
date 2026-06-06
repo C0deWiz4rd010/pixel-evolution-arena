@@ -109,6 +109,7 @@ export class SaveStateService {
             defense: saved.defense,
             speed: saved.speed,
             hp: saved.hp,
+            prismatic: saved.prismatic === true,
           }
         : { ...monster, evolutionTargets: [...monster.evolutionTargets] };
     });
@@ -177,6 +178,102 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         ? player.claimedStageMilestones.map((entry) => String(entry))
         : [],
       audioEnabled: typeof player.audioEnabled === 'boolean' ? player.audioEnabled : false,
+      overdriveCharge: typeof player.overdriveCharge === 'number' ? clamp(player.overdriveCharge, 0, 100) : 0,
+      claimedAchievements: Array.isArray(player.claimedAchievements)
+        ? player.claimedAchievements.map((entry) => String(entry))
+        : [],
+      combatStats: sanitizeCombatStats(player.combatStats),
+      dailyDirective: sanitizeDailyDirective(player.dailyDirective),
+      ownedGear: Array.isArray(player.ownedGear)
+        ? player.ownedGear
+            .filter((entry) => entry && typeof entry.instanceId === 'string' && typeof entry.defId === 'string')
+            .map((entry) => ({ instanceId: String(entry.instanceId), defId: String(entry.defId), tier: clamp(Number(entry.tier) || 1, 1, 5) }))
+        : [],
+      gearLoadout: sanitizeGearLoadout(player.gearLoadout),
+      defeatedBosses: Array.isArray(player.defeatedBosses) ? player.defeatedBosses.map((entry) => String(entry)) : [],
+      claimedChapters: Array.isArray(player.claimedChapters) ? player.claimedChapters.map((entry) => String(entry)) : [],
+      encounteredEnemies: Array.isArray(player.encounteredEnemies) ? player.encounteredEnemies.map((entry) => String(entry)) : [],
+      tutorialDone: player.tutorialDone === true,
+      settings: sanitizeSettings(player.settings),
+      expedition: sanitizeExpedition(player.expedition),
+      expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
     },
+  };
+}
+
+function sanitizeExpedition(value: unknown): SaveStateSnapshot['player']['expedition'] {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const candidate = value as Partial<NonNullable<SaveStateSnapshot['player']['expedition']>>;
+  if (!Array.isArray(candidate.map) || typeof candidate.seed !== 'number') {
+    return null;
+  }
+  return value as SaveStateSnapshot['player']['expedition'];
+}
+
+function sanitizeGearLoadout(value: unknown): SaveStateSnapshot['player']['gearLoadout'] {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+  const result: SaveStateSnapshot['player']['gearLoadout'] = {};
+  for (const [monsterId, slots] of Object.entries(value as Record<string, unknown>)) {
+    if (!slots || typeof slots !== 'object') {
+      continue;
+    }
+    const entry: Record<string, string> = {};
+    for (const [slot, instanceId] of Object.entries(slots as Record<string, unknown>)) {
+      if (typeof instanceId === 'string' && (slot === 'core' || slot === 'plate' || slot === 'drive' || slot === 'relic')) {
+        entry[slot] = instanceId;
+      }
+    }
+    result[monsterId] = entry;
+  }
+  return result;
+}
+
+function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings'] {
+  const candidate = (value ?? {}) as Partial<SaveStateSnapshot['player']['settings']>;
+  const accent = candidate.accentTheme;
+  const lang = candidate.language;
+  return {
+    masterVolume: typeof candidate.masterVolume === 'number' ? clamp(candidate.masterVolume, 0, 1) : 0.7,
+    colorblindMode: candidate.colorblindMode === true,
+    effectIntensity: typeof candidate.effectIntensity === 'number' ? clamp(candidate.effectIntensity, 0, 1) : 1,
+    accentTheme: accent === 'ember' || accent === 'mono' ? accent : 'aurora',
+    language: lang === 'de' ? 'de' : 'en',
+    combatBeats: candidate.combatBeats === true,
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function sanitizeCombatStats(stats: unknown): SaveStateSnapshot['player']['combatStats'] {
+  const candidate = (stats ?? {}) as Partial<SaveStateSnapshot['player']['combatStats']>;
+  const num = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0);
+  return {
+    criticalWins: num(candidate.criticalWins),
+    overdrivesUsed: num(candidate.overdrivesUsed),
+    itemsUsed: num(candidate.itemsUsed),
+    flawlessWins: num(candidate.flawlessWins),
+    gauntletBestWave: num(candidate.gauntletBestWave),
+  };
+}
+
+function sanitizeDailyDirective(directive: unknown): SaveStateSnapshot['player']['dailyDirective'] {
+  if (!directive || typeof directive !== 'object') {
+    return null;
+  }
+  const candidate = directive as Partial<NonNullable<SaveStateSnapshot['player']['dailyDirective']>>;
+  if (typeof candidate.dateKey !== 'string' || typeof candidate.objectiveId !== 'string') {
+    return null;
+  }
+  return {
+    dateKey: candidate.dateKey,
+    objectiveId: candidate.objectiveId,
+    progress: typeof candidate.progress === 'number' ? Math.max(0, candidate.progress) : 0,
+    claimed: candidate.claimed === true,
   };
 }

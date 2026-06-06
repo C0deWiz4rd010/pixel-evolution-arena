@@ -29,4 +29,6 @@ export interface Monster {
   unlocked: boolean;
   evolutionTargets: string[];
   requirements?: EvolutionRequirements;
+  /** Rare prismatic (shiny) variant: alternate shimmer + small stat boost. */
+  prismatic?: boolean;
 }

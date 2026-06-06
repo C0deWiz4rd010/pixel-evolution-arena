@@ -89,7 +89,7 @@ describe('save state service', () => {
       },
     });
 
-    expect(snapshot?.saveVersion).toBe(5);
+    expect(snapshot?.saveVersion).toBe(8);
     expect(service.syncState()).toBe('ready');
 
     const loaded = service.loadState();
@@ -129,7 +129,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.saveVersion).toBe(8);
     expect(loaded?.player.coins).toBe(500);
     expect(loaded?.player.winStreak).toBe(0);
     expect(loaded?.player.bestWinStreak).toBe(0);
@@ -137,6 +137,17 @@ describe('save state service', () => {
     expect(loaded?.player.squadPresets).toEqual([]);
     expect(loaded?.player.pinnedChaseId).toBeNull();
     expect(loaded?.player.claimedStageMilestones).toEqual([]);
+    // v6 defaults for the hybrid-combat / meta fields.
+    expect(loaded?.player.overdriveCharge).toBe(0);
+    expect(loaded?.player.claimedAchievements).toEqual([]);
+    expect(loaded?.player.combatStats).toEqual({
+      criticalWins: 0,
+      overdrivesUsed: 0,
+      itemsUsed: 0,
+      flawlessWins: 0,
+      gauntletBestWave: 0,
+    });
+    expect(loaded?.player.dailyDirective).toBeNull();
   });
 
   it('migrates a v2 snapshot by attaching an empty preset list', () => {
@@ -167,7 +178,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.saveVersion).toBe(8);
     expect(loaded?.player.squadPresets).toEqual([]);
     expect(loaded?.player.winStreak).toBe(1);
     expect(loaded?.player.pinnedChaseId).toBeNull();
@@ -203,7 +214,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(5);
+    expect(loaded?.saveVersion).toBe(8);
     expect(loaded?.player.pinnedChaseId).toBeNull();
     expect(loaded?.player.claimedStageMilestones).toEqual([]);
     expect(loaded?.player.claimedMilestones).toEqual([3, 5]);

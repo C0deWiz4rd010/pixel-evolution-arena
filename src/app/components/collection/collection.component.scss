@@ -1,6 +1,13 @@
 .collection-dex {
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
   align-items: start;
+}
+
+.dex-side {
+  position: relative;
+  align-self: start;
+  max-height: none;
+  overflow: visible;
 }
 
 .dex-header,
@@ -15,6 +22,7 @@
 .archive-sync,
 .filter-console,
 .archive-grid-shell,
+.chase-queue-panel,
 .chase-panel,
 .selected-record,
 .matrix-panel,
@@ -226,13 +234,30 @@
   clip-path: var(--chamfer-tight);
 }
 
+.dex-card::after {
+  position: absolute;
+  inset: 0.32rem;
+  pointer-events: none;
+  content: "";
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  background:
+    linear-gradient(90deg, transparent 0 47%, color-mix(in srgb, currentColor 14%, transparent) 48% 52%, transparent 53% 100%),
+    linear-gradient(180deg, transparent 0 47%, color-mix(in srgb, currentColor 10%, transparent) 48% 52%, transparent 53% 100%);
+  opacity: 0.6;
+  clip-path: var(--chamfer-tight);
+}
+
 .dex-card.selected {
   z-index: 2;
   border-color: var(--line-bright);
 }
 
 .dex-card.locked {
-  opacity: 0.72;
+  opacity: 0.76;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 86, 77, 0.08) 0 1px, transparent 1px 12px),
+    radial-gradient(circle at 50% 37%, color-mix(in srgb, currentColor 14%, transparent), transparent 48%),
+    linear-gradient(180deg, color-mix(in srgb, currentColor 9%, transparent), rgba(0, 0, 0, 0.5));
 }
 
 .dex-card-top {
@@ -262,6 +287,11 @@
   height: 90px;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.dex-sprite.silhouette {
+  opacity: 0.76;
+  filter: grayscale(1) contrast(1.35) drop-shadow(0 0 12px rgba(255, 86, 77, 0.42));
 }
 
 .dex-card-bottom {
@@ -295,10 +325,91 @@
 }
 
 .chase-panel,
+.chase-queue-panel,
 .selected-record,
 .matrix-panel,
 .type-coverage {
   padding: 0.64rem;
+}
+
+.chase-queue-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.queue-target {
+  display: grid;
+  gap: 0.34rem;
+  padding: 0.42rem 0.48rem;
+  border: 1px solid color-mix(in srgb, currentColor 48%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, currentColor 11%, transparent), transparent 70%),
+    rgba(0, 0, 0, 0.28);
+  color: var(--line);
+  clip-path: var(--chamfer-tight);
+}
+
+.queue-target.ready {
+  color: var(--success);
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.16);
+}
+
+.queue-target.pinned {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.24);
+}
+
+.queue-main {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.queue-main strong,
+.queue-main small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-main strong {
+  color: var(--text);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.queue-main small {
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.queue-meter {
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.queue-meter i {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.queue-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem;
+}
+
+.queue-actions button {
+  min-height: 30px;
+  min-width: 0;
+  overflow: hidden;
+  padding-inline: 0.34rem;
+  font-size: 0.6rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chase-panel {
@@ -370,6 +481,22 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.42rem;
+  min-width: 0;
+}
+
+.chase-actions button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  padding-inline: 0.4rem;
+}
+
+.chase-actions .ready-action {
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.24);
 }
 
 .record-stat-grid {
@@ -441,9 +568,9 @@
   text-align: left;
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 1440px) {
   .collection-dex {
-    grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   }
 
   .stage-band-strip {
@@ -468,6 +595,7 @@
   .filter-row,
   .dex-stats,
   .chase-actions,
+  .queue-actions,
   .record-stat-grid,
   .type-list {
     grid-template-columns: 1fr;

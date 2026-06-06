@@ -1,0 +1,168 @@
+<section class="settings-view" aria-label="Settings">
+  <header class="settings-head">
+    <div>
+      <span>System // Configuration</span>
+      <h2>Settings</h2>
+      <p>Audio, accessibility, and local save management. Everything stays on this device.</p>
+    </div>
+    <div class="save-state-chip">
+      <span>Save</span>
+      <strong>{{ game.saveStatusLabel() }}</strong>
+      <small>{{ game.lastSavedLabel() }}</small>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <article class="settings-card">
+      <h3>Audio</h3>
+      <div class="toggle-row" role="group" aria-label="Sound effects">
+        <span>Sound effects</span>
+        <button
+          type="button"
+          class="pill"
+          [class.on]="audio.enabled()"
+          [attr.aria-pressed]="audio.enabled()"
+          aria-label="Toggle sound effects"
+          (click)="toggleAudio()"
+        >
+          {{ audio.enabled() ? 'ON' : 'OFF' }}
+        </button>
+      </div>
+      <div class="toggle-row" role="group" aria-label="Background music">
+        <span>Background music</span>
+        <button
+          type="button"
+          class="pill"
+          [class.on]="audio.musicEnabled()"
+          [attr.aria-pressed]="audio.musicEnabled()"
+          aria-label="Toggle background music"
+          (click)="toggleMusic()"
+        >
+          {{ audio.musicEnabled() ? 'ON' : 'OFF' }}
+        </button>
+      </div>
+      <label class="slider-row">
+        <span>Master volume <strong>{{ volumePercent() }}%</strong></span>
+        <input type="range" min="0" max="100" [value]="volumePercent()" (input)="onVolumeInput($event)" aria-label="Master volume" />
+      </label>
+    </article>
+
+    <article class="settings-card">
+      <h3>Accessibility &amp; Motion</h3>
+      <div class="toggle-row" role="group" aria-label="Colorblind-safe type glyphs">
+        <span>Colorblind-safe type glyphs</span>
+        <button
+          type="button"
+          class="pill"
+          [class.on]="settings().colorblindMode"
+          [attr.aria-pressed]="settings().colorblindMode"
+          aria-label="Toggle colorblind-safe type glyphs"
+          (click)="toggleColorblind()"
+        >
+          {{ settings().colorblindMode ? 'ON' : 'OFF' }}
+        </button>
+      </div>
+      <label class="slider-row">
+        <span>Effect intensity <strong>{{ intensityPercent() }}%</strong></span>
+        <input type="range" min="0" max="100" [value]="intensityPercent()" (input)="onIntensityInput($event)" aria-label="Effect intensity" />
+      </label>
+      <p class="hint">Reduced-motion from your OS still fully disables animation regardless of this slider.</p>
+    </article>
+
+    <article class="settings-card">
+      <h3>Presentation &amp; Gameplay</h3>
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.accent' | t">
+        <span>{{ 'settings.accent' | t }}</span>
+        <span class="segmented">
+          @for (theme of accentThemes; track theme.id) {
+            <button
+              type="button"
+              class="seg"
+              [class.on]="settings().accentTheme === theme.id"
+              [attr.aria-pressed]="settings().accentTheme === theme.id"
+              [attr.aria-label]="(('settings.accent' | t)) + ': ' + theme.label"
+              (click)="setAccent(theme.id)"
+            >
+              {{ theme.label }}
+            </button>
+          }
+        </span>
+      </div>
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.language' | t">
+        <span>{{ 'settings.language' | t }}</span>
+        <span class="segmented">
+          @for (lang of languages; track lang.id) {
+            <button
+              type="button"
+              class="seg"
+              [class.on]="settings().language === lang.id"
+              [attr.aria-pressed]="settings().language === lang.id"
+              [attr.aria-label]="(('settings.language' | t)) + ': ' + lang.label"
+              (click)="setLanguage(lang.id)"
+            >
+              {{ lang.label }}
+            </button>
+          }
+        </span>
+      </div>
+      <div class="toggle-row" role="group" [attr.aria-label]="'settings.combatBeats' | t">
+        <span>{{ 'settings.combatBeats' | t }}</span>
+        <button
+          type="button"
+          class="pill"
+          [class.on]="settings().combatBeats"
+          [attr.aria-pressed]="settings().combatBeats"
+          [attr.aria-label]="'settings.combatBeats' | t"
+          (click)="toggleCombatBeats()"
+        >
+          {{ settings().combatBeats ? ('common.on' | t) : ('common.off' | t) }}
+        </button>
+      </div>
+      <p class="hint">Combat beats add an optional timing prompt during battles for a small, capped bonus.</p>
+    </article>
+
+    <article class="settings-card">
+      <h3>Save Export</h3>
+      <p class="hint">Generate a portable code of your current progress.</p>
+      <div class="btn-row">
+        <button type="button" (click)="generateExport()">Generate Code</button>
+        <button type="button" (click)="copyExport()">{{ copied() ? 'Copied!' : 'Copy' }}</button>
+      </div>
+      @if (exportCode()) {
+        <textarea class="code-box" readonly rows="3" [value]="exportCode()" aria-label="Exported save code"></textarea>
+      }
+    </article>
+
+    <article class="settings-card">
+      <h3>Save Import</h3>
+      <p class="hint">Paste a code to restore progress. This overwrites your current run.</p>
+      <textarea
+        class="code-box"
+        rows="3"
+        placeholder="Paste save code here"
+        aria-label="Save code to import"
+        [value]="importCode()"
+        (input)="importCode.set($any($event.target).value)"
+      ></textarea>
+      <div class="btn-row">
+        <button type="button" [disabled]="!importCode().trim()" (click)="applyImport()">Import Save</button>
+      </div>
+    </article>
+
+    <article class="settings-card danger">
+      <h3>Reset Run</h3>
+      <p class="hint">Restore the starter squad and wipe all local progress.</p>
+      @if (!confirmingReset()) {
+        <button type="button" class="danger-btn" [disabled]="!game.hasProgressToReset()" (click)="requestReset()">Reset Progress</button>
+      } @else {
+        <div class="confirm-row">
+          <span>Are you sure? This cannot be undone.</span>
+          <div class="btn-row">
+            <button type="button" class="danger-btn" (click)="confirmReset()">Yes, reset</button>
+            <button type="button" (click)="cancelReset()">Cancel</button>
+          </div>
+        </div>
+      }
+    </article>
+  </div>
+</section>

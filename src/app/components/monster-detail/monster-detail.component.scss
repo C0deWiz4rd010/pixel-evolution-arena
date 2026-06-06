@@ -60,3 +60,62 @@
   font-size: 0.66rem;
   text-transform: uppercase;
 }
+
+.training-plan {
+  display: grid;
+  gap: 0.22rem;
+  margin: 0.48rem 0;
+  padding: 0.48rem 0.56rem;
+  border: 1px solid var(--plan-color, rgba(19, 216, 255, 0.3));
+  background:
+    linear-gradient(90deg, var(--plan-tint, rgba(19, 216, 255, 0.12)), transparent 70%),
+    rgba(0, 0, 0, 0.3);
+  clip-path: var(--chamfer);
+}
+
+.training-plan.tone-ready {
+  --plan-color: var(--success);
+  --plan-tint: rgba(131, 255, 69, 0.16);
+}
+
+.training-plan.tone-train {
+  --plan-color: var(--coin);
+  --plan-tint: rgba(255, 220, 66, 0.14);
+}
+
+.training-plan.tone-squad {
+  --plan-color: var(--line-bright);
+  --plan-tint: rgba(19, 216, 255, 0.14);
+}
+
+.training-plan.tone-endpoint {
+  --plan-color: var(--special);
+  --plan-tint: rgba(255, 85, 216, 0.14);
+}
+
+.training-plan.tone-locked {
+  --plan-color: var(--danger);
+  --plan-tint: rgba(255, 86, 77, 0.14);
+}
+
+.training-plan span {
+  color: var(--plan-color);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.training-plan h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.86rem;
+  text-transform: uppercase;
+}
+
+.training-plan p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.28;
+}

@@ -60,3 +60,41 @@ Use this checklist during Angular implementation.
 - Phase 7 (Collection planning) shipped: chase pinning with HUD chip, filter presets (Ready Soon, Item-Gated, Special Route, Reachable), name/ID search, stage-completion bonus (+200 coins, +10 DNA).
 - Phase 8 (initial polish): optional `AudioService` toggle (Handbook), reward cues for win/loss/evolve/item/level-up, scrollbar restyled to match the HUD blueprint, monster-card hover-jump and name-clipping fixed.
 - Save format migrated through v1→v5 with in-place upgrades preserving existing progress.
+
+2026-06-02:
+
+- `npm.cmd run test -- --run` passed (64 tests / 11 files).
+- `npm.cmd run build` passed with existing budget warnings only: initial bundle 502.56 kB vs 500 kB warning, Arena SCSS 19.69 kB vs 14 kB warning.
+- `npm.cmd run test:e2e` passed (7 Playwright smoke tests).
+- Phase 10 improvements shipped: global Next Command guidance in shell/HUD, Arena Tactic Coach, direct Collection `Evolve Now` for ready chase targets, full-squad reserve swapping when a stronger candidate is available, ASCII cleanup for touched runtime UI strings, and smoke coverage for the new flows.
+
+2026-06-06:
+
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed with existing warnings: Arena SCSS warning budget (19.69 kB vs 14 kB warning) and Pixi CommonJS warning for `@xmldom/xmldom`.
+- `npm.cmd run test:e2e` passed (13 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x1100 and mobile 390x844. Verified Auto Build Best Squad, Arena Run Readiness, Reward Forecast, Collection Chase Queue, direct Evolution Tree route action, and mobile HUD wrapping. Playwright screenshots produced only WebGL ReadPixels capture warnings.
+- Phase 11 shipped: Arena readiness and reward forecasting, battle milestone preview, Squad auto-build plus shape diagnostics, direct Tree route actions, Monster Detail training plans, Collection Chase Queue, sharper locked/selected card treatment, mobile HUD/tab readability fixes, and Pages deploy trigger for `develop`.
+
+2026-06-06 Phase 12:
+
+- Added `docs/phase-12-scrollbar-and-quick-ops-todo.md` with the completed 14-point implementation todo.
+- Removed nested vertical scrolling from the Collection right rail and global detail panels so the document scrollbar is the only page-level vertical scroller.
+- Added global Quick Ops for Auto Squad, ready evolution, and Run Battle, keeping fast loop actions reachable from every tab.
+- Added Playwright coverage for Quick Ops and the single-scroll panel behavior.
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed. Initial bundle stayed under budget at 649.98 kB; existing warnings remain Arena SCSS budget and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Quick Ops layout, Collection single-scroll metrics, and no console/page errors.
+
+2026-06-06 Phase 13:
+
+- Added `docs/phase-13-arena-momentum-todo.md` with the completed 14-point implementation todo.
+- Added Arena Momentum derived from squad status, win chain, forecast, overdrive, and risk outlook.
+- Added Arena Objective Stack for daily directive, next evolution chase, and battle milestone progress.
+- Added a compact Sim Field overlay so the Pixi stage has readable standby state without hiding creatures.
+- Fixed the wide Arena layout so the terminal grows with its command stack instead of clipping the Start Battle action.
+- `npm.cmd run test -- --run` passed (92 tests / 16 files).
+- `npm.cmd run build` passed with warnings: initial bundle 656.66 kB vs 650 kB warning, existing Arena SCSS warning, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (15 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x900 and mobile 390x844. Verified Momentum, Objective Stack, Sim Field overlay, unclipped Start Battle action, Quick Ops bounds, and no console/page errors.

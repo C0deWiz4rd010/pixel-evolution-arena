@@ -88,8 +88,9 @@
   min-width: 0;
   color: inherit;
   line-height: 1.08;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   text-transform: uppercase;
+  word-break: normal;
 }
 
 .tab-status,
@@ -214,8 +215,8 @@
   }
 
   .tab-button {
-    min-width: 126px;
-    max-width: 160px;
+    min-width: 146px;
+    max-width: 176px;
     padding: 0.5rem 0.58rem;
   }
 

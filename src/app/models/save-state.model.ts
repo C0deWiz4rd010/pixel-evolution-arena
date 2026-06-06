@@ -3,7 +3,7 @@ import { Monster } from './monster.model';
 import { PlayerState } from './player-state.model';
 import { ArenaThreatProfile } from '../rules/battle.rules';
 
-export const SAVE_STATE_VERSION = 5;
+export const SAVE_STATE_VERSION = 8;
 
 export interface SavedMonsterProgress {
   id: string;
@@ -15,6 +15,7 @@ export interface SavedMonsterProgress {
   defense: number;
   speed: number;
   hp: number;
+  prismatic?: boolean;
 }
 
 export interface SaveStateData {
@@ -41,5 +42,6 @@ export function serializeMonsterProgress(monster: Monster): SavedMonsterProgress
     defense: monster.defense,
     speed: monster.speed,
     hp: monster.hp,
+    prismatic: monster.prismatic === true,
   };
 }

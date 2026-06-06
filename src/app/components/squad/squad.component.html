@@ -6,7 +6,10 @@
         <h2>Squad Uplink</h2>
         <p>Load three active signals, compare output, and patch coverage gaps.</p>
       </div>
-      <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
+      <div class="squad-heading-actions">
+        <button type="button" (click)="autoBuildSquad()">Auto Build Best Squad</button>
+        <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
+      </div>
     </div>
 
     <section class="preset-console" aria-label="Squad presets">
@@ -127,14 +130,15 @@
       </div>
 
       @if (candidates().length > 0) {
-        <div class="candidate-row">
+        <div class="candidate-row" appGridNav=".candidate-card" aria-label="Reserve creatures, use arrow keys to navigate">
           @for (monster of candidates(); track monster.id) {
             <button
               type="button"
               class="candidate-card stage-{{ game.stageClass(monster.stage) }}"
               [class.recommended]="recommendedCandidateId() === monster.id"
-              [disabled]="slotsFilled() >= 3"
-              (click)="game.addToSquad(monster.id)"
+              [class.swap-ready]="canSwapCandidate(monster)"
+              [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)"
+              (click)="addOrSwapCandidate(monster)"
             >
               <span class="candidate-id">{{ monster.id }}</span>
               <span class="candidate-sprite">
@@ -147,7 +151,7 @@
               <strong>{{ monster.name }}</strong>
               <small>{{ monster.stage }} / {{ monster.type }}</small>
               <span class="candidate-power">PW {{ power(monster) }}</span>
-              <em>{{ slotsFilled() >= 3 ? 'Remove first' : candidateCue(monster) }}</em>
+              <em>{{ candidateActionLabel(monster) }}</em>
             </button>
           }
         </div>
@@ -187,8 +191,33 @@
         <button type="button" [disabled]="slotsFilled() >= 3" (click)="addRecommended()">Add {{ candidate.name }}</button>
       }
       @if (nextAction().tone === 'remove' && weakestMember(); as weakest) {
-        <button type="button" class="danger" (click)="removeWeakest()">Remove {{ weakest.name }}</button>
+        <button type="button" class="swap-action" (click)="replaceRecommended()">Swap Weakest</button>
       }
+    </section>
+
+    <section class="coverage-console squad-shape-console" aria-label="Squad stat shape">
+      <div class="coverage-head">
+        <span>Squad Shape</span>
+        <strong>{{ game.squad().length }}/3 tuned</strong>
+      </div>
+      <div class="shape-list">
+        @for (stat of teamShapeStats(); track stat.label) {
+          <div class="shape-row tone-{{ stat.tone }}">
+            <span>{{ stat.label }}</span>
+            <strong>{{ stat.value }}</strong>
+            <i aria-hidden="true"><em [style.width.%]="stat.percent"></em></i>
+          </div>
+        }
+      </div>
+      <div class="role-fit-list">
+        @for (fit of roleFits(); track fit.role.id) {
+          <article class="role-fit">
+            <span>{{ fit.role.label }}</span>
+            <strong>{{ fit.monster?.name ?? 'Empty Slot' }}</strong>
+            <small>{{ fit.label }} / {{ fit.score }}%</small>
+          </article>
+        }
+      </div>
     </section>
 
     <section class="coverage-console" aria-label="Type coverage">

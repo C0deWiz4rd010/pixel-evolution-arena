@@ -3,6 +3,32 @@
   <app-header-hud />
   <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
 
+  <section class="mission-strip tone-{{ game.nextCommand().tone }}" aria-label="Recommended next command">
+    <div class="mission-copy">
+      <span>{{ game.nextCommand().status }}</span>
+      <strong>{{ game.nextCommand().title }}</strong>
+      <p>{{ game.nextCommand().detail }}</p>
+    </div>
+    <button type="button" (click)="setActiveTab(game.nextCommand().tab)">
+      {{ game.nextCommand().actionLabel }}
+    </button>
+  </section>
+
+  <section class="quick-command-bar" aria-label="Quick commands">
+    <button type="button" (click)="autoBuildSquad()">
+      <span class="quick-icon">SQ</span>
+      <span class="quick-label">Auto Squad</span>
+    </button>
+    <button type="button" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()">
+      <span class="quick-icon">EV</span>
+      <span class="quick-label">Evolve Ready</span>
+    </button>
+    <button type="button" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()">
+      <span class="quick-icon">BT</span>
+      <span class="quick-label">Run Battle</span>
+    </button>
+  </section>
+
   <section class="play-surface">
     @switch (activeTab()) {
       @case ('Evolution Tree') {
@@ -11,15 +37,40 @@
       @case ('Squad') {
         <app-squad />
       }
+      @case ('Forge') {
+        <app-forge />
+      }
       @case ('Arena') {
         <app-arena />
+      }
+      @case ('Expedition') {
+        <app-expedition />
       }
       @case ('Collection') {
         <app-collection />
       }
+      @case ('Campaign') {
+        <app-campaign />
+      }
+      @case ('Medals') {
+        <app-medals />
+      }
       @case ('Handbook') {
         <app-handbook />
       }
+      @case ('Settings') {
+        <app-settings />
+      }
     }
   </section>
+
+  <footer class="hotkey-hint" aria-label="Keyboard shortcuts">
+    <span><kbd>1</kbd>-<kbd>9</kbd> {{ 'footer.tabs' | t }}</span>
+    <span><kbd>Space</kbd> {{ 'footer.startBattle' | t }}</span>
+  </footer>
 </main>
+
+<app-onboarding (navigate)="setActiveTab($event)" />
+<app-toast-stack />
+
+<div class="sr-only" aria-live="polite" role="status">{{ liveAnnouncement() }}</div>

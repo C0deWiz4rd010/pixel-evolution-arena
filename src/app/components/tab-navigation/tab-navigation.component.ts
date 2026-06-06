@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 @Component({
   selector: 'app-tab-navigation',
+  imports: [TranslatePipe],
   templateUrl: './tab-navigation.component.html',
   styleUrl: './tab-navigation.component.scss',
 })
@@ -12,8 +14,13 @@ export class TabNavigationComponent {
   readonly tabs = [
     { label: 'Evolution Tree', icon: 'TREE', signal: 'Node map' },
     { label: 'Squad', icon: 'SQ', signal: '3 slots' },
+    { label: 'Forge', icon: 'FRG', signal: 'Gear' },
     { label: 'Arena', icon: 'VS', signal: 'Rewards' },
+    { label: 'Expedition', icon: 'EXP', signal: 'Roguelite' },
     { label: 'Collection', icon: 'DEX', signal: 'Filters' },
+    { label: 'Campaign', icon: 'CMP', signal: 'Chapters' },
+    { label: 'Medals', icon: 'MDL', signal: 'Achievements' },
+    { label: 'Settings', icon: 'SET', signal: 'Audio/Save' },
   ];
 
   readonly handbookTab = { label: 'Handbook', icon: 'MAN', signal: 'Manual/Data' };

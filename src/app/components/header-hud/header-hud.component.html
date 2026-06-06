@@ -8,47 +8,74 @@
   </div>
 
   <div class="hud-stats" aria-label="Player resources and selected monster">
-    <div class="stat-chip coins">
+    <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
       <span class="stat-icon">CR</span>
-      <span class="stat-label">Coins</span>
-      <strong>{{ game.player().coins }}</strong>
+      <span class="stat-label">{{ 'hud.coins' | t }}</span>
+      <strong [appCountUp]="game.player().coins"></strong>
     </div>
-    <div class="stat-chip dna">
+    <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
       <span class="stat-icon">DN</span>
-      <span class="stat-label">DNA Shards</span>
-      <strong>{{ game.player().dnaShards }}</strong>
+      <span class="stat-label">{{ 'hud.dna' | t }}</span>
+      <strong [appCountUp]="game.player().dnaShards"></strong>
     </div>
-    <div class="stat-chip power">
+    <div class="stat-chip power" [class.stat-pulse]="pulseFor('power')()">
       <span class="stat-icon">PW</span>
-      <span class="stat-label">Team Power</span>
-      <strong>{{ game.teamPower() }}</strong>
+      <span class="stat-label">{{ 'hud.power' | t }}</span>
+      <strong [appCountUp]="game.teamPower()"></strong>
     </div>
-    <div class="stat-chip wins">
+    <div class="stat-chip wins" [class.stat-pulse]="pulseFor('wins')()">
       <span class="stat-icon">WN</span>
-      <span class="stat-label">Battles Won</span>
+      <span class="stat-label">{{ 'hud.wins' | t }}</span>
       <strong>{{ game.player().battlesWon }}</strong>
     </div>
     <div
       class="stat-chip streak"
       [class.streak-active]="game.winStreak() > 0"
+      [class.stat-pulse]="pulseFor('streak')()"
       [attr.title]="'Best streak: x' + game.bestWinStreak()"
     >
       <span class="stat-icon">ST</span>
-      <span class="stat-label">Win Streak</span>
+      <span class="stat-label">{{ 'hud.streak' | t }}</span>
       <strong>{{ game.streakLabel() }}</strong>
       <small>Best x{{ game.bestWinStreak() }}</small>
+    </div>
+    <div
+      class="stat-chip overdrive"
+      [class.od-ready]="game.overdriveReady()"
+      [class.od-armed]="game.overdriveArmed()"
+      title="Overdrive core charge"
+    >
+      <span class="stat-icon">OD</span>
+      <span class="stat-label">{{ 'hud.overdrive' | t }}</span>
+      <strong>{{ game.overdriveReady() ? (game.overdriveArmed() ? 'ARM' : 'RDY') : game.overdrivePercent() + '%' }}</strong>
+    </div>
+    <div
+      class="stat-chip daily"
+      [class.daily-done]="game.dailyComplete()"
+      [attr.title]="game.dailyObjective().detail"
+    >
+      <span class="stat-icon">DY</span>
+      <span class="stat-label">{{ 'hud.daily' | t }}</span>
+      <strong>{{ game.dailyDirective().progress }}/{{ game.dailyObjective().goal }}</strong>
+      <small>{{ game.dailyComplete() ? 'Cleared' : game.dailyObjective().label }}</small>
+    </div>
+    <div class="stat-chip next-command tone-{{ game.nextCommand().tone }}" [attr.title]="game.nextCommand().detail">
+      <span class="stat-icon">NX</span>
+      <span class="stat-label">{{ 'hud.next' | t }}</span>
+      <strong>{{ game.nextCommand().status }}</strong>
+      <small>{{ game.nextCommand().tab }}</small>
     </div>
     @if (game.pinnedChase(); as pinned) {
       <div class="stat-chip chase" title="Pinned chase target">
         <span class="stat-icon">PN</span>
-        <span class="stat-label">Chase</span>
+        <span class="stat-label">{{ 'hud.chase' | t }}</span>
         <strong>{{ pinned.name }}</strong>
         <small>{{ pinned.stage }} / {{ pinned.id }}</small>
       </div>
     }
     <div class="stat-chip save">
       <span class="stat-icon">SV</span>
-      <span class="stat-label">Save Core</span>
+      <span class="stat-label">{{ 'hud.save' | t }}</span>
       <strong>{{ game.saveStatusLabel() }}</strong>
       <small>{{ game.lastSavedLabel() }}</small>
     </div>
@@ -64,7 +91,7 @@
           ID
         }
       </span>
-      <span class="stat-label">Selected</span>
+      <span class="stat-label">{{ 'hud.selected' | t }}</span>
       <strong>{{ game.selectedMonster()?.name ?? 'No Signal' }}</strong>
       <small>LV. {{ game.selectedMonster()?.level ?? 0 }}</small>
     </div>

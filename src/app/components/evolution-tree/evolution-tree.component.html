@@ -136,6 +136,21 @@
                 <span class="advisor-target endpoint">NO EXIT ROUTE</span>
               }
             </div>
+
+            <div class="advisor-actions">
+              <button
+                type="button"
+                class="route-action"
+                [class.ready]="primaryRouteActionReady(selected)"
+                [disabled]="primaryRouteActionDisabled()"
+                (click)="executePrimaryRouteAction()"
+              >
+                {{ primaryRouteActionLabel() }}
+              </button>
+              @if (primarySelectedTarget(); as target) {
+                <span>{{ targetRouteStatus(selected, target) }}</span>
+              }
+            </div>
           }
         </div>
       </div>

@@ -2,6 +2,13 @@ import { Component, inject, Input } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 
+interface TrainingPlan {
+  status: string;
+  title: string;
+  detail: string;
+  tone: 'ready' | 'train' | 'squad' | 'endpoint' | 'locked';
+}
+
 @Component({
   selector: 'app-monster-detail',
   templateUrl: './monster-detail.component.html',
@@ -44,5 +51,58 @@ export class MonsterDetailComponent {
   powerDeltaLabel(source: Monster, target: Monster): string {
     const delta = this.powerDelta(source, target);
     return `${delta >= 0 ? '+' : ''}${delta} PW`;
+  }
+
+  trainingPlan(monster: Monster): TrainingPlan {
+    if (!monster.unlocked) {
+      return {
+        status: 'LOCKED',
+        title: 'Trace the source line',
+        detail: 'Pin this target from Collection or inspect its source form to reveal requirements.',
+        tone: 'locked',
+      };
+    }
+
+    const targets = this.game.getEvolutionTargets(monster);
+    const readyTarget = targets.find((target) => this.game.canEvolve(monster, target) && !target.unlocked);
+    if (readyTarget) {
+      return {
+        status: 'READY',
+        title: `${readyTarget.name} route is open`,
+        detail: `Evolve now for ${this.powerDeltaLabel(monster, readyTarget)} and a stronger ${readyTarget.stage} signal.`,
+        tone: 'ready',
+      };
+    }
+
+    const nextTarget = targets.find((target) => !target.unlocked);
+    if (nextTarget) {
+      const missing = this.game.getRequirementStatuses(monster, nextTarget).filter((status) => !status.met);
+      const first = missing[0];
+
+      return {
+        status: 'TRAIN',
+        title: `${nextTarget.name} is the next route`,
+        detail: first
+          ? `Missing ${first.label}: ${first.current}/${first.required}. Arena rewards feed XP, coins, DNA, and items.`
+          : 'Keep battling to build margin before evolving.',
+        tone: 'train',
+      };
+    }
+
+    if (!this.game.player().squadIds.includes(monster.id) && this.game.player().squadIds.length < 3) {
+      return {
+        status: 'SQUAD',
+        title: 'Use this signal in battle',
+        detail: 'Add it to the squad to turn its stats into XP, coins, DNA, and overdrive charge.',
+        tone: 'squad',
+      };
+    }
+
+    return {
+      status: 'ENDPOINT',
+      title: 'Current endpoint online',
+      detail: 'Keep it in the squad for battles, or switch branches to chase another locked form.',
+      tone: 'endpoint',
+    };
   }
 }

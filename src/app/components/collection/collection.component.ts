@@ -2,10 +2,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { GridNavDirective } from '../../directives/grid-nav.directive';
 
 type StatusFilter = 'All' | 'Unlocked' | 'Locked';
 type RequirementStatusView = ReturnType<GameStateService['getRequirementStatuses']>[number];
-type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable';
+type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable' | 'prismatic';
 
 interface FilterPresetView {
   id: FilterPresetId;
@@ -59,7 +60,7 @@ interface ChaseTarget {
 
 @Component({
   selector: 'app-collection',
-  imports: [FormsModule],
+  imports: [FormsModule, GridNavDirective],
   templateUrl: './collection.component.html',
   styleUrl: './collection.component.scss',
 })
@@ -80,6 +81,7 @@ export class CollectionComponent {
     { id: 'item-gated', label: 'Item-Gated', detail: 'Locked targets that need an item from your inventory.' },
     { id: 'special-route', label: 'Special Route', detail: 'Targets on the Special stage (branch routes).' },
     { id: 'reachable', label: 'Reachable Now', detail: 'Locked targets you can evolve into right away.' },
+    { id: 'prismatic', label: 'Prismatic', detail: 'Only prismatic (shiny) variants you have discovered.' },
   ];
 
   readonly readinessIndex = computed(() => {
@@ -146,6 +148,10 @@ export class CollectionComponent {
           }
         } else if (preset === 'reachable') {
           if (monster.unlocked || !info?.ready) {
+            return false;
+          }
+        } else if (preset === 'prismatic') {
+          if (!monster.prismatic) {
             return false;
           }
         }
@@ -262,6 +268,19 @@ export class CollectionComponent {
     };
   });
 
+  readonly chaseQueue = computed<ChaseTarget[]>(() =>
+    this.game.evolutionCandidates().slice(0, 3).map((candidate) => ({
+      target: candidate.target,
+      source: candidate.source,
+      className: this.game.stageClass(candidate.target.stage),
+      requirements: candidate.requirements,
+      missing: candidate.missing,
+      ready: candidate.ready,
+      percent: candidate.percent,
+      actionLabel: this.chaseActionLabel(candidate.ready, candidate.source, candidate.missing),
+    })),
+  );
+
   readonly nextChase = computed<ChaseTarget | null>(() => {
     const stageOrder = new Map(this.game.stages.map((stage, index) => [stage, index]));
     const candidates = this.game
@@ -325,6 +344,14 @@ export class CollectionComponent {
 
   pinChase(id: string): void {
     this.game.pinChaseTarget(id);
+  }
+
+  evolveChase(chase: ChaseTarget): void {
+    if (!chase.ready || !chase.source) {
+      return;
+    }
+
+    this.game.evolve(chase.source.id, chase.target.id);
   }
 
   unpinChase(): void {

@@ -1,0 +1,56 @@
+<div class="medals-layout">
+  <section class="hud-panel medals-main">
+    <div class="medals-head">
+      <div class="medals-title">
+        <span>Meta // Medals</span>
+        <h2>Achievements</h2>
+        <p>Track long-haul feats. Rewards auto-pay when a medal completes.</p>
+      </div>
+      <div class="medals-progress">
+        <strong>{{ completedCount() }} / {{ total() }}</strong>
+        <span>medals earned</span>
+      </div>
+    </div>
+
+    <div class="medal-grid">
+      @for (entry of progress(); track entry.def.id) {
+        <article class="medal-card" [class.complete]="entry.complete" [class.claimed]="entry.claimed">
+          <span class="medal-icon">{{ entry.def.icon }}</span>
+          <div class="medal-body">
+            <strong>{{ entry.def.label }}</strong>
+            <small>{{ entry.def.detail }}</small>
+            <div class="medal-bar"><span [style.width.%]="percent(entry.current, entry.def.goal)"></span></div>
+            <span class="medal-meta">{{ entry.current }}/{{ entry.def.goal }} / +{{ entry.def.reward.coins }} CR / +{{ entry.def.reward.dnaShards }} DNA</span>
+          </div>
+          <span class="medal-flag">{{ entry.claimed ? 'CLAIMED' : entry.complete ? 'READY' : 'LOCKED' }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <aside class="hud-panel medals-side">
+    <div class="daily-card" [class.done]="dailyComplete()">
+      <span class="side-kicker">Daily Directive</span>
+      <strong>{{ dailyObjective().label }}</strong>
+      <p>{{ dailyObjective().detail }}</p>
+      <div class="medal-bar"><span [style.width.%]="percent(dailyDirective().progress, dailyObjective().goal)"></span></div>
+      <small>
+        {{ dailyDirective().progress }}/{{ dailyObjective().goal }} / +{{ dailyObjective().reward.coins }} CR / +{{ dailyObjective().reward.dnaShards }} DNA
+        {{ dailyDirective().claimed ? '/ claimed' : '' }}
+      </small>
+    </div>
+
+    <div class="stat-readout">
+      <span class="side-kicker">Combat Record</span>
+      <ul>
+        <li><span>Battles won</span><strong>{{ battlesWon() }}</strong></li>
+        <li><span>Best win streak</span><strong>{{ bestStreak() }}</strong></li>
+        <li><span>Critical wins</span><strong>{{ combatStats().criticalWins }}</strong></li>
+        <li><span>Overdrives used</span><strong>{{ combatStats().overdrivesUsed }}</strong></li>
+        <li><span>Items used</span><strong>{{ combatStats().itemsUsed }}</strong></li>
+        <li><span>Flawless wins</span><strong>{{ combatStats().flawlessWins }}</strong></li>
+        <li><span>Best gauntlet wave</span><strong>{{ combatStats().gauntletBestWave }}</strong></li>
+      </ul>
+    </div>
+  </aside>
+</div>

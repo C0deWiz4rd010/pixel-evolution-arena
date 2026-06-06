@@ -1,3 +1,120 @@
 :host {
   display: block;
 }
+
+/* Feature 10 — subtle juice: lift + brighten on hover (respects reduced-motion). */
+.monster-card {
+  position: relative;
+  transition:
+    transform 0.16s ease,
+    filter 0.16s ease,
+    box-shadow 0.16s ease;
+  will-change: transform;
+}
+
+.monster-card:hover:not(.locked) {
+  transform: translateY(-3px) scale(1.015);
+  filter: brightness(1.08);
+  z-index: 2;
+}
+
+.monster-card:active:not(.locked) {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Feature 6 — prismatic (shiny) variant treatment. */
+.monster-card.prismatic {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 0 18px rgba(180, 120, 255, 0.4);
+}
+
+.monster-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(90deg, transparent 0 46%, color-mix(in srgb, currentColor 22%, transparent) 47% 53%, transparent 54% 100%),
+    repeating-linear-gradient(180deg, transparent 0 7px, rgba(255, 255, 255, 0.045) 7px 8px);
+  opacity: 0.42;
+  mix-blend-mode: screen;
+}
+
+.monster-card.locked::before {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 86, 77, 0.16) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(180deg, transparent 0 6px, rgba(255, 255, 255, 0.045) 6px 7px);
+  opacity: 0.62;
+}
+
+.monster-card.selected::before {
+  opacity: 0.72;
+}
+
+.monster-card.locked .sprite-node {
+  filter: grayscale(1) contrast(1.24) drop-shadow(0 0 10px rgba(255, 86, 77, 0.45));
+}
+
+.prismatic-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 120, 220, 0.18) 38%,
+    rgba(120, 220, 255, 0.22) 50%,
+    rgba(180, 255, 140, 0.18) 62%,
+    transparent 80%
+  );
+  background-size: 220% 220%;
+  animation: prismatic-shift 3.4s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.prismatic-mark {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 3;
+  font-size: 0.8rem;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(200, 140, 255, 0.9);
+  animation: prismatic-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes prismatic-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes prismatic-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monster-card,
+  .monster-card:hover:not(.locked) {
+    transition: none;
+    transform: none;
+  }
+  .prismatic-sheen,
+  .prismatic-mark {
+    animation: none;
+  }
+}

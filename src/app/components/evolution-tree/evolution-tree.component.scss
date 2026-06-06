@@ -497,6 +497,37 @@
   gap: 0.34rem;
 }
 
+.advisor-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.advisor-actions span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.route-action {
+  min-height: 34px;
+  border-color: var(--special);
+  color: var(--text);
+  font-size: 0.66rem;
+}
+
+.route-action.ready {
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
 .advisor-target {
   display: grid;
   gap: 0.08rem;
@@ -589,6 +620,7 @@
   .tree-topline,
   .route-legend,
   .advisor-body,
+  .advisor-actions,
   .tree-command-strip,
   .advisor-targets,
   .mini-squad-slots,

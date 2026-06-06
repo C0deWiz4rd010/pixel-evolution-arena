@@ -1,0 +1,69 @@
+<section class="campaign-view" aria-label="Campaign">
+  <header class="campaign-head">
+    <div>
+      <span>Story // Deep Grid</span>
+      <h2>{{ 'campaign.title' | t }}</h2>
+      <p>Ordered chapters that turn the endless arena into a journey. Clear objectives to claim one-time rewards.</p>
+    </div>
+    @if (activeBoss(); as boss) {
+      <div class="boss-warning">
+        <span>⚠ Boss Surge incoming</span>
+        <strong>{{ boss.name }}</strong>
+        <small>{{ boss.mechanic.telegraph }}</small>
+      </div>
+    }
+  </header>
+
+  <div class="chapter-track">
+    @for (entry of progress(); track entry.chapter.id) {
+      <article class="chapter-card status-{{ entry.status }}">
+        <div class="chapter-top">
+          <h3>{{ entry.chapter.title }}</h3>
+          <span class="status-tag">{{ entry.status | uppercase }}</span>
+        </div>
+        <p class="lore">{{ entry.chapter.lore }}</p>
+        <p class="objective">{{ entry.chapter.objective.label }}</p>
+        <div class="progress-bar">
+          <span class="progress-fill" [style.width.%]="entry.percent"></span>
+          <span class="progress-label">{{ entry.current }}/{{ entry.goal }}</span>
+        </div>
+        <p class="reward">
+          Reward: +{{ entry.chapter.reward.coins }} CR, +{{ entry.chapter.reward.dnaShards }} DNA
+          @if (entry.chapter.reward.gearDefId) { <em>+ gear</em> }
+        </p>
+        @if (entry.status === 'ready') {
+          <button type="button" class="claim" (click)="claim(entry.chapter.id)">Claim Chapter</button>
+        } @else if (entry.status === 'claimed') {
+          <div class="claimed-note">✓ {{ entry.chapter.reward.lore }}</div>
+        } @else if (entry.status === 'locked') {
+          <div class="locked-note">Clear the previous chapter to unlock.</div>
+        }
+      </article>
+    }
+  </div>
+
+  <section class="boss-codex" aria-label="Boss Codex">
+    <h3>{{ 'campaign.bossCodex' | t }}</h3>
+    <div class="boss-grid">
+      @for (entry of bossCodex(); track entry.boss.id) {
+        <article class="boss-card" [class.defeated]="entry.defeated">
+          <div class="boss-art">
+            <img [src]="entry.boss.spriteUrl" [alt]="entry.boss.name" loading="lazy" />
+            @if (!entry.defeated) { <span class="locked-overlay">?</span> }
+          </div>
+          <div class="boss-info">
+            <strong>{{ entry.defeated ? entry.boss.name : '??? ' + entry.boss.icon }}</strong>
+            <small>{{ entry.boss.title }} · {{ entry.boss.type }}</small>
+            @if (entry.defeated) {
+              <p class="boss-lore">{{ entry.boss.lore }}</p>
+              <p class="boss-mech"><em>{{ entry.boss.mechanic.telegraph }}</em></p>
+              <p class="boss-counter">Counter: {{ entry.boss.mechanic.counter }}</p>
+            } @else {
+              <p class="boss-lore muted">Defeat this boss to reveal its Codex entry.</p>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+</section>

@@ -1,0 +1,25 @@
+@if (enabled()) {
+  <div class="combat-beat" [class.charged]="charged()">
+    <div class="beat-info">
+      <span class="beat-label">Combat Beat</span>
+      <small>
+        @if (charged()) {
+          Primed — start the battle to spend it.
+        } @else if (phase() === 'hit') {
+          Perfect! Overdrive primed.
+        } @else if (phase() === 'miss') {
+          Missed the window.
+        } @else {
+          Land the marker in the zone for a bonus.
+        }
+      </small>
+    </div>
+    <div class="beat-track" aria-hidden="true">
+      <span class="beat-zone" [style.left.%]="zoneMinPct" [style.width.%]="zoneWidthPct"></span>
+      <span class="beat-marker" [style.left.%]="marker() * 100"></span>
+    </div>
+    <button type="button" class="beat-btn" [disabled]="charged()" (click)="primary()">
+      {{ phase() === 'running' ? 'LOCK' : charged() ? 'PRIMED' : 'CHARGE' }}
+    </button>
+  </div>
+}

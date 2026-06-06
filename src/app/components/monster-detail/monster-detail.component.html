@@ -46,6 +46,14 @@
       }
     </div>
 
+    @if (trainingPlan(selected); as plan) {
+      <section class="training-plan tone-{{ plan.tone }}" aria-label="Training plan">
+        <span>{{ plan.status }}</span>
+        <h3>{{ plan.title }}</h3>
+        <p>{{ plan.detail }}</p>
+      </section>
+    }
+
     <section class="evolution-targets">
       <h3>Possible Evolutions</h3>
       @if (game.getEvolutionTargets(selected).length === 0) {

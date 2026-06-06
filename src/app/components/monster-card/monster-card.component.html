@@ -3,10 +3,15 @@
   [class.selected]="selected"
   [class.locked]="!monster.unlocked"
   [class.compact]="compact"
+  [class.prismatic]="monster.unlocked && monster.prismatic"
   type="button"
   [attr.aria-label]="cardAriaLabel"
   (click)="selectMonster.emit(monster.id)"
 >
+  @if (monster.unlocked && monster.prismatic) {
+    <span class="prismatic-sheen" aria-hidden="true"></span>
+    <span class="prismatic-mark" aria-hidden="true">✦</span>
+  }
   <span class="card-topline">
     <span class="monster-id">{{ monster.id }}</span>
     <span class="card-status">{{ statusLabel }}</span>

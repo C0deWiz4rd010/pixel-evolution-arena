@@ -1,0 +1,88 @@
+<section class="expedition-view" aria-label="Expedition">
+  <header class="exp-head">
+    <div>
+      <span>Deep Grid // Roguelite Run</span>
+      <h2>{{ 'expedition.title' | t }}</h2>
+      <p>Descend a branching grid with your squad. Collect run-only relics, survive on a shared HP budget, and bank Cores on a clear.</p>
+    </div>
+    <div class="cores-chip">
+      <span>{{ 'expedition.cores' | t }}</span>
+      <strong>{{ cores() }}</strong>
+    </div>
+  </header>
+
+  @if (run(); as state) {
+    @if (state.status === 'active') {
+      <div class="run-hud">
+        <div class="hp-block">
+          <span class="hp-label">Run HP {{ state.hp }}/{{ state.maxHp }}</span>
+          <div class="hp-bar"><span class="hp-fill" [class.low]="hpPercent() <= 30" [style.width.%]="hpPercent()"></span></div>
+        </div>
+        <div class="run-meta">
+          <span>Depth {{ state.depth }}/7</span>
+          <span>Cores banked: {{ state.rewardCores }}</span>
+        </div>
+        <button type="button" class="ghost" (click)="abandon()">{{ 'expedition.abandon' | t }}</button>
+      </div>
+
+      <div class="relics-row" aria-label="Collected relics">
+        @for (relic of relics(); track relic.id) {
+          <span class="relic-chip" [title]="relic.detail"><b>{{ relic.icon }}</b> {{ relic.name }}</span>
+        } @empty {
+          <span class="relic-empty">No relics yet — clear elite, boss, shop, or event nodes.</span>
+        }
+      </div>
+
+      <p class="last-event">{{ state.lastEvent }}</p>
+
+      @if (relicChoices().length > 0) {
+        <div class="relic-choice" role="dialog" aria-label="Choose a relic">
+          <h3>Choose a Relic</h3>
+          <div class="choice-grid">
+            @for (id of relicChoices(); track id) {
+              <button type="button" class="choice" (click)="pick(id)">
+                <span class="choice-icon">{{ relicIcon(id) }}</span>
+                <strong>{{ relicName(id) }}</strong>
+                <small>{{ relicDetail(id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <app-expedition-map (enterNode)="enter($event)" />
+        <p class="map-hint">Tap a glowing node to advance. Battles use your current squad with relic, trait, and gear bonuses.</p>
+      }
+    } @else {
+      <div class="run-summary status-{{ state.status }}">
+        <h3>{{ state.status === 'won' ? 'Expedition Cleared!' : 'Expedition Ended' }}</h3>
+        <p>{{ state.lastEvent }}</p>
+        <div class="summary-stats">
+          <span>Depth reached: {{ state.depth }}/7</span>
+          <span>Relics: {{ state.relicIds.length }}</span>
+          <span>Cores this run: {{ state.rewardCores }}</span>
+        </div>
+        <button type="button" class="primary" (click)="claim()">
+          {{ state.status === 'won' ? 'Claim & Bank Cores' : 'Bank Partial Cores' }}
+        </button>
+      </div>
+    }
+  } @else {
+    <div class="launch-panel">
+      <div class="launch-copy">
+        <h3>Launch an Expedition</h3>
+        <p>A run is self-contained: temporary relics, a shared HP budget, and escalating nodes ending in a boss. Win to bank Cores; relics vanish at the end.</p>
+        <button type="button" class="primary" [disabled]="game.squad().length === 0" (click)="launch()">
+          {{ game.squad().length === 0 ? 'Load a squad first' : ('expedition.launch' | t) }}
+        </button>
+      </div>
+      <div class="relic-legend">
+        <h4>Relic Pool</h4>
+        <ul>
+          @for (relic of relicDefs; track relic.id) {
+            <li><b>{{ relic.icon }}</b> <strong>{{ relic.name }}</strong> — {{ relic.detail }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+</section>
