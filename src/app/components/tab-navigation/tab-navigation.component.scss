@@ -172,6 +172,52 @@
   border-color: rgba(255, 85, 216, 0.42);
 }
 
+.hotkeys-inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  border-left: 1px solid rgba(19, 216, 255, 0.2);
+  padding-left: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+
+  > span {
+    display: inline-flex;
+    gap: 0.22rem;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.66rem;
+    white-space: nowrap;
+  }
+}
+
+.hotkeys-inline kbd {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 0.22rem;
+  border: 1px solid rgba(19, 216, 255, 0.36);
+  background: rgba(0, 0, 0, 0.48);
+  color: var(--line-bright);
+  font-family: var(--font);
+  font-size: 0.62rem;
+  font-weight: 700;
+  clip-path: var(--chamfer-tight);
+}
+
+.hotkey-desc {
+  color: var(--dim);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1024px) {
+  .hotkeys-inline {
+    display: none;
+  }
+}
+
 .handbook-tab {
   justify-self: end;
   border-color: rgba(255, 85, 216, 0.65);
