@@ -21,6 +21,7 @@
             <b>{{ row.glyph }}</b>
             <span>{{ row.stage }}</span>
             <strong>{{ row.unlocked }}/{{ row.total }}</strong>
+            <small>{{ row.readyRoutes }} ready / {{ row.trackedRoutes }} tracked</small>
           </span>
         }
       </div>
@@ -32,6 +33,24 @@
         <span class="route-key selected"><i aria-hidden="true"></i>Selected Route</span>
       </div>
     </div>
+
+    <section class="route-pressure-strip" aria-label="Route pressure status">
+      <article class="pressure-card">
+        <span>Route Pressure</span>
+        <strong>{{ routePressure().label }}</strong>
+        <small>{{ game.routeStatusChip().detail }}</small>
+      </article>
+      <article class="pressure-card">
+        <span>Arena Pull</span>
+        <strong>{{ battlePosture() }}</strong>
+        <small>{{ arenaDirective().objective }}</small>
+      </article>
+      <article class="pressure-card">
+        <span>Stage Unlocks</span>
+        <strong>{{ game.unlockedCount() }}/{{ game.monsters().length }}</strong>
+        <small>Network online across all evolution bands.</small>
+      </article>
+    </section>
 
     <div class="evolution-rows" aria-label="Evolution stages and route nodes">
       @for (row of stageRows(); track row.stage) {
@@ -51,6 +70,8 @@
               <span><b>{{ row.locked }}</b> locked</span>
               <span><b>{{ row.routeCount }}</b> routes</span>
               <span><b>{{ row.branchCount }}</b> branches</span>
+              <span><b>{{ row.readyRoutes }}</b> ready</span>
+              <span><b>{{ row.trackedRoutes }}</b> tracked</span>
             </div>
           </div>
 
@@ -147,6 +168,11 @@
               >
                 {{ primaryRouteActionLabel() }}
               </button>
+              @if (!primaryRouteActionReady(selected) && recommendedTrainingDrill(selected); as drill) {
+                <button type="button" class="route-train-action" [disabled]="!game.canAffordCoins(drill.costCoins)" (click)="runRecommendedTraining(selected)">
+                  {{ drill.label }} (+{{ drill.xpGain }} XP / {{ drill.costCoins }} CR)
+                </button>
+              }
               @if (primarySelectedTarget(); as target) {
                 <span>{{ targetRouteStatus(selected, target) }}</span>
               }

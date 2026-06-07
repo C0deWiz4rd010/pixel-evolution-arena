@@ -526,6 +526,46 @@
   white-space: normal;
 }
 
+.prep-console {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(19, 216, 255, 0.24);
+  background: rgba(0, 0, 0, 0.32);
+  clip-path: var(--chamfer-tight);
+}
+
+.prep-console-copy {
+  display: grid;
+  gap: 0.14rem;
+}
+
+.prep-console-copy span,
+.prep-console-copy small {
+  color: var(--muted);
+}
+
+.prep-console-copy strong {
+  color: var(--text);
+}
+
+.prep-console-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+.prep-console-actions .primary-prep {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.prep-console-actions .calibration-action {
+  grid-column: 1 / -1;
+}
+
 .start-battle-action {
   position: relative;
   z-index: 1;

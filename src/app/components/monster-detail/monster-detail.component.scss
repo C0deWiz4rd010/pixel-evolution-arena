@@ -119,3 +119,121 @@
   font-size: 0.68rem;
   line-height: 1.28;
 }
+
+.training-console,
+.blocker-console {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0.52rem 0;
+  padding: 0.58rem;
+  border: 1px solid rgba(19, 216, 255, 0.28);
+  background:
+    linear-gradient(180deg, rgba(19, 216, 255, 0.08), rgba(0, 0, 0, 0.34)),
+    rgba(0, 0, 0, 0.28);
+  clip-path: var(--chamfer);
+}
+
+.training-console-head {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.training-console-head.compact {
+  align-items: baseline;
+}
+
+.training-console-head span {
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.training-console-head h3,
+.training-console-head strong {
+  margin: 0.14rem 0 0;
+  color: var(--line-bright);
+  text-transform: uppercase;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--line-bright) 40%, transparent);
+}
+
+.drill-grid,
+.training-support {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.drill-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.training-support {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
+.drill-card {
+  display: grid;
+  gap: 0.34rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(19, 216, 255, 0.18);
+  background:
+    linear-gradient(90deg, rgba(19, 216, 255, 0.1), transparent 70%),
+    rgba(0, 0, 0, 0.34);
+  clip-path: var(--chamfer-tight);
+}
+
+.drill-card.ready,
+.squad-drill.ready {
+  border-color: var(--success);
+  box-shadow: 0 0 16px rgba(131, 255, 69, 0.2);
+}
+
+.drill-topline,
+.drill-footer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drill-topline strong {
+  color: var(--text);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.drill-topline span {
+  color: var(--coin);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.drill-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.drill-footer small {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.compact-requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+@media (max-width: 760px) {
+  .drill-grid,
+  .training-support {
+    grid-template-columns: 1fr;
+  }
+}

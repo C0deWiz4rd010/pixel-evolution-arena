@@ -27,6 +27,27 @@
   --next-color: var(--coin);
 }
 
+.stat-chip.route {
+  --route-color: var(--line);
+  border-color: var(--route-color);
+  color: var(--route-color);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--route-color) 18%, transparent), transparent 70%),
+    rgba(0, 0, 0, 0.28);
+}
+
+.stat-chip.route.tone-ready {
+  --route-color: var(--success);
+}
+
+.stat-chip.route.tone-train {
+  --route-color: var(--coin);
+}
+
+.stat-chip.route.tone-clear {
+  --route-color: var(--special);
+}
+
 .stat-chip.stat-pulse {
   animation: stat-pulse-flash 860ms ease-out;
 }

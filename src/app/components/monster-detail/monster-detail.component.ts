@@ -1,6 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { MonsterTrainingDrill } from '../../rules/training.rules';
 
 interface TrainingPlan {
   status: string;
@@ -51,6 +52,27 @@ export class MonsterDetailComponent {
   powerDeltaLabel(source: Monster, target: Monster): string {
     const delta = this.powerDelta(source, target);
     return `${delta >= 0 ? '+' : ''}${delta} PW`;
+  }
+
+  monsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
+    return this.game.getMonsterTrainingDrills(monster);
+  }
+
+  canRunTrainingDrill(drill: MonsterTrainingDrill, monster: Monster): boolean {
+    return monster.unlocked && this.game.canAffordCoins(drill.costCoins);
+  }
+
+  runTrainingDrill(monster: Monster, drill: MonsterTrainingDrill): void {
+    this.game.runMonsterTraining(monster.id, drill.id);
+  }
+
+  primaryLockedTarget(monster: Monster): Monster | null {
+    return this.game.getEvolutionTargets(monster).find((target) => !target.unlocked) ?? null;
+  }
+
+  squadCalibrationReady(): boolean {
+    const drill = this.game.squadTrainingDrill();
+    return this.game.squad().length > 0 && this.game.canAffordCoins(drill.costCoins);
   }
 
   trainingPlan(monster: Monster): TrainingPlan {

@@ -44,6 +44,7 @@ interface RoleFitView {
 })
 export class SquadComponent {
   readonly game = inject(GameStateService);
+  readonly squadTrainingDrill = this.game.squadTrainingDrill;
 
   readonly squadSlots = computed<SquadSlotView[]>(() => {
     const squad = this.game.squad();
@@ -56,6 +57,9 @@ export class SquadComponent {
 
   readonly presetDraftName = signal('');
   readonly presets = computed(() => this.game.player().squadPresets);
+  readonly canRunSquadTraining = computed(
+    () => this.game.squad().length > 0 && this.game.canAffordCoins(this.squadTrainingDrill().costCoins),
+  );
 
   readonly slotsFilled = computed(() => this.game.squad().length);
   readonly emptySlots = computed(() => 3 - this.slotsFilled());
