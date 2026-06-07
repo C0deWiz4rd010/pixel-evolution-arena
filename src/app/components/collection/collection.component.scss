@@ -1,13 +1,17 @@
 .collection-dex {
   grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
-  align-items: start;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
 }
 
+.dex-console,
 .dex-side {
   position: relative;
-  align-self: start;
-  max-height: none;
-  overflow: visible;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .dex-header,

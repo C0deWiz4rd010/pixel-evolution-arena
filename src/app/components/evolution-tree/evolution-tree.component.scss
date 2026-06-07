@@ -34,7 +34,7 @@
 
 .legend-pill small {
   color: var(--muted);
-  font-size: 0.52rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -208,7 +208,7 @@
 .node-route-tag {
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.54rem;
+  font-size: 0.62rem;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -548,7 +548,7 @@
 .advisor-target span,
 .advisor-target em {
   color: var(--muted);
-  font-size: 0.54rem;
+  font-size: 0.62rem;
   font-style: normal;
   text-transform: uppercase;
 }
@@ -753,7 +753,7 @@
   border: 1px solid var(--success);
   background: rgba(0, 0, 0, 0.78);
   color: var(--success);
-  font-size: 0.56rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-shadow: 0 0 8px currentColor;
