@@ -105,6 +105,20 @@ test('default route can evolve and battles produce rewards', async ({ page }) =>
   await expect(page.getByText(/XP \+\d+/)).toBeVisible();
 });
 
+test('training lab drills spend coins and grant xp to the selected monster', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+
+  const detailPanel = page.locator('aside.detail-panel');
+  const xpBefore = await detailPanel.locator('.xp-bar span').last().innerText();
+  const coinsBefore = await page.locator('.stat-chip.coins strong').innerText();
+
+  await detailPanel.locator('.training-console .drill-grid button').first().click();
+
+  await expect(detailPanel.locator('.xp-bar span').last()).not.toHaveText(xpBefore);
+  await expect(page.locator('.stat-chip.coins strong')).not.toHaveText(coinsBefore);
+});
+
 test('auto build loads a full squad and arena shows run readiness forecast', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
@@ -145,6 +159,19 @@ test('arena exposes hybrid controls and the medals tab lists achievements', asyn
   await nav.getByRole('button', { name: /Medals/i }).click();
   await expect(page.getByRole('heading', { name: 'Achievements' })).toBeVisible();
   await expect(page.getByText('First Contact')).toBeVisible();
+});
+
+test('arena prep console can auto-prep and launch a run', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Arena/i }).click();
+  await expect(page.getByLabel('Prep console')).toContainText('Coach + Drill Macros');
+  await page.getByRole('button', { name: /Prep \+ Launch/i }).click();
+
+  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
+  await expect(page.getByText(/XP \+\d+/)).toBeVisible();
 });
 
 test('collection can evolve a reachable chase directly', async ({ page }) => {

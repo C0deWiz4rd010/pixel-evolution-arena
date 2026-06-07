@@ -111,3 +111,14 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 681.26 kB vs 650 kB warning, existing Arena SCSS warning, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e` passed (16 Playwright smoke tests) after setting Playwright to one worker for stable dev-server-backed browser smoke runs.
 - Browser smoke passed on desktop 1440x900 and mobile 390x844 with no console or page errors; verified Operations Deck, Forge Command, Expedition Relay, and the updated quick-action flow.
+
+2026-06-07 Phase 15:
+
+- Added `docs/phase-15-command-loop-todo.md` with the completed 16-point implementation + verification todo.
+- Added pure training-drill rules plus XP targeting helpers so solo drills and squad calibration sims can grant progression without a full arena run.
+- Added `GameStateService` actions for monster drills, squad drills, route-status HUD signaling, and reusable battle prep / prep-and-launch support.
+- Upgraded Header HUD, Evolution Tree, Monster Detail, Collection, Squad, and Arena surfaces with live route readiness, drill controls, and prep-console guidance.
+- `npm.cmd run test -- --run` passed (99 tests / 18 files).
+- `npm.cmd run build` passed with warnings: initial bundle 697.01 kB vs 650 kB warning, Arena SCSS warning budget 20.22 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (18 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified training drills, route-pressure cues, prep-and-launch flow, and readable HUD wrapping with no overlap regressions.

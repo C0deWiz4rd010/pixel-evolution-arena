@@ -158,6 +158,7 @@ export class ArenaComponent {
   readonly overdrivePercent = this.game.overdrivePercent;
   readonly overdriveReady = this.game.overdriveReady;
   readonly overdriveArmed = this.game.overdriveArmed;
+  readonly squadTrainingDrill = this.game.squadTrainingDrill;
   readonly bestGauntletWave = computed(() => this.game.player().combatStats.gauntletBestWave);
 
   readonly consumables = this.game.consumables;
@@ -244,15 +245,16 @@ export class ArenaComponent {
 
   applyBattleCoach(): void {
     const plan = this.battleCoach();
-    if (this.game.squad().length === 0) {
-      return;
-    }
+    this.game.applyBattlePrep(plan.stanceId, plan.categoryId, plan.itemName);
+  }
 
-    this.game.setBattleStance(plan.stanceId);
-    this.game.setBattleCategory(plan.categoryId);
-    if (plan.itemName && !this.isEquipped(plan.itemName) && this.equippedConsumables().length < 2) {
-      this.game.toggleConsumable(plan.itemName);
-    }
+  applyBattleCoachAndLaunch(): void {
+    const plan = this.battleCoach();
+    this.game.applyBattlePrepAndLaunch(plan.stanceId, plan.categoryId, plan.itemName);
+  }
+
+  runCalibrationDrill(): void {
+    this.game.runSquadTrainingDrill();
   }
 
   isEquipped(name: string): boolean {

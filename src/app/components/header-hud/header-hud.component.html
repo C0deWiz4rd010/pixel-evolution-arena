@@ -65,6 +65,12 @@
       <strong>{{ game.nextCommand().status }}</strong>
       <small>{{ game.nextCommand().tab }}</small>
     </div>
+    <div class="stat-chip route tone-{{ game.routeStatusChip().tone }}" [attr.title]="game.routeStatusChip().detail">
+      <span class="stat-icon">EV</span>
+      <span class="stat-label">Routes</span>
+      <strong>{{ game.routeStatusChip().status }}</strong>
+      <small>{{ game.routeStatusChip().metric }}</small>
+    </div>
     @if (game.pinnedChase(); as pinned) {
       <div class="stat-chip chase" title="Pinned chase target">
         <span class="stat-icon">PN</span>

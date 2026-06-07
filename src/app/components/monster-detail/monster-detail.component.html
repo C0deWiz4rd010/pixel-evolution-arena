@@ -54,6 +54,68 @@
       </section>
     }
 
+    @if (selected.unlocked) {
+      <section class="training-console" aria-label="Training lab">
+        <div class="training-console-head">
+          <div>
+            <span>Training Lab</span>
+            <h3>Route Acceleration</h3>
+          </div>
+          <strong>{{ game.routeStatusChip().status }}</strong>
+        </div>
+
+        <div class="drill-grid">
+          @for (drill of monsterTrainingDrills(selected); track drill.id) {
+            <article class="drill-card" [class.ready]="canRunTrainingDrill(drill, selected)">
+              <div class="drill-topline">
+                <strong>{{ drill.label }}</strong>
+                <span>+{{ drill.xpGain }} XP</span>
+              </div>
+              <p>{{ drill.detail }}</p>
+              <div class="drill-footer">
+                <small>{{ drill.costCoins }} CR</small>
+                <button type="button" [disabled]="!canRunTrainingDrill(drill, selected)" (click)="runTrainingDrill(selected, drill)">
+                  Run Drill
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+
+        <div class="training-support">
+          @if (primaryLockedTarget(selected); as target) {
+            <article class="blocker-console">
+              <div class="training-console-head compact">
+                <span>Primary Blockers</span>
+                <strong>{{ target.name }}</strong>
+              </div>
+              <div class="requirements compact-requirements">
+                @for (status of game.getRequirementStatuses(selected, target); track status.label) {
+                  <span [class.met]="status.met" [class.missing]="!status.met">
+                    {{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }} / {{ status.required }}
+                  </span>
+                }
+              </div>
+            </article>
+          }
+
+          <article class="drill-card squad-drill" [class.ready]="squadCalibrationReady()">
+            <div class="drill-topline">
+              <strong>{{ game.squadTrainingDrill().label }}</strong>
+              <span>+{{ game.squadTrainingDrill().xpGain }} XP Each</span>
+            </div>
+            <p>{{ game.squadTrainingDrill().detail }}</p>
+            <div class="drill-footer">
+              <small>{{ game.squadTrainingDrill().costCoins }} CR</small>
+              <button type="button" [disabled]="!squadCalibrationReady()" (click)="game.runSquadTrainingDrill()">
+                Run Squad Sim
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+    }
+
     <section class="evolution-targets">
       <h3>Possible Evolutions</h3>
       @if (game.getEvolutionTargets(selected).length === 0) {

@@ -3,6 +3,7 @@ import { MonsterCardComponent } from '../monster-card/monster-card.component';
 import { MonsterDetailComponent } from '../monster-detail/monster-detail.component';
 import { Monster, MonsterStage } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
+import { MonsterTrainingDrill } from '../../rules/training.rules';
 
 interface StageRowView {
   stage: MonsterStage;
@@ -16,6 +17,8 @@ interface StageRowView {
   routeCount: number;
   branchCount: number;
   progress: number;
+  readyRoutes: number;
+  trackedRoutes: number;
   monsters: Monster[];
 }
 
@@ -43,6 +46,7 @@ export class EvolutionTreeComponent {
       const unlocked = monsters.filter((monster) => monster.unlocked).length;
       const routeCount = monsters.reduce((total, monster) => total + monster.evolutionTargets.length, 0);
       const branchCount = monsters.filter((monster) => monster.evolutionTargets.length > 1).length;
+      const stageCandidates = this.game.evolutionCandidates().filter((candidate) => candidate.target.stage === stage);
 
       return {
         stage,
@@ -56,6 +60,8 @@ export class EvolutionTreeComponent {
         routeCount,
         branchCount,
         progress: monsters.length > 0 ? Math.round((unlocked / monsters.length) * 100) : 0,
+        readyRoutes: stageCandidates.filter((candidate) => candidate.ready).length,
+        trackedRoutes: stageCandidates.length,
         monsters,
       };
     }),
@@ -122,6 +128,15 @@ export class EvolutionTreeComponent {
   readonly battleDelta = computed(() => this.game.teamPower() - this.game.enemyPower());
   readonly arenaDirective = this.game.arenaDirective;
   readonly activeFormation = this.game.activeFormation;
+  readonly routePressure = computed(() => {
+    const ready = this.game.readyEvolutionCount();
+    const tracked = this.game.evolutionCandidates().length;
+    return {
+      ready,
+      tracked,
+      label: ready > 0 ? `${ready} ready route${ready === 1 ? '' : 's'}` : tracked > 0 ? `${tracked} tracked routes` : 'Routes clear',
+    };
+  });
 
   readonly battlePosture = computed(() => {
     const squadSize = this.game.squad().length;
@@ -310,6 +325,18 @@ export class EvolutionTreeComponent {
     }
 
     return `Pin ${target.name}`;
+  }
+
+  recommendedTrainingDrill(monster: Monster): MonsterTrainingDrill | null {
+    return this.game.getMonsterTrainingDrills(monster).find((drill) => this.game.canAffordCoins(drill.costCoins)) ?? this.game.getMonsterTrainingDrills(monster)[0] ?? null;
+  }
+
+  runRecommendedTraining(monster: Monster): void {
+    const drill = this.recommendedTrainingDrill(monster);
+    if (!drill) {
+      return;
+    }
+    this.game.runMonsterTraining(monster.id, drill.id);
   }
 
   private missingRequirementLabels(source: Monster, target: Monster): string[] {

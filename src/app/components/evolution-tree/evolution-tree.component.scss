@@ -31,6 +31,13 @@
   box-shadow: 0 0 12px color-mix(in srgb, currentColor 18%, transparent);
 }
 
+.legend-pill small {
+  color: var(--muted);
+  font-size: 0.52rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 .legend-pill b {
   width: 24px;
   height: 24px;
@@ -88,6 +95,38 @@
   border-width: 3px;
   border-color: var(--success);
   box-shadow: 0 0 10px var(--success);
+}
+
+.route-pressure-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.48rem;
+  margin-top: 0.58rem;
+}
+
+.pressure-card {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.48rem 0.56rem;
+  border: 1px solid rgba(19, 216, 255, 0.28);
+  background:
+    linear-gradient(180deg, rgba(19, 216, 255, 0.08), rgba(0, 0, 0, 0.34)),
+    rgba(0, 0, 0, 0.24);
+  clip-path: var(--chamfer);
+}
+
+.pressure-card span,
+.pressure-card small {
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pressure-card strong {
+  color: var(--text);
+  font-size: 0.84rem;
+  text-transform: uppercase;
 }
 
 .stage-row {
@@ -500,7 +539,7 @@
 .advisor-actions {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
   gap: 0.4rem;
   align-items: center;
 }
@@ -526,6 +565,14 @@
   border-color: var(--success);
   color: var(--success);
   box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
+.route-train-action {
+  min-height: 34px;
+  border-color: var(--coin);
+  color: var(--coin);
+  font-size: 0.62rem;
+  box-shadow: 0 0 12px rgba(255, 220, 66, 0.16);
 }
 
 .advisor-target {
@@ -600,6 +647,7 @@
 @media (max-width: 1180px) {
   .tree-layout,
   .tree-codebar,
+  .route-pressure-strip,
   .tree-command-strip {
     grid-template-columns: 1fr;
     height: auto;

@@ -259,6 +259,28 @@
           </button>
         </section>
 
+        <section class="prep-console" aria-label="Prep console">
+          <div class="prep-console-copy">
+            <span>Prep Console</span>
+            <strong>Coach + Drill Macros</strong>
+            <small>Snap the coach plan into place, launch it instantly, or bank low-risk XP when the forecast dips.</small>
+          </div>
+          <div class="prep-console-actions">
+            <button type="button" [disabled]="game.squad().length === 0" (click)="applyBattleCoach()">Auto Prep</button>
+            <button type="button" class="primary-prep" [disabled]="anim.isPlaying() || game.squad().length === 0" (click)="applyBattleCoachAndLaunch()">
+              Prep + Launch
+            </button>
+            <button
+              type="button"
+              class="calibration-action"
+              [disabled]="game.squad().length === 0 || !game.canAffordCoins(squadTrainingDrill().costCoins)"
+              (click)="runCalibrationDrill()"
+            >
+              {{ squadTrainingDrill().label }} (+{{ squadTrainingDrill().xpGain }} XP / {{ squadTrainingDrill().costCoins }} CR)
+            </button>
+          </div>
+        </section>
+
         <div class="battle-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
           <span class="outlook-label">Forecast</span>
           <strong>{{ battleOutlook().label }}</strong>

@@ -6,9 +6,9 @@ export interface SquadXpResult {
   logs: BattleLog[];
 }
 
-export function applyXpToSquad(monsters: Monster[], squadIds: string[], amount: number): SquadXpResult {
+export function applyXpToTargets(monsters: Monster[], targetIds: readonly string[], amount: number): SquadXpResult {
   const logs: BattleLog[] = [];
-  const squadIdSet = new Set(squadIds);
+  const squadIdSet = new Set(targetIds);
 
   const updatedMonsters = monsters.map((monster) => {
     if (!squadIdSet.has(monster.id)) {
@@ -38,4 +38,12 @@ export function applyXpToSquad(monsters: Monster[], squadIds: string[], amount: 
   });
 
   return { updatedMonsters, logs };
+}
+
+export function applyXpToSquad(monsters: Monster[], squadIds: string[], amount: number): SquadXpResult {
+  return applyXpToTargets(monsters, squadIds, amount);
+}
+
+export function applyXpToMonster(monsters: Monster[], monsterId: string, amount: number): SquadXpResult {
+  return applyXpToTargets(monsters, [monsterId], amount);
 }
