@@ -1,3 +1,4 @@
+<a class="skip-link" href="#play-surface">Skip to content</a>
 <main class="app-shell">
   <app-arena-effects [activeTab]="activeTab()" />
   <app-header-hud />
@@ -76,7 +77,7 @@
     </section>
   }
 
-  <section class="play-surface">
+  <section class="play-surface" id="play-surface" tabindex="-1" [attr.aria-label]="activeTab() + ' view'">
     @switch (activeTab()) {
       @case ('Evolution Tree') {
         <app-evolution-tree />

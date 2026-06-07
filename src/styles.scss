@@ -2609,6 +2609,32 @@ app-monster-card {
   animation-duration: 6s !important;
 }
 
+/* Skip link — hidden until focused, lets keyboard users jump past the chrome. */
+.skip-link {
+  position: fixed;
+  top: 0.4rem;
+  left: 50%;
+  z-index: 100;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--line-bright);
+  background: var(--panel-strong);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translate(-50%, -180%);
+  transition: transform 140ms ease;
+  clip-path: var(--chamfer);
+}
+
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 3px solid var(--line-bright);
+  outline-offset: 2px;
+}
+
 /* Screen-reader-only utility for live announcements. */
 .sr-only {
   position: absolute !important;
