@@ -27,6 +27,23 @@
     </button>
   </section>
 
+  <section class="preflight-panel" aria-label="Expedition preflight scanner">
+    <div class="preflight-copy">
+      <span>Preflight Scanner</span>
+      <strong>Launch viability and recovery options</strong>
+      <p>Use arena trend, squad shell, and fallback drills to decide whether to push the deep grid now or stabilize first.</p>
+    </div>
+    <div class="preflight-grid">
+      @for (check of preflightChecks(); track check.label) {
+        <article class="preflight-card tone-{{ check.tone }}" [class.ready]="check.ready">
+          <span>{{ check.label }}</span>
+          <strong>{{ check.value }}</strong>
+          <small>{{ check.detail }}</small>
+        </article>
+      }
+    </div>
+  </section>
+
   @if (run(); as state) {
     @if (state.status === 'active') {
       <div class="run-hud">

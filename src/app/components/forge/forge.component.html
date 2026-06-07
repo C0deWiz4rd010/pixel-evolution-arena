@@ -28,6 +28,16 @@
     </div>
   </section>
 
+  <section class="forge-diagnostics" aria-label="Forge diagnostics">
+    @for (card of diagnostics(); track card.label) {
+      <article class="forge-diagnostic tone-{{ card.tone }}">
+        <span>{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+        <p>{{ card.detail }}</p>
+      </article>
+    }
+  </section>
+
   <div class="forge-columns">
     <article class="forge-panel">
       <h3>{{ 'forge.blueprints' | t }}</h3>

@@ -81,6 +81,8 @@ export class ArenaComponent {
   readonly nextBattleMilestone = this.game.nextBattleMilestone;
   readonly arenaMomentum = this.game.arenaMomentum;
   readonly arenaObjectiveCards = this.game.arenaObjectiveCards;
+  readonly recentBattles = this.game.recentBattles;
+  readonly battleIntelSummary = this.game.battleIntelSummary;
 
   readonly readinessChecks = computed<ReadinessCheck[]>(() => {
     const squadSize = this.game.squad().length;
@@ -327,5 +329,9 @@ export class ArenaComponent {
 
   multiplierLabel(value: number): string {
     return `${value.toFixed(2)}x`;
+  }
+
+  battleRecordMetric(record: ReturnType<GameStateService['recentBattles']>[number]): string {
+    return `+${record.coins} CR / +${record.xp} XP`;
   }
 }

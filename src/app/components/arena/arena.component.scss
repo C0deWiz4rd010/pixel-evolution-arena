@@ -588,6 +588,53 @@
   border-bottom: 1px solid rgba(19, 216, 255, 0.25);
 }
 
+.run-dossier {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.dossier-list {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.dossier-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.42rem 0.5rem;
+  border: 1px solid rgba(19, 216, 255, 0.18);
+  background: rgba(0, 0, 0, 0.26);
+  clip-path: var(--chamfer-tight);
+}
+
+.dossier-row.win {
+  border-color: rgba(131, 255, 69, 0.3);
+}
+
+.dossier-row.loss {
+  border-color: rgba(255, 86, 77, 0.3);
+}
+
+.dossier-row div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.dossier-row span,
+.dossier-row small {
+  color: var(--muted);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+
+.dossier-row strong,
+.dossier-row b {
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
 .result-banner {
   min-height: 54px;
   padding: 0.5rem;

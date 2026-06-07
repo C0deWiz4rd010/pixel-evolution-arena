@@ -4,6 +4,14 @@ import { getRelicDef } from '../../data/relics.data';
 import { ExpeditionMapComponent } from '../expedition-map/expedition-map.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
+interface PreflightCheck {
+  label: string;
+  value: string;
+  detail: string;
+  ready: boolean;
+  tone: 'ready' | 'warn' | 'boost';
+}
+
 @Component({
   selector: 'app-expedition',
   standalone: true,
@@ -37,6 +45,43 @@ export class ExpeditionComponent {
       return { status: 'RUN ACTIVE', title: `Depth ${run.depth}/7 // HP ${run.hp}/${run.maxHp}`, detail: run.lastEvent, action: 'Resume Run' };
     }
     return { status: 'BANK CORES', title: run.status === 'won' ? 'Run clear secured' : 'Run salvage ready', detail: run.lastEvent, action: 'Bank Cores' };
+  });
+  readonly preflightChecks = computed<PreflightCheck[]>(() => {
+    const squadSize = this.game.squad().length;
+    const outlook = this.game.battleOutlook();
+    const intel = this.game.battleIntelSummary();
+    const squadDrill = this.game.squadTrainingDrill();
+
+    return [
+      {
+        label: 'Squad',
+        value: `${squadSize}/3`,
+        detail: squadSize === 3 ? 'Full squad online for a safer relay start.' : 'More signals mean a healthier launch shell.',
+        ready: squadSize === 3,
+        tone: squadSize === 3 ? 'ready' : 'warn',
+      },
+      {
+        label: 'Arena Trend',
+        value: intel.total > 0 ? `${intel.winRate}%` : 'No intel',
+        detail: intel.total > 0 ? intel.trendLabel : 'Run a few arena battles before trusting a deep-grid push.',
+        ready: intel.trend !== 'cold',
+        tone: intel.trend === 'hot' ? 'boost' : intel.trend === 'cold' ? 'warn' : 'ready',
+      },
+      {
+        label: 'Launch Forecast',
+        value: outlook.label,
+        detail: `Arena baseline says ${outlook.detail.toLowerCase()}`,
+        ready: outlook.tone !== 'low',
+        tone: outlook.tone === 'strong' ? 'boost' : outlook.tone === 'low' ? 'warn' : 'ready',
+      },
+      {
+        label: 'Fallback XP',
+        value: `+${squadDrill.xpGain} XP`,
+        detail: `Calibration costs ${squadDrill.costCoins} CR if you want a safer preflight before launch.`,
+        ready: this.game.canAffordCoins(squadDrill.costCoins),
+        tone: this.game.canAffordCoins(squadDrill.costCoins) ? 'ready' : 'warn',
+      },
+    ];
   });
 
   relicName(id: string): string {

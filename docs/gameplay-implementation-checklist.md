@@ -123,3 +123,13 @@ Use this checklist during Angular implementation.
 - `npm.cmd run test:e2e` passed (18 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified training drills, route-pressure cues, prep-and-launch flow, and readable HUD wrapping with no overlap regressions.
 - Merged the work into `develop`, pushed commit `909af9c`, and verified GitHub Pages deployment run `27085999042` plus live site `https://c0dewiz4rd010.github.io/pixel-evolution-arena/` (HTTP 200).
+
+2026-06-07 Phase 16:
+
+- Added `docs/phase-16-battle-intel-todo.md` with the completed 17-point implementation + verification todo.
+- Added persisted recent battle records plus pure battle-intel summarization rules so the game can surface win trend, preferred run profile, and average payouts from real arena history.
+- Upgraded the global shell, Arena, Campaign, Forge, and Expedition tabs with the Intel Strip, Recent Runs dossier, Objective Radar, Loadout Diagnostics, and Preflight Scanner.
+- `npm.cmd run test -- --run` passed (102 tests / 19 files).
+- `npm.cmd run build` passed with warnings: initial bundle 712.75 kB vs 650 kB warning, Arena SCSS warning budget 20.78 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (19 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified the Intel Strip, recent-run dossier, campaign radar, forge diagnostics, expedition preflight scanner, and readable mobile stacking with no blank-panel regressions.

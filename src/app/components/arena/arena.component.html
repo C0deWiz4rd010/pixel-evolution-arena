@@ -402,6 +402,35 @@
       }
     </section>
 
+    <section class="run-dossier" aria-label="Recent battle dossier">
+      <div class="objective-heading">
+        <span>Recent Runs</span>
+        <strong>
+          @if (battleIntelSummary().total > 0) {
+            {{ battleIntelSummary().winRate }}% / {{ battleIntelSummary().trend }}
+          } @else {
+            No Intel
+          }
+        </strong>
+      </div>
+      @if (recentBattles().length > 0) {
+        <div class="dossier-list">
+          @for (record of recentBattles().slice(0, 4); track record.id) {
+            <article class="dossier-row" [class.win]="record.won" [class.loss]="!record.won">
+              <div>
+                <span>{{ record.mode }} / {{ record.category }}</span>
+                <strong>{{ record.formationName }} // {{ record.threatLabel }}</strong>
+                <small>{{ record.teamPower }} vs {{ record.enemyPower }} / streak x{{ record.streakAfter }}</small>
+              </div>
+              <b>{{ battleRecordMetric(record) }}</b>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="reward-standby">No runs logged yet. Start the first arena sim to seed the dossier.</p>
+      }
+    </section>
+
     @if (game.lastReward(); as reward) {
       <section class="result-banner" [class.victory]="reward.won" [class.retreat]="!reward.won">
         <span>{{ reward.won ? 'Victory Result' : 'Retreat Result' }}</span>

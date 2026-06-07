@@ -3,7 +3,7 @@ import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
-import { CombatStats, DEFAULT_SETTINGS, PlayerSettings, PlayerState, SquadPreset } from '../models/player-state.model';
+import { CombatStats, DEFAULT_SETTINGS, PlayerSettings, PlayerState, RecentBattleRecord, SquadPreset } from '../models/player-state.model';
 import { GearInstance } from '../models/gear.model';
 import { serializeMonsterProgress } from '../models/save-state.model';
 import {
@@ -59,6 +59,7 @@ import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model'
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
+import { BattleIntelSummary, summarizeBattleRecords } from '../rules/battle-intel.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -180,6 +181,7 @@ const STARTER_PLAYER_STATE: PlayerState = {
   claimedAchievements: [],
   combatStats: { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 },
   dailyDirective: null,
+  recentBattles: [],
   ownedGear: [],
   gearLoadout: {},
   defeatedBosses: [],
@@ -197,6 +199,7 @@ const MAX_SQUAD_PRESETS = 3;
 const MAX_LOADOUT = 2;
 const COMBO_BONUS = 0.06;
 const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
+const MAX_RECENT_BATTLES = 12;
 
 const STARTER_BATTLE_LOGS: BattleLog[] = [
   { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
@@ -671,6 +674,8 @@ export class GameStateService {
   });
   readonly nextCampaignEntry = computed(() => this.campaignProgress().find((entry) => entry.status !== 'claimed') ?? this.campaignProgress()[0] ?? null);
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
+  readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
+  readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
 
   readonly operationsCards = computed<OperationsCard[]>(() => {
     const chase = this.pinnedChaseId()
@@ -2101,6 +2106,21 @@ export class GameStateService {
 
     // Bestiary: record every enemy seen this run.
     const encounteredAfter = Array.from(new Set([...currentPlayer.encounteredEnemies, ...this.enemies.map((enemy) => enemy.id ?? enemy.name)]));
+    const battleRecord: RecentBattleRecord = {
+      id: `battle-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      won: sim.won,
+      mode: this.battleMode(),
+      category: this.battleCategoryId(),
+      formationName: formation.name,
+      threatLabel: threat.label,
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      coins: reward.coins,
+      dnaShards: reward.dnaShards,
+      xp: reward.xp,
+      streakAfter: reward.streakAfter ?? nextStreak,
+    };
 
     this.player.update((player) => ({
       ...player,
@@ -2116,6 +2136,7 @@ export class GameStateService {
       overdriveCharge,
       combatStats,
       dailyDirective: daily,
+      recentBattles: [battleRecord, ...player.recentBattles].slice(0, MAX_RECENT_BATTLES),
       defeatedBosses: bossNewlyDefeated ? [...player.defeatedBosses, bossNewlyDefeated.id] : player.defeatedBosses,
       encounteredEnemies: encounteredAfter,
     }));
@@ -2459,6 +2480,7 @@ function clonePlayerState(player: PlayerState): PlayerState {
     claimedAchievements: [...player.claimedAchievements],
     combatStats: { ...player.combatStats },
     dailyDirective: player.dailyDirective ? { ...player.dailyDirective } : null,
+    recentBattles: player.recentBattles.map((entry) => ({ ...entry })),
     ownedGear: player.ownedGear.map((entry) => ({ ...entry })),
     gearLoadout: cloneGearLoadout(player.gearLoadout),
     defeatedBosses: [...player.defeatedBosses],
@@ -2522,6 +2544,23 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     claimedAchievements: Array.isArray(player.claimedAchievements) ? [...player.claimedAchievements] : [],
     combatStats: { ...STARTER_COMBAT_STATS, ...(player.combatStats ?? {}) },
     dailyDirective: player.dailyDirective ?? null,
+    recentBattles: player.recentBattles
+      .map((entry): RecentBattleRecord => ({
+        id: String(entry.id),
+        timestamp: typeof entry.timestamp === 'string' ? entry.timestamp : new Date(0).toISOString(),
+        won: entry.won === true,
+        mode: entry.mode === 'gauntlet' ? 'gauntlet' : 'standard',
+        category: entry.category === 'training' || entry.category === 'risk' ? entry.category : 'standard',
+        formationName: String(entry.formationName ?? 'Unknown Formation'),
+        threatLabel: String(entry.threatLabel ?? 'Unknown Threat'),
+        teamPower: typeof entry.teamPower === 'number' ? Math.max(0, entry.teamPower) : 0,
+        enemyPower: typeof entry.enemyPower === 'number' ? Math.max(0, entry.enemyPower) : 0,
+        coins: typeof entry.coins === 'number' ? Math.max(0, entry.coins) : 0,
+        dnaShards: typeof entry.dnaShards === 'number' ? Math.max(0, entry.dnaShards) : 0,
+        xp: typeof entry.xp === 'number' ? Math.max(0, entry.xp) : 0,
+        streakAfter: typeof entry.streakAfter === 'number' ? Math.max(0, entry.streakAfter) : 0,
+      }))
+      .slice(0, MAX_RECENT_BATTLES),
     ownedGear: Array.isArray(player.ownedGear) ? player.ownedGear.map((entry) => ({ ...entry })) : [],
     gearLoadout: player.gearLoadout ? cloneGearLoadout(player.gearLoadout) : {},
     defeatedBosses: Array.isArray(player.defeatedBosses) ? [...player.defeatedBosses] : [],
@@ -2570,6 +2609,7 @@ function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boo
     player.audioEnabled !== STARTER_PLAYER_STATE.audioEnabled ||
     (player.overdriveCharge ?? 0) !== 0 ||
     (player.claimedAchievements?.length ?? 0) > 0 ||
+    (player.recentBattles?.length ?? 0) > 0 ||
     hasCombatProgress(player.combatStats) ||
     (player.ownedGear?.length ?? 0) > 0 ||
     (player.defeatedBosses?.length ?? 0) > 0 ||

@@ -29,6 +29,17 @@
     </button>
   </section>
 
+  <section class="intel-strip" aria-label="Global intel strip">
+    @for (card of intelCards(); track card.label) {
+      <article class="intel-card tone-{{ card.tone }}">
+        <span>{{ card.label }}</span>
+        <strong>{{ card.title }}</strong>
+        <p>{{ card.detail }}</p>
+        <small>{{ card.metric }}</small>
+      </article>
+    }
+  </section>
+
   <section class="operations-deck" aria-label="Operations deck">
     <div class="operations-head">
       <div>
