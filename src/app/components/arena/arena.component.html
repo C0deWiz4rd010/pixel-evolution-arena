@@ -318,7 +318,7 @@
           </div>
         </section>
 
-        <div class="battle-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
+        <div class="battle-outlook forecast-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
           <div class="outlook-top">
             <div>
               <span class="outlook-label">Forecast</span>
@@ -337,6 +337,16 @@
             </div>
           }
           <small>{{ battleOutlook().detail }}</small>
+          @if (game.squad().length > 0 && game.battleEdgeBreakdown().length > 0) {
+            <ul class="edge-breakdown" aria-label="Battle edge breakdown">
+              @for (row of game.battleEdgeBreakdown(); track row.label) {
+                <li class="edge-{{ row.tone }}">
+                  <span>{{ row.label }}</span>
+                  <b>{{ row.percent }}</b>
+                </li>
+              }
+            </ul>
+          }
         </div>
 
         <button

@@ -82,6 +82,13 @@ export interface ArenaRunDirective {
   tacticalHint: string;
 }
 
+export interface BattleEdgeRow {
+  label: string;
+  value: number;
+  percent: string;
+  tone: 'pos' | 'neg';
+}
+
 export interface EnemyTypeScanEntry {
   type: MonsterType;
   /** Squad already has a type that beats this enemy type. */
@@ -471,6 +478,34 @@ export class GameStateService {
       hasSquad: this.squad().length > 0,
     }),
   );
+
+  /**
+   * Transparent breakdown of every contributor to the battle edge, so the
+   * win-chance is explainable instead of a black box. Only non-trivial rows.
+   */
+  readonly battleEdgeBreakdown = computed<BattleEdgeRow[]>(() => {
+    const synergyMod = this.squadSynergies().reduce((total, synergy) => total + synergy.modifier, 0);
+    const armed = this.overdriveArmed() && this.overdriveReady();
+    const rows: { label: string; value: number }[] = [
+      { label: 'Type Pressure', value: this.squadTypePressure().modifier },
+      { label: 'Squad Synergy', value: synergyMod },
+      { label: 'Signature Traits', value: this.traitBonus().attackBonus },
+      { label: this.activeMutator().name, value: this.mutatorModifier().playerAttackBonus },
+      { label: 'Stance', value: this.battleStance().attackMod },
+      { label: 'Combat Beat', value: this.comboCharge() },
+      { label: 'Consumables', value: this.equippedAttackBonus() },
+      { label: 'Overdrive', value: armed ? OVERDRIVE_ATTACK_BONUS : 0 },
+      { label: 'Enemy Pressure', value: -this.enemyBattleModifier() },
+    ];
+    return rows
+      .filter((row) => Math.abs(row.value) >= 0.005)
+      .map((row) => ({
+        label: row.label,
+        value: row.value,
+        percent: `${row.value > 0 ? '+' : ''}${Math.round(row.value * 100)}%`,
+        tone: row.value > 0 ? ('pos' as const) : ('neg' as const),
+      }));
+  });
 
   readonly arenaRewardForecast = computed<ArenaRewardForecast>(() => {
     const formation = this.activeFormation();

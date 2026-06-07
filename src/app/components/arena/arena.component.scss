@@ -236,6 +236,66 @@
   color: var(--success);
 }
 
+/* Forecast outlook stacks vertically (overrides the coach's 2-col grid).
+   Needs .battle-outlook.forecast-outlook to outrank the later .battle-outlook rule. */
+.battle-outlook.forecast-outlook {
+  display: block;
+}
+
+.forecast-outlook .outlook-top {
+  margin-bottom: 0.1rem;
+}
+
+.forecast-outlook .outlook-top > div {
+  display: grid;
+  gap: 0.04rem;
+  min-width: 0;
+}
+
+.forecast-outlook .outlook-label {
+  font-size: 0.58rem;
+}
+
+.forecast-outlook .win-chance {
+  flex: 0 0 auto;
+}
+
+.edge-breakdown {
+  display: grid;
+  gap: 0.12rem;
+  margin: 0.45rem 0 0;
+  padding: 0.4rem 0.5rem;
+  list-style: none;
+  border: 1px solid rgba(19, 216, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  clip-path: var(--chamfer-tight);
+}
+
+.edge-breakdown li {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.68rem;
+}
+
+.edge-breakdown li span {
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.edge-breakdown li b {
+  font-weight: 800;
+}
+
+.edge-breakdown li.edge-pos b {
+  color: var(--success);
+}
+
+.edge-breakdown li.edge-neg b {
+  color: var(--danger);
+}
+
 .battle-speed-bar {
   position: relative;
   z-index: 1;
