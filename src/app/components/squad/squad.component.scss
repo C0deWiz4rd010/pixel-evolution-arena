@@ -3,17 +3,20 @@
 }
 
 .squad-terminal {
-  align-items: start;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
 }
 
 .squad-command,
 .squad-diagnostics {
   display: grid;
   gap: 0.75rem;
-}
-
-.squad-command {
-  overflow: hidden;
+  align-content: start;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .terminal-label {
