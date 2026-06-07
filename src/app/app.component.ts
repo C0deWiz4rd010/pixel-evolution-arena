@@ -67,6 +67,7 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<GameSectionName>('Evolution Tree');
+  readonly opsExpanded = signal(false);
   readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
   readonly intelCards = computed<IntelStripCard[]>(() => {
     const battleIntel = this.game.battleIntelSummary();
@@ -155,7 +156,12 @@ export class AppComponent {
 
   setActiveTab(tab: string): void {
     this.activeTab.set(tab as GameSectionName);
-    globalThis.requestAnimationFrame(() => globalThis.scrollTo({ top: 0, behavior: 'auto' }));
+    globalThis.requestAnimationFrame(() => {
+      const surface = document.querySelector<HTMLElement>('.play-surface');
+      if (surface) {
+        surface.scrollTop = 0;
+      }
+    });
   }
 
   autoBuildSquad(): void {
