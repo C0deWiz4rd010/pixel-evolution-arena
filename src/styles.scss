@@ -2282,6 +2282,31 @@ app-monster-card {
   }
 }
 
+@media (max-width: 1280px) {
+  .tree-layout,
+  .squad-layout,
+  .collection-layout,
+  .handbook-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  }
+
+  .arena-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
+  }
+
+  .battlefield {
+    grid-template-columns: minmax(160px, 210px) minmax(0, 1fr) minmax(160px, 210px);
+  }
+
+  .hud-stats {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .operations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1180px) {
   .header-hud {
     grid-template-columns: 1fr;
