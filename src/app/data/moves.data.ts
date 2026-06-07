@@ -13,7 +13,7 @@ export const TYPE_MOVE_KITS: Record<MonsterType, MoveDef[]> = {
   Nature: [
     { id: 'nat-strike', name: 'Vine Lash', kind: 'strike', power: 0.62, accuracy: 0.96, target: 'enemy' },
     { id: 'nat-status', name: 'Spore Bind', kind: 'status', power: 0.34, accuracy: 0.9, status: 'poison', statusChance: 0.65, target: 'enemy' },
-    { id: 'nat-heavy', name: 'Canopy Crush', kind: 'heavy', power: 0.92, accuracy: 0.82, target: 'enemy' },
+    { id: 'nat-heavy', name: 'Canopy Crush', kind: 'heavy', power: 0.92, accuracy: 0.82, status: 'bleed', statusChance: 0.4, target: 'enemy' },
   ],
   Fire: [
     { id: 'fire-strike', name: 'Ember Fang', kind: 'strike', power: 0.66, accuracy: 0.95, target: 'enemy' },
@@ -43,7 +43,7 @@ export const TYPE_MOVE_KITS: Record<MonsterType, MoveDef[]> = {
   Beast: [
     { id: 'beast-strike', name: 'Claw Rush', kind: 'strike', power: 0.66, accuracy: 0.95, target: 'enemy' },
     { id: 'beast-status', name: 'Rending Roar', kind: 'status', power: 0, accuracy: 1, status: 'rally', statusChance: 1, target: 'self' },
-    { id: 'beast-heavy', name: 'Boulder Slam', kind: 'heavy', power: 0.99, accuracy: 0.78, target: 'enemy' },
+    { id: 'beast-heavy', name: 'Boulder Slam', kind: 'heavy', power: 0.99, accuracy: 0.78, status: 'stun', statusChance: 0.3, target: 'enemy' },
   ],
   Toxic: [
     { id: 'tox-strike', name: 'Ooze Shot', kind: 'strike', power: 0.6, accuracy: 0.95, target: 'enemy' },
@@ -58,8 +58,8 @@ export const TYPE_OVERDRIVE: Record<MonsterType, MoveDef> = {
   Fire: { id: 'fire-od', name: 'Supernova Lance', kind: 'overdrive', power: 1.62, accuracy: 1, status: 'burn', statusChance: 1, target: 'enemy' },
   Water: { id: 'wat-od', name: 'Abyssal Maelstrom', kind: 'overdrive', power: 1.55, accuracy: 1, status: 'chill', statusChance: 1, target: 'enemy' },
   Dark: { id: 'dark-od', name: 'Event Horizon', kind: 'overdrive', power: 1.6, accuracy: 1, status: 'shock', statusChance: 1, target: 'enemy' },
-  Light: { id: 'light-od', name: 'Stellar Judgment', kind: 'overdrive', power: 1.66, accuracy: 1, target: 'enemy' },
+  Light: { id: 'light-od', name: 'Stellar Judgment', kind: 'overdrive', power: 1.66, accuracy: 1, status: 'stun', statusChance: 1, target: 'enemy' },
   Machine: { id: 'mach-od', name: 'Omega Cannon', kind: 'overdrive', power: 1.64, accuracy: 1, status: 'shock', statusChance: 1, target: 'enemy' },
-  Beast: { id: 'beast-od', name: 'Apex Rampage', kind: 'overdrive', power: 1.62, accuracy: 1, target: 'enemy' },
+  Beast: { id: 'beast-od', name: 'Apex Rampage', kind: 'overdrive', power: 1.62, accuracy: 1, status: 'bleed', statusChance: 1, target: 'enemy' },
   Toxic: { id: 'tox-od', name: 'Pandemic Bloom', kind: 'overdrive', power: 1.5, accuracy: 1, status: 'poison', statusChance: 1, target: 'enemy' },
 };

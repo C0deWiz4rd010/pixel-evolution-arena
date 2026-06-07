@@ -40,10 +40,26 @@ describe('status rules', () => {
     expect(incomingDamageReduction(statuses)).toBe(0.6);
   });
 
-  it('raises outgoing damage with rally and lowers it with shock/chill', () => {
+  it('raises outgoing damage with rally and lowers it with shock/chill/stun', () => {
     expect(outgoingDamageMultiplier(applyStatus([], 'rally'))).toBeCloseTo(1.25);
     expect(outgoingDamageMultiplier(applyStatus([], 'shock'))).toBeCloseTo(0.78);
     expect(outgoingDamageMultiplier(applyStatus([], 'chill'))).toBeCloseTo(0.84);
+    // Stun is a heavy, short output cut.
+    expect(outgoingDamageMultiplier(applyStatus([], 'stun'))).toBeCloseTo(0.6);
+  });
+
+  it('counts bleed as sustained damage-over-time alongside other dots', () => {
+    const statuses = applyStatus([], 'bleed');
+    expect(dotDamage(statuses, 200)).toBe(10); // 5% of 200
+    const stacked = applyStatus(applyStatus([], 'burn'), 'bleed');
+    expect(dotDamage(stacked, 200)).toBe(22); // 6% + 5% of 200
+  });
+
+  it('expires stun after a single round', () => {
+    let statuses = applyStatus([], 'stun');
+    expect(hasStatus(statuses, 'stun')).toBe(true);
+    statuses = tickStatuses(statuses);
+    expect(hasStatus(statuses, 'stun')).toBe(false);
   });
 
   it('decrements remaining duration and drops expired statuses', () => {

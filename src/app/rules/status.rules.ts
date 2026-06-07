@@ -5,7 +5,7 @@
  * Die Engine ({@link ./combat.engine}) wendet diese Helfer pro Runde an.
  */
 
-export type StatusId = 'burn' | 'poison' | 'shock' | 'chill' | 'shield' | 'rally' | 'regen';
+export type StatusId = 'burn' | 'poison' | 'bleed' | 'shock' | 'chill' | 'stun' | 'shield' | 'rally' | 'regen';
 
 export type StatusKind = 'dot' | 'debuff' | 'buff';
 
@@ -37,8 +37,10 @@ export interface ActiveStatus {
 export const STATUS_DEFS: Record<StatusId, StatusDef> = {
   burn: { id: 'burn', label: 'Burn', icon: '🔥', kind: 'dot', duration: 3, magnitude: 0.06, detail: 'Verbrennt — Schaden über Zeit.' },
   poison: { id: 'poison', label: 'Poison', icon: '☣', kind: 'dot', duration: 3, magnitude: 0.05, detail: 'Vergiftet — Schaden über Zeit.' },
+  bleed: { id: 'bleed', label: 'Bleed', icon: '🩸', kind: 'dot', duration: 4, magnitude: 0.05, detail: 'Blutet — anhaltender Schaden über Zeit.' },
   shock: { id: 'shock', label: 'Shock', icon: '⚡', kind: 'debuff', duration: 2, magnitude: 0.22, detail: 'Überladen — geringerer Output.' },
   chill: { id: 'chill', label: 'Chill', icon: '❄', kind: 'debuff', duration: 2, magnitude: 0.16, detail: 'Unterkühlt — träger und schwächer.' },
+  stun: { id: 'stun', label: 'Stun', icon: '💫', kind: 'debuff', duration: 1, magnitude: 0.4, detail: 'Betäubt — drastisch weniger Output für eine Runde.' },
   shield: { id: 'shield', label: 'Shield', icon: '🛡', kind: 'buff', duration: 2, magnitude: 0.35, detail: 'Abgeschirmt — reduziert Schaden.' },
   rally: { id: 'rally', label: 'Rally', icon: '⥣', kind: 'buff', duration: 2, magnitude: 0.25, detail: 'Angefeuert — mehr Schaden.' },
   regen: { id: 'regen', label: 'Regen', icon: '✚', kind: 'buff', duration: 3, magnitude: 0.08, detail: 'Regeneriert — heilt über Zeit.' },
@@ -95,11 +97,11 @@ export function outgoingDamageMultiplier(statuses: ActiveStatus[]): number {
   for (const status of statuses) {
     if (status.id === 'rally') {
       multiplier += status.magnitude;
-    } else if (status.id === 'shock' || status.id === 'chill') {
+    } else if (status.id === 'shock' || status.id === 'chill' || status.id === 'stun') {
       multiplier -= status.magnitude;
     }
   }
-  return Math.max(0.45, Math.min(1.6, multiplier));
+  return Math.max(0.35, Math.min(1.6, multiplier));
 }
 
 /** Reduziert die Restdauer aller Status um eins und entfernt abgelaufene. */
