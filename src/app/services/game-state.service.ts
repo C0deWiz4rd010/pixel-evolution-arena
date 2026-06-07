@@ -55,7 +55,7 @@ import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapte
 import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
 import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
 import { resolveMutator } from '../rules/mutators.rules';
-import { activeSquadTraits, squadTraitBonus } from '../rules/traits.rules';
+import { activeSquadTraits, squadCompositionTrait, totalSquadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
@@ -390,7 +390,9 @@ export class GameStateService {
   // --- Signature traits + battlefield mutators (additive, neutral by default) ---
   readonly activeMutator = computed<MutatorDef>(() => getMutatorForBattle(this.player().battlesFought + 1));
   readonly squadTraits = computed(() => activeSquadTraits(this.squad()));
-  readonly traitBonus = computed(() => squadTraitBonus(this.squad()));
+  /** Mono/Spectrum composition bonus for the current squad, or null. */
+  readonly squadComposition = computed(() => squadCompositionTrait(this.squad()));
+  readonly traitBonus = computed(() => totalSquadTraitBonus(this.squad()));
   readonly mutatorModifier = computed(() => resolveMutator(this.activeMutator(), this.squad().map((monster) => monster.type)));
 
   readonly squadBattleModifier = computed(

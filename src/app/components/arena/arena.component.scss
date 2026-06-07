@@ -271,6 +271,12 @@
   box-shadow: 0 0 14px rgba(19, 216, 255, 0.3);
 }
 
+.composition-chip {
+  color: #ffe6a8;
+  background: rgba(255, 210, 60, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 60, 0.5);
+}
+
 .combat-matrix {
   display: grid;
   grid-template-columns: minmax(200px, 0.9fr) minmax(220px, 0.75fr) minmax(200px, 0.9fr);

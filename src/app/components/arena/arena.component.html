@@ -46,6 +46,9 @@
       @for (trait of game.squadTraits(); track trait.id) {
         <span class="trait-chip" [title]="trait.detail">✦ {{ trait.name }}</span>
       }
+      @if (game.squadComposition(); as comp) {
+        <span class="trait-chip composition-chip" [title]="comp.detail">◈ {{ comp.name }}</span>
+      }
     </div>
 
     <app-combat-beat />
