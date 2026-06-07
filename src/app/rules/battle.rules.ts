@@ -7,6 +7,54 @@ import { getTypeMatchupValue, TypeMatchupValue, TypePressureSummary } from './ty
 
 export const WIN_STREAK_MILESTONES: readonly number[] = [3, 5, 10, 25];
 
+/**
+ * Per-side roll variance used by the battle simulation. Centralised here so the
+ * forecast win-probability stays provably consistent with the engine rolls.
+ */
+export const ROLL_VARIANCE_MIN = 0.86;
+export const ROLL_VARIANCE_MAX = 1.18;
+
+/**
+ * Exact probability that the player wins, given both sides roll
+ * base · U(min, max) independently. Derived as the area of the square
+ * [min,max]² where playerBase·x ≥ enemyBase·y, divided by the square area —
+ * a closed form, no sampling, so it is deterministic and testable.
+ */
+export function winProbability(
+  playerBase: number,
+  enemyBase: number,
+  min: number = ROLL_VARIANCE_MIN,
+  max: number = ROLL_VARIANCE_MAX,
+): number {
+  if (playerBase <= 0) {
+    return 0;
+  }
+  if (enemyBase <= 0) {
+    return 1;
+  }
+
+  const range = max - min;
+  if (range <= 0) {
+    return playerBase >= enemyBase ? 1 : 0;
+  }
+
+  const k = playerBase / enemyBase; // condition: y <= k·x
+  const xa = min / k; // x where k·x = min
+  const xb = max / k; // x where k·x = max
+  const clamp = (value: number) => Math.min(max, Math.max(min, value));
+
+  // Sloped band where min < k·x < max contributes (k·x − min).
+  const bLo = clamp(xa);
+  const bHi = clamp(xb);
+  const areaBand = bHi > bLo ? (k * (bHi * bHi - bLo * bLo)) / 2 - min * (bHi - bLo) : 0;
+
+  // Saturated band where k·x ≥ max contributes the full height (range).
+  const cLo = clamp(xb);
+  const areaFull = max > cLo ? range * (max - cLo) : 0;
+
+  return Math.min(1, Math.max(0, (areaBand + areaFull) / (range * range)));
+}
+
 export interface StreakBonus {
   coins: number;
   xp: number;
@@ -230,6 +278,10 @@ export interface BattleOutlook {
   label: string;
   detail: string;
   ratio: number;
+  /** Modelled probability of winning, 0..1. */
+  winChance: number;
+  /** Rounded percentage for display. */
+  winChancePercent: number;
 }
 
 export interface BattleOutlookParams {
@@ -247,19 +299,25 @@ export function predictBattleOutlook(params: BattleOutlookParams): BattleOutlook
       label: 'No Signal',
       detail: 'Add at least one squad unit to read a battle forecast.',
       ratio: 0,
+      winChance: 0,
+      winChancePercent: 0,
     };
   }
 
   const adjustedTeam = Math.max(1, params.teamPower * (1 + params.playerModifier));
   const adjustedEnemy = Math.max(1, params.enemyPower * (1 + params.enemyModifier));
   const ratio = adjustedTeam / adjustedEnemy;
+  const winChance = winProbability(adjustedTeam, adjustedEnemy);
+  const winChancePercent = Math.round(winChance * 100);
 
   if (ratio >= 1.18) {
     return {
       tone: 'strong',
       label: 'Strong Win Outlook',
-      detail: 'Simulation favors your squad. Expect a clean win.',
+      detail: `Simulation favors your squad — about ${winChancePercent}% win chance.`,
       ratio,
+      winChance,
+      winChancePercent,
     };
   }
 
@@ -267,16 +325,20 @@ export function predictBattleOutlook(params: BattleOutlookParams): BattleOutlook
     return {
       tone: 'even',
       label: 'Even Match',
-      detail: 'Simulation is close. Synergy and type edges decide the run.',
+      detail: `Coin-flip range — roughly ${winChancePercent}% win chance. Synergy and type edges decide it.`,
       ratio,
+      winChance,
+      winChancePercent,
     };
   }
 
   return {
     tone: 'low',
     label: 'Low Win Outlook',
-    detail: 'Enemy net outpaces your squad. Train or rotate before pressing in.',
+    detail: `Enemy net outpaces you — about ${winChancePercent}% win chance. Train or rotate first.`,
     ratio,
+    winChance,
+    winChancePercent,
   };
 }
 
@@ -315,8 +377,8 @@ export interface BattleLogBuildParams {
 export function resolveBattle(params: BattleResolutionParams): BattleResolutionResult {
   const playerBase = params.teamPower * (1 + params.playerModifier);
   const enemyBase = params.enemyPower * (1 + params.enemyModifier);
-  const playerRoll = playerBase * params.randomBetween(0.86, 1.18);
-  const enemyRoll = enemyBase * params.randomBetween(0.86, 1.18);
+  const playerRoll = playerBase * params.randomBetween(ROLL_VARIANCE_MIN, ROLL_VARIANCE_MAX);
+  const enemyRoll = enemyBase * params.randomBetween(ROLL_VARIANCE_MIN, ROLL_VARIANCE_MAX);
   const won = playerRoll >= enemyRoll;
   const criticalHit = won && playerRoll >= enemyRoll * 1.28;
   const reward = buildReward(won, criticalHit, params.rewardMultiplier);

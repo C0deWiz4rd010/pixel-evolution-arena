@@ -15,6 +15,7 @@ import {
   getBattleStanceProfile,
   predictBattleOutlook,
   resolveBattle,
+  winProbability,
 } from './battle.rules';
 import type { BattleReward } from '../models/battle.model';
 import type { Monster } from '../models/monster.model';
@@ -217,6 +218,67 @@ describe('battle rules', () => {
   it('builds rewards identically to the resolveBattle path', () => {
     expect(buildReward(true, true, 1.2)).toMatchObject({ won: true, coins: 170, dnaShards: 11, xp: 50 });
     expect(buildReward(false, false, 1.35)).toMatchObject({ won: false, coins: 32, dnaShards: 2, xp: 13 });
+  });
+});
+
+describe('winProbability', () => {
+  it('is exactly 50% for equal bases', () => {
+    expect(winProbability(100, 100)).toBeCloseTo(0.5, 6);
+  });
+
+  it('saturates toward the dominant side', () => {
+    expect(winProbability(1000, 100)).toBe(1);
+    expect(winProbability(100, 1000)).toBe(0);
+  });
+
+  it('handles degenerate bases', () => {
+    expect(winProbability(0, 100)).toBe(0);
+    expect(winProbability(100, 0)).toBe(1);
+  });
+
+  it('increases monotonically with the player base', () => {
+    const a = winProbability(90, 100);
+    const b = winProbability(100, 100);
+    const c = winProbability(110, 100);
+    expect(a).toBeLessThan(b);
+    expect(b).toBeLessThan(c);
+    expect(a).toBeGreaterThan(0);
+    expect(c).toBeLessThan(1);
+  });
+
+  it('matches a brute-force grid integration of the roll model', () => {
+    const playerBase = 118;
+    const enemyBase = 100;
+    const min = 0.86;
+    const max = 1.18;
+    const steps = 400;
+    let wins = 0;
+    let total = 0;
+    for (let i = 0; i < steps; i += 1) {
+      const x = min + ((i + 0.5) / steps) * (max - min);
+      for (let j = 0; j < steps; j += 1) {
+        const y = min + ((j + 0.5) / steps) * (max - min);
+        if (playerBase * x >= enemyBase * y) {
+          wins += 1;
+        }
+        total += 1;
+      }
+    }
+    expect(winProbability(playerBase, enemyBase)).toBeCloseTo(wins / total, 2);
+  });
+});
+
+describe('predictBattleOutlook win chance', () => {
+  it('exposes a win-chance percentage that tracks the matchup', () => {
+    const strong = predictBattleOutlook({ teamPower: 600, enemyPower: 300, playerModifier: 0, enemyModifier: 0, hasSquad: true });
+    const weak = predictBattleOutlook({ teamPower: 300, enemyPower: 600, playerModifier: 0, enemyModifier: 0, hasSquad: true });
+    expect(strong.winChancePercent).toBe(100);
+    expect(weak.winChancePercent).toBe(0);
+    expect(predictBattleOutlook({ teamPower: 400, enemyPower: 400, playerModifier: 0, enemyModifier: 0, hasSquad: true }).winChancePercent).toBe(50);
+  });
+
+  it('returns zero win chance without a squad', () => {
+    expect(predictBattleOutlook({ teamPower: 0, enemyPower: 400, playerModifier: 0, enemyModifier: 0, hasSquad: false }).winChance).toBe(0);
   });
 });
 

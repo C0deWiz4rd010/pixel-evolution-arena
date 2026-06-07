@@ -182,6 +182,60 @@
   text-shadow: 0 0 14px currentColor;
 }
 
+.outlook-top {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.win-chance {
+  display: grid;
+  justify-items: end;
+  line-height: 1;
+}
+
+.win-chance b {
+  color: var(--text);
+  font-size: 1.35rem;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.win-chance span {
+  color: var(--muted);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.win-chance-meter {
+  height: 8px;
+  margin: 0.36rem 0 0.4rem;
+  overflow: hidden;
+  border: 1px solid rgba(19, 216, 255, 0.3);
+  background: rgba(0, 0, 0, 0.42);
+  clip-path: var(--chamfer-tight);
+}
+
+.win-chance-meter i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--danger), var(--coin), var(--success));
+  box-shadow: 0 0 12px rgba(131, 255, 69, 0.3);
+  transition: width 240ms ease;
+}
+
+.outlook-low .win-chance b {
+  color: var(--danger);
+}
+
+.outlook-even .win-chance b {
+  color: var(--coin);
+}
+
+.outlook-strong .win-chance b {
+  color: var(--success);
+}
+
 .battle-speed-bar {
   position: relative;
   z-index: 1;

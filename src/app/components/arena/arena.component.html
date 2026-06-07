@@ -297,8 +297,23 @@
         </section>
 
         <div class="battle-outlook outlook-{{ battleOutlook().tone }}" aria-live="polite">
-          <span class="outlook-label">Forecast</span>
-          <strong>{{ battleOutlook().label }}</strong>
+          <div class="outlook-top">
+            <div>
+              <span class="outlook-label">Forecast</span>
+              <strong>{{ battleOutlook().label }}</strong>
+            </div>
+            @if (game.squad().length > 0) {
+              <div class="win-chance" [attr.aria-label]="'Win chance ' + battleOutlook().winChancePercent + ' percent'">
+                <b>{{ battleOutlook().winChancePercent }}%</b>
+                <span>win</span>
+              </div>
+            }
+          </div>
+          @if (game.squad().length > 0) {
+            <div class="win-chance-meter" aria-hidden="true">
+              <i [style.width.%]="battleOutlook().winChancePercent"></i>
+            </div>
+          }
           <small>{{ battleOutlook().detail }}</small>
         </div>
 

@@ -124,6 +124,9 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
 
   const playerBase = Math.max(1, teamPower * (1 + playerAttackBonus));
   const enemyBase = Math.max(1, enemyPower * (1 + params.enemyModifier));
+  // NOTE: these bounds must match ROLL_VARIANCE_MIN/MAX in battle.rules so the
+  // forecast win-probability stays consistent with the actual rolls. Kept as
+  // literals here to avoid a battle.rules <-> combat.engine import cycle.
   const playerRoll = playerBase * params.randomBetween(0.86, 1.18);
   const enemyRoll = enemyBase * params.randomBetween(0.86, 1.18);
   const won = playerRoll >= enemyRoll;
