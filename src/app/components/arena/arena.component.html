@@ -51,6 +51,25 @@
       }
     </div>
 
+    @if (game.squad().length > 0 && game.enemyTypeScan().length > 0) {
+      <div class="type-scan" aria-label="Enemy type scan and counter advisor">
+        <span class="scan-label">Type Scan</span>
+        @for (entry of game.enemyTypeScan(); track entry.type) {
+          <span
+            class="scan-chip tone-{{ entry.tone }}"
+            [attr.title]="entry.countered ? ('Your squad already counters ' + entry.type) : entry.suggestion ? ('Bring a ' + entry.suggestion + ' unit to crack ' + entry.type) : ('No clean edge against ' + entry.type)"
+          >
+            <b>{{ entry.type }}</b>
+            @if (entry.countered) {
+              <i class="scan-mark">✓</i>
+            } @else if (entry.suggestion) {
+              <i class="scan-suggest">→ {{ entry.suggestion }}</i>
+            }
+          </span>
+        }
+      </div>
+    }
+
     <app-combat-beat />
 
     <div class="stage-shell" [class.stage-live]="anim.isPlaying()">

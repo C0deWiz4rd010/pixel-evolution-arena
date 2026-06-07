@@ -44,7 +44,7 @@ import {
   unlockEvolutionTarget,
 } from '../rules/evolution.rules';
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
-import { evaluateTypePressure } from '../rules/type-matchup.rules';
+import { evaluateTypePressure, getTypeMatchupValue, getTypeWeaknesses } from '../rules/type-matchup.rules';
 import { applyXpToMonster, applyXpToSquad } from '../rules/xp.rules';
 import { GEAR_DEFS } from '../data/gear.data';
 import { GearSlot } from '../models/gear.model';
@@ -80,6 +80,17 @@ export interface ArenaRunDirective {
   objective: string;
   rewardFocus: string;
   tacticalHint: string;
+}
+
+export interface EnemyTypeScanEntry {
+  type: MonsterType;
+  /** Squad already has a type that beats this enemy type. */
+  countered: boolean;
+  /** This enemy type beats at least one squad type. */
+  threatens: boolean;
+  /** A type that would crack this enemy type (prefers one not already in squad). */
+  suggestion: MonsterType | null;
+  tone: 'good' | 'warn' | 'neutral';
 }
 
 export type GameSectionName =
@@ -386,6 +397,23 @@ export class GameStateService {
   readonly squadTypePressure = computed(() => evaluateTypePressure(this.squad().map((monster) => monster.type), this.activeEnemies().map((enemy) => enemy.type)));
 
   readonly enemyTypePressure = computed(() => evaluateTypePressure(this.activeEnemies().map((enemy) => enemy.type), this.squad().map((monster) => monster.type), true));
+
+  /**
+   * Per-enemy-type counter read: do you already answer it, does it punish you,
+   * and which type would crack it. Powers the arena Type Scan advisor.
+   */
+  readonly enemyTypeScan = computed<EnemyTypeScanEntry[]>(() => {
+    const squadTypes = this.squad().map((monster) => monster.type);
+    const enemyTypes = Array.from(new Set(this.activeEnemies().map((enemy) => enemy.type)));
+    return enemyTypes.map((type) => {
+      const countered = squadTypes.some((squadType) => getTypeMatchupValue(squadType, type) === 1);
+      const threatens = squadTypes.some((squadType) => getTypeMatchupValue(type, squadType) === 1);
+      const counters = getTypeWeaknesses(type);
+      const suggestion = counters.find((counter) => !squadTypes.includes(counter)) ?? counters[0] ?? null;
+      const tone: 'good' | 'warn' | 'neutral' = countered ? 'good' : threatens ? 'warn' : 'neutral';
+      return { type, countered, threatens, suggestion, tone };
+    });
+  });
 
   // --- Signature traits + battlefield mutators (additive, neutral by default) ---
   readonly activeMutator = computed<MutatorDef>(() => getMutatorForBattle(this.player().battlesFought + 1));
