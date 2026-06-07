@@ -31,6 +31,7 @@ import {
   shouldAwardItem,
 } from '../rules/battle.rules';
 import { simulateBattle } from '../rules/combat.engine';
+import { ComboBeatResult, resolveComboBeat } from '../rules/combo.rules';
 import { CONSUMABLES } from '../data/items.data';
 import { CONSUMABLE_NAMES, countInInventory, getConsumableDef, isConsumable, removeOneFromInventory, toCombatEffects } from '../rules/items.rules';
 import { AchievementMetrics, evaluateAchievements, findNewlyCompleted } from '../rules/achievements.rules';
@@ -205,7 +206,6 @@ const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, 
 
 const MAX_SQUAD_PRESETS = 3;
 const MAX_LOADOUT = 2;
-const COMBO_BONUS = 0.06;
 const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
 const MAX_RECENT_BATTLES = 12;
 
@@ -255,13 +255,26 @@ export class GameStateService {
   /** Cross-tab navigation requests triggered by shared meta actions. */
   readonly requestedTab = signal<GameSectionName | null>(null);
 
-  /** Records a combat-beat result; success grants a small capped attack bonus. */
-  chargeCombo(success: boolean): void {
-    this.comboCharge.set(success ? COMBO_BONUS : 0);
-    if (success) {
+  /**
+   * Locks the combat-beat marker; a Perfect/Good landing grants a tiered,
+   * capped attack bonus for the next battle. Returns the result so the UI can
+   * reflect the tier.
+   */
+  lockComboBeat(marker: number): ComboBeatResult {
+    const result = resolveComboBeat(marker);
+    this.comboCharge.set(result.bonus);
+    if (result.tier !== 'miss') {
       this.audio.play('level-up');
-      this.toast.push({ title: 'Beat Landed', message: `Overdrive primed: +${Math.round(COMBO_BONUS * 100)}% next battle.`, tone: 'success', icon: '♪', durationMs: 2600 });
+      const headline = result.tier === 'perfect' ? 'Perfect Beat' : 'Beat Landed';
+      this.toast.push({
+        title: headline,
+        message: `Next battle primed: +${Math.round(result.bonus * 100)}% attack.`,
+        tone: 'success',
+        icon: '♪',
+        durationMs: 2600,
+      });
     }
+    return result;
   }
 
   readonly overdriveCharge = computed(() => this.player().overdriveCharge);

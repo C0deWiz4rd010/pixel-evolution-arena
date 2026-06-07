@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, NgZone, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
+import { COMBO_GOOD_ZONE, COMBO_PERFECT_ZONE } from '../../rules/combo.rules';
 
-type BeatPhase = 'idle' | 'running' | 'hit' | 'miss';
-
-const ZONE_MIN = 0.4;
-const ZONE_MAX = 0.6;
+type BeatPhase = 'idle' | 'running' | 'perfect' | 'good' | 'miss';
 
 @Component({
   selector: 'app-combat-beat',
@@ -24,8 +22,10 @@ export class CombatBeatComponent {
   /** Marker position 0..1 for the template. */
   readonly marker = signal(0);
 
-  readonly zoneMinPct = ZONE_MIN * 100;
-  readonly zoneWidthPct = (ZONE_MAX - ZONE_MIN) * 100;
+  readonly goodMinPct = COMBO_GOOD_ZONE.min * 100;
+  readonly goodWidthPct = (COMBO_GOOD_ZONE.max - COMBO_GOOD_ZONE.min) * 100;
+  readonly perfectMinPct = COMBO_PERFECT_ZONE.min * 100;
+  readonly perfectWidthPct = (COMBO_PERFECT_ZONE.max - COMBO_PERFECT_ZONE.min) * 100;
 
   private frame = 0;
   private startTime = 0;
@@ -60,10 +60,8 @@ export class CombatBeatComponent {
 
   private lock(): void {
     this.stop();
-    const pos = this.marker();
-    const success = pos >= ZONE_MIN && pos <= ZONE_MAX;
-    this.phase.set(success ? 'hit' : 'miss');
-    this.game.chargeCombo(success);
+    const result = this.game.lockComboBeat(this.marker());
+    this.phase.set(result.tier);
     setTimeout(() => {
       if (this.phase() !== 'running') {
         this.phase.set('idle');
