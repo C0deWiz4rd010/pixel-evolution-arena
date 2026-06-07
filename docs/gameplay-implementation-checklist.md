@@ -133,3 +133,4 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 712.75 kB vs 650 kB warning, Arena SCSS warning budget 20.78 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e` passed (19 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified the Intel Strip, recent-run dossier, campaign radar, forge diagnostics, expedition preflight scanner, and readable mobile stacking with no blank-panel regressions.
+- Merged the work into `develop`, pushed commit `9c1807c`, and verified GitHub Pages deployment run `27087693693` plus live site `https://c0dewiz4rd010.github.io/pixel-evolution-arena/`.

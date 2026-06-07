@@ -19,4 +19,4 @@ Goal: make the long-loop tabs feel as actionable as Arena and Evolution Tree by 
 - [x] Run `npm.cmd run build`.
 - [x] Run `npm.cmd run test:e2e`.
 - [x] Smoke test desktop and mobile layouts for the new intel surfaces.
-- [ ] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
+- [x] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
