@@ -15,6 +15,8 @@ export interface MutatorDef {
   tint: string;
   /** Squad members of this type gain a bonus. */
   favoredType?: MonsterType;
+  /** Multiple favored types — any match grants the bonus (matches dual-type flavor). */
+  favoredTypes?: MonsterType[];
   favoredAttackBonus?: number;
   /** Global enemy modifier delta. */
   enemyModifier?: number;
@@ -36,7 +38,7 @@ export const MUTATORS: MutatorDef[] = [
     detail: 'Fire and Light surge — those types hit harder.',
     icon: '☀',
     tint: '#ff9a22',
-    favoredType: 'Fire',
+    favoredTypes: ['Fire', 'Light'],
     favoredAttackBonus: 0.12,
   },
   {
@@ -55,7 +57,7 @@ export const MUTATORS: MutatorDef[] = [
     detail: 'Corrosive haze favors Toxic and Nature lines.',
     icon: '☣',
     tint: '#7cff3a',
-    favoredType: 'Toxic',
+    favoredTypes: ['Toxic', 'Nature'],
     favoredAttackBonus: 0.12,
   },
   {
@@ -73,8 +75,43 @@ export const MUTATORS: MutatorDef[] = [
     detail: 'Flooded arena empowers Water and Beast units.',
     icon: '≈',
     tint: '#18c8ff',
-    favoredType: 'Water',
+    favoredTypes: ['Water', 'Beast'],
     favoredAttackBonus: 0.12,
+  },
+  {
+    id: 'mut-eclipse',
+    name: 'Eclipse',
+    detail: 'A long shadow empowers Dark and Beast hunters.',
+    icon: '🌑',
+    tint: '#8a5bd6',
+    favoredTypes: ['Dark', 'Beast'],
+    favoredAttackBonus: 0.12,
+  },
+  {
+    id: 'mut-bloom',
+    name: 'Verdant Bloom',
+    detail: 'Radiant overgrowth lifts Nature and Light lines.',
+    icon: '✿',
+    tint: '#62e36a',
+    favoredTypes: ['Nature', 'Light'],
+    favoredAttackBonus: 0.12,
+  },
+  {
+    id: 'mut-overload',
+    name: 'Power Surge',
+    detail: 'Raw chaos: everything hits harder — your squad and the enemy.',
+    icon: '✦',
+    tint: '#ff5fae',
+    playerMitigation: 0.05,
+    enemyModifier: 0.1,
+  },
+  {
+    id: 'mut-aegis',
+    name: 'Aegis Field',
+    detail: 'A stabilizing grid hardens your squad with no downside.',
+    icon: '⛨',
+    tint: '#5bd6ff',
+    playerMitigation: 0.12,
   },
 ];
 

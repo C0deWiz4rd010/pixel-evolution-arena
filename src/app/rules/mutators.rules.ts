@@ -12,8 +12,8 @@ export function resolveMutator(mutator: MutatorDef | null, squadTypes: MonsterTy
   if (!mutator) {
     return { playerAttackBonus: 0, playerMitigation: 0, enemyModifier: 0 };
   }
-  const favored =
-    mutator.favoredType && squadTypes.includes(mutator.favoredType) ? mutator.favoredAttackBonus ?? 0 : 0;
+  const favoredTypes = mutator.favoredTypes ?? (mutator.favoredType ? [mutator.favoredType] : []);
+  const favored = favoredTypes.some((type) => squadTypes.includes(type)) ? mutator.favoredAttackBonus ?? 0 : 0;
   return {
     playerAttackBonus: favored,
     playerMitigation: mutator.playerMitigation ?? 0,

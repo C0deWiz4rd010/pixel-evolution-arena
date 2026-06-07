@@ -21,7 +21,19 @@ describe('mutators.rules', () => {
     expect(mod.enemyModifier).toBe(nullZone.enemyModifier);
   });
 
+  it('grants a dual-type mutator bonus to either favored type', () => {
+    const eclipse = MUTATORS.find((m) => m.id === 'mut-eclipse')!;
+    expect(resolveMutator(eclipse, ['Dark']).playerAttackBonus).toBe(eclipse.favoredAttackBonus);
+    expect(resolveMutator(eclipse, ['Beast']).playerAttackBonus).toBe(eclipse.favoredAttackBonus);
+    expect(resolveMutator(eclipse, ['Water']).playerAttackBonus).toBe(0);
+  });
+
   it('returns Stable Grid for the first battle', () => {
     expect(getMutatorForBattle(1).id).toBe('mut-stable');
+  });
+
+  it('offers a varied pool with unique ids', () => {
+    expect(MUTATORS.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(MUTATORS.map((m) => m.id)).size).toBe(MUTATORS.length);
   });
 });
