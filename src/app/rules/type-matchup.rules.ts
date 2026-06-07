@@ -10,38 +10,50 @@ export interface TypePressureSummary {
   modifier: number;
 }
 
-const TYPE_STRENGTHS: Partial<Record<MonsterType, MonsterType[]>> = {
-  Nature: ['Water', 'Toxic'],
+/**
+ * Single source of truth: each type beats exactly two others. Weaknesses are
+ * derived as the inverse, so the wheel is guaranteed contradiction-free
+ * (a type can never be both strong and weak against the same opponent) and
+ * perfectly symmetric (A beats B  ⇔  B is weak to A).
+ *
+ * Balance: every type has 2 strong / 2 weak / 3 neutral matchups, forming a
+ * clean, readable wheel that the handbook chart renders directly.
+ */
+const TYPE_STRENGTHS: Record<MonsterType, readonly MonsterType[]> = {
+  Nature: ['Water', 'Light'],
   Fire: ['Nature', 'Beast'],
-  Water: ['Fire', 'Machine'],
-  Dark: ['Light'],
+  Water: ['Fire', 'Toxic'],
+  Dark: ['Machine', 'Water'],
   Light: ['Dark', 'Toxic'],
-  Machine: ['Beast', 'Light'],
+  Machine: ['Light', 'Fire'],
   Beast: ['Dark', 'Machine'],
-  Toxic: ['Nature', 'Water'],
-};
-
-const TYPE_WEAKNESSES: Partial<Record<MonsterType, MonsterType[]>> = {
-  Nature: ['Fire', 'Toxic'],
-  Fire: ['Water'],
-  Water: ['Nature', 'Toxic'],
-  Dark: ['Light', 'Beast'],
-  Light: ['Machine', 'Dark'],
-  Machine: ['Water', 'Beast'],
-  Beast: ['Fire', 'Machine'],
-  Toxic: ['Light', 'Nature'],
+  Toxic: ['Nature', 'Beast'],
 };
 
 export function getTypeMatchupValue(attacker: MonsterType, defender: MonsterType): TypeMatchupValue {
-  if (TYPE_STRENGTHS[attacker]?.includes(defender)) {
+  if (TYPE_STRENGTHS[attacker].includes(defender)) {
     return 1;
   }
 
-  if (TYPE_WEAKNESSES[attacker]?.includes(defender)) {
+  // Weakness is the inverse of strength: if the defender beats the attacker,
+  // the attacker's strike is dulled.
+  if (TYPE_STRENGTHS[defender].includes(attacker)) {
     return -1;
   }
 
   return 0;
+}
+
+/** Types this type hits hard (matchup +1). */
+export function getTypeStrengths(type: MonsterType): MonsterType[] {
+  return [...TYPE_STRENGTHS[type]];
+}
+
+/** Types that hit this type hard (matchup -1 when attacking them) — derived inverse. */
+export function getTypeWeaknesses(type: MonsterType): MonsterType[] {
+  return (Object.keys(TYPE_STRENGTHS) as MonsterType[]).filter((other) =>
+    TYPE_STRENGTHS[other].includes(type),
+  );
 }
 
 export function evaluateTypePressure(attackerTypes: MonsterType[], defenderTypes: MonsterType[], invertTone = false): TypePressureSummary {
