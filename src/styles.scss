@@ -1719,9 +1719,9 @@ app-monster-card {
 
 .battlefield {
   display: grid;
-  grid-template-columns: minmax(190px, 250px) minmax(260px, 1fr) minmax(190px, 250px);
+  grid-template-columns: minmax(180px, 240px) minmax(240px, 1fr) minmax(180px, 240px);
   gap: 0.75rem;
-  min-height: 460px;
+  min-height: 360px;
 }
 
 .battle-team {
