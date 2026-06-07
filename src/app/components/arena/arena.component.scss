@@ -182,6 +182,41 @@
   text-shadow: 0 0 14px currentColor;
 }
 
+.battle-speed-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.battle-speed-bar .speed-label {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.speed-btn {
+  min-width: 48px;
+  min-height: 30px;
+  padding: 0.2rem 0.5rem;
+  border-color: rgba(19, 216, 255, 0.34);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.speed-btn.active {
+  border-color: var(--line);
+  background: linear-gradient(180deg, rgba(19, 216, 255, 0.34), rgba(19, 216, 255, 0.08));
+  color: var(--text);
+  box-shadow: 0 0 14px rgba(19, 216, 255, 0.3);
+}
+
 .combat-matrix {
   display: grid;
   grid-template-columns: minmax(200px, 0.9fr) minmax(220px, 0.75fr) minmax(200px, 0.9fr);

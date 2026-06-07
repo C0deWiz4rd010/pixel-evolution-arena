@@ -24,6 +24,21 @@
       </div>
     </div>
 
+    <div class="battle-speed-bar" role="group" aria-label="Battle playback speed">
+      <span class="speed-label">Battle Speed</span>
+      @for (option of anim.speedOptions; track option) {
+        <button
+          type="button"
+          class="speed-btn"
+          [class.active]="anim.speed() === option"
+          [attr.aria-pressed]="anim.speed() === option"
+          (click)="anim.setSpeed(option)"
+        >
+          {{ option }}×
+        </button>
+      }
+    </div>
+
     <div class="battlefield-banners" aria-label="Battlefield conditions">
       <span class="mutator-chip" [style.--mutator-tint]="game.activeMutator().tint" [title]="game.activeMutator().detail">
         <b>{{ game.activeMutator().icon }}</b> {{ game.activeMutator().name }}
