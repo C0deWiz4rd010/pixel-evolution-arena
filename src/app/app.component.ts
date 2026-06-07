@@ -43,6 +43,14 @@ const TAB_ORDER: AppTab[] = [
   'Settings',
 ];
 
+interface IntelStripCard {
+  label: string;
+  title: string;
+  detail: string;
+  metric: string;
+  tone: 'combat' | 'campaign' | 'expedition';
+}
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -72,6 +80,53 @@ export class AppComponent {
 
   readonly activeTab = signal<AppTab>('Evolution Tree');
   readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
+  readonly intelCards = computed<IntelStripCard[]>(() => {
+    const battleIntel = this.game.battleIntelSummary();
+    const nextChapter = this.game.nextCampaignEntry();
+    const expedition = this.game.expedition();
+
+    return [
+      {
+        label: 'Combat Intel',
+        title: battleIntel.trend === 'empty' ? 'No battle history yet' : `${battleIntel.winRate}% win rate / ${battleIntel.trend.toUpperCase()}`,
+        detail: battleIntel.trendLabel,
+        metric: battleIntel.total > 0 ? `${battleIntel.averageCoins} CR avg / ${battleIntel.averageXp} XP avg` : 'Run Arena to seed intel',
+        tone: 'combat',
+      },
+      {
+        label: 'Campaign Pressure',
+        title: this.game.claimableChapter()
+          ? `${this.game.claimableChapter()!.title} ready to claim`
+          : nextChapter
+            ? nextChapter.chapter.title
+            : 'Campaign synced',
+        detail: this.game.claimableChapter()
+          ? this.game.claimableChapter()!.reward.lore
+          : nextChapter
+            ? `${nextChapter.chapter.objective.label} (${nextChapter.current}/${nextChapter.goal})`
+            : 'All visible chapters are complete.',
+        metric: this.game.activeBoss() ? this.game.activeBoss()!.name : `${this.game.player().claimedChapters.length}/${this.game.campaignChapters.length} claimed`,
+        tone: 'campaign',
+      },
+      {
+        label: 'Expedition Relay',
+        title: !expedition
+          ? this.game.squad().length === 0
+            ? 'Squad required for launch'
+            : 'Relay launch available'
+          : expedition.status === 'active'
+            ? `Depth ${expedition.depth}/7 live`
+            : 'Core payout ready',
+        detail: !expedition
+          ? this.game.squad().length === 0
+            ? 'Load more signals before taking a side-run into the deep grid.'
+            : 'Current squad can bank cores through a short roguelite push.'
+          : expedition.lastEvent ?? 'Deep grid telemetry is stable.',
+        metric: !expedition ? `${this.game.expeditionCores()} banked` : expedition.status === 'active' ? `HP ${expedition.hp}/${expedition.maxHp}` : `${expedition.rewardCores} run cores`,
+        tone: 'expedition',
+      },
+    ];
+  });
 
   /** Screen-reader announcement for the latest battle outcome. */
   readonly liveAnnouncement = computed(() => {

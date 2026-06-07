@@ -114,3 +114,30 @@ test('operations deck exposes forge and expedition quick flows', async ({ page }
   await expect(page.getByLabel('Expedition relay status')).toContainText(/Relay Status/i);
   await expect(page.getByText(/Run HP|Launch an Expedition/i)).toBeVisible();
 });
+
+test('battle intel surfaces render across shell, arena, campaign, forge, and expedition', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await expect(page.getByLabel('Global intel strip')).toContainText('Combat Intel');
+  await expect(page.getByLabel('Global intel strip')).toContainText('Campaign Pressure');
+  await expect(page.getByLabel('Global intel strip')).toContainText('Expedition Relay');
+
+  await nav.getByRole('button', { name: /Arena/i }).click();
+  await page.getByRole('button', { name: /Start Battle|Queue Next Battle|Retry Battle/i }).click();
+  await expect(page.getByLabel('Recent battle dossier')).toContainText('Recent Runs');
+  await expect(page.getByLabel('Recent battle dossier')).toContainText(/\+\d+ CR \/ \+\d+ XP/);
+
+  await nav.getByRole('button', { name: /Campaign/i }).click();
+  await expect(page.getByLabel('Campaign objective radar')).toContainText('Chapter Pulse');
+  await expect(page.getByLabel('Campaign objective radar')).toContainText('Combat Trend');
+
+  await nav.getByRole('button', { name: /Forge/i }).click();
+  await expect(page.getByLabel('Forge diagnostics')).toContainText('Coverage');
+  await expect(page.getByLabel('Forge diagnostics')).toContainText('Battle Trend');
+
+  await nav.getByRole('button', { name: /Expedition/i }).click();
+  await expect(page.getByLabel('Expedition preflight scanner')).toContainText('Preflight Scanner');
+  await expect(page.getByLabel('Expedition preflight scanner')).toContainText('Arena Trend');
+});

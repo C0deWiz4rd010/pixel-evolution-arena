@@ -32,6 +32,16 @@
     }
   </section>
 
+  <section class="campaign-radar" aria-label="Campaign objective radar">
+    @for (card of objectiveRadar(); track card.label) {
+      <article class="radar-card tone-{{ card.tone }}">
+        <span>{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+        <p>{{ card.detail }}</p>
+      </article>
+    }
+  </section>
+
   <div class="chapter-track">
     @for (entry of progress(); track entry.chapter.id) {
       <article class="chapter-card status-{{ entry.status }}">

@@ -36,6 +36,25 @@ export interface CombatStats {
   gauntletBestWave: number;
 }
 
+export type RecentBattleMode = 'standard' | 'gauntlet';
+export type RecentBattleCategory = 'training' | 'standard' | 'risk';
+
+export interface RecentBattleRecord {
+  id: string;
+  timestamp: string;
+  won: boolean;
+  mode: RecentBattleMode;
+  category: RecentBattleCategory;
+  formationName: string;
+  threatLabel: string;
+  teamPower: number;
+  enemyPower: number;
+  coins: number;
+  dnaShards: number;
+  xp: number;
+  streakAfter: number;
+}
+
 export interface PlayerState {
   coins: number;
   dnaShards: number;
@@ -58,6 +77,8 @@ export interface PlayerState {
   combatStats: CombatStats;
   /** Current daily directive, or null before the first roll. */
   dailyDirective: DailyDirectiveState | null;
+  /** Most recent arena run records, newest first. */
+  recentBattles: RecentBattleRecord[];
   /** Forged gear instances the player owns. */
   ownedGear: GearInstance[];
   /** monsterId -> slot -> gear instanceId. */

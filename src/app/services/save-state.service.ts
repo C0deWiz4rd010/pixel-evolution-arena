@@ -184,6 +184,7 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         : [],
       combatStats: sanitizeCombatStats(player.combatStats),
       dailyDirective: sanitizeDailyDirective(player.dailyDirective),
+      recentBattles: sanitizeRecentBattles(player.recentBattles),
       ownedGear: Array.isArray(player.ownedGear)
         ? player.ownedGear
             .filter((entry) => entry && typeof entry.instanceId === 'string' && typeof entry.defId === 'string')
@@ -276,4 +277,39 @@ function sanitizeDailyDirective(directive: unknown): SaveStateSnapshot['player']
     progress: typeof candidate.progress === 'number' ? Math.max(0, candidate.progress) : 0,
     claimed: candidate.claimed === true,
   };
+}
+
+function sanitizeRecentBattles(value: unknown): SaveStateSnapshot['player']['recentBattles'] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .filter((entry) => entry && typeof entry === 'object')
+    .map((entry): SaveStateSnapshot['player']['recentBattles'][number] => {
+      const candidate = entry as Record<string, unknown>;
+      const mode: SaveStateSnapshot['player']['recentBattles'][number]['mode'] =
+        candidate['mode'] === 'gauntlet' ? 'gauntlet' : 'standard';
+      const category: SaveStateSnapshot['player']['recentBattles'][number]['category'] =
+        candidate['category'] === 'training' || candidate['category'] === 'risk'
+          ? candidate['category']
+          : 'standard';
+
+      return {
+        id: typeof candidate['id'] === 'string' ? candidate['id'] : `battle-${Math.random().toString(36).slice(2)}`,
+        timestamp: typeof candidate['timestamp'] === 'string' ? candidate['timestamp'] : new Date(0).toISOString(),
+        won: candidate['won'] === true,
+        mode,
+        category,
+        formationName:
+          typeof candidate['formationName'] === 'string' ? candidate['formationName'] : 'Unknown Formation',
+        threatLabel: typeof candidate['threatLabel'] === 'string' ? candidate['threatLabel'] : 'Unknown Threat',
+        teamPower: typeof candidate['teamPower'] === 'number' ? Math.max(0, candidate['teamPower']) : 0,
+        enemyPower: typeof candidate['enemyPower'] === 'number' ? Math.max(0, candidate['enemyPower']) : 0,
+        coins: typeof candidate['coins'] === 'number' ? Math.max(0, candidate['coins']) : 0,
+        dnaShards: typeof candidate['dnaShards'] === 'number' ? Math.max(0, candidate['dnaShards']) : 0,
+        xp: typeof candidate['xp'] === 'number' ? Math.max(0, candidate['xp']) : 0,
+        streakAfter: typeof candidate['streakAfter'] === 'number' ? Math.max(0, candidate['streakAfter']) : 0,
+      };
+    })
+    .slice(0, 12);
 }

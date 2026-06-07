@@ -116,6 +116,59 @@
   font-weight: 800;
 }
 
+.intel-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.52rem;
+  margin: 0 0 0.8rem;
+}
+
+.intel-card {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 116px;
+  padding: 0.58rem 0.68rem;
+  border: 1px solid rgba(19, 216, 255, 0.24);
+  background:
+    linear-gradient(180deg, rgba(19, 216, 255, 0.09), transparent 44%),
+    rgba(3, 10, 18, 0.72);
+  clip-path: var(--chamfer);
+}
+
+.intel-card.tone-combat {
+  border-color: rgba(131, 255, 69, 0.28);
+}
+
+.intel-card.tone-campaign {
+  border-color: rgba(255, 220, 66, 0.26);
+}
+
+.intel-card.tone-expedition {
+  border-color: rgba(255, 85, 216, 0.24);
+}
+
+.intel-card span,
+.intel-card small {
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.intel-card strong {
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.intel-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.28;
+}
+
 .operations-deck {
   display: grid;
   gap: 0.65rem;
@@ -303,6 +356,10 @@
   }
 
   .quick-command-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .intel-strip {
     grid-template-columns: 1fr;
   }
 

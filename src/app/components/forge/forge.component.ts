@@ -12,6 +12,13 @@ const SLOT_LABEL: Record<GearSlot, string> = {
   relic: 'Relic',
 };
 
+interface ForgeDiagnosticCard {
+  label: string;
+  value: string;
+  detail: string;
+  tone: 'ready' | 'warning' | 'info';
+}
+
 @Component({
   selector: 'app-forge',
   standalone: true,
@@ -125,5 +132,38 @@ export class ForgeComponent {
       power: this.game.getMonsterPower(geared),
       basePower: this.game.getMonsterPower(monster),
     };
+  });
+  readonly diagnostics = computed<ForgeDiagnosticCard[]>(() => {
+    const plan = this.loadoutPlan();
+    const quick = this.quickRecommendation();
+    const cmp = this.statComparison();
+    const intel = this.game.battleIntelSummary();
+
+    return [
+      {
+        label: 'Coverage',
+        value: `${plan.assignedSlots}/${plan.totalSlots}`,
+        detail: `Current shell can cover ${plan.coveragePercent}% of squad gear lanes.`,
+        tone: plan.coveragePercent >= 75 ? 'ready' : 'warning',
+      },
+      {
+        label: 'Power Delta',
+        value: cmp ? `+${cmp.power - cmp.basePower} PWR` : '+0 PWR',
+        detail: cmp ? `${cmp.geared.name} after loadout is ${cmp.power} total power.` : 'Select a squad unit to inspect slot impact.',
+        tone: cmp && cmp.power > cmp.basePower ? 'ready' : 'info',
+      },
+      {
+        label: 'Next Pressure',
+        value: quick.metric,
+        detail: quick.detail,
+        tone: quick.kind === 'blocked' ? 'warning' : quick.kind === 'open' ? 'info' : 'ready',
+      },
+      {
+        label: 'Battle Trend',
+        value: intel.total > 0 ? `${intel.winRate}% ${intel.trend}` : 'No intel',
+        detail: intel.total > 0 ? intel.trendLabel : 'Arena results will tell you whether the current shell is holding.',
+        tone: intel.trend === 'cold' ? 'warning' : intel.trend === 'hot' ? 'ready' : 'info',
+      },
+    ];
   });
 }
