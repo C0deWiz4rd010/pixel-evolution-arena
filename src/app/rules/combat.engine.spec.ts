@@ -104,4 +104,19 @@ describe('combat engine', () => {
     expect(decisive.won).toBe(true);
     expect(decisive.flawless).toBe(true);
   });
+
+  it('raises the player roll with an attack-bonus consumable', () => {
+    const baseline = simulateBattle(baseParams());
+    const boosted = simulateBattle(
+      baseParams({ consumables: [{ name: 'Overclock Core', kind: 'rally', attackBonus: 0.1 }] }),
+    );
+    expect(boosted.playerRoll).toBeGreaterThan(baseline.playerRoll);
+  });
+
+  it('keeps the legacy +6% default for a plain rally consumable', () => {
+    const baseline = simulateBattle(baseParams());
+    const rallied = simulateBattle(baseParams({ consumables: [{ name: 'Focus Capsule', kind: 'rally' }] }));
+    // teamPower 230 -> +6% -> player base scales up by the same factor before the roll.
+    expect(rallied.playerRoll / baseline.playerRoll).toBeCloseTo(1.06, 5);
+  });
 });

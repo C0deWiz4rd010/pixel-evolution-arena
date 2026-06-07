@@ -63,6 +63,10 @@ export interface ConsumableCombatEffect {
   kind: 'heal' | 'shield' | 'rally' | 'cleanse';
   /** Für heal: Anteil der max-HP. */
   magnitude?: number;
+  /** Optionaler additiver Angriffsbonus auf den Spieler-Roll (beeinflusst den Ausgang). */
+  attackBonus?: number;
+  /** Optionale zusätzliche Schadensreduktion für Verbündete in der Timeline. */
+  mitigation?: number;
 }
 
 export interface BattleSimulationParams {
@@ -115,7 +119,13 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
   const teamPower = params.squad.reduce((total, monster) => total + getMonsterPower(monster), 0);
   const enemyPower = params.enemies.reduce((total, enemy) => total + getMonsterPower(enemy), 0);
 
-  const consumableAttackBonus = params.consumables.some((effect) => effect.kind === 'rally') ? 0.06 : 0;
+  // Each consumable contributes its explicit attackBonus; a plain rally still
+  // defaults to +6% so existing items keep their tuned value.
+  const consumableAttackBonus = params.consumables.reduce(
+    (total, effect) => total + (effect.attackBonus ?? (effect.kind === 'rally' ? 0.06 : 0)),
+    0,
+  );
+  const consumableMitigation = params.consumables.reduce((total, effect) => total + (effect.mitigation ?? 0), 0);
   const playerAttackBonus =
     params.playerModifier +
     params.stanceAttackMod +
@@ -181,7 +191,7 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
       attacker: foe,
       defender: ally,
       isWinnerSide: !won,
-      mitigation: params.stanceMitigation,
+      mitigation: params.stanceMitigation + consumableMitigation,
       randomBetween: params.randomBetween,
       randomFrom: params.randomFrom,
       events,

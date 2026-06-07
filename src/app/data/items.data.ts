@@ -42,4 +42,25 @@ export const CONSUMABLES: ConsumableDef[] = [
     cost: 220,
     effect: { name: 'Aegis Plating', kind: 'shield' },
   },
+  {
+    name: 'Overclock Core',
+    icon: 'OC',
+    detail: 'Rally + overclock: +10% squad attack this battle.',
+    cost: 300,
+    effect: { name: 'Overclock Core', kind: 'rally', attackBonus: 0.1 },
+  },
+  {
+    name: 'Bulwark Field',
+    icon: 'BW',
+    detail: 'Shield + bulwark: extra damage mitigation through the fight.',
+    cost: 260,
+    effect: { name: 'Bulwark Field', kind: 'shield', mitigation: 0.1 },
+  },
+  {
+    name: 'Adrenal Shot',
+    icon: 'AS',
+    detail: 'Heals ~20% HP and adds +5% attack this battle.',
+    cost: 280,
+    effect: { name: 'Adrenal Shot', kind: 'heal', magnitude: 0.2, attackBonus: 0.05 },
+  },
 ];
