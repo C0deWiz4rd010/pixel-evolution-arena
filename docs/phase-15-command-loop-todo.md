@@ -18,4 +18,4 @@ Goal: make the next useful action clearer from every major play surface while ad
 - [x] Run `npm.cmd run build`.
 - [x] Run `npm.cmd run test:e2e`.
 - [x] Smoke test desktop and mobile flows for drills, route guidance, and arena prep.
-- [ ] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
+- [x] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
