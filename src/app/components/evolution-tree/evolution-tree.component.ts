@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MonsterCardComponent } from '../monster-card/monster-card.component';
 import { MonsterDetailComponent } from '../monster-detail/monster-detail.component';
 import { Monster, MonsterStage } from '../../models/monster.model';
@@ -37,6 +37,9 @@ interface RouteAdvisory {
 })
 export class EvolutionTreeComponent {
   readonly game = inject(GameStateService);
+
+  /** The bottom command strip is opt-in so the node map gets full height by default. */
+  readonly commandStripExpanded = signal(false);
 
   readonly latestBattleLogs = computed(() => this.game.battleLogs().slice(0, 4));
 

@@ -693,7 +693,8 @@ li {
 
 .tree-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
   overflow: hidden;
 }
 
@@ -1468,8 +1469,7 @@ app-monster-card {
   display: grid;
   grid-template-columns: minmax(310px, 1.2fr) minmax(280px, 1fr) minmax(240px, 0.82fr);
   gap: 0.55rem;
-  margin-top: 0.65rem;
-  padding-top: 0.65rem;
+  padding-top: 0.55rem;
   border-top: 1px solid rgba(19, 216, 255, 0.28);
 }
 

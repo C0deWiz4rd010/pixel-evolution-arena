@@ -102,7 +102,6 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.48rem;
-  margin-top: 0.58rem;
 }
 
 .pressure-card {
@@ -438,6 +437,46 @@
 :host ::ng-deep .tree-node.selected-target .monster-icon .creature-sprite,
 :host ::ng-deep .tree-node.ready-target .monster-icon .creature-sprite {
   filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 42%, transparent)) saturate(1.4);
+}
+
+.command-strip-toggle {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  width: 100%;
+  min-height: 32px;
+  padding: 0.3rem 0.6rem;
+  border-color: rgba(19, 216, 255, 0.3);
+  color: var(--line-bright);
+  text-align: left;
+  text-transform: none;
+}
+
+.command-strip-toggle.open {
+  border-color: var(--line);
+  background: linear-gradient(180deg, rgba(19, 216, 255, 0.2), rgba(19, 216, 255, 0.05));
+}
+
+.command-strip-toggle .cst-chev {
+  font-size: 0.6rem;
+}
+
+.command-strip-toggle > span {
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.command-strip-toggle small {
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .command-strip-toggle small {
+    display: none;
+  }
 }
 
 .tree-command-strip {

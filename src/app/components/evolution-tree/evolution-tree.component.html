@@ -107,7 +107,21 @@
       }
     </div>
 
-    <section class="tree-command-strip" aria-label="Battle and squad command strip">
+    <button
+      type="button"
+      class="command-strip-toggle"
+      [class.open]="commandStripExpanded()"
+      (click)="commandStripExpanded.set(!commandStripExpanded())"
+      [attr.aria-expanded]="commandStripExpanded()"
+      aria-controls="tree-command-strip"
+    >
+      <span class="cst-chev" aria-hidden="true">{{ commandStripExpanded() ? '▲' : '▼' }}</span>
+      <span>Command Consoles</span>
+      <small>Route advisor · squad dock · battle log · arena rewards</small>
+    </button>
+
+    @if (commandStripExpanded()) {
+    <section id="tree-command-strip" class="tree-command-strip" aria-label="Battle and squad command strip">
       <div class="route-advisor tone-{{ routeAdvisory().tone }}">
         <div class="strip-heading">
           <h3>Next Command</h3>
@@ -252,6 +266,7 @@
         <button type="button" class="primary-action" (click)="game.startBattle()">Start Battle</button>
       </div>
     </section>
+    }
   </section>
 
   <app-monster-detail [monster]="game.selectedMonster()" />
