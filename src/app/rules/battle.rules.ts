@@ -187,7 +187,7 @@ export function getBattleCategoryProfile(id: BattleCategoryId): BattleCategoryPr
 
 // --- Hybrid control: stance ---
 
-export type BattleStanceId = 'aggressive' | 'balanced' | 'defensive';
+export type BattleStanceId = 'berserk' | 'aggressive' | 'balanced' | 'defensive' | 'bastion';
 
 export interface BattleStanceProfile {
   id: BattleStanceId;
@@ -201,6 +201,14 @@ export interface BattleStanceProfile {
 }
 
 export const BATTLE_STANCES: BattleStanceProfile[] = [
+  {
+    id: 'berserk',
+    label: 'Berserk',
+    shortLabel: 'Berserk',
+    detail: 'All-in: maximum attack, almost no cover. High risk, high reward.',
+    attackMod: 0.2,
+    mitigation: -0.2,
+  },
   {
     id: 'aggressive',
     label: 'Aggressive',
@@ -225,10 +233,22 @@ export const BATTLE_STANCES: BattleStanceProfile[] = [
     attackMod: -0.05,
     mitigation: 0.16,
   },
+  {
+    id: 'bastion',
+    label: 'Bastion',
+    shortLabel: 'Bastion',
+    detail: 'Lockdown: heavy mitigation at the cost of real output.',
+    attackMod: -0.12,
+    mitigation: 0.3,
+  },
 ];
 
 export function getBattleStanceProfile(id: BattleStanceId): BattleStanceProfile {
-  return BATTLE_STANCES.find((stance) => stance.id === id) ?? BATTLE_STANCES[1];
+  return (
+    BATTLE_STANCES.find((stance) => stance.id === id) ??
+    BATTLE_STANCES.find((stance) => stance.id === 'balanced') ??
+    BATTLE_STANCES[0]
+  );
 }
 
 // --- Hybrid control: Overdrive ---

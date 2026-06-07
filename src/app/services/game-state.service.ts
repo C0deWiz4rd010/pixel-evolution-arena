@@ -410,11 +410,33 @@ export class GameStateService {
     ),
   );
 
+  /** Summed attack bonus from the currently equipped consumables (matches the engine). */
+  readonly equippedAttackBonus = computed(() =>
+    this.equippedConsumables().reduce((total, name) => {
+      const effect = getConsumableDef(name)?.effect;
+      return total + (effect?.attackBonus ?? (effect?.kind === 'rally' ? 0.06 : 0));
+    }, 0),
+  );
+
+  /**
+   * Every active player-side attack modifier folded into one number, mirroring
+   * the engine's playerAttackBonus so the forecast reflects stance, combo,
+   * consumables and an armed Overdrive — not just squad synergy.
+   */
+  readonly effectivePlayerModifier = computed(
+    () =>
+      this.squadBattleModifier() +
+      this.battleStance().attackMod +
+      this.comboCharge() +
+      this.equippedAttackBonus() +
+      (this.overdriveArmed() && this.overdriveReady() ? OVERDRIVE_ATTACK_BONUS : 0),
+  );
+
   readonly battleOutlook = computed(() =>
     predictBattleOutlook({
       teamPower: this.teamPower(),
       enemyPower: this.enemyPower(),
-      playerModifier: this.squadBattleModifier(),
+      playerModifier: this.effectivePlayerModifier(),
       enemyModifier: this.enemyBattleModifier(),
       hasSquad: this.squad().length > 0,
     }),

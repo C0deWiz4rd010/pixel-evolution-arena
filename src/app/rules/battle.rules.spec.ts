@@ -194,13 +194,28 @@ describe('battle rules', () => {
     expect(hint).toMatch(/Coverage signal/);
   });
 
-  it('exposes three stances with an aggressive/defensive trade-off', () => {
-    expect(BATTLE_STANCES.map((stance) => stance.id)).toEqual(['aggressive', 'balanced', 'defensive']);
+  it('exposes a five-stance spread from berserk to bastion', () => {
+    expect(BATTLE_STANCES.map((stance) => stance.id)).toEqual([
+      'berserk',
+      'aggressive',
+      'balanced',
+      'defensive',
+      'bastion',
+    ]);
     expect(getBattleStanceProfile('aggressive').attackMod).toBeGreaterThan(0);
     expect(getBattleStanceProfile('aggressive').mitigation).toBeLessThan(0);
     expect(getBattleStanceProfile('defensive').attackMod).toBeLessThan(0);
     expect(getBattleStanceProfile('defensive').mitigation).toBeGreaterThan(0);
     expect(getBattleStanceProfile('balanced')).toMatchObject({ attackMod: 0, mitigation: 0 });
+  });
+
+  it('makes berserk the top attacker and bastion the top defender', () => {
+    const byAttack = [...BATTLE_STANCES].sort((a, b) => b.attackMod - a.attackMod);
+    const byMitigation = [...BATTLE_STANCES].sort((a, b) => b.mitigation - a.mitigation);
+    expect(byAttack[0].id).toBe('berserk');
+    expect(byMitigation[0].id).toBe('bastion');
+    // The all-in stance trades the most cover for the most offense.
+    expect(getBattleStanceProfile('berserk').mitigation).toBeLessThan(getBattleStanceProfile('aggressive').mitigation);
   });
 
   it('falls back to the balanced stance for an unknown id', () => {
