@@ -10,8 +10,8 @@
   --line-soft: rgba(19, 216, 255, 0.28);
   --grid-line: rgba(19, 216, 255, 0.1);
   --text: #eafaff;
-  --muted: #83b6c7;
-  --dim: #456b7a;
+  --muted: #96c8d8;
+  --dim: #5a7e8e;
   --danger: #ff564d;
   --success: #83ff45;
   --coin: #ffdc42;
@@ -58,6 +58,9 @@
     0 var(--corner-cut-wide)
   );
   --font: "Cascadia Mono", "Consolas", "Courier New", monospace;
+  --text-xs: 0.72rem;
+  --text-sm: 0.78rem;
+  --text-kicker: 0.68rem;
   --sprite-base: 64px;
   --sprite-tiny: 46px;
   --sprite-small: 60px;
@@ -73,6 +76,23 @@
   letter-spacing: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--line) rgba(0, 0, 0, 0.5);
+}
+
+/* Minimum readable font size for small UI text */
+small,
+.stat-label,
+.stat-chip small,
+.type-chip,
+.legend-kicker,
+.tab-status,
+.ops-footer small,
+.ops-topline span,
+.intel-card span,
+.intel-card small,
+.readiness-node span,
+.readiness-node small,
+.forecast-grid small {
+  font-size: max(var(--text-kicker), 0.68rem);
 }
 
 *::-webkit-scrollbar {
@@ -545,7 +565,7 @@ li {
 
 .stat-label {
   color: var(--muted);
-  font-size: 0.64rem;
+  font-size: var(--text-kicker);
   text-transform: uppercase;
 }
 
