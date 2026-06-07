@@ -15,17 +15,26 @@
   </section>
 
   <section class="quick-command-bar" aria-label="Quick commands">
-    <button type="button" (click)="autoBuildSquad()">
+    <button type="button" class="qcb-btn" (click)="autoBuildSquad()">
       <span class="quick-icon">SQ</span>
-      <span class="quick-label">Auto Squad</span>
+      <span class="quick-label">
+        <span class="ql-title">Auto Squad</span>
+        <span class="ql-sub">Best loadout</span>
+      </span>
     </button>
-    <button type="button" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()">
+    <button type="button" class="qcb-btn" [class.qcb-ready]="game.readyEvolutionCandidate()" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()">
       <span class="quick-icon">EV</span>
-      <span class="quick-label">Evolve Ready</span>
+      <span class="quick-label">
+        <span class="ql-title">Evolve Ready</span>
+        <span class="ql-sub">{{ game.readyEvolutionCandidate() ? game.readyEvolutionCandidate()!.target.name : 'No candidate' }}</span>
+      </span>
     </button>
-    <button type="button" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()">
-      <span class="quick-icon">BT</span>
-      <span class="quick-label">Run Battle</span>
+    <button type="button" class="qcb-btn" [class.qcb-ready]="canStartQuickBattle()" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()">
+      <span class="quick-icon">VS</span>
+      <span class="quick-label">
+        <span class="ql-title">Run Battle</span>
+        <span class="ql-sub">{{ canStartQuickBattle() ? game.squad().length + ' members' : 'Build squad first' }}</span>
+      </span>
     </button>
   </section>
 
