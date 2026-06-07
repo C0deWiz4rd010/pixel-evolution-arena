@@ -24,10 +24,4 @@ export class TabNavigationComponent {
   ];
 
   readonly handbookTab = { label: 'Handbook', icon: 'MAN', signal: 'Manual/Data' };
-
-  readonly linkTypes = [
-    { label: 'Standard', hint: 'main route', className: 'standard' },
-    { label: 'Branch', hint: 'alternate path', className: 'branch' },
-    { label: 'Special', hint: 'item gate', className: 'special' },
-  ];
 }
