@@ -2,57 +2,35 @@
   display: block;
 }
 
-.stat-chip.next-command {
-  border-color: var(--next-color, var(--line));
-  color: var(--next-color, var(--line));
-  background:
-    linear-gradient(90deg, color-mix(in srgb, currentColor 18%, transparent), transparent 70%),
-    rgba(0, 0, 0, 0.28);
+/* Resource accent colours on the icon glyph + value */
+.stat-chip.coins .stat-icon,
+.stat-chip.coins strong {
+  color: var(--coin);
 }
 
-.stat-chip.next-command.tone-blocked {
-  --next-color: var(--danger);
+.stat-chip.dna .stat-icon,
+.stat-chip.dna strong {
+  color: var(--dna);
 }
 
-.stat-chip.next-command.tone-ready,
-.stat-chip.next-command.tone-squad {
-  --next-color: var(--success);
+.stat-chip.power .stat-icon,
+.stat-chip.power strong,
+.stat-chip.wins .stat-icon,
+.stat-chip.wins strong {
+  color: var(--success);
 }
 
-.stat-chip.next-command.tone-collection {
-  --next-color: var(--special);
+.stat-chip.save .stat-icon {
+  color: var(--line-bright);
 }
 
-.stat-chip.next-command.tone-meta {
-  --next-color: var(--coin);
-}
-
-.stat-chip.route {
-  --route-color: var(--line);
-  border-color: var(--route-color);
-  color: var(--route-color);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--route-color) 18%, transparent), transparent 70%),
-    rgba(0, 0, 0, 0.28);
-}
-
-.stat-chip.route.tone-ready {
-  --route-color: var(--success);
-}
-
-.stat-chip.route.tone-train {
-  --route-color: var(--coin);
-}
-
-.stat-chip.route.tone-clear {
-  --route-color: var(--special);
-}
-
-.stat-chip.stat-pulse {
+.stat-chip.stat-pulse,
+.status-badge.stat-pulse {
   animation: stat-pulse-flash 860ms ease-out;
 }
 
-.stat-chip.stat-pulse strong {
+.stat-chip.stat-pulse strong,
+.status-badge.stat-pulse strong {
   animation: stat-pulse-text 860ms ease-out;
 }
 
