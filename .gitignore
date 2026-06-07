@@ -37,3 +37,10 @@ temp/
 # Codex / local QA artifacts
 .codex/
 *.trace.zip
+
+# Local UI QA artifacts (screenshots + scratch scripts)
+shot.mjs
+baseline-*.png
+step*.png
+verify-*.png
+.claude/

@@ -3,88 +3,78 @@
   <app-header-hud />
   <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
 
-  <section class="mission-strip tone-{{ game.nextCommand().tone }}" aria-label="Recommended next command">
-    <div class="mission-copy">
-      <span>{{ game.nextCommand().status }}</span>
-      <strong>{{ game.nextCommand().title }}</strong>
-      <p>{{ game.nextCommand().detail }}</p>
-    </div>
-    <button type="button" (click)="setActiveTab(game.nextCommand().tab)">
-      {{ game.nextCommand().actionLabel }}
-    </button>
-  </section>
-
-  <section class="quick-command-bar" aria-label="Quick commands">
-    <button type="button" class="qcb-btn" (click)="autoBuildSquad()">
-      <span class="quick-icon">SQ</span>
-      <span class="quick-label">
-        <span class="ql-title">Auto Squad</span>
-        <span class="ql-sub">Best loadout</span>
+  <section class="command-rail tone-{{ game.nextCommand().tone }}" aria-label="Command rail">
+    <button type="button" class="rail-mission" (click)="setActiveTab(game.nextCommand().tab)" [attr.title]="game.nextCommand().detail">
+      <span class="rail-pip" aria-hidden="true"></span>
+      <span class="rail-copy">
+        <span class="rail-kicker">{{ game.nextCommand().status }}</span>
+        <span class="rail-title">{{ game.nextCommand().title }}</span>
       </span>
+      <span class="rail-go">{{ game.nextCommand().actionLabel }}</span>
     </button>
-    <button type="button" class="qcb-btn" [class.qcb-ready]="game.readyEvolutionCandidate()" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()">
-      <span class="quick-icon">EV</span>
-      <span class="quick-label">
-        <span class="ql-title">Evolve Ready</span>
-        <span class="ql-sub">{{ game.readyEvolutionCandidate() ? game.readyEvolutionCandidate()!.target.name : 'No candidate' }}</span>
-      </span>
-    </button>
-    <button type="button" class="qcb-btn" [class.qcb-ready]="canStartQuickBattle()" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()">
-      <span class="quick-icon">VS</span>
-      <span class="quick-label">
-        <span class="ql-title">Run Battle</span>
-        <span class="ql-sub">{{ canStartQuickBattle() ? game.squad().length + ' members' : 'Build squad first' }}</span>
-      </span>
-    </button>
-  </section>
 
-  <section class="intel-strip" aria-label="Global intel strip">
-    @for (card of intelCards(); track card.label) {
-      <article class="intel-card tone-{{ card.tone }}">
-        <span>{{ card.label }}</span>
-        <strong>{{ card.title }}</strong>
-        <p>{{ card.detail }}</p>
-        <small>{{ card.metric }}</small>
-      </article>
-    }
-  </section>
-
-  <section class="operations-deck" [class.ops-collapsed]="!opsExpanded()" aria-label="Operations deck">
-    <div class="operations-head">
-      <div class="ops-head-copy">
-        <span>Operations // Meta Loop</span>
-        <h2>Operations Deck</h2>
-      </div>
-      <div class="ops-head-actions">
-        <strong>{{ game.operationsCards().length }} LIVE SIGNALS</strong>
-        <button type="button" class="ops-toggle" (click)="opsExpanded.set(!opsExpanded())" [attr.aria-expanded]="opsExpanded()">
-          {{ opsExpanded() ? '▲ COLLAPSE' : '▼ EXPAND' }}
-        </button>
-      </div>
+    <div class="rail-quick" role="group" aria-label="Quick commands">
+      <button type="button" class="qcb-btn" (click)="autoBuildSquad()" title="Auto-build the strongest squad">
+        <span class="quick-icon">SQ</span>
+        <span class="ql-title">Auto&nbsp;Squad</span>
+      </button>
+      <button type="button" class="qcb-btn" [class.qcb-ready]="game.readyEvolutionCandidate()" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()" [attr.title]="game.readyEvolutionCandidate() ? 'Evolve ' + game.readyEvolutionCandidate()!.target.name : 'No evolution ready'">
+        <span class="quick-icon">EV</span>
+        <span class="ql-title">Evolve</span>
+      </button>
+      <button type="button" class="qcb-btn" [class.qcb-ready]="canStartQuickBattle()" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()" [attr.title]="canStartQuickBattle() ? 'Run a battle with ' + game.squad().length + ' members' : 'Build a squad first'">
+        <span class="quick-icon">VS</span>
+        <span class="ql-title">Battle</span>
+      </button>
     </div>
 
-    @if (opsExpanded()) {
-      <div class="operations-grid">
-        @for (card of game.operationsCards(); track card.id) {
-          <article class="ops-card tone-{{ card.tone }}">
-            <div class="ops-topline">
+    <button type="button" class="rail-dock-toggle" [class.open]="dockExpanded()" (click)="dockExpanded.set(!dockExpanded())" [attr.aria-expanded]="dockExpanded()" aria-controls="command-dock">
+      <span class="dock-count">{{ game.operationsCards().length }}</span>
+      <span class="dock-word">Intel &amp; Ops</span>
+      <span class="dock-chev" aria-hidden="true">{{ dockExpanded() ? '▲' : '▼' }}</span>
+    </button>
+  </section>
+
+  @if (dockExpanded()) {
+    <section id="command-dock" class="command-dock" aria-label="Intel and operations dock">
+      <div class="dock-section">
+        <h2 class="dock-heading">Global Intel</h2>
+        <div class="intel-strip">
+          @for (card of intelCards(); track card.label) {
+            <article class="intel-card tone-{{ card.tone }}">
               <span>{{ card.label }}</span>
-              <strong>{{ card.metric }}</strong>
-            </div>
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.detail }}</p>
-            <div class="ops-progress" aria-hidden="true">
-              <i [style.width.%]="card.progressPercent"></i>
-            </div>
-            <div class="ops-footer">
-              <small>{{ card.status }}</small>
-              <button type="button" (click)="runOperationsCard(card)">{{ card.actionLabel }}</button>
-            </div>
-          </article>
-        }
+              <strong>{{ card.title }}</strong>
+              <p>{{ card.detail }}</p>
+              <small>{{ card.metric }}</small>
+            </article>
+          }
+        </div>
       </div>
-    }
-  </section>
+
+      <div class="dock-section">
+        <h2 class="dock-heading">Operations // Meta Loop</h2>
+        <div class="operations-grid">
+          @for (card of game.operationsCards(); track card.id) {
+            <article class="ops-card tone-{{ card.tone }}">
+              <div class="ops-topline">
+                <span>{{ card.label }}</span>
+                <strong>{{ card.metric }}</strong>
+              </div>
+              <h3>{{ card.title }}</h3>
+              <p>{{ card.detail }}</p>
+              <div class="ops-progress" aria-hidden="true">
+                <i [style.width.%]="card.progressPercent"></i>
+              </div>
+              <div class="ops-footer">
+                <small>{{ card.status }}</small>
+                <button type="button" (click)="runOperationsCard(card)">{{ card.actionLabel }}</button>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+  }
 
   <section class="play-surface">
     @switch (activeTab()) {

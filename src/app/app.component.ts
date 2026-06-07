@@ -14,7 +14,6 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
-import { TranslatePipe } from './i18n/translate.pipe';
 import { BattleAnimationService } from './services/battle-animation.service';
 import { GameSectionName, GameStateService, OperationsCard } from './services/game-state.service';
 
@@ -57,7 +56,6 @@ interface IntelStripCard {
     SettingsComponent,
     OnboardingComponent,
     ToastStackComponent,
-    TranslatePipe,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -67,7 +65,8 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<GameSectionName>('Evolution Tree');
-  readonly opsExpanded = signal(false);
+  /** Collapsible Intel & Operations dock; collapsed by default to keep the play surface tall. */
+  readonly dockExpanded = signal(false);
   readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
   readonly intelCards = computed<IntelStripCard[]>(() => {
     const battleIntel = this.game.battleIntelSummary();
