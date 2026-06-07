@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Monster } from '../models/monster.model';
-import { applyXpToSquad } from './xp.rules';
+import { applyXpToMonster, applyXpToSquad } from './xp.rules';
 
 function createMonster(overrides: Partial<Monster>): Monster {
   return {
@@ -58,5 +58,16 @@ describe('xp rules', () => {
 
     expect(result.updatedMonsters[0].xp).toBe(25);
     expect(result.updatedMonsters[1].xp).toBe(20);
+  });
+
+  it('can apply xp to a single targeted monster', () => {
+    const lead = createMonster({ id: 'M001', name: 'Lead' });
+    const reserve = createMonster({ id: 'M002', name: 'Reserve', xp: 11 });
+
+    const result = applyXpToMonster([lead, reserve], reserve.id, 22);
+
+    expect(result.updatedMonsters[0].xp).toBe(0);
+    expect(result.updatedMonsters[1].xp).toBe(33);
+    expect(result.logs).toHaveLength(0);
   });
 });

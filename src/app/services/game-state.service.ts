@@ -44,7 +44,7 @@ import {
 } from '../rules/evolution.rules';
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
 import { evaluateTypePressure } from '../rules/type-matchup.rules';
-import { applyXpToSquad } from '../rules/xp.rules';
+import { applyXpToMonster, applyXpToSquad } from '../rules/xp.rules';
 import { GEAR_DEFS } from '../data/gear.data';
 import { GearSlot } from '../models/gear.model';
 import { applyGearToMonster, canAfford, forgeCost, getGearDef, getGearInstance, gearInstanceBonus, clampTier } from '../rules/gear.rules';
@@ -59,6 +59,7 @@ import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model'
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
+import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -151,6 +152,13 @@ export interface OperationsCard {
   progressPercent: number;
   tone: 'ready' | 'meta' | 'warning' | 'info';
   actionLabel: string;
+}
+
+export interface RouteStatusChip {
+  status: string;
+  detail: string;
+  metric: string;
+  tone: 'ready' | 'train' | 'clear';
 }
 
 const STARTER_PLAYER_STATE: PlayerState = {
@@ -629,7 +637,40 @@ export class GameStateService {
 
   readonly readyEvolutionCandidate = computed(() => this.evolutionCandidates().find((candidate) => candidate.ready) ?? null);
   readonly nextEvolutionCandidate = computed(() => this.evolutionCandidates()[0] ?? null);
+  readonly readyEvolutionCount = computed(() => this.evolutionCandidates().filter((candidate) => candidate.ready).length);
+  readonly routeStatusChip = computed<RouteStatusChip>(() => {
+    const ready = this.readyEvolutionCount();
+    const next = this.pinnedChase()
+      ? this.evolutionCandidates().find((candidate) => candidate.target.id === this.pinnedChaseId()) ?? this.nextEvolutionCandidate()
+      : this.nextEvolutionCandidate();
+
+    if (ready > 0 && next?.source) {
+      return {
+        status: `${ready} READY`,
+        detail: `${next.target.name} can go online from ${next.source.name}.`,
+        metric: `${next.target.stage} route`,
+        tone: 'ready',
+      };
+    }
+
+    if (next?.source) {
+      return {
+        status: 'TRACKING',
+        detail: `${next.target.name} is the next unlock pressure point.`,
+        metric: `${next.percent}% sync`,
+        tone: 'train',
+      };
+    }
+
+    return {
+      status: 'CLEAR',
+      detail: 'Current reachable routes are already online.',
+      metric: `${this.unlockedCount()}/${this.monsters().length}`,
+      tone: 'clear',
+    };
+  });
   readonly nextCampaignEntry = computed(() => this.campaignProgress().find((entry) => entry.status !== 'claimed') ?? this.campaignProgress()[0] ?? null);
+  readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
 
   readonly operationsCards = computed<OperationsCard[]>(() => {
     const chase = this.pinnedChaseId()
@@ -1011,6 +1052,120 @@ export class GameStateService {
     this.persistState();
   }
 
+  getMonsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
+    return getMonsterTrainingDrills(monster.stage);
+  }
+
+  canAffordCoins(costCoins: number): boolean {
+    return this.player().coins >= costCoins;
+  }
+
+  runMonsterTraining(monsterId: string, drillId: MonsterTrainingDrillId): boolean {
+    const monster = this.getMonsterById(monsterId);
+    if (!monster?.unlocked) {
+      this.prependLog('Unlock the signal before running lab drills.', 'system');
+      return false;
+    }
+
+    const drill = this.getMonsterTrainingDrills(monster).find((entry) => entry.id === drillId);
+    if (!drill) {
+      return false;
+    }
+
+    if (!this.canAffordCoins(drill.costCoins)) {
+      this.toast.push({
+        title: 'Insufficient Coins',
+        message: `${drill.label} costs ${drill.costCoins} CR.`,
+        tone: 'warn',
+        icon: '!',
+        durationMs: 3000,
+      });
+      return false;
+    }
+
+    const xpResult = applyXpToMonster(this.monsters(), monster.id, drill.xpGain);
+    this.monsters.set(xpResult.updatedMonsters);
+    this.player.update((player) => ({ ...player, coins: player.coins - drill.costCoins }));
+    this.prependLog(`${drill.label}: ${monster.name} gained +${drill.xpGain} XP for -${drill.costCoins} Coins.`, 'info');
+    this.toast.push({
+      title: drill.label,
+      message: `${monster.name} gained +${drill.xpGain} XP.`,
+      tone: 'info',
+      icon: 'TR',
+      durationMs: 3200,
+    });
+
+    const levelUpLogs = xpResult.logs.filter((entry) => entry.text.toLowerCase().includes('level'));
+    if (levelUpLogs.length > 0) {
+      this.audio.play('level-up');
+      this.battleLogs.update((logs) => [...xpResult.logs, ...logs].slice(0, 36));
+      this.toast.push({
+        title: levelUpLogs.length === 1 ? 'Level Up' : `${levelUpLogs.length} Level Ups`,
+        message: levelUpLogs.map((entry) => entry.text).join(' '),
+        tone: 'success',
+        icon: 'UP',
+        durationMs: 3600,
+      });
+    }
+
+    this.persistState();
+    return true;
+  }
+
+  runSquadTrainingDrill(): boolean {
+    const squad = this.squad();
+    if (squad.length === 0) {
+      this.toast.push({
+        title: 'Squad Required',
+        message: 'Load at least one monster before running a calibration sim.',
+        tone: 'warn',
+        icon: '!',
+        durationMs: 3200,
+      });
+      return false;
+    }
+
+    const drill = this.squadTrainingDrill();
+    if (!this.canAffordCoins(drill.costCoins)) {
+      this.toast.push({
+        title: 'Insufficient Coins',
+        message: `${drill.label} costs ${drill.costCoins} CR.`,
+        tone: 'warn',
+        icon: '!',
+        durationMs: 3000,
+      });
+      return false;
+    }
+
+    const xpResult = applyXpToSquad(this.monsters(), this.player().squadIds, drill.xpGain);
+    this.monsters.set(xpResult.updatedMonsters);
+    this.player.update((player) => ({ ...player, coins: player.coins - drill.costCoins }));
+    this.prependLog(`${drill.label}: squad gained +${drill.xpGain} XP each for -${drill.costCoins} Coins.`, 'info');
+    this.toast.push({
+      title: drill.label,
+      message: `Squad calibration complete. +${drill.xpGain} XP to each online signal.`,
+      tone: 'info',
+      icon: 'SQ',
+      durationMs: 3400,
+    });
+
+    const levelUpLogs = xpResult.logs.filter((entry) => entry.text.toLowerCase().includes('level'));
+    if (levelUpLogs.length > 0) {
+      this.audio.play('level-up');
+      this.battleLogs.update((logs) => [...xpResult.logs, ...logs].slice(0, 36));
+      this.toast.push({
+        title: levelUpLogs.length === 1 ? 'Level Up' : `${levelUpLogs.length} Level Ups`,
+        message: levelUpLogs.map((entry) => entry.text).join(' '),
+        tone: 'success',
+        icon: 'UP',
+        durationMs: 3600,
+      });
+    }
+
+    this.persistState();
+    return true;
+  }
+
   setBattleCategory(id: BattleCategoryId): void {
     this.battleCategoryId.set(id);
   }
@@ -1031,6 +1186,31 @@ export class GameStateService {
         : 'Standard arena restored.',
       'system',
     );
+  }
+
+  applyBattlePrep(stanceId: BattleStanceId, categoryId: BattleCategoryId, itemName: string | null = null): boolean {
+    if (this.battleAnimation.isPlaying() || this.squad().length === 0) {
+      return false;
+    }
+
+    this.setBattleStance(stanceId);
+    this.setBattleCategory(categoryId);
+
+    if (itemName && !this.equippedConsumables().includes(itemName) && this.equippedConsumables().length < MAX_LOADOUT) {
+      this.toggleConsumable(itemName);
+    }
+
+    this.prependLog(`Battle prep loaded: ${stanceId.toUpperCase()} stance / ${categoryId.toUpperCase()} risk.`, 'system');
+    return true;
+  }
+
+  applyBattlePrepAndLaunch(stanceId: BattleStanceId, categoryId: BattleCategoryId, itemName: string | null = null): boolean {
+    const applied = this.applyBattlePrep(stanceId, categoryId, itemName);
+    if (!applied) {
+      return false;
+    }
+    this.startBattle();
+    return true;
   }
 
   /** Arms or disarms Overdrive for the next loaded run. */
