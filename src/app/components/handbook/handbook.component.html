@@ -24,7 +24,39 @@
       </div>
     }
 
+    <section class="command-center-grid" aria-label="Handbook command center">
+      @for (card of commandCenterCards(); track card.id) {
+        <article class="command-card tone-{{ card.tone }}">
+          <div class="command-card-head">
+            <span>{{ card.label }}</span>
+            <strong>{{ card.metric }}</strong>
+          </div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.detail }}</p>
+          <div class="command-bar"><span [style.width.%]="card.progressPercent"></span></div>
+          <button type="button" (click)="runCard(card)">{{ card.actionLabel }}</button>
+        </article>
+      }
+    </section>
+
     <div class="manual-grid command-grid">
+      <article class="manual-card wide">
+        <div class="card-heading">
+          <span class="card-code">OPS</span>
+          <h3>Boss Prep Grid</h3>
+        </div>
+        <div class="prep-grid">
+          @for (card of bossPrepCards(); track card.id) {
+            <div class="prep-card tone-{{ card.tone }}">
+              <span>{{ card.label }}</span>
+              <strong>{{ card.title }}</strong>
+              <p>{{ card.detail }}</p>
+              <small>{{ card.metric }}</small>
+            </div>
+          }
+        </div>
+      </article>
+
       <article class="manual-card wide">
         <div class="card-heading">
           <span class="card-code">RULESET</span>
@@ -91,6 +123,30 @@
             <strong>+30 CR / +2 DNA / +12 XP</strong>
             <small>Progress continues even after a loss.</small>
           </div>
+        </div>
+      </article>
+
+      <article class="manual-card wide">
+        <div class="card-heading">
+          <span class="card-code">INTEL</span>
+          <h3>Recent Combat Dossier</h3>
+        </div>
+        @if (recentRuns().length > 0) {
+          <div class="dossier-grid">
+            @for (run of recentRuns(); track run.id) {
+              <div class="dossier-row" [class.win]="run.won">
+                <span>{{ run.mode }} / {{ run.category }}</span>
+                <strong>{{ run.formationName }}</strong>
+                <small>{{ run.teamPower }} vs {{ run.enemyPower }} / +{{ run.coins }} CR / +{{ run.xp }} XP</small>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="empty-note">No recent arena records yet. Use the command center above to seed the dossier.</p>
+        }
+        <div class="power-meter dossier-summary">
+          <span>{{ battleIntelSummary().trend }}</span>
+          <strong>{{ battleIntelSummary().winRate }}% win rate</strong>
         </div>
       </article>
 
@@ -211,6 +267,10 @@
       <div class="manual-stat">
         <span>Save Status</span>
         <strong>{{ game.saveStatusLabel() }}</strong>
+      </div>
+      <div class="manual-stat">
+        <span>Combat Intel</span>
+        <strong>{{ battleIntelSummary().trendLabel }}</strong>
       </div>
     </div>
 

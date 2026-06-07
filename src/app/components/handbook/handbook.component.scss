@@ -27,6 +27,7 @@
 
 .manual-hero,
 .directive-banner,
+.command-center-grid,
 .manual-grid,
 .console-heading,
 .manual-stat-grid,
@@ -136,6 +137,104 @@
   color: var(--text);
   font-size: 1rem;
   text-transform: uppercase;
+}
+
+.command-center-grid,
+.prep-grid,
+.dossier-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.command-center-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 0.75rem;
+}
+
+.command-card,
+.prep-card,
+.dossier-row {
+  border: 1px solid rgba(19, 216, 255, 0.18);
+  background: rgba(0, 0, 0, 0.24);
+  padding: 0.6rem;
+}
+
+.command-card {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.command-card.tone-ready,
+.prep-card.tone-ready,
+.dossier-row.win {
+  border-color: rgba(131, 255, 69, 0.52);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.1);
+}
+
+.command-card.tone-warning,
+.prep-card.tone-warning {
+  border-color: rgba(255, 151, 61, 0.48);
+}
+
+.command-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.command-card-head span,
+.prep-card span,
+.dossier-row span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.command-card-head strong,
+.prep-card strong,
+.dossier-row strong {
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.command-card h3,
+.prep-card p,
+.dossier-row small {
+  margin: 0;
+}
+
+.command-bar {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(19, 216, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.command-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--line), var(--success));
+}
+
+.prep-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.prep-card {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.prep-card small {
+  color: var(--line);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.dossier-summary strong {
+  overflow-wrap: anywhere;
 }
 
 .command-grid {
@@ -478,6 +577,11 @@
 }
 
 @media (max-width: 1180px) {
+  .command-center-grid,
+  .prep-grid {
+    grid-template-columns: 1fr;
+  }
+
   .stage-index {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

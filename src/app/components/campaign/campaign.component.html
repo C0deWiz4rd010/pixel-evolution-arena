@@ -42,6 +42,33 @@
     }
   </section>
 
+  <section class="boss-prep" aria-label="Boss prep deck">
+    @for (card of bossPrepCards(); track card.id) {
+      <article class="prep-card tone-{{ card.tone }}">
+        <div>
+          <span>{{ card.label }}</span>
+          <strong>{{ card.title }}</strong>
+        </div>
+        <p>{{ card.detail }}</p>
+        <small>{{ card.metric }}</small>
+        <div class="progress-bar compact">
+          <span class="progress-fill" [style.width.%]="card.progressPercent"></span>
+        </div>
+        <button type="button" class="claim alt" (click)="runCard(card)">{{ card.actionLabel }}</button>
+      </article>
+    }
+  </section>
+
+  <section class="reward-runway" aria-label="Campaign reward runway">
+    @for (card of rewardRunway(); track card.label) {
+      <article class="runway-card">
+        <span>{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+        <p>{{ card.detail }}</p>
+      </article>
+    }
+  </section>
+
   <div class="chapter-track">
     @for (entry of progress(); track entry.chapter.id) {
       <article class="chapter-card status-{{ entry.status }}">

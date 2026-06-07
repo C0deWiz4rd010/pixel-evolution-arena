@@ -12,6 +12,21 @@
       </div>
     </div>
 
+    <section class="focus-grid" aria-label="Medal focus board">
+      @for (card of focusCards(); track card.id) {
+        <article class="focus-card tone-{{ card.tone }}">
+          <div class="focus-head">
+            <span>{{ card.label }}</span>
+            <strong>{{ card.metric }}</strong>
+          </div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.detail }}</p>
+          <div class="medal-bar"><span [style.width.%]="card.progressPercent"></span></div>
+          <button type="button" (click)="runCard(card)">{{ card.actionLabel }}</button>
+        </article>
+      }
+    </section>
+
     <div class="medal-grid">
       @for (entry of progress(); track entry.def.id) {
         <article class="medal-card" [class.complete]="entry.complete" [class.claimed]="entry.claimed">
@@ -50,6 +65,7 @@
         <li><span>Items used</span><strong>{{ combatStats().itemsUsed }}</strong></li>
         <li><span>Flawless wins</span><strong>{{ combatStats().flawlessWins }}</strong></li>
         <li><span>Best gauntlet wave</span><strong>{{ combatStats().gauntletBestWave }}</strong></li>
+        <li><span>Next streak medal</span><strong>{{ nextStreakMilestone() ? 'x' + nextStreakMilestone() : 'done' }}</strong></li>
       </ul>
     </div>
   </aside>

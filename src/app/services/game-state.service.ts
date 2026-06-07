@@ -60,6 +60,14 @@ import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rol
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
 import { BattleIntelSummary, summarizeBattleRecords } from '../rules/battle-intel.rules';
+import {
+  buildBossPrepCards,
+  buildCommandCenterCards,
+  buildMedalFocusCards,
+  buildSystemCheckCards,
+  CommandCenterCard,
+  MetaActionId,
+} from '../rules/command-center.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -244,6 +252,8 @@ export class GameStateService {
   readonly equippedConsumables = signal<string[]>([]);
   /** Transient, capped Active-Combat-Beat bonus applied to the next battle. */
   readonly comboCharge = signal(0);
+  /** Cross-tab navigation requests triggered by shared meta actions. */
+  readonly requestedTab = signal<GameSectionName | null>(null);
 
   /** Records a combat-beat result; success grants a small capped attack bonus. */
   chargeCombo(success: boolean): void {
@@ -676,6 +686,82 @@ export class GameStateService {
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
   readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
   readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
+  readonly nextWinStreakMilestone = computed(() => WIN_STREAK_MILESTONES.find((milestone) => milestone > this.bestWinStreak()) ?? null);
+  readonly commandCenterCards = computed<CommandCenterCard[]>(() => {
+    const daily = this.dailyObjective();
+    const directive = this.dailyDirective();
+    const readyEvolution = this.readyEvolutionCandidate();
+    const nextEvolution = this.nextEvolutionCandidate();
+    const claimableChapter = this.claimableChapter();
+    const nextChapter = this.nextCampaignEntry();
+    const expedition = this.expedition();
+    const forge = this.forgeQuickRecommendation();
+
+    return buildCommandCenterCards({
+      squadSize: this.squad().length,
+      dailyLabel: daily.label,
+      dailyDetail: daily.detail,
+      dailyProgress: directive.progress,
+      dailyGoal: daily.goal,
+      dailyComplete: this.dailyComplete(),
+      readyEvolutionName: readyEvolution?.target.name ?? null,
+      nextEvolutionName: nextEvolution?.target.name ?? null,
+      nextEvolutionPercent: nextEvolution?.percent ?? 100,
+      claimableChapterTitle: claimableChapter?.title ?? null,
+      nextChapterTitle: nextChapter?.chapter.title ?? null,
+      nextChapterProgress: nextChapter?.current ?? 0,
+      nextChapterGoal: nextChapter?.goal ?? 0,
+      nextChapterPercent: nextChapter?.percent ?? 100,
+      expeditionStatus: !expedition ? 'idle' : expedition.status === 'active' ? 'active' : 'reward',
+      expeditionDepth: expedition?.depth ?? 0,
+      expeditionMaxDepth: 7,
+      expeditionHp: expedition?.hp ?? 0,
+      expeditionMaxHp: expedition?.maxHp ?? 0,
+      expeditionCores: expedition?.rewardCores ?? this.expeditionCores(),
+      forgeTitle: forge.title,
+      forgeDetail: forge.detail,
+      forgeMetric: forge.metric,
+      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
+    });
+  });
+  readonly medalFocusCards = computed<CommandCenterCard[]>(() =>
+    buildMedalFocusCards({
+      dailyLabel: this.dailyObjective().label,
+      dailyProgress: this.dailyDirective().progress,
+      dailyGoal: this.dailyObjective().goal,
+      dailyComplete: this.dailyComplete(),
+      bestStreak: this.bestWinStreak(),
+      nextStreakMilestone: this.nextWinStreakMilestone(),
+      bossesDefeated: this.player().defeatedBosses.length,
+      totalBosses: this.bosses.length,
+      unlockedMonsters: this.unlockedCount(),
+      totalMonsters: this.monsters().length,
+    }),
+  );
+  readonly bossPrepCards = computed<CommandCenterCard[]>(() =>
+    buildBossPrepCards({
+      bossName: this.activeBoss()?.name ?? null,
+      bossTelegraph: this.activeBoss()?.mechanic.telegraph ?? null,
+      bossCounter: this.activeBoss()?.mechanic.counter ?? null,
+      bossRewardCoins: this.activeBoss()?.reward.coins ?? 0,
+      bossRewardDna: this.activeBoss()?.reward.dnaShards ?? 0,
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      battleTrend: this.battleIntelSummary().trend,
+      overdriveReady: this.overdriveReady(),
+    }),
+  );
+  readonly systemCheckCards = computed<CommandCenterCard[]>(() =>
+    buildSystemCheckCards({
+      saveStatus: this.saveStatusLabel(),
+      lastSavedLabel: this.lastSavedLabel(),
+      exportReady: this.saveSyncState() !== 'unsupported',
+      colorblindMode: this.settings().colorblindMode,
+      combatBeats: this.settings().combatBeats,
+      effectIntensity: this.settings().effectIntensity,
+      audioEnabled: this.player().audioEnabled,
+    }),
+  );
 
   readonly operationsCards = computed<OperationsCard[]>(() => {
     const chase = this.pinnedChaseId()
@@ -919,6 +1005,14 @@ export class GameStateService {
     this.audio.setMasterVolume(this.player().settings.masterVolume);
     this.ensureDailyDirectiveState();
     this.persistState();
+  }
+
+  requestTab(tab: GameSectionName): void {
+    this.requestedTab.set(tab);
+  }
+
+  clearRequestedTab(): void {
+    this.requestedTab.set(null);
   }
 
   /** Rollt eine frische Tages-Directive, falls keine existiert oder der Tag wechselte. */
@@ -1596,6 +1690,61 @@ export class GameStateService {
     }
     this.claimChapter(claimable.id);
     return true;
+  }
+
+  runMetaAction(actionId: MetaActionId): boolean {
+    switch (actionId) {
+      case 'auto-squad':
+        this.requestTab('Squad');
+        this.autoBuildBestSquad();
+        return true;
+      case 'evolve-ready':
+        this.requestTab('Evolution Tree');
+        if (this.readyEvolutionCandidate()) {
+          return this.evolveReadyCandidate();
+        }
+        return true;
+      case 'run-battle':
+        if (this.squad().length === 0) {
+          this.autoBuildBestSquad();
+        }
+        this.requestTab('Arena');
+        if (this.squad().length === 0) {
+          return false;
+        }
+        this.startBattle();
+        return true;
+      case 'claim-chapter':
+        this.requestTab('Campaign');
+        return this.claimReadyChapter() || true;
+      case 'forge-quick':
+        this.requestTab('Forge');
+        if (this.forgeQuickRecommendation().kind !== 'blocked') {
+          return this.runForgeQuickAction();
+        }
+        return true;
+      case 'expedition': {
+        const expedition = this.expedition();
+        if (!expedition && this.squad().length === 0) {
+          this.autoBuildBestSquad();
+        }
+        this.requestTab(expedition || this.squad().length > 0 ? 'Expedition' : 'Squad');
+        if (!expedition) {
+          if (this.squad().length === 0) {
+            return false;
+          }
+          this.startExpedition();
+          return true;
+        }
+        if (expedition.status !== 'active') {
+          this.claimExpedition();
+        }
+        return true;
+      }
+      case 'save-now':
+        this.syncSaveState();
+        return true;
+    }
   }
 
   claimChapter(chapterId: string): void {

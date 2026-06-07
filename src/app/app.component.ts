@@ -16,21 +16,9 @@ import { TabNavigationComponent } from './components/tab-navigation/tab-navigati
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
 import { TranslatePipe } from './i18n/translate.pipe';
 import { BattleAnimationService } from './services/battle-animation.service';
-import { GameStateService, OperationsCard } from './services/game-state.service';
+import { GameSectionName, GameStateService, OperationsCard } from './services/game-state.service';
 
-type AppTab =
-  | 'Evolution Tree'
-  | 'Squad'
-  | 'Forge'
-  | 'Arena'
-  | 'Expedition'
-  | 'Collection'
-  | 'Campaign'
-  | 'Medals'
-  | 'Handbook'
-  | 'Settings';
-
-const TAB_ORDER: AppTab[] = [
+const TAB_ORDER: GameSectionName[] = [
   'Evolution Tree',
   'Squad',
   'Forge',
@@ -78,7 +66,7 @@ export class AppComponent {
   readonly game = inject(GameStateService);
   private readonly battleAnimation = inject(BattleAnimationService);
 
-  readonly activeTab = signal<AppTab>('Evolution Tree');
+  readonly activeTab = signal<GameSectionName>('Evolution Tree');
   readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
   readonly intelCards = computed<IntelStripCard[]>(() => {
     const battleIntel = this.game.battleIntelSummary();
@@ -151,10 +139,22 @@ export class AppComponent {
       root.dataset['reducedFx'] = settings.effectIntensity < 0.5 ? 'on' : 'off';
       root.lang = settings.language;
     });
+
+    effect(() => {
+      const requested = this.game.requestedTab();
+      if (!requested || requested === this.activeTab()) {
+        if (requested) {
+          this.game.clearRequestedTab();
+        }
+        return;
+      }
+      this.setActiveTab(requested);
+      this.game.clearRequestedTab();
+    });
   }
 
   setActiveTab(tab: string): void {
-    this.activeTab.set(tab as AppTab);
+    this.activeTab.set(tab as GameSectionName);
     globalThis.requestAnimationFrame(() => globalThis.scrollTo({ top: 0, behavior: 'auto' }));
   }
 

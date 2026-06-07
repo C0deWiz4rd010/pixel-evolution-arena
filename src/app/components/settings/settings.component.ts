@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { AudioService } from '../../services/audio.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -18,6 +19,7 @@ export class SettingsComponent {
   readonly audio = inject(AudioService);
 
   readonly settings = this.game.settings;
+  readonly systemCheckCards = this.game.systemCheckCards;
   readonly accentThemes: { id: AccentTheme; label: string }[] = [
     { id: 'aurora', label: 'Aurora' },
     { id: 'ember', label: 'Ember' },
@@ -46,6 +48,14 @@ export class SettingsComponent {
   readonly importCode = signal<string>('');
   readonly confirmingReset = signal(false);
   readonly copied = signal(false);
+  readonly profileSignal = computed(() => ({
+    title: `${this.settings().accentTheme.toUpperCase()} / ${this.settings().language.toUpperCase()}`,
+    detail: `${this.audio.enabled() ? 'Audio' : 'Silent'} / ${this.settings().combatBeats ? 'Beats' : 'No Beats'} / ${this.settings().colorblindMode ? 'Glyph Assist' : 'Default Grid'}`,
+  }));
+
+  runCard(card: CommandCenterCard): void {
+    this.game.runMetaAction(card.actionId);
+  }
 
   onVolumeInput(event: Event): void {
     const value = Number((event.target as HTMLInputElement).value);

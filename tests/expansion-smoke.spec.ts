@@ -141,3 +141,27 @@ test('battle intel surfaces render across shell, arena, campaign, forge, and exp
   await expect(page.getByLabel('Expedition preflight scanner')).toContainText('Preflight Scanner');
   await expect(page.getByLabel('Expedition preflight scanner')).toContainText('Arena Trend');
 });
+
+test('handbook, medals, campaign, and settings expose the new command-center surfaces', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Handbook/i }).click();
+  await expect(page.getByLabel('Handbook command center')).toContainText('Daily Relay');
+  await expect(page.getByText('Boss Prep Grid')).toBeVisible();
+  await page.getByLabel('Handbook command center').getByRole('button', { name: 'Run Battle' }).click();
+  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
+
+  await nav.getByRole('button', { name: /Medals/i }).click();
+  await expect(page.getByLabel('Medal focus board')).toContainText('Streak Ladder');
+  await expect(page.locator('.stat-readout').getByText('Next streak medal', { exact: true })).toBeVisible();
+
+  await nav.getByRole('button', { name: /Campaign/i }).click();
+  await expect(page.getByLabel('Boss prep deck')).toContainText(/Surge Window|Chronocore Crown|No named boss/i);
+  await expect(page.getByLabel('Campaign reward runway')).toContainText('Chapter Reward');
+
+  await nav.getByRole('button', { name: /Settings/i }).click();
+  await expect(page.getByLabel('System checks')).toContainText('Save Core');
+  await expect(page.getByText('Profile Signal')).toBeVisible();
+});

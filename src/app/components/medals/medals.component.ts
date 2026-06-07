@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 
 @Component({
@@ -17,10 +18,16 @@ export class MedalsComponent {
   readonly dailyObjective = this.game.dailyObjective;
   readonly dailyDirective = this.game.dailyDirective;
   readonly dailyComplete = this.game.dailyComplete;
+  readonly focusCards = this.game.medalFocusCards;
 
   readonly combatStats = computed(() => this.game.player().combatStats);
   readonly bestStreak = computed(() => this.game.player().bestWinStreak);
   readonly battlesWon = computed(() => this.game.player().battlesWon);
+  readonly nextStreakMilestone = this.game.nextWinStreakMilestone;
+
+  runCard(card: CommandCenterCard): void {
+    this.game.runMetaAction(card.actionId);
+  }
 
   percent(current: number, goal: number): number {
     if (goal <= 0) {

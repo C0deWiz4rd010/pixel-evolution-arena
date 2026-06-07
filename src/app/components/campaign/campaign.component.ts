@@ -1,5 +1,6 @@
 import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -25,7 +26,31 @@ export class CampaignComponent {
   readonly claimable = this.game.claimableChapter;
   readonly bossCodex = this.game.bossCodex;
   readonly activeBoss = this.game.activeBoss;
+  readonly bossPrepCards = this.game.bossPrepCards;
   readonly nextEntry = computed(() => this.progress().find((entry) => entry.status !== 'claimed') ?? this.progress()[0] ?? null);
+  readonly rewardRunway = computed(() => {
+    const claimable = this.claimable();
+    const boss = this.activeBoss();
+    const next = this.nextEntry();
+
+    return [
+      {
+        label: 'Chapter Reward',
+        value: claimable ? `+${claimable.reward.coins} CR / +${claimable.reward.dnaShards} DNA` : next ? `${next.current}/${next.goal}` : 'Synced',
+        detail: claimable ? claimable.reward.lore : next ? next.chapter.objective.label : 'No chapter reward is currently live.',
+      },
+      {
+        label: 'Boss Surge',
+        value: boss ? `+${boss.reward.coins} CR / +${boss.reward.dnaShards} DNA` : 'Stand by',
+        detail: boss ? boss.mechanic.counter : 'A named boss rotates in on each fifth surge battle.',
+      },
+      {
+        label: 'Codex Sweep',
+        value: `${this.game.player().defeatedBosses.length}/${this.game.bosses.length}`,
+        detail: 'Defeat new bosses to reveal counters and finish the codex lane.',
+      },
+    ];
+  });
   readonly commandTitle = computed(() => this.claimable()?.title ?? this.nextEntry()?.chapter.title ?? 'Campaign synced');
   readonly commandDetail = computed(() => {
     const claimable = this.claimable();
@@ -70,5 +95,9 @@ export class CampaignComponent {
 
   claim(chapterId: string): void {
     this.game.claimChapter(chapterId);
+  }
+
+  runCard(card: CommandCenterCard): void {
+    this.game.runMetaAction(card.actionId);
   }
 }

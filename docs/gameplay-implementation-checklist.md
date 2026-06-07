@@ -134,3 +134,13 @@ Use this checklist during Angular implementation.
 - `npm.cmd run test:e2e` passed (19 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified the Intel Strip, recent-run dossier, campaign radar, forge diagnostics, expedition preflight scanner, and readable mobile stacking with no blank-panel regressions.
 - Merged the work into `develop`, pushed commit `9c1807c`, and verified GitHub Pages deployment run `27087693693` plus live site `https://c0dewiz4rd010.github.io/pixel-evolution-arena/`.
+
+2026-06-07 Phase 17:
+
+- Added `docs/phase-17-command-center-todo.md` with the completed 16-point implementation + verification todo.
+- Added pure command-center rule builders plus shared service-level meta actions so Handbook, Medals, Campaign, and Settings can all surface live priorities from the same progress state.
+- Upgraded Handbook into a live command center, Medals into a directive/reward hub, Campaign with boss prep + reward runway, and Settings with a system-check strip and profile signal.
+- `npm.cmd run test -- --run` passed (106 tests / 20 files).
+- `npm.cmd run build` passed with warnings: initial bundle 736.72 kB vs 650 kB warning, Arena SCSS warning budget 20.78 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e` passed (20 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified handbook command cards, medals focus board, campaign boss prep, settings system checks, and readable mobile stacking with no overlap regressions.

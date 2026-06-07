@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
+import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { StatsCodexComponent } from '../stats-codex/stats-codex.component';
 
@@ -38,6 +39,10 @@ const STAGE_GLYPHS: Record<MonsterStage, string> = {
 export class HandbookComponent {
   readonly game = inject(GameStateService);
   readonly resetArmed = signal(false);
+  readonly commandCenterCards = this.game.commandCenterCards;
+  readonly bossPrepCards = this.game.bossPrepCards;
+  readonly battleIntelSummary = this.game.battleIntelSummary;
+  readonly recentRuns = computed(() => this.game.recentBattles().slice(0, 3));
 
   readonly stageRows = computed<StageManualRow[]>(() => {
     const monsters = this.game.monsters();
@@ -94,6 +99,10 @@ export class HandbookComponent {
 
     return `${reward.won ? 'Win' : 'Retreat'} +${reward.coins} CR +${reward.dnaShards} DNA +${reward.xp} XP`;
   });
+
+  runCard(card: CommandCenterCard): void {
+    this.game.runMetaAction(card.actionId);
+  }
 
   readonly directive = computed(() => {
     const selected = this.game.selectedMonster();
