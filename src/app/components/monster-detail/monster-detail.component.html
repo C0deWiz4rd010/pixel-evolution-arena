@@ -167,7 +167,12 @@
             }
           </div>
 
-          <button type="button" [disabled]="!game.canEvolve(selected, target)" (click)="game.evolve(selected.id, target.id)">
+          <button
+            type="button"
+            [disabled]="!game.canEvolve(selected, target)"
+            [attr.aria-label]="target.unlocked ? 'Unlocked ' + target.name : game.canEvolve(selected, target) ? 'Evolve ' + target.name : 'Requirements missing for ' + target.name"
+            (click)="game.evolve(selected.id, target.id)"
+          >
             {{ target.unlocked ? 'Unlocked' : game.canEvolve(selected, target) ? 'Evolve' : 'Requirements Missing' }}
           </button>
         </article>

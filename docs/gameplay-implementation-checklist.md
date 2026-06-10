@@ -144,3 +144,16 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 736.72 kB vs 650 kB warning, Arena SCSS warning budget 20.78 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e` passed (20 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile iPhone 13 viewport. Verified handbook command cards, medals focus board, campaign boss prep, settings system checks, and readable mobile stacking with no overlap regressions.
+
+2026-06-10 Phase 18:
+
+- Added `docs/phase-18-mission-control-todo.md` with the completed 20-point improvement todo.
+- Added pure Mission Control rules plus service-level computed cards so Squad, Evolution, Arena, Archive, and Meta priorities are visible from every tab.
+- Added a global Mission Control matrix with clickable cards for Auto Squad, ready evolution, battle launch, chapter claim, forge quick action, and expedition relay.
+- Restored always-visible Intel/Ops surfaces with explicit accessibility labels, improved Quick Command accessible names, and labeled evolution actions by target.
+- Moved Arena command-deck styles to global CSS to keep the Arena component below the hard style-budget error while preserving the same visual treatment.
+- Fixed Collection side-rail overflow so the document scrollbar remains the only vertical page scroll in the tested flow.
+- `npm.cmd run test -- --run` passed (137 tests / 22 files).
+- `npm.cmd run build` passed with warnings: initial bundle 758.77 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e -- --reporter=list` passed (21 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Mission Control matrix, Arena tab, Collection tab, and no console/page errors. Screenshots: `tmp/phase-18-desktop.png`, `tmp/phase-18-mobile.png`.

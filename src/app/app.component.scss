@@ -381,6 +381,117 @@
 }
 
 /* ============================================================
+   Mission matrix - always-on loop clarity across every tab
+   ============================================================ */
+.mission-matrix {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.42rem;
+  margin: 0 0 0.45rem;
+  flex-shrink: 0;
+}
+
+.mission-card {
+  display: grid;
+  gap: 0.34rem;
+  min-width: 0;
+  min-height: 92px;
+  padding: 0.5rem 0.56rem;
+  --mission-color: var(--line);
+  border: 1px solid color-mix(in srgb, var(--mission-color) 38%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--mission-color) 14%, transparent), transparent 56%),
+    linear-gradient(180deg, rgba(5, 12, 24, 0.92), rgba(2, 6, 12, 0.82));
+  color: var(--mission-color);
+  text-align: left;
+  clip-path: var(--chamfer-tight);
+}
+
+.mission-card:hover,
+.mission-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--mission-color) 70%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--mission-color) 22%, transparent);
+}
+
+.mission-card.tone-blocked {
+  --mission-color: var(--danger);
+}
+
+.mission-card.tone-ready {
+  --mission-color: var(--success);
+}
+
+.mission-card.tone-battle {
+  --mission-color: var(--line-bright);
+}
+
+.mission-card.tone-growth {
+  --mission-color: var(--coin);
+}
+
+.mission-card.tone-meta {
+  --mission-color: var(--special);
+}
+
+.mission-topline,
+.mission-footer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.mission-topline span,
+.mission-footer small,
+.mission-footer span {
+  color: currentColor;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mission-topline strong {
+  overflow: hidden;
+  max-width: 52%;
+  color: var(--text);
+  font-size: 0.62rem;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mission-title {
+  display: -webkit-box;
+  min-height: 2.25em;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.13;
+  text-transform: uppercase;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.mission-progress {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mission-color) 32%, transparent);
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.mission-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--mission-color), var(--text));
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 1100px) {
@@ -390,6 +501,10 @@
 
   .intel-strip {
     grid-template-columns: 1fr;
+  }
+
+  .mission-matrix {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -413,5 +528,19 @@
 
   .operations-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mission-matrix {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .mission-matrix {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-card {
+    min-height: 78px;
   }
 }

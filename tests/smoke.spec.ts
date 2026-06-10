@@ -15,6 +15,9 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
 
   await expect(page.getByLabel('Recommended next command')).toContainText(/OPEN SLOT|EVOLVE READY|CHASE READY/i);
   await expect(page.getByLabel('Quick commands')).toContainText('Auto Squad');
+  await expect(page.getByLabel('Mission control matrix')).toContainText('Loop Priority');
+  await expect(page.getByLabel('Mission control matrix')).toContainText('Evolution');
+  await expect(page.getByLabel('Mission control matrix')).toContainText('Arena');
 
   await nav.getByRole('button', { name: /Collection/i }).click();
   await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
@@ -25,6 +28,17 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await expect(page.getByRole('button', { name: 'All', exact: true }).first()).toHaveClass(/active/);
+});
+
+test('mission control matrix can execute the primary evolution action', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+
+  const missionMatrix = page.getByLabel('Mission control matrix');
+  await expect(missionMatrix).toContainText(/Splashfang|Cinderpaw|Evolution/i);
+
+  await missionMatrix.getByRole('button').first().click();
+  await expect(page.locator('aside.detail-panel')).toContainText(/Splashfang|Cinderpaw/i);
 });
 
 test('quick commands rebuild squad, launch battle, and expose ready evolution', async ({ page }) => {

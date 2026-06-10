@@ -69,6 +69,7 @@ import {
   CommandCenterCard,
   MetaActionId,
 } from '../rules/command-center.rules';
+import { buildMissionControlCards, MissionControlCard } from '../rules/mission-control.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -786,6 +787,40 @@ export class GameStateService {
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
   readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
   readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
+  readonly missionControlCards = computed<MissionControlCard[]>(() => {
+    const reward = this.arenaRewardForecast();
+    const readyEvolution = this.readyEvolutionCandidate();
+    const nextEvolution = this.nextEvolutionCandidate();
+    const battleIntel = this.battleIntelSummary();
+    const expedition = this.expedition();
+    const forge = this.forgeQuickRecommendation();
+
+    return buildMissionControlCards({
+      squadSize: this.squad().length,
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      winChancePercent: this.battleOutlook().winChancePercent,
+      itemChancePercent: reward.itemChancePercent,
+      nextWinCoins: reward.win.coins,
+      nextWinXp: reward.win.xp,
+      readyEvolutionName: readyEvolution?.target.name ?? null,
+      nextEvolutionName: nextEvolution?.target.name ?? null,
+      nextEvolutionPercent: nextEvolution?.percent ?? 100,
+      nextEvolutionBlocker: nextEvolution?.missing[0]?.label ?? null,
+      unlockedCount: this.unlockedCount(),
+      totalMonsters: this.monsters().length,
+      dailyLabel: this.dailyObjective().label,
+      dailyProgress: this.dailyDirective().progress,
+      dailyGoal: this.dailyObjective().goal,
+      dailyComplete: this.dailyComplete(),
+      battleIntelTotal: battleIntel.total,
+      battleIntelWinRate: battleIntel.winRate,
+      battleTrend: battleIntel.trend,
+      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      expeditionReady: !expedition && this.squad().length > 0,
+      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
+    });
+  });
   readonly nextWinStreakMilestone = computed(() => WIN_STREAK_MILESTONES.find((milestone) => milestone > this.bestWinStreak()) ?? null);
   readonly commandCenterCards = computed<CommandCenterCard[]>(() => {
     const daily = this.dailyObjective();
