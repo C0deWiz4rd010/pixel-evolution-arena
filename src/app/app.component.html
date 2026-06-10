@@ -60,6 +60,27 @@
     }
   </section>
 
+  <section class="tactical-directives" aria-label="Tactical directives">
+    @for (card of game.tacticalDirectiveCards(); track card.id) {
+      <button
+        type="button"
+        class="directive-card tone-{{ card.tone }}"
+        [attr.aria-label]="card.label + ': ' + card.title"
+        [attr.title]="card.detail"
+        (click)="runTacticalDirectiveCard(card)"
+      >
+        <span class="directive-kicker">{{ card.label }}</span>
+        <strong>{{ card.title }}</strong>
+        <span class="directive-detail">{{ card.detail }}</span>
+        <span class="directive-meta">
+          <b>{{ card.metric }}</b>
+          <small>{{ card.actionLabel }}</small>
+        </span>
+        <i aria-hidden="true"><em [style.width.%]="card.progressPercent"></em></i>
+      </button>
+    }
+  </section>
+
   @if (dockExpanded()) {
     <section id="command-dock" class="command-dock" aria-label="Intel and operations dock">
       <div class="dock-section">

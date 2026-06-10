@@ -70,6 +70,12 @@ import {
   MetaActionId,
 } from '../rules/command-center.rules';
 import { buildMissionControlCards, MissionControlCard } from '../rules/mission-control.rules';
+import {
+  buildTacticalDirectives,
+  RouteEtaInput,
+  SquadPatchInput,
+  TacticalDirectiveCard,
+} from '../rules/tactical-directive.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -819,6 +825,30 @@ export class GameStateService {
       claimableChapterTitle: this.claimableChapter()?.title ?? null,
       expeditionReady: !expedition && this.squad().length > 0,
       forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
+    });
+  });
+  readonly tacticalDirectiveCards = computed<TacticalDirectiveCard[]>(() => {
+    const reward = this.arenaRewardForecast();
+    const readyEvolution = this.readyEvolutionCandidate();
+    const nextEvolution = readyEvolution ?? this.nextEvolutionCandidate();
+    const expedition = this.expedition();
+    const forge = this.forgeQuickRecommendation();
+
+    return buildTacticalDirectives({
+      route: this.buildRouteEtaInput(nextEvolution, reward),
+      squad: this.buildSquadPatchInput(),
+      winChancePercent: this.battleOutlook().winChancePercent,
+      nextWinCoins: reward.win.coins,
+      nextWinDna: reward.win.dnaShards,
+      nextWinXp: reward.win.xp,
+      itemChancePercent: reward.itemChancePercent,
+      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      expeditionReady: !expedition && this.squad().length > 0,
+      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
+      dailyLabel: this.dailyObjective().label,
+      dailyProgress: this.dailyDirective().progress,
+      dailyGoal: this.dailyObjective().goal,
+      dailyComplete: this.dailyComplete(),
     });
   });
   readonly nextWinStreakMilestone = computed(() => WIN_STREAK_MILESTONES.find((milestone) => milestone > this.bestWinStreak()) ?? null);
@@ -2707,6 +2737,69 @@ export class GameStateService {
   private prependLog(text: string, type: BattleLog['type']): void {
     this.battleLogs.update((logs) => [{ text, type }, ...logs].slice(0, 36));
     this.persistState();
+  }
+
+  private buildRouteEtaInput(candidate: EvolutionCandidate | null, reward: ArenaRewardForecast): RouteEtaInput {
+    if (!candidate?.source) {
+      return {
+        targetName: null,
+        ready: false,
+        percent: 100,
+        levelGap: 0,
+        xpToLevel: 0,
+        coinGap: 0,
+        dnaGap: 0,
+        itemMissing: false,
+        winCoins: reward.win.coins,
+        winDna: reward.win.dnaShards,
+        winXp: reward.win.xp,
+        itemChancePercent: reward.itemChancePercent,
+      };
+    }
+
+    const requirements = candidate.target.requirements ?? {};
+    const player = this.player();
+    const levelGap = Math.max(0, (requirements.level ?? candidate.source.level) - candidate.source.level);
+    const xpToLevel =
+      levelGap <= 0
+        ? 0
+        : Math.max(0, candidate.source.maxXp - candidate.source.xp) + Math.max(0, levelGap - 1) * candidate.source.maxXp;
+
+    return {
+      targetName: candidate.target.name,
+      ready: candidate.ready,
+      percent: candidate.percent,
+      levelGap,
+      xpToLevel,
+      coinGap: Math.max(0, (requirements.coins ?? 0) - player.coins),
+      dnaGap: Math.max(0, (requirements.dnaShards ?? 0) - player.dnaShards),
+      itemMissing: requirements.item ? !player.inventory.includes(requirements.item) : false,
+      winCoins: reward.win.coins,
+      winDna: reward.win.dnaShards,
+      winXp: reward.win.xp,
+      itemChancePercent: reward.itemChancePercent,
+    };
+  }
+
+  private buildSquadPatchInput(): SquadPatchInput {
+    const squad = this.squad();
+    const squadIds = new Set(squad.map((monster) => monster.id));
+    const reserves = this.monsters()
+      .filter((monster) => monster.unlocked && !squadIds.has(monster.id))
+      .sort((left, right) => this.getMonsterPower(right) - this.getMonsterPower(left));
+    const candidate = reserves[0] ?? null;
+    const weakest =
+      squad.length > 0
+        ? [...squad].sort((left, right) => this.getMonsterPower(left) - this.getMonsterPower(right))[0]
+        : null;
+    const powerGain = candidate && weakest ? Math.max(0, this.getMonsterPower(candidate) - this.getMonsterPower(weakest)) : 0;
+
+    return {
+      squadSize: squad.length,
+      candidateName: candidate?.name ?? null,
+      weakestName: weakest?.name ?? null,
+      powerGain,
+    };
   }
 
   /** Drop pool: evolution gate items plus combat consumables. */

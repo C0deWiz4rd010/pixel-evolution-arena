@@ -18,6 +18,9 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
   await expect(page.getByLabel('Mission control matrix')).toContainText('Loop Priority');
   await expect(page.getByLabel('Mission control matrix')).toContainText('Evolution');
   await expect(page.getByLabel('Mission control matrix')).toContainText('Arena');
+  await expect(page.getByLabel('Tactical directives')).toContainText('Route ETA');
+  await expect(page.getByLabel('Tactical directives')).toContainText('Squad Patch');
+  await expect(page.getByLabel('Tactical directives')).toContainText('Run Choice');
 
   await nav.getByRole('button', { name: /Collection/i }).click();
   await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
@@ -39,6 +42,17 @@ test('mission control matrix can execute the primary evolution action', async ({
 
   await missionMatrix.getByRole('button').first().click();
   await expect(page.locator('aside.detail-panel')).toContainText(/Splashfang|Cinderpaw/i);
+});
+
+test('tactical directives expose route ETA and can launch the run path', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+
+  const directives = page.getByLabel('Tactical directives');
+  await expect(directives).toContainText(/wins|ready now|Route ETA/i);
+  await directives.getByRole('button', { name: /Run Choice/i }).click();
+
+  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
 });
 
 test('quick commands rebuild squad, launch battle, and expose ready evolution', async ({ page }) => {

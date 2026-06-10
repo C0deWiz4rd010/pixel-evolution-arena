@@ -492,6 +492,122 @@
 }
 
 /* ============================================================
+   Tactical directives - compact why/how layer under Mission Control
+   ============================================================ */
+.tactical-directives {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.42rem;
+  margin: 0 0 0.45rem;
+  flex-shrink: 0;
+}
+
+.directive-card {
+  --directive-color: var(--line);
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(2.4em, 1fr) auto auto;
+  gap: 0.24rem;
+  min-height: 118px;
+  overflow: hidden;
+  padding: 0.52rem 0.58rem;
+  border: 1px solid color-mix(in srgb, var(--directive-color) 42%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--directive-color) 12%, transparent), transparent 58%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 6px),
+    rgba(2, 8, 16, 0.86);
+  color: var(--directive-color);
+  text-align: left;
+  clip-path: var(--chamfer-tight);
+}
+
+.directive-card:hover,
+.directive-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--directive-color) 76%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--directive-color) 22%, transparent);
+}
+
+.directive-card.tone-ready {
+  --directive-color: var(--success);
+}
+
+.directive-card.tone-battle {
+  --directive-color: var(--line-bright);
+}
+
+.directive-card.tone-growth {
+  --directive-color: var(--coin);
+}
+
+.directive-card.tone-warning {
+  --directive-color: var(--danger);
+}
+
+.directive-card.tone-meta {
+  --directive-color: var(--special);
+}
+
+.directive-kicker,
+.directive-meta small {
+  color: currentColor;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.directive-card strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.directive-detail {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.22;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.directive-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.directive-meta b {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.directive-card > i {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--directive-color) 34%, transparent);
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.directive-card > i em {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--directive-color), var(--text));
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 1100px) {
@@ -505,6 +621,10 @@
 
   .mission-matrix {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tactical-directives {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -540,7 +660,15 @@
     grid-template-columns: 1fr;
   }
 
+  .tactical-directives {
+    grid-template-columns: 1fr;
+  }
+
   .mission-card {
     min-height: 78px;
+  }
+
+  .directive-card {
+    min-height: 98px;
   }
 }

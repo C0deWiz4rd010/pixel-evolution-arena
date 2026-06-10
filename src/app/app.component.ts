@@ -15,6 +15,7 @@ import { OnboardingComponent } from './components/onboarding/onboarding.componen
 import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
 import { MissionControlCard } from './rules/mission-control.rules';
+import { TacticalDirectiveCard } from './rules/tactical-directive.rules';
 import { BattleAnimationService } from './services/battle-animation.service';
 import { GameSectionName, GameStateService, OperationsCard } from './services/game-state.service';
 
@@ -66,8 +67,8 @@ export class AppComponent {
   private readonly battleAnimation = inject(BattleAnimationService);
 
   readonly activeTab = signal<GameSectionName>('Evolution Tree');
-  /** Collapsible Intel & Operations dock; open by default so every tab exposes live priorities. */
-  readonly dockExpanded = signal(true);
+  /** Collapsible Intel & Operations dock; collapsed by default to keep the play surface tall. */
+  readonly dockExpanded = signal(false);
   readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
   readonly intelCards = computed<IntelStripCard[]>(() => {
     const battleIntel = this.game.battleIntelSummary();
@@ -156,6 +157,7 @@ export class AppComponent {
 
   setActiveTab(tab: string): void {
     this.activeTab.set(tab as GameSectionName);
+    this.dockExpanded.set(false);
     globalThis.requestAnimationFrame(() => {
       const surface = document.querySelector<HTMLElement>('.play-surface');
       if (surface) {
@@ -265,6 +267,41 @@ export class AppComponent {
         }
         this.setActiveTab('Expedition');
         if (expedition.status !== 'active') {
+          this.game.claimExpedition();
+        }
+        return;
+      }
+      case 'save-now':
+        this.game.syncSaveState();
+        return;
+    }
+  }
+
+  runTacticalDirectiveCard(card: TacticalDirectiveCard): void {
+    switch (card.actionId) {
+      case 'auto-squad':
+        this.autoBuildSquad();
+        return;
+      case 'evolve-ready':
+        this.evolveReadyCandidate();
+        return;
+      case 'run-battle':
+        this.runBattleNow();
+        return;
+      case 'claim-chapter':
+        this.setActiveTab('Campaign');
+        this.game.claimReadyChapter();
+        return;
+      case 'forge-quick':
+        this.setActiveTab('Forge');
+        this.game.runForgeQuickAction();
+        return;
+      case 'expedition': {
+        this.setActiveTab('Expedition');
+        const expedition = this.game.expedition();
+        if (!expedition && this.game.squad().length > 0) {
+          this.game.startExpedition();
+        } else if (expedition && expedition.status !== 'active') {
           this.game.claimExpedition();
         }
         return;

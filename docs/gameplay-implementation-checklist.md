@@ -157,3 +157,16 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 758.77 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e -- --reporter=list` passed (21 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Mission Control matrix, Arena tab, Collection tab, and no console/page errors. Screenshots: `tmp/phase-18-desktop.png`, `tmp/phase-18-mobile.png`.
+
+2026-06-10 Phase 19:
+
+- Added `docs/phase-19-tactical-directives-todo.md` with the completed 20-point improvement todo.
+- Added pure Tactical Directive rules that estimate route ETA, squad patch value, run choice, and payout priority from live game state.
+- Added a global Tactical Directives strip below Mission Control so the player sees route blockers, approximate wins-to-goal, reserve swap value, battle forecast, and payout focus from every tab.
+- Added service-level tactical directive computed data using live evolution candidates, reward forecast, Daily Directive, Forge, Expedition, and Chapter state.
+- Changed Intel/Ops dock back to collapsed-by-default and auto-collapse on tab switches so the play surface stays clickable and tall.
+- Added accessible labels for directive cards and updated Playwright coverage for the new route/run planning surface.
+- `npm.cmd run test -- --run` passed (141 tests / 23 files).
+- `npm.cmd run build` passed with warnings: initial bundle 769.45 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e -- --reporter=list` passed (22 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Tactical Directives, Intel/Ops dock auto-collapse, Arena readability, and no console/page errors. Screenshots: `tmp/phase-19-desktop.png`, `tmp/phase-19-mobile.png`.
