@@ -4,6 +4,7 @@ import { BattleAnimationService } from '../../services/battle-animation.service'
 import { BattleCategoryId, BattleStanceId } from '../../rules/battle.rules';
 import { getMonsterMoves, getOverdriveMove } from '../../rules/moves.rules';
 import { Monster } from '../../models/monster.model';
+import { AfterActionCard } from '../../rules/after-action.rules';
 import { PixiBattleStageComponent } from '../pixi-battle-stage/pixi-battle-stage.component';
 import { CombatBeatComponent } from '../combat-beat/combat-beat.component';
 
@@ -83,6 +84,7 @@ export class ArenaComponent {
   readonly arenaObjectiveCards = this.game.arenaObjectiveCards;
   readonly recentBattles = this.game.recentBattles;
   readonly battleIntelSummary = this.game.battleIntelSummary;
+  readonly afterActionCards = this.game.afterActionCards;
 
   readonly readinessChecks = computed<ReadinessCheck[]>(() => {
     const squadSize = this.game.squad().length;
@@ -333,5 +335,9 @@ export class ArenaComponent {
 
   battleRecordMetric(record: ReturnType<GameStateService['recentBattles']>[number]): string {
     return `+${record.coins} CR / +${record.xp} XP`;
+  }
+
+  runAfterAction(card: AfterActionCard): void {
+    this.game.runMetaAction(card.actionId);
   }
 }

@@ -464,6 +464,29 @@
       }
     </section>
 
+    <section class="after-action-queue" aria-label="After-action queue">
+      <div class="objective-heading">
+        <span>After-Action Queue</span>
+        <strong>{{ game.lastReward() ? 'Spend / Chain' : 'Standby Plan' }}</strong>
+      </div>
+      <div class="after-action-list">
+        @for (card of afterActionCards(); track card.id) {
+          <button
+            type="button"
+            class="after-action-card tone-{{ card.tone }}"
+            [attr.aria-label]="card.label + ': ' + card.title"
+            [attr.title]="card.detail"
+            (click)="runAfterAction(card)"
+          >
+            <span>{{ card.label }}</span>
+            <strong>{{ card.title }}</strong>
+            <small>{{ card.detail }}</small>
+            <em>{{ card.metric }} // {{ card.actionLabel }}</em>
+          </button>
+        }
+      </div>
+    </section>
+
     <section class="run-dossier" aria-label="Recent battle dossier">
       <div class="objective-heading">
         <span>Recent Runs</span>

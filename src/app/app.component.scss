@@ -395,8 +395,8 @@
   display: grid;
   gap: 0.34rem;
   min-width: 0;
-  min-height: 92px;
-  padding: 0.5rem 0.56rem;
+  min-height: 84px;
+  padding: 0.44rem 0.52rem;
   --mission-color: var(--line);
   border: 1px solid color-mix(in srgb, var(--mission-color) 38%, transparent);
   background:
@@ -465,7 +465,7 @@
 
 .mission-title {
   display: -webkit-box;
-  min-height: 2.25em;
+  min-height: 1.2em;
   overflow: hidden;
   color: var(--text);
   font-size: 0.78rem;
@@ -506,11 +506,11 @@
   --directive-color: var(--line);
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(2.4em, 1fr) auto auto;
-  gap: 0.24rem;
-  min-height: 118px;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.18rem;
+  min-height: 88px;
   overflow: hidden;
-  padding: 0.52rem 0.58rem;
+  padding: 0.42rem 0.52rem;
   border: 1px solid color-mix(in srgb, var(--directive-color) 42%, transparent);
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--directive-color) 12%, transparent), transparent 58%),
@@ -571,10 +571,10 @@
   display: -webkit-box;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.68rem;
-  line-height: 1.22;
+  font-size: 0.64rem;
+  line-height: 1.16;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
 }
 
 .directive-meta {
@@ -594,7 +594,7 @@
 
 .directive-card > i {
   display: block;
-  height: 5px;
+  height: 4px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--directive-color) 34%, transparent);
   background: rgba(0, 0, 0, 0.38);
@@ -657,18 +657,47 @@
 
 @media (max-width: 560px) {
   .mission-matrix {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 0.34rem;
+    overflow-x: auto;
+    padding-bottom: 0.18rem;
+    scrollbar-width: thin;
   }
 
   .tactical-directives {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 0.34rem;
+    overflow-x: auto;
+    padding-bottom: 0.18rem;
+    scrollbar-width: thin;
   }
 
   .mission-card {
+    flex: 0 0 min(74vw, 280px);
     min-height: 78px;
   }
 
   .directive-card {
-    min-height: 98px;
+    flex: 0 0 min(78vw, 300px);
+    min-height: 76px;
   }
+}
+
+.app-shell.arena-focus .mission-card {
+  min-height: 72px;
+  padding-block: 0.36rem;
+}
+
+.app-shell.arena-focus .mission-title {
+  min-height: 1em;
+  -webkit-line-clamp: 1;
+}
+
+.app-shell.arena-focus .directive-card {
+  min-height: 66px;
+}
+
+.app-shell.arena-focus .directive-detail,
+.app-shell.arena-focus .mission-footer {
+  display: none;
 }

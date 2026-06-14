@@ -2938,6 +2938,101 @@ app-monster-card {
   cursor: not-allowed;
 }
 
+/* Arena After-Action Queue: global to avoid growing the Arena component style budget. */
+.after-action-queue {
+  display: grid;
+  gap: 0.46rem;
+  padding: 0.52rem;
+  border: 1px solid rgba(255, 220, 66, 0.24);
+  background:
+    linear-gradient(90deg, rgba(255, 220, 66, 0.08), transparent 54%),
+    rgba(0, 0, 0, 0.24);
+  clip-path: var(--chamfer);
+}
+
+.after-action-list {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.after-action-card {
+  --after-action-color: var(--line);
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.46rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--after-action-color) 42%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--after-action-color) 14%, transparent), transparent 64%),
+    rgba(2, 8, 16, 0.7);
+  color: var(--after-action-color);
+  text-align: left;
+  clip-path: var(--chamfer-tight);
+}
+
+.after-action-card:hover,
+.after-action-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--after-action-color) 72%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--after-action-color) 22%, transparent);
+}
+
+.after-action-card.tone-ready {
+  --after-action-color: var(--success);
+}
+
+.after-action-card.tone-battle {
+  --after-action-color: var(--line-bright);
+}
+
+.after-action-card.tone-growth {
+  --after-action-color: var(--coin);
+}
+
+.after-action-card.tone-warning {
+  --after-action-color: var(--danger);
+}
+
+.after-action-card.tone-meta {
+  --after-action-color: var(--special);
+}
+
+.after-action-card span,
+.after-action-card em {
+  color: currentColor;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.after-action-card strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.after-action-card small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.22;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.prep-console,
+.start-battle-action,
+.after-action-queue {
+  scroll-margin-top: 12rem;
+}
+
 /* Wide screens: let the Arena grow with its command stack instead of clipping actions. */
 @media (min-width: 1200px) {
   .arena-terminal-shell {

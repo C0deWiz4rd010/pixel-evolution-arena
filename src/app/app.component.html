@@ -1,5 +1,5 @@
 <a class="skip-link" href="#play-surface">Skip to content</a>
-<main class="app-shell">
+<main class="app-shell" [class.arena-focus]="activeTab() === 'Arena'">
   <app-arena-effects [activeTab]="activeTab()" />
   <app-header-hud />
   <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />

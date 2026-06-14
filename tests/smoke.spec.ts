@@ -200,6 +200,8 @@ test('arena prep console can auto-prep and launch a run', async ({ page }) => {
 
   await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
   await expect(page.getByText(/XP \+\d+/)).toBeVisible();
+  await expect(page.getByLabel('After-action queue')).toContainText('After-Action Queue');
+  await expect(page.getByLabel('After-action queue')).toContainText(/Run Again|Retry|Evolve|Claim|Fill|Forge|Relay/i);
 });
 
 test('collection can evolve a reachable chase directly', async ({ page }) => {

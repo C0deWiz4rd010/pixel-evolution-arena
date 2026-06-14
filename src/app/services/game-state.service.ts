@@ -76,6 +76,7 @@ import {
   SquadPatchInput,
   TacticalDirectiveCard,
 } from '../rules/tactical-directive.rules';
+import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -848,6 +849,29 @@ export class GameStateService {
       dailyLabel: this.dailyObjective().label,
       dailyProgress: this.dailyDirective().progress,
       dailyGoal: this.dailyObjective().goal,
+      dailyComplete: this.dailyComplete(),
+    });
+  });
+  readonly afterActionCards = computed<AfterActionCard[]>(() => {
+    const reward = this.lastReward();
+    const expedition = this.expedition();
+    const forge = this.forgeQuickRecommendation();
+
+    return buildAfterActionQueue({
+      hasBattleResult: reward !== null,
+      won: reward?.won ?? false,
+      coins: reward?.coins ?? 0,
+      dnaShards: reward?.dnaShards ?? 0,
+      xp: reward?.xp ?? 0,
+      itemName: reward?.item ?? null,
+      readyEvolutionName: this.readyEvolutionCandidate()?.target.name ?? null,
+      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      squadSize: this.squad().length,
+      winChancePercent: this.battleOutlook().winChancePercent,
+      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
+      forgeTitle: forge.title,
+      expeditionStatus: !expedition ? 'idle' : expedition.status === 'active' ? 'active' : 'reward',
+      expeditionCores: expedition?.rewardCores ?? this.expeditionCores(),
       dailyComplete: this.dailyComplete(),
     });
   });

@@ -170,3 +170,15 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 769.45 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e -- --reporter=list` passed (22 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Tactical Directives, Intel/Ops dock auto-collapse, Arena readability, and no console/page errors. Screenshots: `tmp/phase-19-desktop.png`, `tmp/phase-19-mobile.png`.
+
+2026-06-14 Phase 20:
+
+- Added `docs/phase-20-after-action-queue-todo.md` with the completed 20-point improvement todo.
+- Added pure After-Action Queue rules so battle results can route into ready evolution, campaign claims, squad patching, forge upgrades, expedition relay, or another run.
+- Exposed After-Action cards from `GameStateService` and rendered them inside the Arena Reward Feed with accessible action buttons.
+- Added Playwright coverage for the new reward-to-next-action flow after `Prep + Launch`.
+- Compact Arena-focus Mission Control and Tactical Directives, and changed small-screen global HUD cards into horizontal rails so the mobile play surface remains clickable.
+- `npm.cmd run test -- --run` passed (145 tests / 24 files).
+- `npm.cmd run build` passed with warnings: initial bundle 776.21 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e -- --reporter=list` passed (22 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Arena `Prep + Launch`, rewards, After-Action Queue, compact global HUD rails, and no console/page errors. Screenshots: `tmp/phase-20-desktop.png`, `tmp/phase-20-mobile.png`.
