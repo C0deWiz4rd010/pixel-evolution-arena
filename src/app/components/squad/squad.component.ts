@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Monster, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { getSlotRole, SlotRoleDescriptor } from '../../rules/squad.rules';
+import { SquadOrderCard } from '../../rules/squad-order.rules';
 import { GridNavDirective } from '../../directives/grid-nav.directive';
 
 interface SquadSlotView {
@@ -143,6 +144,7 @@ export class SquadComponent {
   readonly dangerForecast = this.game.upcomingArenaThreat;
   readonly activeFormation = this.game.activeFormation;
   readonly arenaDirective = this.game.arenaDirective;
+  readonly squadOrders = this.game.squadOrderCards;
 
   readonly teamShapeStats = computed<TeamShapeStat[]>(() => {
     const squad = this.game.squad();
@@ -343,6 +345,13 @@ export class SquadComponent {
 
   deletePreset(id: string): void {
     this.game.deleteSquadPreset(id);
+  }
+
+  runSquadOrder(order: SquadOrderCard): void {
+    if (order.disabled) {
+      return;
+    }
+    this.game.runSquadOrder(order.actionId);
   }
 
   private candidateScore(monster: Monster): number {

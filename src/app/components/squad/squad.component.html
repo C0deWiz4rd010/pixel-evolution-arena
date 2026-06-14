@@ -198,6 +198,28 @@
       }
     </section>
 
+    <section class="squad-orders-console" aria-label="Squad orders">
+      <div class="orders-head">
+        <span>Squad Orders</span>
+        <strong>{{ squadOrders().length }} live</strong>
+      </div>
+      <div class="squad-order-list">
+        @for (order of squadOrders(); track order.id) {
+          <article class="squad-order-card tone-{{ order.tone }}" [class.disabled]="order.disabled">
+            <div class="order-topline">
+              <span>{{ order.label }}</span>
+              <b>{{ order.metric }}</b>
+            </div>
+            <strong>{{ order.title }}</strong>
+            <small>{{ order.detail }}</small>
+            <button type="button" [disabled]="order.disabled" (click)="runSquadOrder(order)">
+              {{ order.actionLabel }}
+            </button>
+          </article>
+        }
+      </div>
+    </section>
+
     <section class="coverage-console squad-shape-console" aria-label="Squad stat shape">
       <div class="coverage-head">
         <span>Squad Shape</span>

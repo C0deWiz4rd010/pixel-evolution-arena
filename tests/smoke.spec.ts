@@ -115,6 +115,22 @@ test('empty squad is blocked in arena and can be rebuilt from squad tab', async 
   await expect(page.getByText('1/3 ONLINE')).toBeVisible();
 });
 
+test('squad orders can rebuild a cleared formation', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Squad/i }).click();
+  await page.getByRole('button', { name: 'Clear Squad' }).click();
+  const orders = page.getByLabel('Squad orders');
+
+  await expect(orders).toContainText('Squad Orders');
+  await orders.getByRole('button', { name: 'Auto Squad' }).click();
+
+  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
+  await expect(orders).toContainText(/Open Arena|Train|Evolve|Sync Gear|Swap/i);
+});
+
 test('default route can evolve and battles produce rewards', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);

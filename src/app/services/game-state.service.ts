@@ -79,6 +79,7 @@ import {
 } from '../rules/tactical-directive.rules';
 import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.rules';
 import { BattleContractCard, buildBattleContracts } from '../rules/battle-contract.rules';
+import { buildSquadOrders, SquadOrderActionId, SquadOrderCard } from '../rules/squad-order.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -883,6 +884,30 @@ export class GameStateService {
       pushItemName: this.firstOwnedConsumable(['Focus Capsule']),
     });
   });
+  readonly squadOrderCards = computed<SquadOrderCard[]>(() => {
+    const patch = this.buildSquadPatchInput();
+    const drill = this.squadTrainingDrill();
+    const gear = this.squadLoadoutPlan();
+
+    return buildSquadOrders({
+      squadSize: this.squad().length,
+      teamPower: this.teamPower(),
+      enemyPower: this.enemyPower(),
+      winChancePercent: this.battleOutlook().winChancePercent,
+      candidateName: patch.candidateName,
+      weakestName: patch.weakestName,
+      powerGain: patch.powerGain,
+      trainingLabel: drill.label,
+      trainingXp: drill.xpGain,
+      trainingCost: drill.costCoins,
+      canTrain: this.squad().length > 0 && this.canAffordCoins(drill.costCoins),
+      gearReady: gear.assignedSlots > gear.currentEquippedSlots || gear.powerGain > 0,
+      gearPowerGain: gear.powerGain,
+      readyEvolutionName: this.readyEvolutionCandidate()?.target.name ?? null,
+      typePressureLabel: this.squadTypePressure().label,
+      synergyCount: this.squadSynergies().length,
+    });
+  });
   readonly afterActionCards = computed<AfterActionCard[]>(() => {
     const reward = this.lastReward();
     const expedition = this.expedition();
@@ -1550,6 +1575,35 @@ export class GameStateService {
     }
 
     return applied;
+  }
+
+  runSquadOrder(actionId: SquadOrderActionId): boolean {
+    switch (actionId) {
+      case 'auto-squad':
+        this.autoBuildBestSquad();
+        return true;
+      case 'swap-reserve': {
+        const patch = this.buildSquadPatchInput();
+        const candidate = patch.candidateName
+          ? this.monsters().find((monster) => monster.name === patch.candidateName && monster.unlocked)
+          : null;
+        const weakest = patch.weakestName ? this.squad().find((monster) => monster.name === patch.weakestName) : null;
+        if (!candidate || !weakest || patch.powerGain <= 0) {
+          return false;
+        }
+        this.replaceSquadMember(weakest.id, candidate.id);
+        return true;
+      }
+      case 'train-squad':
+        return this.runSquadTrainingDrill();
+      case 'auto-equip':
+        return this.autoEquipBestGear();
+      case 'evolve-ready':
+        return this.runMetaAction('evolve-ready');
+      case 'open-arena':
+        this.requestTab('Arena');
+        return true;
+    }
   }
 
   /** Arms or disarms Overdrive for the next loaded run. */

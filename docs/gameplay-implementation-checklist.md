@@ -195,3 +195,15 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 788.41 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e -- --reporter=list` passed (23 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Battle Contracts apply/launch, rewards, After-Action Queue, and no console/page errors. Screenshots: `tmp/phase-21-desktop.png`, `tmp/phase-21-mobile.png`.
+
+2026-06-14 Phase 22:
+
+- Added `docs/phase-22-squad-orders-todo.md` with the completed 20-point improvement todo.
+- Added pure Squad Order rules that rank formation fill, reserve swap, gear sync, squad training, ready evolution, and arena readiness from live squad state.
+- Exposed Squad Orders from `GameStateService` and added service-level execution for Auto Squad, reserve swap, training, auto-equip, ready evolution routing, and Arena routing.
+- Added a compact Squad Orders console to the Squad diagnostics rail so the team-building tab now has three actionable next steps instead of only a single recommendation.
+- Moved Squad Order styles to global CSS to keep the Squad component below the style-budget warning while preserving the neon HUD treatment.
+- `npm.cmd run test -- --run` passed (155 tests / 26 files).
+- `npm.cmd run build` passed with warnings: initial bundle 795.51 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e -- --reporter=list` passed (24 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Squad Orders rebuild, responsive diagnostics rail, and no console/page errors. Screenshots: `tmp/phase-22-desktop.png`, `tmp/phase-22-mobile.png`.
