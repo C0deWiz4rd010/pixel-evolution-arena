@@ -207,3 +207,9 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 795.51 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e -- --reporter=list` passed (24 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Squad Orders rebuild, responsive diagnostics rail, and no console/page errors. Screenshots: `tmp/phase-22-desktop.png`, `tmp/phase-22-mobile.png`.
+
+2026-06-14 Release:
+
+- Consolidated the remaining `codex/` and `feat/` branch work into `develop`.
+- Bumped the release version to `0.22.0`.
+- Verified the build, tests, and GitHub Pages deployment path after the merge.

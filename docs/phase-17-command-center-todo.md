@@ -17,4 +17,4 @@ Goal: turn the passive meta tabs into an actionable command center so Handbook, 
 - [x] Run `npm.cmd run build`.
 - [x] Run `npm.cmd run test:e2e`.
 - [x] Smoke test desktop and mobile layouts for the new command-center surfaces.
-- [ ] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
+- [x] Merge the finished work back into `develop`, push it, and verify the GitHub Pages deployment.
