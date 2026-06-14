@@ -296,6 +296,42 @@
           </button>
         </section>
 
+        <section class="battle-contract-board" aria-label="Battle contracts">
+          <div class="contract-board-head">
+            <div>
+              <span>Battle Contracts</span>
+              <strong>Pick the next mission</strong>
+            </div>
+            <small>{{ game.dailyComplete() ? 'Daily secured' : game.dailyObjective().label + ' // ' + dailyProgressLabel() }}</small>
+          </div>
+
+          <div class="contract-grid">
+            @for (contract of battleContractCards(); track contract.id) {
+              <article class="battle-contract-card tone-{{ contract.tone }}" [class.disabled]="contract.disabled">
+                <div class="contract-topline">
+                  <span>{{ contract.label }}</span>
+                  <b>{{ contract.metric }}</b>
+                </div>
+                <strong>{{ contract.title }}</strong>
+                <small>{{ contract.detail }}</small>
+                <div class="contract-meta">
+                  <span>{{ contract.confidence }}</span>
+                  <span>{{ contract.stanceId }} / {{ contract.categoryId }}</span>
+                  <span>{{ contract.itemName ?? 'no item' }}</span>
+                </div>
+                <div class="contract-actions">
+                  <button type="button" [disabled]="contract.disabled || anim.isPlaying()" (click)="applyBattleContract(contract)">
+                    {{ contract.applyLabel }}
+                  </button>
+                  <button type="button" class="contract-launch" [disabled]="contract.disabled || anim.isPlaying()" (click)="launchBattleContract(contract)">
+                    {{ contract.launchLabel }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
         <section class="prep-console" aria-label="Prep console">
           <div class="prep-console-copy">
             <span>Prep Console</span>

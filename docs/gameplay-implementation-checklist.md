@@ -182,3 +182,16 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with warnings: initial bundle 776.21 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
 - `npm.cmd run test:e2e -- --reporter=list` passed (22 Playwright smoke tests).
 - Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Arena `Prep + Launch`, rewards, After-Action Queue, compact global HUD rails, and no console/page errors. Screenshots: `tmp/phase-20-desktop.png`, `tmp/phase-20-mobile.png`.
+
+2026-06-14 Phase 21:
+
+- Added `docs/phase-21-battle-contracts-todo.md` with the completed 20-point improvement todo.
+- Added pure Battle Contract rules that convert daily objectives, win forecast, evolution route ETA, streak state, Overdrive readiness, and item availability into three actionable pre-battle mission cards.
+- Exposed Battle Contracts from `GameStateService` and added service-level apply/launch handling through existing battle prep controls.
+- Added the Arena Battle Contracts board before the prep console so players can choose safe, daily, route-farm, or payout-focused runs without hunting through stance/risk controls.
+- Kept contract styles global and mobile-friendly with horizontal card rails to protect the playfield and avoid growing the Arena component style budget.
+- Fixed an accessible-name collision with the Combat Beat `CHARGE` button by using distinct contract labels (`Prep Core` / `Run Core`).
+- `npm.cmd run test -- --run` passed (150 tests / 25 files).
+- `npm.cmd run build` passed with warnings: initial bundle 788.41 kB vs 650 kB warning, Arena SCSS warning budget 19.33 kB vs 14 kB, and Pixi `@xmldom/xmldom` CommonJS.
+- `npm.cmd run test:e2e -- --reporter=list` passed (23 Playwright smoke tests).
+- Browser visual smoke passed on desktop 1440x960 and mobile 390x844. Verified Battle Contracts apply/launch, rewards, After-Action Queue, and no console/page errors. Screenshots: `tmp/phase-21-desktop.png`, `tmp/phase-21-mobile.png`.

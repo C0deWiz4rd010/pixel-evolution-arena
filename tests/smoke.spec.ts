@@ -195,6 +195,7 @@ test('arena prep console can auto-prep and launch a run', async ({ page }) => {
   const nav = page.locator('nav[aria-label="Game sections"]');
 
   await nav.getByRole('button', { name: /Arena/i }).click();
+  await expect(page.getByLabel('Battle contracts')).toContainText('Battle Contracts');
   await expect(page.getByLabel('Prep console')).toContainText('Coach + Drill Macros');
   await page.getByRole('button', { name: /Prep \+ Launch/i }).click();
 
@@ -202,6 +203,22 @@ test('arena prep console can auto-prep and launch a run', async ({ page }) => {
   await expect(page.getByText(/XP \+\d+/)).toBeVisible();
   await expect(page.getByLabel('After-action queue')).toContainText('After-Action Queue');
   await expect(page.getByLabel('After-action queue')).toContainText(/Run Again|Retry|Evolve|Claim|Fill|Forge|Relay/i);
+});
+
+test('battle contracts can prep and launch a mission choice', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await dismissOnboarding(page);
+  const nav = page.locator('nav[aria-label="Game sections"]');
+
+  await nav.getByRole('button', { name: /Arena/i }).click();
+  const contracts = page.getByLabel('Battle contracts');
+  await expect(contracts).toContainText('Pick the next mission');
+
+  await contracts.getByRole('button', { name: /Prep|Apply/i }).first().click();
+  await contracts.getByRole('button', { name: /Launch|Run|Farm|Scout/i }).first().click();
+
+  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
+  await expect(page.getByLabel('After-action queue')).toContainText('After-Action Queue');
 });
 
 test('collection can evolve a reachable chase directly', async ({ page }) => {

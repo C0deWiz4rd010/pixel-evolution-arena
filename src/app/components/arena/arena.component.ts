@@ -5,6 +5,7 @@ import { BattleCategoryId, BattleStanceId } from '../../rules/battle.rules';
 import { getMonsterMoves, getOverdriveMove } from '../../rules/moves.rules';
 import { Monster } from '../../models/monster.model';
 import { AfterActionCard } from '../../rules/after-action.rules';
+import { BattleContractCard } from '../../rules/battle-contract.rules';
 import { PixiBattleStageComponent } from '../pixi-battle-stage/pixi-battle-stage.component';
 import { CombatBeatComponent } from '../combat-beat/combat-beat.component';
 
@@ -85,6 +86,7 @@ export class ArenaComponent {
   readonly recentBattles = this.game.recentBattles;
   readonly battleIntelSummary = this.game.battleIntelSummary;
   readonly afterActionCards = this.game.afterActionCards;
+  readonly battleContractCards = this.game.battleContractCards;
 
   readonly readinessChecks = computed<ReadinessCheck[]>(() => {
     const squadSize = this.game.squad().length;
@@ -339,5 +341,13 @@ export class ArenaComponent {
 
   runAfterAction(card: AfterActionCard): void {
     this.game.runMetaAction(card.actionId);
+  }
+
+  applyBattleContract(card: BattleContractCard): void {
+    this.game.applyBattleContract(card.id, false);
+  }
+
+  launchBattleContract(card: BattleContractCard): void {
+    this.game.applyBattleContract(card.id, true);
   }
 }

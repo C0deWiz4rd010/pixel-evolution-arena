@@ -2938,6 +2938,158 @@ app-monster-card {
   cursor: not-allowed;
 }
 
+/* Arena Battle Contracts: global to avoid growing the Arena component style budget. */
+.battle-contract-board {
+  display: grid;
+  gap: 0.48rem;
+  padding: 0.52rem;
+  border: 1px solid rgba(19, 216, 255, 0.24);
+  background:
+    linear-gradient(90deg, rgba(19, 216, 255, 0.09), transparent 56%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 8px),
+    rgba(0, 0, 0, 0.3);
+  clip-path: var(--chamfer);
+}
+
+.contract-board-head {
+  display: flex;
+  gap: 0.65rem;
+  align-items: end;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.contract-board-head div {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.contract-board-head span,
+.contract-board-head small {
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.contract-board-head strong {
+  color: var(--text);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.contract-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.battle-contract-card {
+  --contract-color: var(--line);
+  display: grid;
+  grid-template-rows: auto auto minmax(2.4em, 1fr) auto auto;
+  gap: 0.24rem;
+  min-width: 0;
+  padding: 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--contract-color) 42%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--contract-color) 14%, transparent), transparent 62%),
+    rgba(2, 8, 16, 0.72);
+  color: var(--contract-color);
+  clip-path: var(--chamfer-tight);
+}
+
+.battle-contract-card.tone-safe {
+  --contract-color: var(--line-bright);
+}
+
+.battle-contract-card.tone-daily {
+  --contract-color: var(--coin);
+}
+
+.battle-contract-card.tone-growth {
+  --contract-color: var(--success);
+}
+
+.battle-contract-card.tone-payout {
+  --contract-color: var(--special);
+}
+
+.battle-contract-card.tone-blocked {
+  --contract-color: var(--danger);
+}
+
+.battle-contract-card.disabled {
+  opacity: 0.62;
+}
+
+.contract-topline,
+.contract-meta,
+.contract-actions {
+  display: flex;
+  gap: 0.38rem;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.contract-topline span,
+.contract-topline b,
+.contract-meta span {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.battle-contract-card > strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.battle-contract-card > small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.63rem;
+  line-height: 1.2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.contract-meta {
+  padding-top: 0.18rem;
+  border-top: 1px solid color-mix(in srgb, var(--contract-color) 18%, transparent);
+}
+
+.contract-actions button {
+  min-height: 32px;
+  flex: 1 1 0;
+  padding-inline: 0.42rem;
+  border-color: color-mix(in srgb, var(--contract-color) 58%, transparent);
+  color: var(--contract-color);
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.contract-actions .contract-launch {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--contract-color) 26%, transparent), rgba(0, 0, 0, 0.25));
+  color: var(--text);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--contract-color) 18%, transparent);
+}
+
 /* Arena After-Action Queue: global to avoid growing the Arena component style budget. */
 .after-action-queue {
   display: grid;
@@ -3029,8 +3181,31 @@ app-monster-card {
 
 .prep-console,
 .start-battle-action,
+.battle-contract-board,
 .after-action-queue {
   scroll-margin-top: 12rem;
+}
+
+@media (max-width: 820px) {
+  .contract-grid {
+    display: flex;
+    gap: 0.38rem;
+    overflow-x: auto;
+    padding-bottom: 0.18rem;
+    scrollbar-width: thin;
+  }
+
+  .battle-contract-card {
+    flex: 0 0 min(86vw, 320px);
+    min-height: 172px;
+  }
+}
+
+@media (max-width: 520px) {
+  .contract-board-head {
+    align-items: start;
+    flex-direction: column;
+  }
 }
 
 /* Wide screens: let the Arena grow with its command stack instead of clipping actions. */

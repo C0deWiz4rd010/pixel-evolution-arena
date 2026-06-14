@@ -72,11 +72,13 @@ import {
 import { buildMissionControlCards, MissionControlCard } from '../rules/mission-control.rules';
 import {
   buildTacticalDirectives,
+  estimateRouteWins,
   RouteEtaInput,
   SquadPatchInput,
   TacticalDirectiveCard,
 } from '../rules/tactical-directive.rules';
 import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.rules';
+import { BattleContractCard, buildBattleContracts } from '../rules/battle-contract.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -852,6 +854,35 @@ export class GameStateService {
       dailyComplete: this.dailyComplete(),
     });
   });
+  readonly battleContractCards = computed<BattleContractCard[]>(() => {
+    const reward = this.arenaRewardForecast();
+    const readyEvolution = this.readyEvolutionCandidate();
+    const nextEvolution = readyEvolution ?? this.nextEvolutionCandidate();
+    const route = this.buildRouteEtaInput(nextEvolution, reward);
+
+    return buildBattleContracts({
+      squadSize: this.squad().length,
+      winChancePercent: this.battleOutlook().winChancePercent,
+      nextWinCoins: reward.win.coins,
+      nextWinDna: reward.win.dnaShards,
+      nextWinXp: reward.win.xp,
+      itemChancePercent: reward.itemChancePercent,
+      winStreak: this.winStreak(),
+      overdriveReady: this.overdriveReady(),
+      dailyObjectiveId: this.dailyDirective().objectiveId,
+      dailyLabel: this.dailyObjective().label,
+      dailyProgress: this.dailyDirective().progress,
+      dailyGoal: this.dailyObjective().goal,
+      dailyComplete: this.dailyComplete(),
+      routeTargetName: route.targetName,
+      routeReady: route.ready,
+      routePercent: route.percent,
+      routeWinsNeeded: estimateRouteWins(route),
+      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      safeItemName: this.firstOwnedConsumable(['Aegis Plating', 'Repair Cell']),
+      pushItemName: this.firstOwnedConsumable(['Focus Capsule']),
+    });
+  });
   readonly afterActionCards = computed<AfterActionCard[]>(() => {
     const reward = this.lastReward();
     const expedition = this.expedition();
@@ -1499,6 +1530,26 @@ export class GameStateService {
     }
     this.startBattle();
     return true;
+  }
+
+  applyBattleContract(contractId: string, launch = false): boolean {
+    const contract = this.battleContractCards().find((card) => card.id === contractId);
+    if (!contract || contract.disabled) {
+      if (contractId === 'load-squad') {
+        this.requestedTab.set('Squad');
+      }
+      return false;
+    }
+
+    const applied = launch
+      ? this.applyBattlePrepAndLaunch(contract.stanceId, contract.categoryId, contract.itemName)
+      : this.applyBattlePrep(contract.stanceId, contract.categoryId, contract.itemName);
+
+    if (applied && !launch) {
+      this.prependLog(`Contract loaded: ${contract.title}.`, 'info');
+    }
+
+    return applied;
   }
 
   /** Arms or disarms Overdrive for the next loaded run. */
@@ -2803,6 +2854,11 @@ export class GameStateService {
       winXp: reward.win.xp,
       itemChancePercent: reward.itemChancePercent,
     };
+  }
+
+  private firstOwnedConsumable(names: string[]): string | null {
+    const inventory = this.player().inventory;
+    return names.find((name) => countInInventory(inventory, name) > 0) ?? null;
   }
 
   private buildSquadPatchInput(): SquadPatchInput {
