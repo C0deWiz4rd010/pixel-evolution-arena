@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M012" data-stage="In-Training" data-type="Machine">
+  <title id="title">Gearmite sprite</title>
+  <desc id="desc">Original In-Training Machine pixel creature for Pixel Evolution Arena.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.68s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.4s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { transform-box: fill-box; animation: scan 3.1s linear infinite; }
+    .wing { transform-box: fill-box; transform-origin: center; animation: flap 1.6s ease-in-out infinite; }
+    .wr { transform-origin: left center; }
+    .wl { transform-origin: right center; }
+    .flame { transform-box: fill-box; transform-origin: center bottom; animation: flick 0.5s steps(2, end) infinite; }
+    .ember { animation: glow 0.9s steps(2, end) infinite; }
+    .halo { animation: glow 2.6s ease-in-out infinite; }
+    .drip { transform-box: fill-box; animation: drip 2.4s ease-in infinite; }
+    .bob-leaf { transform-box: fill-box; transform-origin: center bottom; animation: sway 3.4s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 46%, 54%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes scan { 0% { transform: translateY(0); opacity: 0.05; } 50% { opacity: 0.35; } 100% { transform: translateY(18px); opacity: 0.05; } }
+    @keyframes flap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.7); } }
+    @keyframes flick { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18) translateY(-2px); } }
+    @keyframes drip { 0%, 60% { transform: translateY(0); opacity: 0.9; } 90% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
+    @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#091318" stroke-width="0">
+    
+    <rect x="43.5" y="114" width="41" height="6" rx="3" fill="#000000" opacity="0.24"/>
+    <polygon points="49.5,86 78.5,86 82.5,90 82.5,104 78.5,108 49.5,108 45.5,104 45.5,90" fill="#34505c"/>
+    <polygon points="51.5,89 76.5,89 79.5,92 79.5,102 76.5,105 51.5,105 48.5,102 48.5,92" fill="#7fa6b6"/>
+    <rect x="54.08" y="92" width="13.95" height="3.52" rx="2" fill="#d4ecf5" opacity="0.7"/>
+    <polygon points="53.5,69 74.5,69 77.5,72 77.5,91 74.5,94 53.5,94 50.5,91 50.5,72" fill="#34505c"/>
+    <polygon points="55,71 73,71 75,73 75,89 73,91 55,91 53,89 53,73" fill="#7fa6b6"/>
+    <rect x="63" y="53" width="3" height="14" fill="#34505c"/>
+    <rect x="61" y="49" width="7" height="7" rx="1" fill="#37e0ff" class="glow"/>
+    <rect x="47.5" y="79.5" width="4" height="4" fill="#d4ecf5"/>
+    <rect x="76.5" y="79.5" width="4" height="4" fill="#d4ecf5"/>
+    <g class="eyes"><rect x="54" y="77.5" width="7" height="8" rx="1" fill="#091318"/><rect x="67" y="77.5" width="7" height="8" rx="1" fill="#091318"/><rect x="56" y="79.5" width="3" height="4" fill="#37e0ff" class="glow"/><rect x="69" y="79.5" width="3" height="4" fill="#37e0ff" class="glow"/></g>
+    <rect x="61" y="88.5" width="6" height="2" rx="1" fill="#091318" opacity="0.8"/>
+    <rect x="57.5" y="97" width="4" height="8" rx="1" fill="#37e0ff" class="glow" opacity="0.8"/>
+    <rect x="67.5" y="101" width="4" height="8" rx="1" fill="#37e0ff" class="glow" opacity="0.8"/>
+    <rect class="scan" x="47.5" y="86" width="33" height="3" fill="#eafaff" opacity="0.2"/>
+  </g>
+</svg>

@@ -98,7 +98,7 @@ test('combat beats appear in the arena when enabled', async ({ page }) => {
 test('operations deck exposes forge and expedition quick flows', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
-  await page.getByRole('button', { name: /Intel & Ops/i }).click();
+  await page.getByRole('button', { name: /Command Deck/i }).click();
 
   const operations = page.getByLabel('Operations deck');
   await expect(operations).toContainText('Evolution Route');
@@ -110,7 +110,7 @@ test('operations deck exposes forge and expedition quick flows', async ({ page }
   await expect(page.getByRole('heading', { name: 'Forge', exact: true })).toBeVisible();
   await expect(page.getByLabel('Forge command')).toContainText(/Forge Command/i);
 
-  await page.getByRole('button', { name: /Intel & Ops/i }).click();
+  await page.getByRole('button', { name: /Command Deck/i }).click();
   await page.getByLabel('Operations deck').locator('.ops-card', { hasText: 'Expedition Relay' }).getByRole('button').click();
   await expect(page.getByRole('heading', { name: 'Expedition', exact: true })).toBeVisible();
   await expect(page.getByLabel('Expedition relay status')).toContainText(/Relay Status/i);
@@ -121,7 +121,7 @@ test('battle intel surfaces render across shell, arena, campaign, forge, and exp
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
   const nav = page.locator('nav[aria-label="Game sections"]');
-  await page.getByRole('button', { name: /Intel & Ops/i }).click();
+  await page.getByRole('button', { name: /Command Deck/i }).click();
 
   await expect(page.getByLabel('Global intel strip')).toContainText('Combat Intel');
   await expect(page.getByLabel('Global intel strip')).toContainText('Campaign Pressure');

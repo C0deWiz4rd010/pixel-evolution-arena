@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M026" data-stage="Champion" data-type="Dark">
+  <title id="title">Duskraider sprite</title>
+  <desc id="desc">Original Champion Dark pixel creature for Pixel Evolution Arena.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.44s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 3.8s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { transform-box: fill-box; animation: scan 3.1s linear infinite; }
+    .wing { transform-box: fill-box; transform-origin: center; animation: flap 1.6s ease-in-out infinite; }
+    .wr { transform-origin: left center; }
+    .wl { transform-origin: right center; }
+    .flame { transform-box: fill-box; transform-origin: center bottom; animation: flick 0.5s steps(2, end) infinite; }
+    .ember { animation: glow 0.9s steps(2, end) infinite; }
+    .halo { animation: glow 2.6s ease-in-out infinite; }
+    .drip { transform-box: fill-box; animation: drip 2.4s ease-in infinite; }
+    .bob-leaf { transform-box: fill-box; transform-origin: center bottom; animation: sway 3.4s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 46%, 54%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes scan { 0% { transform: translateY(0); opacity: 0.05; } 50% { opacity: 0.35; } 100% { transform: translateY(34px); opacity: 0.05; } }
+    @keyframes flap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.7); } }
+    @keyframes flick { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18) translateY(-2px); } }
+    @keyframes drip { 0%, 60% { transform: translateY(0); opacity: 0.9; } 90% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
+    @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#070310" stroke-width="0">
+    
+    <rect x="42" y="114" width="44" height="6" rx="3" fill="#000000" opacity="0.24"/>
+    <polygon points="49,66 79,66 84,71 84,99 79,104 49,104 44,99 44,71" fill="#241548"/>
+    <polygon points="51,69 77,69 81,73 81,97 77,101 51,101 47,97 47,73" fill="#6f54f0"/>
+    <rect x="53.12" y="72" width="15.3" height="7.04" rx="2" fill="#c79bff" opacity="0.7"/>
+    <polygon points="55,51 73,51 77,55 77,69 73,73 55,73 51,69 51,55" fill="#241548"/>
+    <polygon points="56.5,53 71.5,53 74.5,56 74.5,67 71.5,70 56.5,70 53.5,67 53.5,56" fill="#6f54f0"/>
+    <rect x="47" y="105" width="9" height="8" rx="2" fill="#241548"/>
+    <rect x="72" y="105" width="9" height="8" rx="2" fill="#241548"/>
+    <rect x="49" y="108" width="3" height="3" fill="#d95dff" class="glow"/>
+    <rect x="76" y="108" width="3" height="3" fill="#d95dff" class="glow"/>
+    <rect x="39" y="81.2" width="7" height="15.2" rx="2" fill="#241548"/>
+    <rect x="82" y="81.2" width="7" height="15.2" rx="2" fill="#241548"/>
+    <polygon points="39,96.4 37,102.4 46,96.4" fill="#f0d8ff"/>
+    <polygon points="89,96.4 91,102.4 82,96.4" fill="#f0d8ff"/>
+    <polygon points="54,53 46,39 60,49" fill="#241548"/>
+    <polygon points="74,53 82,39 68,49" fill="#241548"/>
+    <rect x="47" y="39" width="3" height="3" fill="#d95dff" class="glow"/>
+    <rect x="78" y="39" width="3" height="3" fill="#d95dff" class="glow"/>
+    <g class="eyes"><rect x="54" y="58" width="7" height="8" rx="1" fill="#070310"/><rect x="67" y="58" width="7" height="8" rx="1" fill="#070310"/><rect x="56" y="60" width="3" height="4" fill="#d95dff" class="glow"/><rect x="69" y="60" width="3" height="4" fill="#d95dff" class="glow"/></g>
+    <polygon points="59,69 69,69 67,73 61,73" fill="#070310" opacity="0.85"/>
+    <rect x="60" y="69" width="2" height="3" fill="#f0d8ff"/>
+    <rect x="66" y="69" width="2" height="3" fill="#f0d8ff"/>
+    <rect x="57.5" y="85" width="4" height="8" rx="1" fill="#d95dff" class="glow" opacity="0.8"/>
+    <rect x="67.5" y="89" width="4" height="8" rx="1" fill="#d95dff" class="glow" opacity="0.8"/>
+    <rect class="scan" x="46" y="66" width="36" height="3" fill="#f0d8ff" opacity="0.2"/>
+  </g>
+</svg>

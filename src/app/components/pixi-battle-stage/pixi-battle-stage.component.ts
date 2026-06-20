@@ -33,6 +33,7 @@ type StageSide = 'player' | 'enemy';
 interface StageUnit {
   side: StageSide;
   id: string;
+  name: string;
   container: PixiContainer;
   sprite: PixiSprite | null;
   placeholder: PixiText | null;
@@ -189,7 +190,7 @@ export class PixiBattleStageComponent {
           continue;
         }
         this.seenPopupIds.add(popup.id);
-        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive);
+        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive, popup.actorName, popup.targetName);
       }
       if (this.seenPopupIds.size > 256) {
         this.seenPopupIds = new Set(popups.map((p) => p.id));
@@ -207,7 +208,7 @@ export class PixiBattleStageComponent {
           continue;
         }
         this.seenCueIds.add(cue.id);
-        this.spawnStatusIcon(cue.side, cue.icon);
+        this.spawnStatusIcon(cue.side, cue.icon, cue.carrierName);
       }
       if (this.seenCueIds.size > 256) {
         this.seenCueIds = new Set(cues.map((c) => c.id));
@@ -407,6 +408,7 @@ export class PixiBattleStageComponent {
     const unit: StageUnit = {
       side,
       id,
+      name,
       container,
       sprite: null,
       placeholder: null,
@@ -501,11 +503,15 @@ export class PixiBattleStageComponent {
     offset: number,
     effective?: -1 | 0 | 1,
     overdrive?: boolean,
+    actorName?: string,
+    targetName?: string,
   ): void {
     // `side` is the side that TAKES damage.
     const attackerSide: StageSide = side === 'player' ? 'enemy' : 'player';
-    const attacker = this.leadOf(attackerSide);
-    const target = this.leadOf(side);
+    // Choreograph the actual combatants from the timeline so the whole squad
+    // participates; fall back to each side's lead when a name is unknown.
+    const attacker = this.unitByName(attackerSide, actorName) ?? this.leadOf(attackerSide);
+    const target = this.unitByName(side, targetName) ?? this.leadOf(side);
 
     if (attacker && !this.reducedMotion()) {
       attacker.lunge = 1;
@@ -539,12 +545,12 @@ export class PixiBattleStageComponent {
     this.floaters.push({ text: label, life: 1, maxLife: 1, vy: 30 });
   }
 
-  private spawnStatusIcon(side: StageSide, icon: string): void {
+  private spawnStatusIcon(side: StageSide, icon: string, carrierName?: string): void {
     const pixi = this.pixi;
     if (!pixi || !this.root) {
       return;
     }
-    const target = this.leadOf(side);
+    const target = this.unitByName(side, carrierName) ?? this.leadOf(side);
     if (!target) {
       return;
     }
@@ -750,6 +756,14 @@ export class PixiBattleStageComponent {
 
   private leadOf(side: StageSide): StageUnit | null {
     return this.units.find((unit) => unit.side === side) ?? null;
+  }
+
+  /** Find the on-stage unit for a timeline actor/target by name, restricted to its side. */
+  private unitByName(side: StageSide, name: string | undefined): StageUnit | null {
+    if (!name) {
+      return null;
+    }
+    return this.units.find((unit) => unit.side === side && unit.name === name) ?? null;
   }
 
   private dispose(): void {

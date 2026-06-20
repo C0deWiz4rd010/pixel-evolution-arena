@@ -31,58 +31,64 @@
 
     <button type="button" class="rail-dock-toggle" [class.open]="dockExpanded()" (click)="dockExpanded.set(!dockExpanded())" [attr.aria-expanded]="dockExpanded()" aria-controls="command-dock">
       <span class="dock-count">{{ game.operationsCards().length }}</span>
-      <span class="dock-word">Intel &amp; Ops</span>
+      <span class="dock-word">{{ dockExpanded() ? 'Hide Deck' : 'Command Deck' }}</span>
       <span class="dock-chev" aria-hidden="true">{{ dockExpanded() ? '▲' : '▼' }}</span>
     </button>
   </section>
 
-  <section class="mission-matrix" aria-label="Mission control matrix">
-    @for (card of game.missionControlCards(); track card.id) {
-      <button
-        type="button"
-        class="mission-card tone-{{ card.tone }}"
-        (click)="runMissionControlCard(card)"
-        [attr.title]="card.detail"
-      >
-        <span class="mission-topline">
-          <span>{{ card.label }}</span>
-          <strong>{{ card.metric }}</strong>
-        </span>
-        <span class="mission-title">{{ card.title }}</span>
-        <span class="mission-progress" aria-hidden="true">
-          <i [style.width.%]="card.progressPercent"></i>
-        </span>
-        <span class="mission-footer">
-          <small>{{ card.actionLabel }}</small>
-          <span>{{ card.progressPercent }}%</span>
-        </span>
-      </button>
-    }
-  </section>
-
-  <section class="tactical-directives" aria-label="Tactical directives">
-    @for (card of game.tacticalDirectiveCards(); track card.id) {
-      <button
-        type="button"
-        class="directive-card tone-{{ card.tone }}"
-        [attr.aria-label]="card.label + ': ' + card.title"
-        [attr.title]="card.detail"
-        (click)="runTacticalDirectiveCard(card)"
-      >
-        <span class="directive-kicker">{{ card.label }}</span>
-        <strong>{{ card.title }}</strong>
-        <span class="directive-detail">{{ card.detail }}</span>
-        <span class="directive-meta">
-          <b>{{ card.metric }}</b>
-          <small>{{ card.actionLabel }}</small>
-        </span>
-        <i aria-hidden="true"><em [style.width.%]="card.progressPercent"></em></i>
-      </button>
-    }
-  </section>
-
   @if (dockExpanded()) {
     <section id="command-dock" class="command-dock" aria-label="Intel and operations dock">
+      <div class="dock-section">
+        <h2 class="dock-heading">Mission Control // Loop</h2>
+        <div class="mission-matrix" aria-label="Mission control matrix">
+          @for (card of game.missionControlCards(); track card.id) {
+            <button
+              type="button"
+              class="mission-card tone-{{ card.tone }}"
+              (click)="runMissionControlCard(card)"
+              [attr.title]="card.detail"
+            >
+              <span class="mission-topline">
+                <span>{{ card.label }}</span>
+                <strong>{{ card.metric }}</strong>
+              </span>
+              <span class="mission-title">{{ card.title }}</span>
+              <span class="mission-progress" aria-hidden="true">
+                <i [style.width.%]="card.progressPercent"></i>
+              </span>
+              <span class="mission-footer">
+                <small>{{ card.actionLabel }}</small>
+                <span>{{ card.progressPercent }}%</span>
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="dock-section">
+        <h2 class="dock-heading">Tactical Directives</h2>
+        <div class="tactical-directives" aria-label="Tactical directives">
+          @for (card of game.tacticalDirectiveCards(); track card.id) {
+            <button
+              type="button"
+              class="directive-card tone-{{ card.tone }}"
+              [attr.aria-label]="card.label + ': ' + card.title"
+              [attr.title]="card.detail"
+              (click)="runTacticalDirectiveCard(card)"
+            >
+              <span class="directive-kicker">{{ card.label }}</span>
+              <strong>{{ card.title }}</strong>
+              <span class="directive-detail">{{ card.detail }}</span>
+              <span class="directive-meta">
+                <b>{{ card.metric }}</b>
+                <small>{{ card.actionLabel }}</small>
+              </span>
+              <i aria-hidden="true"><em [style.width.%]="card.progressPercent"></em></i>
+            </button>
+          }
+        </div>
+      </div>
+
       <div class="dock-section">
         <h2 class="dock-heading">Global Intel</h2>
         <div class="intel-strip" aria-label="Global intel strip">

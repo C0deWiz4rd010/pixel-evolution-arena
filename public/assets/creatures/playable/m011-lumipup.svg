@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M011" data-stage="In-Training" data-type="Light">
+  <title id="title">Lumipup sprite</title>
+  <desc id="desc">Original In-Training Light pixel creature for Pixel Evolution Arena.</desc>
+  <style><![CDATA[
+    * { shape-rendering: crispEdges; }
+    .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.68s steps(2, end) infinite; }
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.4s steps(1, end) infinite; }
+    .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .scan { transform-box: fill-box; animation: scan 3.1s linear infinite; }
+    .wing { transform-box: fill-box; transform-origin: center; animation: flap 1.6s ease-in-out infinite; }
+    .wr { transform-origin: left center; }
+    .wl { transform-origin: right center; }
+    .flame { transform-box: fill-box; transform-origin: center bottom; animation: flick 0.5s steps(2, end) infinite; }
+    .ember { animation: glow 0.9s steps(2, end) infinite; }
+    .halo { animation: glow 2.6s ease-in-out infinite; }
+    .drip { transform-box: fill-box; animation: drip 2.4s ease-in infinite; }
+    .bob-leaf { transform-box: fill-box; transform-origin: center bottom; animation: sway 3.4s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes blink { 0%, 46%, 54%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.12); } }
+    @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes scan { 0% { transform: translateY(0); opacity: 0.05; } 50% { opacity: 0.35; } 100% { transform: translateY(26px); opacity: 0.05; } }
+    @keyframes flap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.7); } }
+    @keyframes flick { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18) translateY(-2px); } }
+    @keyframes drip { 0%, 60% { transform: translateY(0); opacity: 0.9; } 90% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
+    @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
+  ]]></style>
+  <rect width="128" height="128" fill="none"/>
+  <g class="idle" stroke="#2a2206" stroke-width="0">
+    
+    <rect x="49" y="114" width="30" height="6" rx="3" fill="#000000" opacity="0.24"/>
+    <polygon points="56,78 72,78 77,83 77,103 72,108 56,108 51,103 51,83" fill="#9a7a14"/>
+    <polygon points="58,81 70,81 74,85 74,101 70,105 58,105 54,101 54,85" fill="#ffce3a"/>
+    <rect x="57.6" y="84" width="9" height="5.28" rx="2" fill="#fff4bd" opacity="0.7"/>
+    <polygon points="59,68 69,68 73,72 73,79 69,83 59,83 55,79 55,72" fill="#9a7a14"/>
+    <polygon points="60.5,70 67.5,70 70.5,73 70.5,77 67.5,80 60.5,80 57.5,77 57.5,73" fill="#ffce3a"/>
+    <ellipse class="glow halo" cx="64" cy="58" rx="7.56" ry="4" fill="none" stroke="#ffe884" stroke-width="3"/>
+    <rect x="63" y="50" width="3" height="6" fill="#fffbe6" class="glow"/>
+    <g class="eyes"><rect x="58" y="70.5" width="12" height="9" rx="2" fill="#2a2206"/><rect x="61" y="73.5" width="6" height="5" fill="#ffe884" class="glow"/></g>
+    <rect x="61" y="82.5" width="6" height="2" rx="1" fill="#2a2206" opacity="0.8"/>
+    <rect x="62.5" y="93" width="4" height="8" rx="1" fill="#ffe884" class="glow" opacity="0.8"/>
+    <rect class="scan" x="53" y="78" width="22" height="3" fill="#fffbe6" opacity="0.2"/>
+  </g>
+</svg>

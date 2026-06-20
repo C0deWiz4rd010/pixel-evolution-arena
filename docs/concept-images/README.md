@@ -26,6 +26,9 @@ These were generated for Pixel Evolution Arena and can be used as implementation
 - `generated/pixel-evolution-arena-collection-dex-concept.png` - collection/dex with filters and locked silhouettes.
 - `generated/pixel-evolution-arena-evolution-lab-concept.png` - evolution requirements and branch-choice detail view.
 - `generated/pixel-evolution-arena-rewards-inventory-concept.png` - post-battle rewards and inventory concept.
+- `generated/pixel-evolution-arena-simplified-desktop-v1.png` - simplified five-area desktop shell and evolution workspace.
+- `generated/pixel-evolution-arena-simplified-mobile-v1.png` - mobile-first hierarchy with vertical evolution route and bottom navigation.
+- `generated/pixel-evolution-arena-collector-desktop-v2.png` - primary redesign reference with Dex progress, family completion, mystery silhouettes, and recent discoveries.
 
 ## Implementation Notes
 

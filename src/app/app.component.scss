@@ -194,17 +194,35 @@
    ============================================================ */
 .command-dock {
   display: grid;
-  gap: 0.6rem;
-  margin: 0 0 0.45rem;
-  padding: 0.55rem 0.6rem;
-  max-height: 42vh;
+  gap: 0.85rem;
+  margin: 0 0 0.5rem;
+  padding: 0.8rem 0.85rem;
+  max-height: 74vh;
   overflow-y: auto;
   border: 1px solid rgba(19, 216, 255, 0.22);
   background:
     linear-gradient(180deg, rgba(19, 216, 255, 0.06), transparent 40%),
-    rgba(3, 10, 18, 0.7);
+    rgba(3, 10, 18, 0.72);
   clip-path: var(--chamfer);
   flex-shrink: 0;
+  animation: dock-reveal 0.22s ease;
+}
+
+@keyframes dock-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-dock {
+    animation: none;
+  }
 }
 
 .dock-section {
@@ -387,8 +405,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.42rem;
-  margin: 0 0 0.45rem;
-  flex-shrink: 0;
+  margin: 0;
 }
 
 .mission-card {
@@ -498,8 +515,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.42rem;
-  margin: 0 0 0.45rem;
-  flex-shrink: 0;
+  margin: 0;
 }
 
 .directive-card {

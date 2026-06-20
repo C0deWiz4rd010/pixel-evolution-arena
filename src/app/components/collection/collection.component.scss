@@ -19,6 +19,10 @@
   max-height: none;
   overflow-y: visible !important;
   overflow-x: visible;
+  /* Pin the single grid column to the sidebar track so long, non-wrapping
+     chase labels ellipsis instead of forcing the whole panel ~190px wider
+     than its column (which clipped the chase queue off the right edge). */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .dex-header,
@@ -345,11 +349,13 @@
 
 .chase-queue-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.42rem;
 }
 
 .queue-target {
   display: grid;
+  min-width: 0;
   gap: 0.34rem;
   padding: 0.42rem 0.48rem;
   border: 1px solid color-mix(in srgb, currentColor 48%, transparent);
@@ -372,7 +378,14 @@
 
 .queue-main {
   display: grid;
+  min-width: 0;
   gap: 0.08rem;
+}
+
+.queue-main .monster-id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .queue-main strong,

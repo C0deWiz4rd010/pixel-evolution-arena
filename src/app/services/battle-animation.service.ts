@@ -17,6 +17,9 @@ export interface DamagePopup {
   effective?: -1 | 0 | 1;
   /** True when this hit was the Overdrive beat. */
   overdrive?: boolean;
+  /** Names let the Pixi stage choreograph the exact units involved, not just the lead. */
+  actorName?: string;
+  targetName?: string;
 }
 
 /** A floating status icon cue consumed by the Pixi stage. */
@@ -26,6 +29,8 @@ export interface StatusCue {
   icon: string;
   label: string;
   spawnedAt: number;
+  /** Name of the unit that visibly carries the cue (falls back to the side lead). */
+  carrierName?: string;
 }
 
 export interface BattlePlayParams {
@@ -110,7 +115,7 @@ export class BattleAnimationService {
       .slice(0, 5)
       .forEach((cue, index) => {
         const trigger = exchangeStart + 220 + index * exchangeStep;
-        this.scheduleTimer(() => this.spawnStatusCue(cue.side, cue.icon, cue.label), trigger);
+        this.scheduleTimer(() => this.spawnStatusCue(cue.side, cue.icon, cue.label, cue.carrierName), trigger);
       });
 
     const finaleAt = exchangeStart + 120 + damageHits.length * exchangeStep + 240;
@@ -126,13 +131,9 @@ export class BattleAnimationService {
     }, restAt);
   }
 
-  private applyHit(
-    hit: { amount: number; side: DamageSide; critical?: boolean; effective?: -1 | 0 | 1; overdrive?: boolean },
-    params: BattlePlayParams,
-    index: number,
-  ): void {
+  private applyHit(hit: DerivedHit, params: BattlePlayParams, index: number): void {
     const isCritical = Boolean(hit.critical);
-    this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive);
+    this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive, hit.actorName, hit.targetName);
 
     if (hit.side === 'enemy') {
       const targetReduction = params.won
@@ -171,7 +172,15 @@ export class BattleAnimationService {
     this.triggerShake();
   }
 
-  private spawnPopup(amount: number, side: DamageSide, critical: boolean, effective?: -1 | 0 | 1, overdrive?: boolean): void {
+  private spawnPopup(
+    amount: number,
+    side: DamageSide,
+    critical: boolean,
+    effective?: -1 | 0 | 1,
+    overdrive?: boolean,
+    actorName?: string,
+    targetName?: string,
+  ): void {
     const id = ++this.popupSeed;
     const popup: DamagePopup = {
       id,
@@ -182,6 +191,8 @@ export class BattleAnimationService {
       spawnedAt: Date.now(),
       effective,
       overdrive,
+      actorName,
+      targetName,
     };
     this.popups.update((current) => [...current.slice(-5), popup]);
     this.scheduleTimer(() => {
@@ -189,9 +200,9 @@ export class BattleAnimationService {
     }, 1100);
   }
 
-  private spawnStatusCue(side: DamageSide, icon: string, label: string): void {
+  private spawnStatusCue(side: DamageSide, icon: string, label: string, carrierName?: string): void {
     const id = ++this.cueSeed;
-    const cue: StatusCue = { id, side, icon, label, spawnedAt: Date.now() };
+    const cue: StatusCue = { id, side, icon, label, spawnedAt: Date.now(), carrierName };
     this.statusCues.update((current) => [...current.slice(-5), cue]);
     this.scheduleTimer(() => {
       this.statusCues.update((current) => current.filter((entry) => entry.id !== id));
@@ -238,30 +249,49 @@ interface DerivedHit {
   critical: boolean;
   effective?: -1 | 0 | 1;
   overdrive?: boolean;
+  /** Acting unit (deals the hit) and target unit, so the stage animates the real combatants. */
+  actorName?: string;
+  targetName?: string;
 }
 
 function deriveHits(events: BattleEvent[]): DerivedHit[] {
   const hits: DerivedHit[] = [];
   for (const event of events) {
     if (event.kind === 'overdrive' && event.amount) {
-      hits.push({ amount: event.amount, side: 'enemy', critical: true, effective: event.effective, overdrive: true });
+      hits.push({
+        amount: event.amount,
+        side: 'enemy',
+        critical: true,
+        effective: event.effective,
+        overdrive: true,
+        actorName: event.actorName,
+        targetName: event.targetName,
+      });
     } else if (event.kind === 'strike' && event.amount) {
       hits.push({
         amount: event.amount,
         side: event.side === 'player' ? 'enemy' : 'player',
         critical: Boolean(event.critical),
         effective: event.effective,
+        actorName: event.actorName,
+        targetName: event.targetName,
       });
     } else if (event.kind === 'status-tick' && (event.amount ?? 0) > 0) {
-      hits.push({ amount: event.amount ?? 0, side: event.side === 'player' ? 'player' : 'enemy', critical: false });
+      // A positive status-tick is DoT damage taken by the carrying unit.
+      hits.push({
+        amount: event.amount ?? 0,
+        side: event.side === 'player' ? 'player' : 'enemy',
+        critical: false,
+        targetName: event.actorName,
+      });
     }
   }
   return hits;
 }
 
-/** Status-application cues mapped to the side that visibly carries the icon. */
-function deriveStatusCues(events: BattleEvent[]): { side: DamageSide; icon: string; label: string }[] {
-  const cues: { side: DamageSide; icon: string; label: string }[] = [];
+/** Status-application cues mapped to the side + unit that visibly carries the icon. */
+function deriveStatusCues(events: BattleEvent[]): { side: DamageSide; icon: string; label: string; carrierName?: string }[] {
+  const cues: { side: DamageSide; icon: string; label: string; carrierName?: string }[] = [];
   for (const event of events) {
     if ((event.kind === 'status-apply' || event.kind === 'shield') && event.status) {
       const def = STATUS_DEFS[event.status as StatusId];
@@ -272,7 +302,8 @@ function deriveStatusCues(events: BattleEvent[]): { side: DamageSide; icon: stri
       const actorIsPlayer = event.side === 'player';
       const onActor = def.kind === 'buff';
       const side: DamageSide = (onActor ? actorIsPlayer : !actorIsPlayer) ? 'player' : 'enemy';
-      cues.push({ side, icon: def.icon, label: def.label });
+      const carrierName = onActor ? event.actorName : (event.targetName ?? event.actorName);
+      cues.push({ side, icon: def.icon, label: def.label, carrierName });
     }
   }
   return cues;

@@ -1,0 +1,286 @@
+[
+  {
+    "id": "M001",
+    "file": "m001-bubblit.svg"
+  },
+  {
+    "id": "M002",
+    "file": "m002-sproutbit.svg"
+  },
+  {
+    "id": "M003",
+    "file": "m003-emberling.svg"
+  },
+  {
+    "id": "M004",
+    "file": "m004-shadepuff.svg"
+  },
+  {
+    "id": "M005",
+    "file": "m005-sparkit.svg"
+  },
+  {
+    "id": "M006",
+    "file": "m006-pebblip.svg"
+  },
+  {
+    "id": "M007",
+    "file": "m007-aquabun.svg"
+  },
+  {
+    "id": "M008",
+    "file": "m008-leafbyte.svg"
+  },
+  {
+    "id": "M009",
+    "file": "m009-cinderpaw.svg"
+  },
+  {
+    "id": "M010",
+    "file": "m010-nightnub.svg"
+  },
+  {
+    "id": "M011",
+    "file": "m011-lumipup.svg"
+  },
+  {
+    "id": "M012",
+    "file": "m012-gearmite.svg"
+  },
+  {
+    "id": "M013",
+    "file": "m013-oozelet.svg"
+  },
+  {
+    "id": "M014",
+    "file": "m014-splashfang.svg"
+  },
+  {
+    "id": "M015",
+    "file": "m015-thornkit.svg"
+  },
+  {
+    "id": "M016",
+    "file": "m016-pyroclaw.svg"
+  },
+  {
+    "id": "M017",
+    "file": "m017-shadowimp.svg"
+  },
+  {
+    "id": "M018",
+    "file": "m018-voltbeak.svg"
+  },
+  {
+    "id": "M019",
+    "file": "m019-gearfox.svg"
+  },
+  {
+    "id": "M020",
+    "file": "m020-mossnail.svg"
+  },
+  {
+    "id": "M021",
+    "file": "m021-venomote.svg"
+  },
+  {
+    "id": "M022",
+    "file": "m022-cragcub.svg"
+  },
+  {
+    "id": "M023",
+    "file": "m023-tideraptor.svg"
+  },
+  {
+    "id": "M024",
+    "file": "m024-bramblehorn.svg"
+  },
+  {
+    "id": "M025",
+    "file": "m025-blazehound.svg"
+  },
+  {
+    "id": "M026",
+    "file": "m026-duskraider.svg"
+  },
+  {
+    "id": "M027",
+    "file": "m027-gearfox-mkii.svg"
+  },
+  {
+    "id": "M028",
+    "file": "m028-voltgryphon.svg"
+  },
+  {
+    "id": "M029",
+    "file": "m029-sludgebloom.svg"
+  },
+  {
+    "id": "M030",
+    "file": "m030-ironmoss.svg"
+  },
+  {
+    "id": "M031",
+    "file": "m031-fangquartz.svg"
+  },
+  {
+    "id": "M032",
+    "file": "m032-stormjaw.svg"
+  },
+  {
+    "id": "M033",
+    "file": "m033-thornrex.svg"
+  },
+  {
+    "id": "M034",
+    "file": "m034-infernodon.svg"
+  },
+  {
+    "id": "M035",
+    "file": "m035-nightreaver.svg"
+  },
+  {
+    "id": "M036",
+    "file": "m036-aurorawing.svg"
+  },
+  {
+    "id": "M037",
+    "file": "m037-toximander.svg"
+  },
+  {
+    "id": "M038",
+    "file": "m038-mechabison.svg"
+  },
+  {
+    "id": "M039",
+    "file": "m039-leviacore.svg"
+  },
+  {
+    "id": "M040",
+    "file": "m040-solarthorn.svg"
+  },
+  {
+    "id": "M041",
+    "file": "m041-obsidianzero.svg"
+  },
+  {
+    "id": "M042",
+    "file": "m042-helioforge.svg"
+  },
+  {
+    "id": "M043",
+    "file": "m043-galewarden.svg"
+  },
+  {
+    "id": "M044",
+    "file": "m044-virulisk.svg"
+  },
+  {
+    "id": "M045",
+    "file": "m045-astralnova.svg"
+  },
+  {
+    "id": "M046",
+    "file": "m046-mechatitan.svg"
+  },
+  {
+    "id": "M047",
+    "file": "m047-voidseraph.svg"
+  },
+  {
+    "id": "M048",
+    "file": "m048-chronodrake.svg"
+  },
+  {
+    "id": "M049",
+    "file": "m049-bloomgeist.svg"
+  },
+  {
+    "id": "M050",
+    "file": "m050-prismyr.svg"
+  },
+  {
+    "id": "M051",
+    "file": "m051-wispfade.svg"
+  },
+  {
+    "id": "M052",
+    "file": "m052-mirefade.svg"
+  },
+  {
+    "id": "M053",
+    "file": "m053-hollowveil.svg"
+  },
+  {
+    "id": "M054",
+    "file": "m054-wraithlord.svg"
+  },
+  {
+    "id": "M055",
+    "file": "m055-nullruler.svg"
+  },
+  {
+    "id": "M056",
+    "file": "m056-antinexus.svg"
+  },
+  {
+    "id": "M057",
+    "file": "m057-glowmoth.svg"
+  },
+  {
+    "id": "M058",
+    "file": "m058-halofly.svg"
+  },
+  {
+    "id": "M059",
+    "file": "m059-auraknight.svg"
+  },
+  {
+    "id": "M060",
+    "file": "m060-solareaper.svg"
+  },
+  {
+    "id": "M061",
+    "file": "m061-empyreal.svg"
+  },
+  {
+    "id": "M062",
+    "file": "m062-cosmosaint.svg"
+  },
+  {
+    "id": "M063",
+    "file": "m063-tempestguard.svg"
+  },
+  {
+    "id": "M064",
+    "file": "m064-magmastorm.svg"
+  },
+  {
+    "id": "M065",
+    "file": "m065-worldsbane.svg"
+  },
+  {
+    "id": "M066",
+    "file": "m066-rockpup.svg"
+  },
+  {
+    "id": "M067",
+    "file": "m067-stonecrown.svg"
+  },
+  {
+    "id": "M068",
+    "file": "m068-omegaframe.svg"
+  },
+  {
+    "id": "M069",
+    "file": "m069-tidalwolf.svg"
+  },
+  {
+    "id": "M070",
+    "file": "m070-frostfang.svg"
+  },
+  {
+    "id": "M071",
+    "file": "m071-icecolossus.svg"
+  }
+]

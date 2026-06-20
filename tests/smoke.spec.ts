@@ -8,6 +8,14 @@ async function dismissOnboarding(page: Page): Promise<void> {
   }
 }
 
+/** Mission Control + Tactical Directives now live in the opt-in Command Deck. */
+async function openCommandDeck(page: Page): Promise<void> {
+  const toggle = page.getByRole('button', { name: /Command Deck/i }).first();
+  if (await toggle.isVisible().catch(() => false)) {
+    await toggle.click();
+  }
+}
+
 test('tabs switch and collection filters can be reset', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
@@ -15,6 +23,8 @@ test('tabs switch and collection filters can be reset', async ({ page }) => {
 
   await expect(page.getByLabel('Recommended next command')).toContainText(/OPEN SLOT|EVOLVE READY|CHASE READY/i);
   await expect(page.getByLabel('Quick commands')).toContainText('Auto Squad');
+
+  await openCommandDeck(page);
   await expect(page.getByLabel('Mission control matrix')).toContainText('Loop Priority');
   await expect(page.getByLabel('Mission control matrix')).toContainText('Evolution');
   await expect(page.getByLabel('Mission control matrix')).toContainText('Arena');
@@ -37,6 +47,7 @@ test('mission control matrix can execute the primary evolution action', async ({
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
 
+  await openCommandDeck(page);
   const missionMatrix = page.getByLabel('Mission control matrix');
   await expect(missionMatrix).toContainText(/Splashfang|Cinderpaw|Evolution/i);
 
@@ -48,6 +59,7 @@ test('tactical directives expose route ETA and can launch the run path', async (
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await dismissOnboarding(page);
 
+  await openCommandDeck(page);
   const directives = page.getByLabel('Tactical directives');
   await expect(directives).toContainText(/wins|ready now|Route ETA/i);
   await directives.getByRole('button', { name: /Run Choice/i }).click();
