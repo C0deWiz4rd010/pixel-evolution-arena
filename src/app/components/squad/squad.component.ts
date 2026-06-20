@@ -3,7 +3,6 @@ import { Monster, MonsterType } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { getSlotRole, SlotRoleDescriptor } from '../../rules/squad.rules';
 import { SquadOrderCard } from '../../rules/squad-order.rules';
-import { GridNavDirective } from '../../directives/grid-nav.directive';
 
 interface SquadSlotView {
   index: number;
@@ -39,7 +38,6 @@ interface RoleFitView {
 
 @Component({
   selector: 'app-squad',
-  imports: [GridNavDirective],
   templateUrl: './squad.component.html',
   styleUrl: './squad.component.scss',
 })

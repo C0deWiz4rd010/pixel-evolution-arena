@@ -1,149 +1,50 @@
-<section class="forge-view" aria-label="Gear Forge">
-  <header class="forge-head">
-    <div>
-      <span>Fabricator // Gear Forge</span>
-      <h2>{{ 'forge.title' | t }}</h2>
-      <p>Forge persistent gear, upgrade tiers with DNA, and equip it to your squad for permanent power.</p>
-    </div>
-    <div class="resource-chip">
-      <span>{{ game.player().coins }} CR</span>
-      <span>{{ game.player().dnaShards }} DNA</span>
-    </div>
+<section class="hud-panel loadout-view" aria-label="Gear Forge">
+  <header class="loadout-header">
+    <div><span>Squad Loadout</span><h2>Forge & Equip</h2><p>Craft persistent gear, then equip the best pieces directly to your active team.</p></div>
+    <div class="resources"><span>{{ game.player().coins }} CR</span><span>{{ game.player().dnaShards }} DNA</span></div>
   </header>
 
-  <section class="forge-command" aria-label="Forge command">
-    <div class="forge-command-copy">
-      <span>Forge Command</span>
-      <strong>{{ quickRecommendation().title }}</strong>
-      <p>{{ quickRecommendation().detail }}</p>
-    </div>
-    <div class="forge-command-stats">
-      <span>Coverage <strong>{{ loadoutPlan().assignedSlots }}/{{ loadoutPlan().totalSlots }}</strong></span>
-      <span>Projected <strong>+{{ loadoutPlan().powerGain }} PWR</strong></span>
-      <span>Metric <strong>{{ quickRecommendation().metric }}</strong></span>
-    </div>
-    <div class="forge-command-actions">
-      <button type="button" class="ghost-action" [disabled]="loadoutPlan().assignedSlots === 0" (click)="autoEquip()">Auto Equip Best</button>
-      <button type="button" (click)="runQuickAction()">{{ quickRecommendation().actionLabel }}</button>
-    </div>
+  <section class="loadout-recommendation" aria-label="Forge recommendation">
+    <div><span>Recommended</span><strong>{{ quickRecommendation().title }}</strong><small>{{ quickRecommendation().detail }}</small></div>
+    <div class="loadout-metric"><span>Equipped</span><strong>{{ loadoutPlan().assignedSlots }}/{{ loadoutPlan().totalSlots }}</strong><small>+{{ loadoutPlan().powerGain }} projected power</small></div>
+    <button type="button" class="primary" [disabled]="loadoutPlan().assignedSlots === 0" (click)="autoEquip()">Auto Equip Best</button>
+    <button type="button" (click)="runQuickAction()">{{ quickRecommendation().actionLabel }}</button>
   </section>
 
-  <section class="forge-diagnostics" aria-label="Forge diagnostics">
-    @for (card of diagnostics(); track card.label) {
-      <article class="forge-diagnostic tone-{{ card.tone }}">
-        <span>{{ card.label }}</span>
-        <strong>{{ card.value }}</strong>
-        <p>{{ card.detail }}</p>
-      </article>
+  <section class="active-loadout">
+    <div class="section-title"><div><span>Active Team</span><h3>Equipped Gear</h3></div><small>Select a creature to manage its slots.</small></div>
+    @if (squad().length === 0) {
+      <div class="empty-state"><strong>Build a squad first</strong><p>Return to Formation and add at least one creature before equipping gear.</p></div>
+    } @else {
+      <div class="monster-tabs">
+        @for (monster of squad(); track monster.id) { <button type="button" [class.active]="selectedMonster()?.id === monster.id" (click)="selectMonster(monster.id)">@if(monster.spriteUrl){<img [src]="monster.spriteUrl" alt=""/>}<span>{{ monster.name }}</span></button> }
+      </div>
+      @if (statComparison(); as cmp) { <div class="power-summary"><span>Power</span><strong>{{ cmp.basePower }} → {{ cmp.power }}</strong><small>ATK {{ cmp.geared.attack }} · DEF {{ cmp.geared.defense }} · SPD {{ cmp.geared.speed }} · HP {{ cmp.geared.hp }}</small></div> }
+      <div class="slot-grid">
+        @for (slot of slots; track slot) {
+          <article class="gear-slot">
+            <div><span>{{ slotLabel[slot] }}</span>@if(equippedFor(slot);as eq){<button type="button" class="danger mini" (click)="unequip(slot)">Unequip</button>}</div>
+            @if (equippedFor(slot); as eq) { <strong>{{ eq.def.name }} T{{ eq.instance.tier }}</strong><small>{{ describeBonus(eq.bonus) }}</small> } @else { <strong class="empty">Empty slot</strong><small>Forge or select a matching item below.</small> }
+            <div class="slot-options">@for(entry of ownedForSlot(slot);track entry.instance.instanceId){<button type="button" class="mini" [class.active]="isEquippedHere(entry.instance.instanceId,slot)" (click)="equip(entry.instance.instanceId)">{{ entry.def.name }} T{{ entry.instance.tier }}</button>}@empty{<span>No matching gear owned.</span>}</div>
+          </article>
+        }
+      </div>
     }
   </section>
 
-  <div class="forge-columns">
-    <article class="forge-panel">
-      <h3>{{ 'forge.blueprints' | t }}</h3>
-      <div class="blueprint-grid">
-        @for (def of defs; track def.id) {
-          <div class="blueprint">
-            <div class="bp-head">
-              <span class="bp-icon">{{ def.icon }}</span>
-              <div>
-                <strong>{{ def.name }}</strong>
-                <small>{{ slotLabel[def.slot] }}</small>
-              </div>
-            </div>
-            <p class="bp-detail">{{ def.detail }}</p>
-            <p class="bp-bonus">{{ describeBonus(def.base) }} per tier</p>
-            <button type="button" [disabled]="!canForge(def)" (click)="forge(def)">
-              Forge — {{ forgeCostFor(def).coins }} CR / {{ forgeCostFor(def).dnaShards }} DNA
-            </button>
-          </div>
-        }
-      </div>
-    </article>
-
-    <article class="forge-panel">
-      <h3>{{ 'forge.locker' | t }} <small>({{ owned().length }})</small></h3>
-      @if (owned().length === 0) {
-        <p class="empty">No gear forged yet. Forge a blueprint to begin.</p>
-      } @else {
-        <div class="locker-list">
-          @for (entry of owned(); track entry.instance.instanceId) {
-            <div class="locker-item">
-              <span class="bp-icon">{{ entry.def.icon }}</span>
-              <div class="locker-info">
-                <strong>{{ entry.def.name }} <em>T{{ entry.instance.tier }}</em></strong>
-                <small>{{ describeBonus(entry.bonus) }}</small>
-              </div>
-              @if (upgradeCostFor(entry.instance); as cost) {
-                <button type="button" class="mini" [disabled]="!canUpgrade(entry.instance)" (click)="upgrade(entry.instance)">
-                  Upgrade {{ cost.coins }}CR/{{ cost.dnaShards }}DNA
-                </button>
-              } @else {
-                <span class="maxed">MAX</span>
-              }
-            </div>
-          }
-        </div>
+  <details class="loadout-disclosure" open>
+    <summary><span>Blueprints</span><strong>{{ defs.length }} available</strong></summary>
+    <div class="blueprint-grid">
+      @for (def of defs; track def.id) {
+        <article class="blueprint"><span class="bp-icon">{{ def.icon }}</span><div><strong>{{ def.name }}</strong><small>{{ slotLabel[def.slot] }} · {{ describeBonus(def.base) }} per tier</small><p>{{ def.detail }}</p></div><button type="button" [disabled]="!canForge(def)" (click)="forge(def)">Forge {{ forgeCostFor(def).coins }} CR / {{ forgeCostFor(def).dnaShards }} DNA</button></article>
       }
-    </article>
+    </div>
+  </details>
 
-    <article class="forge-panel">
-      <h3>{{ 'forge.equip' | t }}</h3>
-      @if (squad().length === 0) {
-        <p class="empty">Add creatures to your squad to equip gear.</p>
-      } @else {
-        <div class="monster-tabs">
-          @for (monster of squad(); track monster.id) {
-            <button
-              type="button"
-              class="monster-tab"
-              [class.active]="selectedMonster()?.id === monster.id"
-              (click)="selectMonster(monster.id)"
-            >
-              {{ monster.name }}
-            </button>
-          }
-        </div>
-
-        @if (statComparison(); as cmp) {
-          <p class="power-line">
-            Power <strong>{{ cmp.basePower }}</strong> → <strong class="boosted">{{ cmp.power }}</strong>
-            <span class="stat-mini">ATK {{ cmp.geared.attack }} · DEF {{ cmp.geared.defense }} · SPD {{ cmp.geared.speed }} · HP {{ cmp.geared.hp }}</span>
-          </p>
-        }
-
-        <div class="slot-grid">
-          @for (slot of slots; track slot) {
-            <div class="slot-block">
-              <div class="slot-head">
-                <span>{{ slotLabel[slot] }}</span>
-                @if (equippedFor(slot); as eq) {
-                  <button type="button" class="mini ghost" (click)="unequip(slot)">Unequip</button>
-                }
-              </div>
-              @if (equippedFor(slot); as eq) {
-                <div class="equipped">{{ eq.def.name }} T{{ eq.instance.tier }} — {{ describeBonus(eq.bonus) }}</div>
-              } @else {
-                <div class="equipped empty-slot">Empty</div>
-              }
-              <div class="slot-options">
-                @for (entry of ownedForSlot(slot); track entry.instance.instanceId) {
-                  <button
-                    type="button"
-                    class="mini"
-                    [class.active]="isEquippedHere(entry.instance.instanceId, slot)"
-                    (click)="equip(entry.instance.instanceId)"
-                  >
-                    {{ entry.def.name }} T{{ entry.instance.tier }}
-                  </button>
-                } @empty {
-                  <span class="none">No {{ slotLabel[slot] }} gear forged.</span>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      }
-    </article>
-  </div>
+  <details class="loadout-disclosure">
+    <summary><span>Gear Locker</span><strong>{{ owned().length }} owned</strong></summary>
+    <div class="locker-list">
+      @for (entry of owned(); track entry.instance.instanceId) { <article><span class="bp-icon">{{ entry.def.icon }}</span><div><strong>{{ entry.def.name }} T{{ entry.instance.tier }}</strong><small>{{ describeBonus(entry.bonus) }}</small></div>@if(upgradeCostFor(entry.instance);as cost){<button type="button" class="mini" [disabled]="!canUpgrade(entry.instance)" (click)="upgrade(entry.instance)">Upgrade {{ cost.coins }} CR / {{ cost.dnaShards }} DNA</button>}@else{<span class="maxed">MAX</span>}</article> } @empty { <p class="empty-state">Forge your first blueprint to fill the locker.</p> }
+    </div>
+  </details>
 </section>

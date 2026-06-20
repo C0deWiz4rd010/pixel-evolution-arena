@@ -1,320 +1,72 @@
-<div class="squad-layout squad-terminal">
-  <section class="hud-panel squad-builder squad-command">
-    <div class="section-heading squad-heading">
-      <div>
-        <span class="terminal-label">TEAM TERMINAL</span>
-        <h2>Squad Uplink</h2>
-        <p>Load three active signals, compare output, and patch coverage gaps.</p>
-      </div>
-      <div class="squad-heading-actions">
-        <button type="button" (click)="autoBuildSquad()">Auto Build Best Squad</button>
-        <button type="button" [disabled]="!canRunSquadTraining()" (click)="game.runSquadTrainingDrill()">
-          {{ squadTrainingDrill().label }} (+{{ squadTrainingDrill().xpGain }} XP)
-        </button>
-        <button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button>
-      </div>
-    </div>
+<section class="hud-panel squad-view">
+  <header class="squad-header">
+    <div><span>Squad</span><h2>Build Your Team</h2><p>Fill three roles, compare reserves, then take the squad into battle.</p></div>
+    <div class="team-power"><span>Team Power</span><strong>{{ game.teamPower() }}</strong><small>{{ powerDeltaLabel() }}</small></div>
+  </header>
 
-    <section class="preset-console" aria-label="Squad presets">
-      <div class="preset-head">
-        <span>Saved Presets</span>
-        <strong>{{ presets().length }}/3</strong>
-      </div>
-      <div class="preset-form">
-        <input
-          type="text"
-          maxlength="24"
-          placeholder="Name preset (e.g. Fire Rush)"
-          [value]="presetDraftName()"
-          (input)="onPresetDraftChange($any($event.target).value)"
-          aria-label="New preset name"
-        />
-        <button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button>
-      </div>
-      @if (presets().length > 0) {
-        <div class="preset-list">
-          @for (preset of presets(); track preset.id) {
-            <div class="preset-item">
-              <div>
-                <strong>{{ preset.name }}</strong>
-                <small>{{ preset.squadIds.length }} units</small>
-              </div>
-              <div class="preset-actions">
-                <button type="button" (click)="loadPreset(preset.id)">Load</button>
-                <button type="button" class="danger" (click)="deletePreset(preset.id)">Delete</button>
-              </div>
-            </div>
-          }
-        </div>
-      } @else {
-        <p class="empty-note preset-empty">Load a squad and save it. Three presets max; the oldest rotates out.</p>
-      }
-    </section>
-
-
-    <section class="active-squad-board" aria-label="Active squad slots">
-      <div class="board-head">
-        <div>
-          <span>ACTIVE LOADOUT</span>
-          <strong>{{ slotsFilled() }}/3 ONLINE</strong>
-        </div>
-        <div>
-          <span>TEAM OUTPUT</span>
-          <strong>{{ game.teamPower() }} PW</strong>
-        </div>
-      </div>
-
-      <div class="squad-slots">
-        @for (slot of squadSlots(); track slot.index) {
-          @if (slot.monster; as monster) {
-            <article class="squad-slot filled stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
-              <div class="slot-chrome">
-                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
-                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
-                <em>{{ monster.stage }}</em>
-              </div>
-
-              <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
-                @if (monster.spriteUrl) {
-                  <img class="creature-sprite squad-sprite" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
-                } @else {
-                  <span class="fallback-icon">{{ monster.icon }}</span>
-                }
-              </button>
-
-              <div class="slot-identity">
-                <span>{{ monster.id }} / {{ monster.type }}</span>
-                <h3>{{ monster.name }}</h3>
-              </div>
-
-              <div class="slot-stat-grid" aria-label="Squad member stats">
-                <span><small>ATK</small><strong>{{ monster.attack }}</strong></span>
-                <span><small>DEF</small><strong>{{ monster.defense }}</strong></span>
-                <span><small>SPD</small><strong>{{ monster.speed }}</strong></span>
-                <span><small>HP</small><strong>{{ monster.hp }}</strong></span>
-              </div>
-
-              <div class="slot-footer">
-                <span>LV {{ monster.level }}</span>
-                <strong>{{ power(monster) }} PW</strong>
-              </div>
-
-              <div class="slot-actions">
-                <button type="button" (click)="game.selectMonster(monster.id)">Inspect</button>
-                <button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button>
-              </div>
-            </article>
-          } @else {
-            <article class="squad-slot empty">
-              <div class="slot-chrome">
-                <span class="slot-number">S-0{{ slot.index + 1 }}</span>
-                <span class="slot-role role-{{ slot.role.id }}" [attr.title]="slot.role.detail">{{ slot.role.label }}</span>
-                <em>OFFLINE</em>
-              </div>
-              <p class="slot-role-detail">{{ slot.role.detail }}</p>
-              <span class="empty-node">+</span>
-              <h3>Signal Missing</h3>
-              @if (recommendedCandidate(); as candidate) {
-                <p>Best next link: {{ candidate.name }} / {{ candidate.type }}</p>
-                <button type="button" class="slot-quick-add" (click)="addRecommended()">Load Suggested</button>
-              } @else {
-                <p>No unlocked reserve signal.</p>
-              }
-            </article>
-          }
-        }
-      </div>
-    </section>
-
-    <section class="candidate-strip reserve-terminal" aria-label="Unlocked reserve monsters">
-      <div class="strip-heading">
-        <h3>Reserve Uplink</h3>
-        <span>{{ candidates().length }} unlocked outside squad</span>
-      </div>
-
-      @if (candidates().length > 0) {
-        <div class="candidate-row" appGridNav=".candidate-card" aria-label="Reserve creatures, use arrow keys to navigate">
-          @for (monster of candidates(); track monster.id) {
-            <button
-              type="button"
-              class="candidate-card stage-{{ game.stageClass(monster.stage) }}"
-              [class.recommended]="recommendedCandidateId() === monster.id"
-              [class.swap-ready]="canSwapCandidate(monster)"
-              [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)"
-              (click)="addOrSwapCandidate(monster)"
-            >
-              <span class="candidate-id">{{ monster.id }}</span>
-              <span class="candidate-sprite">
-                @if (monster.spriteUrl) {
-                  <img class="creature-sprite candidate-sprite-img" [src]="monster.spriteUrl" [alt]="monster.name + ' animated sprite'" loading="lazy" />
-                } @else {
-                  {{ monster.icon }}
-                }
-              </span>
-              <strong>{{ monster.name }}</strong>
-              <small>{{ monster.stage }} / {{ monster.type }}</small>
-              <span class="candidate-power">PW {{ power(monster) }}</span>
-              <em>{{ candidateActionLabel(monster) }}</em>
-            </button>
-          }
-        </div>
-      } @else {
-        <p class="empty-note">All unlocked creatures are already online or the roster needs more Evolution Tree progress.</p>
-      }
-    </section>
+  <section class="squad-primary-actions" aria-label="Squad actions">
+    <div><span>{{ slotsFilled() }}/3 slots filled</span><strong>{{ nextAction().title }}</strong><small>{{ recommendation() }}</small></div>
+    <button type="button" class="primary" (click)="autoBuildSquad()">Auto Build Best Squad</button>
+    <button type="button" [disabled]="!canRunSquadTraining()" (click)="game.runSquadTrainingDrill()">Train Team</button>
   </section>
 
-  <aside class="hud-panel team-summary squad-diagnostics">
-    <div class="diagnostic-header">
-      <span class="terminal-label">SQUAD DIAGNOSTICS</span>
-      <h2>Battle Readiness</h2>
-    </div>
-
-    <section class="power-benchmark state-{{ powerStatus() }}" aria-label="Power comparison">
-      <div class="benchmark-row">
-        <span>Team PW</span>
-        <strong>{{ game.teamPower() }}</strong>
-      </div>
-      <div class="benchmark-row enemy">
-        <span>{{ activeFormation().tier }} Grid</span>
-        <strong>{{ game.enemyPower() }}</strong>
-      </div>
-      <div class="power-track" aria-label="Team power match percent">
-        <span [style.width.%]="powerMatchPercent()"></span>
-      </div>
-      <p>{{ powerDeltaLabel() }}</p>
-      <p class="synergy-brief">{{ activeFormation().name }} // {{ arenaDirective().objective }}</p>
-    </section>
-
-    <section class="next-command tone-{{ nextAction().tone }}" aria-label="Recommended squad action">
-      <span>Next Command</span>
-      <h3>{{ nextAction().title }}</h3>
-      <p>{{ recommendation() }}</p>
-      @if (nextAction().tone === 'add' && recommendedCandidate(); as candidate) {
-        <button type="button" [disabled]="slotsFilled() >= 3" (click)="addRecommended()">Add {{ candidate.name }}</button>
-      }
-      @if (nextAction().tone === 'remove' && weakestMember(); as weakest) {
-        <button type="button" class="swap-action" (click)="replaceRecommended()">Swap Weakest</button>
-      }
-    </section>
-
-    <section class="squad-orders-console" aria-label="Squad orders">
-      <div class="orders-head">
-        <span>Squad Orders</span>
-        <strong>{{ squadOrders().length }} live</strong>
-      </div>
-      <div class="squad-order-list">
-        @for (order of squadOrders(); track order.id) {
-          <article class="squad-order-card tone-{{ order.tone }}" [class.disabled]="order.disabled">
-            <div class="order-topline">
-              <span>{{ order.label }}</span>
-              <b>{{ order.metric }}</b>
-            </div>
-            <strong>{{ order.title }}</strong>
-            <small>{{ order.detail }}</small>
-            <button type="button" [disabled]="order.disabled" (click)="runSquadOrder(order)">
-              {{ order.actionLabel }}
+  <section class="formation-board" aria-label="Active squad slots">
+    <div class="section-title"><div><span>Formation</span><h3>{{ slotsFilled() }}/3 Ready</h3></div><small>Vanguard · Sync Core · Anchor</small></div>
+    <div class="squad-slots">
+      @for (slot of squadSlots(); track slot.index) {
+        @if (slot.monster; as monster) {
+          <article class="squad-slot stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
+            <div class="slot-role"><span>Slot {{ slot.index + 1 }}</span><strong>{{ slot.role.label }}</strong></div>
+            <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
+              @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.name" /> }
             </button>
+            <div class="slot-copy"><span>{{ monster.stage }} · {{ monster.type }}</span><h3>{{ monster.name }}</h3><small>LV {{ monster.level }} · {{ power(monster) }} PW</small></div>
+            <div class="slot-actions"><button type="button" (click)="game.selectMonster(monster.id)">Inspect</button><button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button></div>
           </article>
-        }
-      </div>
-    </section>
-
-    <section class="coverage-console squad-shape-console" aria-label="Squad stat shape">
-      <div class="coverage-head">
-        <span>Squad Shape</span>
-        <strong>{{ game.squad().length }}/3 tuned</strong>
-      </div>
-      <div class="shape-list">
-        @for (stat of teamShapeStats(); track stat.label) {
-          <div class="shape-row tone-{{ stat.tone }}">
-            <span>{{ stat.label }}</span>
-            <strong>{{ stat.value }}</strong>
-            <i aria-hidden="true"><em [style.width.%]="stat.percent"></em></i>
-          </div>
-        }
-      </div>
-      <div class="role-fit-list">
-        @for (fit of roleFits(); track fit.role.id) {
-          <article class="role-fit">
-            <span>{{ fit.role.label }}</span>
-            <strong>{{ fit.monster?.name ?? 'Empty Slot' }}</strong>
-            <small>{{ fit.label }} / {{ fit.score }}%</small>
-          </article>
-        }
-      </div>
-    </section>
-
-    <section class="coverage-console" aria-label="Type coverage">
-      <div class="coverage-head">
-        <span>Type Coverage</span>
-        <strong>{{ coveredTypeCount() }}/{{ game.types.length }}</strong>
-      </div>
-      <div class="coverage-track">
-        <span [style.width.%]="coveragePercent()"></span>
-      </div>
-      <div class="coverage-list">
-        @for (item of coverageItems(); track item.type) {
-          <span class="coverage-node" [class.missing]="!item.covered">
-            <strong>{{ item.type }}</strong>
-            <em>{{ item.covered ? item.count + 'x' : 'MISS' }}</em>
-          </span>
-        }
-      </div>
-    </section>
-
-    <section class="coverage-console synergy-console" aria-label="Squad synergy and matchup readout">
-      <div class="coverage-head">
-        <span>Combat Signals</span>
-        <strong>{{ synergySignals().length > 0 ? synergySignals().length + ' active' : 'baseline' }}</strong>
-      </div>
-      <p class="synergy-brief">
-        {{ battleEdge().label }} // {{ battleEdge().detail }}
-      </p>
-      @if (synergySignals().length > 0) {
-        <div class="synergy-detail-list">
-          @for (signal of synergySignals(); track signal.id) {
-            <article class="synergy-detail">
-              <div class="synergy-detail-head">
-                <strong>{{ signal.label }}</strong>
-                <em>{{ formatModifier(signal.modifier) }}</em>
-              </div>
-              <p class="synergy-what">{{ signal.detail }}</p>
-              <p class="synergy-how"><span>How:</span> {{ signal.activation }}</p>
-            </article>
-          }
-        </div>
-      } @else {
-        <p class="empty-note">Three stronger signals or cleaner type spreads will unlock battle synergies.</p>
-      }
-      <div class="gap-row forecast-row">
-        <span>Next Arena State</span>
-        <strong>{{ dangerForecast().label }}</strong>
-      </div>
-      <p class="synergy-brief">{{ dangerForecast().detail }}</p>
-    </section>
-
-    <section class="gap-console" aria-label="Missing squad signals">
-      <div class="gap-row">
-        <span>Open Slots</span>
-        <strong>{{ emptySlots() }}</strong>
-      </div>
-      <div class="gap-row">
-        <span>Weakest Link</span>
-        <strong>{{ weakestMember()?.name ?? 'None' }}</strong>
-      </div>
-      <div class="missing-types">
-        <span>Missing Types</span>
-        @if (missingTypes().length > 0) {
-          <div>
-            @for (type of missingTypes(); track type) {
-              <strong>{{ type }}</strong>
-            }
-          </div>
         } @else {
-          <strong>Full spectrum</strong>
+          <article class="squad-slot empty">
+            <div class="slot-role"><span>Slot {{ slot.index + 1 }}</span><strong>{{ slot.role.label }}</strong></div>
+            <span class="empty-node">+</span><h3>Open Slot</h3><p>{{ slot.role.detail }}</p>
+            @if (recommendedCandidate(); as candidate) { <button type="button" class="primary" (click)="addRecommended()">Add {{ candidate.name }}</button> }
+          </article>
         }
-      </div>
+      }
+    </div>
+  </section>
+
+  <section class="reserve-section" aria-label="Unlocked reserve monsters">
+    <div class="section-title"><div><span>Reserves</span><h3>Available Creatures</h3></div><small>{{ candidates().length }} outside squad</small></div>
+    <div class="reserve-list">
+      @for (monster of candidates().slice(0, 8); track monster.id) {
+        <button type="button" class="reserve-card stage-{{ game.stageClass(monster.stage) }}" [class.recommended]="recommendedCandidateId() === monster.id" [class.swap-ready]="canSwapCandidate(monster)" [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)" (click)="addOrSwapCandidate(monster)">
+          @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" alt="" /> }
+          <span><strong>{{ monster.name }}</strong><small>{{ monster.type }} · {{ power(monster) }} PW</small></span>
+          <em>{{ candidateActionLabel(monster) }}</em>
+        </button>
+      } @empty { <p class="empty-note">Unlock another creature in Evolve to expand your reserves.</p> }
+    </div>
+  </section>
+
+  <details class="squad-disclosure" aria-label="Team analysis">
+    <summary><span>Team Analysis</span><strong>{{ powerStatus() === 'ahead' ? 'Battle Ready' : 'Needs Attention' }}</strong></summary>
+    <div class="analysis-grid">
+      <section class="analysis-card"><span>Power Check</span><strong>{{ game.teamPower() }} vs {{ game.enemyPower() }}</strong><div class="power-track"><i [style.width.%]="powerMatchPercent()"></i></div><p>{{ activeFormation().name }} · {{ arenaDirective().objective }}</p></section>
+      <section class="analysis-card"><span>Type Coverage</span><strong>{{ coveredTypeCount() }}/{{ game.types.length }}</strong><p>{{ battleEdge().label }} · {{ battleEdge().detail }}</p></section>
+      <section class="analysis-card"><span>Synergy</span><strong>{{ synergySignals().length }} active</strong><p>{{ synergySignals().length ? synergySignals()[0].detail : 'Mix stronger stages or complementary types to activate bonuses.' }}</p></section>
+    </div>
+    <section class="squad-orders" aria-label="Squad orders">
+      <h3>Recommended Actions</h3>
+      @for (order of squadOrders().slice(0, 3); track order.id) {
+        <article><div><span>{{ order.label }}</span><strong>{{ order.title }}</strong><small>{{ order.detail }}</small></div><button type="button" [disabled]="order.disabled" (click)="runSquadOrder(order)">{{ order.actionLabel }}</button></article>
+      }
     </section>
-  </aside>
-</div>
+  </details>
+
+  <details class="squad-disclosure" aria-label="Squad presets">
+    <summary><span>Presets & Maintenance</span><strong>{{ presets().length }}/3 saved</strong></summary>
+    <div class="preset-form"><input type="text" maxlength="24" placeholder="Preset name" [value]="presetDraftName()" (input)="onPresetDraftChange($any($event.target).value)" aria-label="New preset name" /><button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button><button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button></div>
+    <div class="preset-list">
+      @for (preset of presets(); track preset.id) { <article><span><strong>{{ preset.name }}</strong><small>{{ preset.squadIds.length }} creatures</small></span><div><button type="button" (click)="loadPreset(preset.id)">Load</button><button type="button" class="danger" (click)="deletePreset(preset.id)">Delete</button></div></article> }
+    </div>
+  </details>
+</section>
