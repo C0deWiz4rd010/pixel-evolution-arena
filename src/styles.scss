@@ -76,6 +76,20 @@
   --font-display: "Pixelify Sans Local", "Cascadia Mono", monospace;
   --font-body: "Space Grotesk Local", "Segoe UI", sans-serif;
   --font: var(--font-body);
+  --surface-canvas: #030b14;
+  --surface-card: #07131f;
+  --surface-card-raised: #0a1927;
+  --surface-focus: #0b1d2d;
+  --card-border: rgba(132, 184, 207, 0.2);
+  --card-border-strong: rgba(19, 216, 255, 0.52);
+  --card-radius: 6px;
+  --card-padding: 0.78rem;
+  --card-gap: 0.7rem;
+  --card-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+  --focus-shadow: 0 0 0 1px rgba(156, 246, 255, 0.2), 0 12px 30px rgba(0, 0, 0, 0.28);
+  --texture-opacity: 0.2;
+  --text-meta: 0.75rem;
+  --text-body: 0.875rem;
   --text-xs: 0.74rem;
   --text-sm: 0.8rem;
   --text-kicker: 0.7rem;
@@ -95,6 +109,38 @@
 
 :root[data-typography="tech-sans"] {
   --font-display: "Space Grotesk Local", "Segoe UI", sans-serif;
+}
+
+:root[data-visual-style="pixel-arcade"] {
+  --surface-card: #041421;
+  --surface-card-raised: #071c2b;
+  --surface-focus: #082335;
+  --card-border: rgba(19, 216, 255, 0.34);
+  --card-border-strong: rgba(124, 255, 58, 0.72);
+  --card-radius: 0;
+  --card-padding: 0.64rem;
+  --card-gap: 0.52rem;
+  --card-shadow: 4px 4px 0 rgba(0, 0, 0, 0.38);
+  --focus-shadow: 0 0 0 2px rgba(124, 255, 58, 0.42), 5px 5px 0 rgba(0, 0, 0, 0.34);
+  --texture-opacity: 0.55;
+  --chamfer: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+}
+
+:root[data-visual-style="tactical-minimal"] {
+  --surface-card: #0a141e;
+  --surface-card-raised: #0d1924;
+  --surface-focus: #101f2b;
+  --card-border: rgba(174, 217, 231, 0.13);
+  --card-border-strong: rgba(174, 217, 231, 0.3);
+  --card-radius: 10px;
+  --card-padding: 0.92rem;
+  --card-gap: 0.9rem;
+  --card-shadow: none;
+  --focus-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --texture-opacity: 0.04;
+  --chamfer: inset(0 round 10px);
+  --chamfer-tight: inset(0 round 7px);
+  --chamfer-wide: inset(0 round 12px);
 }
 
 * {
@@ -168,6 +214,7 @@ body {
   background-size: 42px 42px, 42px 42px, auto;
   color: var(--text);
   font-family: var(--font);
+  font-size: 16px;
 }
 
 body::before {
@@ -3365,5 +3412,335 @@ app-monster-card {
   .battle-terminal {
     min-height: 0;
     overflow: visible;
+  }
+}
+
+/* Collector Tech card system ------------------------------------------------ */
+
+body .app-shell {
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+body .app-shell button,
+body .app-shell select,
+body .app-shell input,
+body .app-shell textarea {
+  font-family: var(--font-body);
+  font-weight: 650;
+  letter-spacing: 0.015em;
+  text-transform: none;
+}
+
+body .app-shell :is(h1, h2, h3, .brand-copy strong, .family-node > strong, .dex-card > strong) {
+  font-family: var(--font-display);
+}
+
+body .app-shell :is(p, small, .action-note, .family-heading small, .index-heading small) {
+  line-height: 1.45;
+}
+
+body .app-shell p {
+  font-size: var(--text-body);
+}
+
+body .app-shell small,
+body .app-shell :is(.compact-requirements span, .node-state, .card-state, .slot-role, .forecast-card > span, .analysis-card > span) {
+  font-size: var(--text-meta);
+}
+
+body .app-shell :is(
+  .hud-panel,
+  .next-goal,
+  .discovery-goal,
+  .family-path,
+  .family-node,
+  .detail-icon,
+  .training-plan,
+  .detail-disclosure,
+  .target-card,
+  .drill-card,
+  .squad-primary-actions,
+  .squad-slot,
+  .reserve-card,
+  .analysis-card,
+  .squad-disclosure,
+  .forecast-card,
+  .payout-card,
+  .coach-card,
+  .battle-disclosure,
+  .battle-log,
+  .battle-result,
+  .launch-panel,
+  .relic-choice,
+  .expedition-disclosure,
+  .archive-goal,
+  .archive-filters,
+  .dex-card,
+  .selected-record,
+  .chase-list,
+  .settings-card,
+  .system-card
+) {
+  border-radius: var(--card-radius);
+}
+
+body .app-shell :is(.header-hud, .primary-nav) {
+  border-color: var(--card-border-strong);
+  background-color: color-mix(in srgb, var(--surface-card) 94%, transparent);
+  box-shadow: var(--card-shadow);
+}
+
+body .app-shell .stat-chip {
+  border-color: var(--card-border);
+  border-radius: var(--card-radius);
+  background: color-mix(in srgb, var(--surface-card-raised) 90%, transparent);
+}
+
+body .app-shell .primary-nav-item {
+  font-family: var(--font-body);
+}
+
+body .app-shell .primary-nav-item.active {
+  background: color-mix(in srgb, var(--line) 10%, var(--surface-card));
+}
+
+body .app-shell :is(
+  .family-path,
+  .family-node,
+  .detail-panel,
+  .target-card,
+  .drill-card,
+  .squad-slot,
+  .reserve-card,
+  .analysis-card,
+  .forecast-card,
+  .payout-card,
+  .coach-card,
+  .launch-panel,
+  .relic-choice,
+  .dex-card,
+  .selected-record,
+  .settings-card,
+  .system-card
+) {
+  border-color: var(--card-border);
+  background-color: var(--surface-card);
+  box-shadow: var(--card-shadow);
+}
+
+body .app-shell :is(.detail-panel, .selected-record, .battle-prep, .settings-card, .system-card) {
+  background-color: var(--surface-card-raised);
+}
+
+body .app-shell :is(.family-node, .dex-card, .squad-slot, .reserve-card, .target-card) {
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+body .app-shell :is(.family-node, .dex-card, .squad-slot, .reserve-card, .target-card):hover:not(:disabled) {
+  border-color: var(--card-border-strong);
+  background-color: var(--surface-focus);
+}
+
+body .app-shell :is(.family-node.selected, .dex-card.selected, .reserve-card.recommended, .target-card.ready) {
+  border-color: var(--stage-color, var(--success));
+  background-color: var(--surface-focus);
+  box-shadow: var(--focus-shadow);
+}
+
+body .app-shell :is(.family-node, .dex-card) {
+  overflow: hidden;
+  border-top: 3px solid var(--stage-color, var(--line));
+  background: var(--surface-card);
+}
+
+body .app-shell :is(.family-node.locked, .dex-card.locked) {
+  border-top-style: dashed;
+  background: color-mix(in srgb, var(--surface-card) 86%, #000);
+}
+
+body .app-shell .family-path {
+  background:
+    linear-gradient(rgba(19, 216, 255, calc(var(--texture-opacity) * 0.12)) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 216, 255, calc(var(--texture-opacity) * 0.12)) 1px, transparent 1px),
+    var(--surface-canvas);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+body .app-shell .family-node {
+  flex-basis: 144px;
+  min-height: 214px;
+  gap: 0.42rem;
+  padding: var(--card-padding);
+}
+
+body .app-shell .family-node .node-art {
+  width: 116px;
+  height: 116px;
+  border-radius: calc(var(--card-radius) - 1px);
+  background: radial-gradient(circle, color-mix(in srgb, var(--stage-color, var(--line)) 16%, transparent), transparent 68%);
+}
+
+body .app-shell :is(.node-art, .dex-sprite, .detail-icon) {
+  overflow: hidden;
+}
+
+body .app-shell .node-art img {
+  width: 100%;
+  height: 100%;
+  scale: 1.32;
+}
+
+body .app-shell .dex-sprite img {
+  scale: 1.24;
+}
+
+body .app-shell .detail-icon img {
+  scale: 1.22;
+}
+
+body .app-shell :is(.node-state, .card-state, .detail-topline, .goal-copy > span, .archive-header span, .arena-header span) {
+  min-height: 1em;
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  font-weight: 700;
+  letter-spacing: 0.075em;
+}
+
+body .app-shell :is(.family-node > strong, .dex-card > strong, .detail-identity h2) {
+  font-size: 1.08rem;
+  letter-spacing: 0.01em;
+}
+
+body .app-shell .completion-mark {
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--surface-card);
+  font-family: var(--font-body);
+}
+
+body .app-shell .detail-panel {
+  gap: var(--card-gap);
+  padding: calc(var(--card-padding) + 0.12rem);
+}
+
+body .app-shell .detail-icon {
+  min-height: 168px;
+  border-color: color-mix(in srgb, var(--stage-color, var(--line)) 55%, var(--card-border));
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--stage-color, var(--line)) 18%, transparent), transparent 66%),
+    var(--surface-canvas);
+}
+
+body .app-shell :is(.primary-stats span, .record-stats span, .forecast-card, .payout-card strong) {
+  border-color: var(--card-border);
+  background: color-mix(in srgb, var(--surface-card-raised) 82%, transparent);
+}
+
+body .app-shell .next-goal {
+  min-height: 72px;
+  padding: 0.72rem 0.9rem;
+  border-color: color-mix(in srgb, var(--goal-color) 48%, var(--card-border));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--goal-color) 8%, var(--surface-card)) 0 36%, var(--surface-card) 72%);
+  box-shadow: var(--card-shadow);
+}
+
+body .app-shell .next-goal button,
+body .app-shell :is(.primary-action, .prep-actions .primary, .archive-goal button) {
+  min-height: 46px;
+  border-width: 1px;
+  background: linear-gradient(180deg, color-mix(in srgb, currentColor 18%, var(--surface-focus)), var(--surface-card));
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+}
+
+body .app-shell :is(.squad-slot, .dex-card) {
+  padding: var(--card-padding);
+}
+
+body .app-shell .dex-card {
+  min-height: 210px;
+  gap: 0.42rem;
+}
+
+body .app-shell .dex-sprite {
+  width: 112px;
+  height: 112px;
+}
+
+body .app-shell :is(.forecast-card, .payout-card, .coach-card, .analysis-card, .training-plan, .selected-record) {
+  gap: 0.52rem;
+  padding: var(--card-padding);
+}
+
+body .app-shell :is(.detail-disclosure, .squad-disclosure, .battle-disclosure, .battle-log, .expedition-disclosure, .chase-list) {
+  border-color: var(--card-border);
+  background: color-mix(in srgb, var(--surface-canvas) 88%, transparent);
+}
+
+body .app-shell :is(.detail-disclosure, .squad-disclosure, .battle-disclosure, .battle-log, .expedition-disclosure, .chase-list) > summary {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.045em;
+}
+
+:root[data-visual-style="pixel-arcade"] body {
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+:root[data-visual-style="pixel-arcade"] body .app-shell :is(.family-node, .dex-card, .squad-slot, .reserve-card) {
+  outline: 1px solid color-mix(in srgb, var(--stage-color, var(--line)) 22%, transparent);
+  outline-offset: -4px;
+}
+
+:root[data-visual-style="pixel-arcade"] body .app-shell :is(.family-node, .dex-card) {
+  min-height: 196px;
+}
+
+:root[data-visual-style="tactical-minimal"] body,
+:root[data-visual-style="tactical-minimal"] html {
+  background: linear-gradient(145deg, #050b12, #09131d 55%, #050b12);
+}
+
+:root[data-visual-style="tactical-minimal"] body::before,
+:root[data-visual-style="tactical-minimal"] body::after,
+:root[data-visual-style="tactical-minimal"] .hud-panel::after {
+  opacity: 0.08;
+}
+
+:root[data-visual-style="tactical-minimal"] body .app-shell :is(.family-node, .dex-card) {
+  min-height: 224px;
+}
+
+@media (max-width: 720px) {
+  body .app-shell .next-goal {
+    min-height: 0;
+    padding: 0.68rem;
+  }
+
+  body .app-shell .family-node {
+    width: 100%;
+    min-height: 118px;
+    padding: 0.62rem;
+  }
+
+  body .app-shell .family-node .node-art {
+    width: 78px;
+    height: 88px;
+  }
+
+  body .app-shell .detail-panel {
+    padding: 0.7rem;
+  }
+
+  body .app-shell .dex-card {
+    min-height: 176px;
+  }
+
+  body .app-shell .dex-sprite {
+    width: 86px;
+    height: 86px;
   }
 }

@@ -50,6 +50,29 @@ test('settings remain accessible from the header utility menu', async ({ page })
   await expect(page.getByLabel('System checks')).toContainText('Save Core');
 });
 
+test('visual style and typography profiles apply and persist independently', async ({ page }) => {
+  await page.goto('/');
+  await dismissOnboarding(page);
+  await page.getByRole('button', { name: 'Open utility menu' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+
+  await page.getByRole('button', { name: /Pixel Arcade/ }).click();
+  await page.getByRole('button', { name: 'Pixel', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-visual-style', 'pixel-arcade');
+  await expect(page.locator('html')).toHaveAttribute('data-typography', 'pixel');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-visual-style', 'pixel-arcade');
+  await expect(page.locator('html')).toHaveAttribute('data-typography', 'pixel');
+
+  await page.getByRole('button', { name: 'Open utility menu' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: /Tactical Minimal/ }).click();
+  await page.getByRole('button', { name: 'Dual Font', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-visual-style', 'tactical-minimal');
+  await expect(page.locator('html')).toHaveAttribute('data-typography', 'dual-font');
+});
+
 test('archive exposes achievements and guide without extra top-level tabs', async ({ page }) => {
   await page.goto('/');
   await dismissOnboarding(page);
