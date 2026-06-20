@@ -17,6 +17,8 @@ interface TrainingPlan {
 })
 export class MonsterDetailComponent {
   @Input() monster: Monster | null = null;
+  @Input() familyUnlocked = 0;
+  @Input() familyTotal = 0;
   readonly game = inject(GameStateService);
 
   stageClass(monster: Monster): string {

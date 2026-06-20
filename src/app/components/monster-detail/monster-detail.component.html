@@ -6,19 +6,13 @@
     </div>
 
     <div class="detail-hero">
-      <span class="detail-icon sprite-node" aria-hidden="true">
-        @if (selected.unlocked && selected.spriteUrl) {
-          <img class="creature-sprite hero" [src]="selected.spriteUrl" alt="" />
-        } @else {
-          {{ selected.unlocked ? selected.icon : 'LOCK' }}
-        }
+      <span class="detail-icon sprite-node" [class.silhouette]="!selected.unlocked" aria-hidden="true">
+        @if (selected.spriteUrl) { <img class="creature-sprite hero" [src]="selected.spriteUrl" alt="" /> }
       </span>
       <div class="detail-identity">
-        <h2>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</h2>
-        <p>
-          <span>{{ selected.stage }}</span>
-          <span>{{ selected.type }}</span>
-        </p>
+        <h2>{{ selected.unlocked ? selected.name : 'Unknown Form' }}</h2>
+        <p><span>{{ selected.stage }}</span><span>{{ selected.type }}</span></p>
+        <small>{{ familyUnlocked }} / {{ familyTotal }} family forms</small>
       </div>
     </div>
 
@@ -28,160 +22,67 @@
       <span>{{ selected.xp }} / {{ selected.maxXp }} XP</span>
     </div>
 
-    <div class="stat-grid">
-      <span>HP <strong>{{ selected.hp }}</strong></span>
+    <div class="stat-grid primary-stats">
       <span>ATK <strong>{{ selected.attack }}</strong></span>
       <span>DEF <strong>{{ selected.defense }}</strong></span>
+      <span>HP <strong>{{ selected.hp }}</strong></span>
       <span>SPD <strong>{{ selected.speed }}</strong></span>
-      <span>Power <strong>{{ game.getMonsterPower(selected) }}</strong></span>
-      <span>Status <strong>{{ selected.unlocked ? 'Unlocked' : 'Locked' }}</strong></span>
     </div>
 
     <div class="detail-actions">
-      <button type="button" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">
-        Add to Squad
-      </button>
-      @if (addToSquadReason(selected); as reason) {
-        <p class="action-note">{{ reason }}</p>
-      }
+      <button type="button" class="primary-action" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">Add to Squad</button>
+      @if (addToSquadReason(selected); as reason) { <p class="action-note">{{ reason }}</p> }
     </div>
 
     @if (trainingPlan(selected); as plan) {
-      <section class="training-plan tone-{{ plan.tone }}" aria-label="Training plan">
-        <span>{{ plan.status }}</span>
-        <h3>{{ plan.title }}</h3>
-        <p>{{ plan.detail }}</p>
+      <section class="training-plan tone-{{ plan.tone }}" aria-label="Recommended evolution action">
+        <span>{{ plan.status }}</span><h3>{{ plan.title }}</h3><p>{{ plan.detail }}</p>
       </section>
     }
 
-    @if (selected.unlocked) {
-      <section class="training-console" aria-label="Training lab">
-        <div class="training-console-head">
-          <div>
-            <span>Training Lab</span>
-            <h3>Route Acceleration</h3>
-          </div>
-          <strong>{{ game.routeStatusChip().status }}</strong>
-        </div>
-
-        <div class="drill-grid">
-          @for (drill of monsterTrainingDrills(selected); track drill.id) {
-            <article class="drill-card" [class.ready]="canRunTrainingDrill(drill, selected)">
-              <div class="drill-topline">
-                <strong>{{ drill.label }}</strong>
-                <span>+{{ drill.xpGain }} XP</span>
-              </div>
-              <p>{{ drill.detail }}</p>
-              <div class="drill-footer">
-                <small>{{ drill.costCoins }} CR</small>
-                <button type="button" [disabled]="!canRunTrainingDrill(drill, selected)" (click)="runTrainingDrill(selected, drill)">
-                  Run Drill
-                </button>
-              </div>
-            </article>
-          }
-        </div>
-
-        <div class="training-support">
-          @if (primaryLockedTarget(selected); as target) {
-            <article class="blocker-console">
-              <div class="training-console-head compact">
-                <span>Primary Blockers</span>
-                <strong>{{ target.name }}</strong>
-              </div>
-              <div class="requirements compact-requirements">
-                @for (status of game.getRequirementStatuses(selected, target); track status.label) {
-                  <span [class.met]="status.met" [class.missing]="!status.met">
-                    {{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }} / {{ status.required }}
-                  </span>
-                }
-              </div>
-            </article>
-          }
-
-          <article class="drill-card squad-drill" [class.ready]="squadCalibrationReady()">
-            <div class="drill-topline">
-              <strong>{{ game.squadTrainingDrill().label }}</strong>
-              <span>+{{ game.squadTrainingDrill().xpGain }} XP Each</span>
+    <details class="detail-disclosure" open>
+      <summary>Requirements & Evolutions <span>{{ game.getEvolutionTargets(selected).length }}</span></summary>
+      <section class="evolution-targets">
+        @if (game.getEvolutionTargets(selected).length === 0) { <p class="empty-note">This family route currently ends here.</p> }
+        @for (target of game.getEvolutionTargets(selected); track target.id) {
+          <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
+            <div class="target-head">
+              <span class="target-icon sprite-node" [class.silhouette]="!target.unlocked" aria-hidden="true">
+                @if (target.spriteUrl) { <img class="creature-sprite target" [src]="target.spriteUrl" alt="" /> }
+              </span>
+              <div class="target-copy"><strong>{{ target.name }}</strong><span>{{ target.stage }} · {{ powerDeltaLabel(selected, target) }}</span></div>
             </div>
-            <p>{{ game.squadTrainingDrill().detail }}</p>
-            <div class="drill-footer">
-              <small>{{ game.squadTrainingDrill().costCoins }} CR</small>
-              <button type="button" [disabled]="!squadCalibrationReady()" (click)="game.runSquadTrainingDrill()">
-                Run Squad Sim
+            <div class="requirements compact-requirements">
+              @for (status of game.getRequirementStatuses(selected, target); track status.label) {
+                <span [class.met]="status.met" [class.missing]="!status.met">{{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }}/{{ status.required }}</span>
+              }
+            </div>
+            <div class="target-actions">
+              @if (!target.unlocked && game.pinnedChaseId() !== target.id) { <button type="button" class="pin-action" (click)="game.pinChaseTarget(target.id)">Track</button> }
+              <button type="button" [disabled]="!game.canEvolve(selected, target)" [attr.aria-label]="'Evolve ' + target.name" (click)="game.evolve(selected.id, target.id)">
+                {{ target.unlocked ? 'Discovered' : game.canEvolve(selected, target) ? 'Evolve ' + target.name : 'Requirements Missing' }}
               </button>
             </div>
           </article>
-        </div>
+        }
       </section>
+    </details>
+
+    @if (selected.unlocked) {
+      <details class="detail-disclosure training-console">
+        <summary>Training <span>{{ game.routeStatusChip().status }}</span></summary>
+        <div class="drill-grid">
+          @for (drill of monsterTrainingDrills(selected); track drill.id) {
+            <article class="drill-card" [class.ready]="canRunTrainingDrill(drill, selected)">
+              <div class="drill-topline"><strong>{{ drill.label }}</strong><span>+{{ drill.xpGain }} XP</span></div>
+              <p>{{ drill.detail }}</p>
+              <div class="drill-footer"><small>{{ drill.costCoins }} CR</small><button type="button" [disabled]="!canRunTrainingDrill(drill, selected)" (click)="runTrainingDrill(selected, drill)">Run Drill</button></div>
+            </article>
+          }
+        </div>
+      </details>
     }
-
-    <section class="evolution-targets">
-      <h3>Possible Evolutions</h3>
-      @if (game.getEvolutionTargets(selected).length === 0) {
-        <p class="empty-note">This form is a current endpoint. Battle with another line to unlock more goals.</p>
-      }
-      @for (target of game.getEvolutionTargets(selected); track target.id) {
-        <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
-          <div class="target-head">
-            <span class="target-icon sprite-node" aria-hidden="true">
-              @if (target.spriteUrl) {
-                <img class="creature-sprite target" [src]="target.spriteUrl" alt="" loading="lazy" />
-              } @else {
-                {{ target.icon }}
-              }
-            </span>
-            <div class="target-copy">
-              <strong>{{ target.name }}</strong>
-              <span>{{ target.stage }} / {{ target.type }}</span>
-            </div>
-            <span class="monster-id">{{ target.id }}</span>
-          </div>
-
-          <div class="lab-readout">
-            <span class="lab-chip success-chip">
-              <small>Success</small>
-              <strong>{{ game.canEvolve(selected, target) ? '100%' : 'Gated' }}</strong>
-            </span>
-            <span class="lab-chip power-chip" [class.gain]="powerDelta(selected, target) >= 0">
-              <small>Power</small>
-              <strong>{{ powerDeltaLabel(selected, target) }}</strong>
-            </span>
-            <span class="lab-chip pin-chip" [class.pinned]="game.pinnedChaseId() === target.id">
-              <small>Chase</small>
-              @if (game.pinnedChaseId() === target.id) {
-                <button type="button" class="pin-action" (click)="game.unpinChaseTarget()">Unpin</button>
-              } @else if (!target.unlocked) {
-                <button type="button" class="pin-action" (click)="game.pinChaseTarget(target.id)">Pin</button>
-              } @else {
-                <strong>Online</strong>
-              }
-            </span>
-          </div>
-
-          <div class="requirements">
-            @for (status of game.getRequirementStatuses(selected, target); track status.label) {
-              <span [class.met]="status.met" [class.missing]="!status.met">
-                {{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }} / {{ status.required }}
-              </span>
-            }
-          </div>
-
-          <button
-            type="button"
-            [disabled]="!game.canEvolve(selected, target)"
-            [attr.aria-label]="target.unlocked ? 'Unlocked ' + target.name : game.canEvolve(selected, target) ? 'Evolve ' + target.name : 'Requirements missing for ' + target.name"
-            (click)="game.evolve(selected.id, target.id)"
-          >
-            {{ target.unlocked ? 'Unlocked' : game.canEvolve(selected, target) ? 'Evolve' : 'Requirements Missing' }}
-          </button>
-        </article>
-      }
-    </section>
   </aside>
 } @else {
-  <aside class="hud-panel detail-panel">
-    <h2>No signal selected</h2>
-    <p>Select an unlocked creature to inspect evolution goals.</p>
-  </aside>
+  <aside class="hud-panel detail-panel"><h2>No creature selected</h2><p>Select a discovered form to inspect it.</p></aside>
 }

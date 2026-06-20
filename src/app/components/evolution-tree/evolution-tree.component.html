@@ -1,273 +1,80 @@
-<div class="tree-layout">
-  <section class="hud-panel tree-panel">
-    <div class="tree-topline">
-      <div class="section-heading">
+<div class="evolve-layout">
+  <section class="hud-panel evolution-workspace">
+    <header class="evolve-header">
+      <div>
+        <span>Evolution Path</span>
+        <h2>Grow Your Collection</h2>
+        <p>Follow one family at a time. Battles and training provide everything needed for the next discovery.</p>
+      </div>
+      <div class="dex-progress" aria-label="Dex collection progress">
+        <div><span>Dex</span><strong>{{ game.unlockedCount() }} / {{ game.monsters().length }}</strong></div>
+        <i aria-hidden="true"><b [style.width.%]="dexPercent()"></b></i>
+        <small>{{ dexPercent() }}% discovered</small>
+      </div>
+    </header>
+
+    @if (nextDiscovery(); as next) {
+      <section class="discovery-goal stage-{{ game.stageClass(next.stage) }}" aria-label="Next discovery">
+        <div class="mystery-preview" [class.revealed]="next.unlocked">
+          @if (next.spriteUrl) { <img [src]="next.spriteUrl" alt="" /> } @else { <span>?</span> }
+        </div>
         <div>
-          <span class="matrix-label">Route Matrix / Live Evolution Plan</span>
-          <h2>Evolution Tree</h2>
-          <p>Trace the active branch, read locked requirements, and keep the squad battle-ready.</p>
+          <span>Next Discovery</span>
+          <strong>{{ next.name }}</strong>
+          <small>{{ next.stage }} · {{ next.type }}</small>
         </div>
-      </div>
-      <div class="tree-progress">
-        <span>Unlocked Network</span>
-        <strong>{{ game.unlockedCount() }} / {{ game.monsters().length }}</strong>
-      </div>
-    </div>
-
-    <div class="tree-codebar">
-      <div class="stage-legend" aria-label="Stage band overview">
-        @for (row of stageRows(); track row.stage) {
-          <span class="legend-pill stage-{{ row.className }}">
-            <b>{{ row.glyph }}</b>
-            <span>{{ row.stage }}</span>
-            <strong>{{ row.unlocked }}/{{ row.total }}</strong>
-            <small>{{ row.readyRoutes }} ready / {{ row.trackedRoutes }} tracked</small>
-          </span>
-        }
-      </div>
-
-      <div class="route-legend" aria-label="Route line legend">
-        <span class="route-key standard"><i aria-hidden="true"></i>Standard</span>
-        <span class="route-key branch"><i aria-hidden="true"></i>Branch</span>
-        <span class="route-key special"><i aria-hidden="true"></i>Item/Special</span>
-        <span class="route-key selected"><i aria-hidden="true"></i>Selected Route</span>
-      </div>
-    </div>
-
-    <section class="route-pressure-strip" aria-label="Route pressure status">
-      <article class="pressure-card">
-        <span>Route Pressure</span>
-        <strong>{{ routePressure().label }}</strong>
-        <small>{{ game.routeStatusChip().detail }}</small>
-      </article>
-      <article class="pressure-card">
-        <span>Arena Pull</span>
-        <strong>{{ battlePosture() }}</strong>
-        <small>{{ arenaDirective().objective }}</small>
-      </article>
-      <article class="pressure-card">
-        <span>Stage Unlocks</span>
-        <strong>{{ game.unlockedCount() }}/{{ game.monsters().length }}</strong>
-        <small>Network online across all evolution bands.</small>
-      </article>
-    </section>
-
-    <div class="evolution-rows" aria-label="Evolution stages and route nodes">
-      @for (row of stageRows(); track row.stage) {
-        <section class="stage-row stage-{{ row.className }}" [style.--stage-progress]="row.progress + '%'">
-          <div class="stage-label">
-            <span class="stage-index">STAGE {{ row.ordinal }}</span>
-            <span class="stage-glyph">{{ row.glyph }}</span>
-            <strong>{{ row.stage }}</strong>
-            <span class="stage-range">{{ row.idRange }}</span>
-
-            <div class="stage-rail-meter" aria-hidden="true">
-              <span></span>
-            </div>
-
-            <div class="stage-rail-stats">
-              <span><b>{{ row.unlocked }}</b> online</span>
-              <span><b>{{ row.locked }}</b> locked</span>
-              <span><b>{{ row.routeCount }}</b> routes</span>
-              <span><b>{{ row.branchCount }}</b> branches</span>
-              <span><b>{{ row.readyRoutes }}</b> ready</span>
-              <span><b>{{ row.trackedRoutes }}</b> tracked</span>
-            </div>
-          </div>
-
-          <div class="monster-row">
-            @for (monster of row.monsters; track monster.id) {
-              <div
-                class="tree-node"
-                [class.selected-source]="isSelectedSource(monster)"
-                [class.selected-target]="isSelectedTarget(monster)"
-                [class.ready-target]="isReadyTarget(monster)"
-                [class.branch-node]="monster.evolutionTargets.length > 1"
-                [class.endpoint-node]="monster.evolutionTargets.length === 0"
-                [class.special-route-node]="isSpecialRoute(monster)"
-                [class.locked-node]="!monster.unlocked"
-                [class.pinned-chase-node]="game.pinnedChaseId() === monster.id"
-                [attr.data-route]="nodeRouteTag(monster)"
-                [attr.data-family]="familyId(monster)"
-              >
-                <span class="route-stem route-stem-in" aria-hidden="true"></span>
-                <app-monster-card
-                  [monster]="monster"
-                  [power]="game.getMonsterPower(monster)"
-                  [selected]="game.player().selectedMonsterId === monster.id"
-                  [compact]="true"
-                  (selectMonster)="game.selectMonster($event)"
-                />
-                <span class="route-stem route-stem-out" aria-hidden="true"></span>
-                <span class="node-route-tag">{{ nodeRouteTag(monster) }}</span>
-              </div>
-            }
-          </div>
-        </section>
-      }
-    </div>
-
-    <button
-      type="button"
-      class="command-strip-toggle"
-      [class.open]="commandStripExpanded()"
-      (click)="commandStripExpanded.set(!commandStripExpanded())"
-      [attr.aria-expanded]="commandStripExpanded()"
-      aria-controls="tree-command-strip"
-    >
-      <span class="cst-chev" aria-hidden="true">{{ commandStripExpanded() ? '▲' : '▼' }}</span>
-      <span>Command Consoles</span>
-      <small>Route advisor · squad dock · battle log · arena rewards</small>
-    </button>
-
-    @if (commandStripExpanded()) {
-    <section id="tree-command-strip" class="tree-command-strip" aria-label="Battle and squad command strip">
-      <div class="route-advisor tone-{{ routeAdvisory().tone }}">
-        <div class="strip-heading">
-          <h3>Next Command</h3>
-          <span>{{ routeAdvisory().status }}</span>
-        </div>
-
-        <div class="advisor-body">
-          @if (game.selectedMonster(); as selected) {
-            <div class="advisor-source stage-{{ game.stageClass(selected.stage) }}">
-              <span class="advisor-sprite">
-                @if (selected.unlocked && selected.spriteUrl) {
-                  <img class="creature-sprite tiny" [src]="selected.spriteUrl" [alt]="selected.name + ' animated sprite'" loading="lazy" />
-                } @else {
-                  {{ selected.unlocked ? selected.icon : 'LOCK' }}
-                }
-              </span>
-              <span>
-                <b>{{ selected.id }}</b>
-                <strong>{{ selected.unlocked ? selected.name : 'Unknown Signal' }}</strong>
-                <em>{{ selected.stage }} / PW {{ game.getMonsterPower(selected) }}</em>
-              </span>
-            </div>
-          }
-
-          <div>
-            <strong>{{ routeAdvisory().title }}</strong>
-            <p>{{ routeAdvisory().body }}</p>
-          </div>
-
-          @if (game.selectedMonster(); as selected) {
-            <div class="advisor-targets">
-              @if (selectedTargets().length > 0) {
-                @for (target of selectedTargets(); track target.id) {
-                  <button
-                    type="button"
-                    class="advisor-target stage-{{ game.stageClass(target.stage) }}"
-                    [class.ready]="game.canEvolve(selected, target)"
-                    [class.unlocked]="target.unlocked"
-                    (click)="game.selectMonster(target.id)"
-                  >
-                    <span>{{ target.id }}</span>
-                    <strong>{{ target.name }}</strong>
-                    <em>{{ targetRouteStatus(selected, target) }}</em>
-                  </button>
-                }
-              } @else {
-                <span class="advisor-target endpoint">NO EXIT ROUTE</span>
-              }
-            </div>
-
-            <div class="advisor-actions">
-              <button
-                type="button"
-                class="route-action"
-                [class.ready]="primaryRouteActionReady(selected)"
-                [disabled]="primaryRouteActionDisabled()"
-                (click)="executePrimaryRouteAction()"
-              >
-                {{ primaryRouteActionLabel() }}
-              </button>
-              @if (!primaryRouteActionReady(selected) && recommendedTrainingDrill(selected); as drill) {
-                <button type="button" class="route-train-action" [disabled]="!game.canAffordCoins(drill.costCoins)" (click)="runRecommendedTraining(selected)">
-                  {{ drill.label }} (+{{ drill.xpGain }} XP / {{ drill.costCoins }} CR)
-                </button>
-              }
-              @if (primarySelectedTarget(); as target) {
-                <span>{{ targetRouteStatus(selected, target) }}</span>
-              }
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="mini-squad-dock">
-        <div class="strip-heading">
-          <h3>Squad Dock {{ game.squad().length }}/3</h3>
-          <span>Team PW {{ game.teamPower() }}</span>
-        </div>
-        <div class="mini-squad-slots">
-          @for (monster of squadSlots(); track $index) {
-            @if (monster; as squadMonster) {
-              <button type="button" class="mini-squad-card stage-{{ game.stageClass(squadMonster.stage) }}" (click)="game.selectMonster(squadMonster.id)">
-                <span class="squad-sprite" aria-hidden="true">
-                  @if (squadMonster.spriteUrl) {
-                    <img class="creature-sprite tiny" [src]="squadMonster.spriteUrl" [alt]="squadMonster.name + ' animated sprite'" loading="lazy" />
-                  } @else {
-                    {{ squadMonster.icon }}
-                  }
-                </span>
-                <strong>{{ squadMonster.name }}</strong>
-                <small>LV {{ squadMonster.level }} / PW {{ game.getMonsterPower(squadMonster) }}</small>
-              </button>
-            } @else {
-              <span class="mini-squad-card empty">EMPTY SLOT</span>
-            }
-          }
-        </div>
-      </div>
-
-      <div class="mini-battle-log">
-        <div class="strip-heading">
-          <h3>Battle Log</h3>
-          <span>Latest Signal</span>
-        </div>
-        @for (log of latestBattleLogs(); track $index) {
-          <p class="log-{{ log.type }}">{{ log.text }}</p>
-        }
-      </div>
-
-      <div class="mini-reward-readout">
-        <div class="strip-heading">
-          <h3>Arena Rewards</h3>
-          <span>{{ battlePosture() }}</span>
-        </div>
-
-        <div class="arena-readiness">
-          <span>{{ activeFormation().tier }} <b>{{ activeFormation().name }}</b></span>
-          <span>GOAL <b>{{ arenaDirective().objective }}</b></span>
-        </div>
-
-        <div class="arena-readiness">
-          <span>TEAM <b>{{ game.teamPower() }}</b></span>
-          <span>ENEMY <b>{{ game.enemyPower() }}</b></span>
-        </div>
-
-        @if (game.lastReward(); as reward) {
-          <div class="mini-reward-grid">
-            <span>CR +{{ reward.coins }}</span>
-            <span>DNA +{{ reward.dnaShards }}</span>
-            <span>XP +{{ reward.xp }}</span>
-            <span>{{ reward.item ?? 'No item' }}</span>
-          </div>
-          @if (reward.milestoneLabel) {
-            <p class="mini-milestone">{{ reward.milestoneLabel }}</p>
-          }
-          @if (reward.lossHint) {
-            <p class="mini-loss-hint">{{ reward.lossHint }}</p>
-          }
-        } @else {
-          <p class="empty-note">Start a battle to push XP, coins, DNA, and item drops.</p>
-        }
-        <button type="button" class="primary-action" (click)="game.startBattle()">Start Battle</button>
-      </div>
-    </section>
+        <button type="button" (click)="discoverNext()">{{ nextActionLabel() }}</button>
+      </section>
     }
+
+    <section class="family-path" aria-label="Active evolution family">
+      <div class="family-heading">
+        <div>
+          <span>Active Family</span>
+          <strong>{{ familyUnlocked() }} / {{ activeFamily().length }} forms discovered</strong>
+        </div>
+        <small>Select a form to inspect its route.</small>
+      </div>
+
+      <div class="family-route">
+        @for (monster of visibleFamily(); track monster.id; let last = $last) {
+          <button
+            type="button"
+            class="family-node stage-{{ game.stageClass(monster.stage) }}"
+            [class.selected]="game.player().selectedMonsterId === monster.id"
+            [class.locked]="!monster.unlocked"
+            [class.ready]="isReady(monster)"
+            (click)="selectMonster(monster)"
+            [attr.aria-label]="(monster.unlocked ? 'Inspect ' : 'Inspect locked ') + monster.name"
+          >
+            <span class="node-state">{{ monster.unlocked ? 'DISCOVERED' : isReady(monster) ? 'READY' : 'UNKNOWN' }}</span>
+            <span class="node-art">
+              @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.unlocked ? monster.name : ''" /> }
+            </span>
+            <strong>{{ monster.unlocked ? monster.name : 'Unknown Form' }}</strong>
+            <small>{{ monster.stage }}</small>
+            @if (monster.unlocked) { <span class="completion-mark" aria-hidden="true">OK</span> }
+          </button>
+          @if (!last) { <span class="route-link" aria-hidden="true"></span> }
+        }
+      </div>
+      @if (hiddenFamilyCount() > 0) {
+        <p class="family-overflow-note">{{ hiddenFamilyCount() }} additional branch forms are catalogued in Archive.</p>
+      }
+    </section>
+
+    <section class="recent-discoveries" aria-label="Recent discoveries">
+      <div><span>Recent Discoveries</span><small>Your collection is taking shape.</small></div>
+      <div class="recent-list">
+        @for (monster of recentDiscoveries(); track monster.id) {
+          <button type="button" (click)="selectMonster(monster)" [attr.aria-label]="'Inspect ' + monster.name">
+            @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" alt="" /> }
+            <span>{{ monster.name }}</span>
+          </button>
+        }
+      </div>
+    </section>
   </section>
 
-  <app-monster-detail [monster]="game.selectedMonster()" />
+  <app-monster-detail [monster]="game.selectedMonster()" [familyUnlocked]="familyUnlocked()" [familyTotal]="activeFamily().length" />
 </div>
