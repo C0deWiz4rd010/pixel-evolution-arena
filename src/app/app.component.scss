@@ -1,4 +1,16 @@
-:host { display: block; }
+:host {
+  display: block;
+}
+
+.view-loading {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--card-border);
+  background: var(--surface-card);
+  color: var(--muted);
+  font-family: var(--font-display);
+}
 
 .next-goal {
   --goal-color: var(--line-bright);
@@ -10,30 +22,109 @@
   margin: 0.5rem 0;
   padding: 0.65rem 0.8rem;
   border: 1px solid color-mix(in srgb, var(--goal-color) 42%, transparent);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--goal-color) 10%, transparent), rgba(2, 10, 18, 0.82) 62%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--goal-color) 10%, transparent),
+    rgba(2, 10, 18, 0.82) 62%
+  );
   clip-path: var(--chamfer);
 }
 
-.next-goal.tone-ready, .next-goal.tone-squad { --goal-color: var(--success); }
-.next-goal.tone-collection, .next-goal.tone-meta { --goal-color: var(--special); }
-.next-goal.tone-blocked { --goal-color: var(--danger); }
+.next-goal.tone-ready,
+.next-goal.tone-squad {
+  --goal-color: var(--success);
+}
+.next-goal.tone-collection,
+.next-goal.tone-meta {
+  --goal-color: var(--special);
+}
+.next-goal.tone-blocked {
+  --goal-color: var(--danger);
+}
 
-.goal-marker { width: 10px; height: 10px; border-radius: 50%; background: var(--goal-color); box-shadow: 0 0 12px var(--goal-color); }
-.goal-copy { display: grid; min-width: 0; gap: 0.12rem; }
-.goal-copy span { color: var(--goal-color); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-.goal-copy strong { overflow: hidden; color: var(--text); font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
-.goal-copy small { overflow: hidden; color: var(--muted); font-size: 0.74rem; text-overflow: ellipsis; white-space: nowrap; }
-.next-goal button { min-width: 160px; min-height: 44px; border-color: var(--goal-color); color: var(--text); background: color-mix(in srgb, var(--goal-color) 22%, rgba(2,10,18,.9)); }
+.goal-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--goal-color);
+  box-shadow: 0 0 12px var(--goal-color);
+}
+.goal-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+.goal-copy span {
+  color: var(--goal-color);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.goal-copy strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goal-copy small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.next-goal button {
+  min-width: 160px;
+  min-height: 44px;
+  border-color: var(--goal-color);
+  color: var(--text);
+  background: color-mix(in srgb, var(--goal-color) 22%, rgba(2, 10, 18, 0.9));
+}
 
-.secondary-nav { display: flex; width: fit-content; gap: 0.25rem; margin: 0.5rem 0 0.65rem; padding: 0.25rem; border: 1px solid rgba(19,216,255,.22); background: rgba(2,10,18,.72); }
-.secondary-nav button { min-height: 40px; padding: 0.45rem 1rem; border: 0; color: var(--muted); background: transparent; }
-.secondary-nav button.active { color: var(--text); background: rgba(19,216,255,.14); box-shadow: inset 0 -2px var(--line-bright); }
+.secondary-nav {
+  display: flex;
+  width: fit-content;
+  gap: 0.25rem;
+  margin: 0.5rem 0 0.65rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(19, 216, 255, 0.22);
+  background: rgba(2, 10, 18, 0.72);
+}
+.secondary-nav button {
+  min-height: 40px;
+  padding: 0.45rem 1rem;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+}
+.secondary-nav button.active {
+  color: var(--text);
+  background: rgba(19, 216, 255, 0.14);
+  box-shadow: inset 0 -2px var(--line-bright);
+}
 
 @media (max-width: 720px) {
-  .app-shell { padding-bottom: 72px; }
-  .next-goal { grid-template-columns: auto minmax(0, 1fr); gap: 0.55rem; }
-  .goal-copy small { display: none; }
-  .next-goal button { grid-column: 1 / -1; width: 100%; }
-  .secondary-nav { width: 100%; overflow-x: auto; }
-  .secondary-nav button { flex: 1 0 auto; }
+  .app-shell {
+    padding-bottom: 72px;
+  }
+  .next-goal {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+  .goal-copy small {
+    display: none;
+  }
+  .next-goal button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .secondary-nav {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .secondary-nav button {
+    flex: 1 0 auto;
+  }
 }

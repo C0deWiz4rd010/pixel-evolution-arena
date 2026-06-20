@@ -236,3 +236,12 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with the existing initial bundle budget warning (693.72 kB vs 650 kB) and Pixi `@xmldom/xmldom` CommonJS warning.
 - `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including style/typography persistence.
 - Playwright visual QA passed on desktop 1440x960 across all five primary areas and on mobile 390x844 with no page errors or horizontal document overflow. Browser plugin was not available, so the repository Playwright workflow was used.
+
+2026-06-20 Build warning cleanup:
+
+- Installed and enabled `browser@openai-bundled` version `26.609.41114`; a new Codex session is required before its MCP browser tools become available.
+- Converted all ten tab feature views in the root template to Angular `@defer (on immediate)` blocks with accessible loading placeholders.
+- Reduced the production initial bundle from 693.72 kB to 445.74 kB, clearing the 650 kB warning without changing the budget.
+- Documented Pixi's transitive `@xmldom/xmldom` dependency in Angular's `allowedCommonJsDependencies`; the production build now completes without warnings.
+- `npm.cmd run test -- --run` passed (155 tests / 26 files).
+- `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including rapid primary/secondary view loading and persisted presentation settings.

@@ -4,7 +4,10 @@
   <app-header-hud />
   <app-tab-navigation [activeSection]="activeSection()" (sectionChange)="openSection($event)" />
 
-  <section class="next-goal tone-{{ game.nextCommand().tone }}" aria-label="Recommended next action">
+  <section
+    class="next-goal tone-{{ game.nextCommand().tone }}"
+    aria-label="Recommended next action"
+  >
     <span class="goal-marker" aria-hidden="true"></span>
     <div class="goal-copy">
       <span>Next Goal</span>
@@ -17,7 +20,9 @@
   @if (secondaryViews().length > 1 || activeView() === 'Settings') {
     <nav class="secondary-nav" [attr.aria-label]="activeSection() + ' views'">
       @for (view of secondaryViews(); track view) {
-        <button type="button" [class.active]="activeView() === view" (click)="openView(view)">{{ viewLabel(view) }}</button>
+        <button type="button" [class.active]="activeView() === view" (click)="openView(view)">
+          {{ viewLabel(view) }}
+        </button>
       }
       @if (activeView() === 'Settings') {
         <button type="button" class="active" aria-current="page">Settings</button>
@@ -25,18 +30,83 @@
     </nav>
   }
 
-  <section class="play-surface" id="play-surface" tabindex="-1" [attr.aria-label]="activeView() + ' view'">
+  <section
+    class="play-surface"
+    id="play-surface"
+    tabindex="-1"
+    [attr.aria-label]="activeView() + ' view'"
+  >
     @switch (activeView()) {
-      @case ('Evolution Tree') { <app-evolution-tree /> }
-      @case ('Squad') { <app-squad /> }
-      @case ('Forge') { <app-forge /> }
-      @case ('Arena') { <app-arena /> }
-      @case ('Expedition') { <app-expedition /> }
-      @case ('Collection') { <app-collection /> }
-      @case ('Campaign') { <app-campaign /> }
-      @case ('Medals') { <app-medals /> }
-      @case ('Handbook') { <app-handbook /> }
-      @case ('Settings') { <app-settings /> }
+      @case ('Evolution Tree') {
+        @defer (on immediate) {
+          <app-evolution-tree />
+        } @placeholder {
+          <div class="view-loading">Loading evolution path...</div>
+        }
+      }
+      @case ('Squad') {
+        @defer (on immediate) {
+          <app-squad />
+        } @placeholder {
+          <div class="view-loading">Loading squad...</div>
+        }
+      }
+      @case ('Forge') {
+        @defer (on immediate) {
+          <app-forge />
+        } @placeholder {
+          <div class="view-loading">Loading loadout...</div>
+        }
+      }
+      @case ('Arena') {
+        @defer (on immediate) {
+          <app-arena />
+        } @placeholder {
+          <div class="view-loading">Loading arena...</div>
+        }
+      }
+      @case ('Expedition') {
+        @defer (on immediate) {
+          <app-expedition />
+        } @placeholder {
+          <div class="view-loading">Loading expedition...</div>
+        }
+      }
+      @case ('Collection') {
+        @defer (on immediate) {
+          <app-collection />
+        } @placeholder {
+          <div class="view-loading">Loading collection...</div>
+        }
+      }
+      @case ('Campaign') {
+        @defer (on immediate) {
+          <app-campaign />
+        } @placeholder {
+          <div class="view-loading">Loading campaign...</div>
+        }
+      }
+      @case ('Medals') {
+        @defer (on immediate) {
+          <app-medals />
+        } @placeholder {
+          <div class="view-loading">Loading achievements...</div>
+        }
+      }
+      @case ('Handbook') {
+        @defer (on immediate) {
+          <app-handbook />
+        } @placeholder {
+          <div class="view-loading">Loading guide...</div>
+        }
+      }
+      @case ('Settings') {
+        @defer (on immediate) {
+          <app-settings />
+        } @placeholder {
+          <div class="view-loading">Loading settings...</div>
+        }
+      }
     }
   </section>
 </main>
