@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { GameStateService } from '../../services/game-state.service';
 import { getRelicDef } from '../../data/relics.data';
 import { ExpeditionMapComponent } from '../expedition-map/expedition-map.component';
-import { TranslatePipe } from '../../i18n/translate.pipe';
 
 interface PreflightCheck {
   label: string;
@@ -15,7 +14,7 @@ interface PreflightCheck {
 @Component({
   selector: 'app-expedition',
   standalone: true,
-  imports: [ExpeditionMapComponent, TranslatePipe],
+  imports: [ExpeditionMapComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './expedition.component.html',
   styleUrl: './expedition.component.scss',

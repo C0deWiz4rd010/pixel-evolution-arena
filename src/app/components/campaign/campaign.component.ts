@@ -2,7 +2,6 @@ import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
-import { TranslatePipe } from '../../i18n/translate.pipe';
 
 interface ObjectiveRadarCard {
   label: string;
@@ -14,7 +13,7 @@ interface ObjectiveRadarCard {
 @Component({
   selector: 'app-campaign',
   standalone: true,
-  imports: [UpperCasePipe, TranslatePipe],
+  imports: [UpperCasePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './campaign.component.html',
   styleUrl: './campaign.component.scss',
