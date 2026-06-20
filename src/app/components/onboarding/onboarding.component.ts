@@ -11,28 +11,19 @@ interface OnboardingStep {
 
 const STEPS: OnboardingStep[] = [
   {
-    title: 'Welcome to Pixel Evolution Arena',
-    body: 'Build a squad of original pixel creatures, win fast arena sims, earn rewards, and evolve. Everything runs locally — no login, no servers.',
+    title: 'Discover Your First Family',
+    body: 'Select a discovered creature and follow its evolution path. The Next Goal always points to the most useful unlock.',
+    tab: 'Evolution Tree',
   },
   {
-    title: 'Build your Squad',
-    body: 'Open the Squad tab and load up to three creatures. Type synergy and slot roles tilt the odds in your favor.',
+    title: 'Build a Three-Creature Squad',
+    body: 'Fill Vanguard, Sync Core, and Anchor. Auto Build creates a strong team immediately, while Loadout handles gear.',
     tab: 'Squad',
   },
   {
-    title: 'Fight in the Arena',
-    body: 'Start a battle to earn coins, DNA, XP, and item drops. Press Space to queue a run. Watch the live PixiJS stage do the work.',
+    title: 'Battle, Earn, Evolve',
+    body: 'Arena runs grant Coins, DNA, XP, and item drops. Spend those rewards on the next discovery and repeat the loop.',
     tab: 'Arena',
-  },
-  {
-    title: 'Forge & Evolve',
-    body: 'Spend DNA in the Forge for persistent gear, then evolve creatures in the Evolution Tree to climb stages and chase prismatic variants.',
-    tab: 'Forge',
-  },
-  {
-    title: 'Follow the Campaign',
-    body: 'The Campaign tab gives you ordered objectives and bosses to chase. The mission strip up top always suggests your best next move.',
-    tab: 'Campaign',
   },
 ];
 

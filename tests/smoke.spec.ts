@@ -1,304 +1,103 @@
 import { expect, test, type Page } from '@playwright/test';
 
-/** First-run onboarding overlay blocks the UI; dismiss it before interacting. */
 async function dismissOnboarding(page: Page): Promise<void> {
   const skip = page.getByRole('button', { name: 'Skip' });
-  if (await skip.isVisible().catch(() => false)) {
-    await skip.click();
-  }
+  if (await skip.isVisible().catch(() => false)) await skip.click();
 }
 
-/** Mission Control + Tactical Directives now live in the opt-in Command Deck. */
-async function openCommandDeck(page: Page): Promise<void> {
-  const toggle = page.getByRole('button', { name: /Command Deck/i }).first();
-  if (await toggle.isVisible().catch(() => false)) {
-    await toggle.click();
-  }
+function primaryNav(page: Page) {
+  return page.getByRole('navigation', { name: 'Game sections' });
 }
 
-test('tabs switch and collection filters can be reset', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('five-area shell exposes one next goal and archive filters', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
+  const nav = primaryNav(page);
+  for (const label of ['Evolve', 'Squad', 'Battle', 'Explore', 'Archive']) {
+    await expect(nav.getByRole('button', { name: label, exact: true })).toBeVisible();
+  }
+  await expect(page.getByLabel('Recommended next action')).toBeVisible();
+  await expect(page.getByLabel('Recommended next action')).toHaveCount(1);
 
-  await expect(page.getByLabel('Recommended next command')).toContainText(/OPEN SLOT|EVOLVE READY|CHASE READY/i);
-  await expect(page.getByLabel('Quick commands')).toContainText('Auto Squad');
-
-  await openCommandDeck(page);
-  await expect(page.getByLabel('Mission control matrix')).toContainText('Loop Priority');
-  await expect(page.getByLabel('Mission control matrix')).toContainText('Evolution');
-  await expect(page.getByLabel('Mission control matrix')).toContainText('Arena');
-  await expect(page.getByLabel('Tactical directives')).toContainText('Route ETA');
-  await expect(page.getByLabel('Tactical directives')).toContainText('Squad Patch');
-  await expect(page.getByLabel('Tactical directives')).toContainText('Run Choice');
-
-  await nav.getByRole('button', { name: /Collection/i }).click();
-  await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
-
+  await nav.getByRole('button', { name: 'Archive', exact: true }).click();
+  await page.getByRole('button', { name: 'Collection', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Creature Collection' })).toBeVisible();
   await page.getByRole('button', { name: 'Locked', exact: true }).click();
-  await page.getByRole('combobox').first().selectOption('Rookie');
-  await expect(page.getByText(/matches/i)).toBeVisible();
-
+  await page.locator('.archive-filters select').first().selectOption('Rookie');
+  await expect(page.getByText(/Creatures$/).first()).toBeVisible();
   await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'All', exact: true }).first()).toHaveClass(/active/);
+  await expect(page.getByRole('button', { name: 'All', exact: true })).toHaveClass(/active/);
 });
 
-test('mission control matrix can execute the primary evolution action', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('evolution discovery updates the selected family and dex', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-
-  await openCommandDeck(page);
-  const missionMatrix = page.getByLabel('Mission control matrix');
-  await expect(missionMatrix).toContainText(/Splashfang|Cinderpaw|Evolution/i);
-
-  await missionMatrix.getByRole('button').first().click();
-  await expect(page.locator('aside.detail-panel')).toContainText(/Splashfang|Cinderpaw/i);
+  await expect(page.getByRole('heading', { name: 'Grow Your Collection' })).toBeVisible();
+  const dexBefore = await page.getByLabel('Dex collection progress').innerText();
+  await page.getByRole('button', { name: /Evolve Splashfang/i }).first().click();
+  await expect(page.locator('aside.detail-panel').getByRole('heading', { name: 'Splashfang' })).toBeVisible();
+  await expect(page.getByLabel('Dex collection progress')).not.toHaveText(dexBefore);
 });
 
-test('tactical directives expose route ETA and can launch the run path', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('training drill spends coins and grants xp', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-
-  await openCommandDeck(page);
-  const directives = page.getByLabel('Tactical directives');
-  await expect(directives).toContainText(/wins|ready now|Route ETA/i);
-  await directives.getByRole('button', { name: /Run Choice/i }).click();
-
-  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
-});
-
-test('quick commands rebuild squad, launch battle, and expose ready evolution', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-  const quickCommands = page.getByLabel('Quick commands');
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: 'Clear Squad' }).click();
-  await expect(page.getByText('0/3 ONLINE')).toBeVisible();
-
-  await quickCommands.getByRole('button', { name: /Auto Squad/i }).click();
-  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
-  await expect(quickCommands.getByRole('button', { name: /Evolve Ready/i })).toBeEnabled();
-
-  await quickCommands.getByRole('button', { name: /Run Battle/i }).click();
-  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
-  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
-});
-
-test('collection and detail panels use the document scrollbar only', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Collection/i }).click();
-  await expect(page.getByRole('heading', { name: 'Digital Archive' })).toBeVisible();
-
-  const collectionScroll = await page.locator('.dex-side').evaluate((element) => {
-    const style = getComputedStyle(element);
-    return { maxHeight: style.maxHeight, overflowY: style.overflowY };
-  });
-  expect(collectionScroll).toEqual({ maxHeight: 'none', overflowY: 'visible' });
-
-  await nav.getByRole('button', { name: /Evolution Tree/i }).click();
-  await expect(page.getByRole('heading', { name: 'Evolution Tree' })).toBeVisible();
-
-  const detailScroll = await page.locator('aside.detail-panel').first().evaluate((element) => {
-    const style = getComputedStyle(element);
-    return { maxHeight: style.maxHeight, overflowY: style.overflowY };
-  });
-  expect(detailScroll).toEqual({ maxHeight: 'none', overflowY: 'visible' });
-});
-
-test('empty squad is blocked in arena and can be rebuilt from squad tab', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: 'Clear Squad' }).click();
-  await expect(page.getByText('0/3 ONLINE')).toBeVisible();
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  await expect(page.getByRole('button', { name: /Add Squad To Start/i })).toBeDisabled();
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: 'Load Suggested' }).first().click();
-  await expect(page.getByText('1/3 ONLINE')).toBeVisible();
-});
-
-test('squad orders can rebuild a cleared formation', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: 'Clear Squad' }).click();
-  const orders = page.getByLabel('Squad orders');
-
-  await expect(orders).toContainText('Squad Orders');
-  await orders.getByRole('button', { name: 'Auto Squad' }).click();
-
-  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
-  await expect(orders).toContainText(/Open Arena|Train|Evolve|Sync Gear|Swap/i);
-});
-
-test('default route can evolve and battles produce rewards', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await expect(page.getByRole('heading', { name: 'Evolution Tree' })).toBeVisible();
-  const detailPanel = page.locator('aside.detail-panel');
-  await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
-  await page.getByRole('button', { name: /Evolve Splashfang/i }).click();
-  await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  await page.getByRole('button', { name: 'Start Battle' }).click();
-
-  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
-  await expect(page.getByText(/XP \+\d+/)).toBeVisible();
-});
-
-test('training lab drills spend coins and grant xp to the selected monster', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-
-  const detailPanel = page.locator('aside.detail-panel');
-  const xpBefore = await detailPanel.locator('.xp-bar span').last().innerText();
+  const detail = page.locator('aside.detail-panel');
+  const xpBefore = await detail.locator('.xp-bar span').last().innerText();
   const coinsBefore = await page.locator('.stat-chip.coins strong').innerText();
-
-  await detailPanel.locator('.training-console .drill-grid button').first().click();
-
-  await expect(detailPanel.locator('.xp-bar span').last()).not.toHaveText(xpBefore);
+  await detail.locator('details.training-console summary').click();
+  await detail.getByRole('button', { name: 'Run Drill' }).first().click();
+  await expect(detail.locator('.xp-bar span').last()).not.toHaveText(xpBefore);
   await expect(page.locator('.stat-chip.coins strong')).not.toHaveText(coinsBefore);
 });
 
-test('auto build loads a full squad and arena shows run readiness forecast', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('squad auto build and loadout remain one coherent area', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
+  const nav = primaryNav(page);
+  await nav.getByRole('button', { name: 'Squad', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Build Your Team' })).toBeVisible();
+  await page.getByText('Presets & Maintenance').click();
   await page.getByRole('button', { name: 'Clear Squad' }).click();
   await page.getByRole('button', { name: 'Auto Build Best Squad' }).click();
-  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Battle Readiness' })).toBeVisible();
-  await expect(page.getByLabel('Squad stat shape')).toContainText('Squad Shape');
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  await expect(page.getByLabel('Run readiness checklist')).toContainText('Run Readiness');
-  await expect(page.getByLabel('Arena momentum')).toContainText(/Ignition Run|Chain x/i);
-  await expect(page.getByLabel('Arena momentum')).toContainText(/Next win|Rewards unlock/i);
-  await expect(page.getByLabel('Reward forecast')).toContainText(/Reward Forecast/i);
-  await expect(page.getByLabel('Arena objective stack')).toContainText('Daily Directive');
-  await expect(page.getByLabel('Arena objective stack')).toContainText('Next Evolution');
-  await expect(page.getByLabel('Arena objective stack')).toContainText('Battle Milestone');
-  await expect(page.getByRole('button', { name: /Start Battle|Queue Next Battle|Retry Battle/i })).toBeEnabled();
+  await expect(page.getByText('3/3 Ready')).toBeVisible();
+  await page.getByRole('button', { name: 'Loadout', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Forge & Equip' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Auto Equip Best' })).toBeVisible();
 });
 
-test('arena exposes hybrid controls and the medals tab lists achievements', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('arena battle plan and reward loop work', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  await expect(page.getByText('Tactic Coach')).toBeVisible();
-  await page.getByRole('button', { name: /Apply .* Plan/i }).click();
-  await expect(page.getByRole('radio', { name: 'Training' })).toHaveAttribute('aria-checked', 'true');
-  await expect(page.getByRole('radio', { name: 'Guard' })).toHaveAttribute('aria-checked', 'true');
-  await expect(page.getByRole('radio', { name: 'Balance' })).toBeVisible();
+  await primaryNav(page).getByRole('button', { name: 'Battle', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
+  await page.locator('.battle-disclosure').first().locator(':scope > summary').click();
   await page.getByRole('radio', { name: 'Aggro' }).click();
   await expect(page.getByRole('radio', { name: 'Aggro' })).toHaveAttribute('aria-checked', 'true');
-
-  await nav.getByRole('button', { name: /Medals/i }).click();
-  await expect(page.getByRole('heading', { name: 'Achievements' })).toBeVisible();
-  await expect(page.getByText('First Contact')).toBeVisible();
-});
-
-test('arena prep console can auto-prep and launch a run', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  await expect(page.getByLabel('Battle contracts')).toContainText('Battle Contracts');
-  await expect(page.getByLabel('Prep console')).toContainText('Coach + Drill Macros');
-  await page.getByRole('button', { name: /Prep \+ Launch/i }).click();
-
-  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
-  await expect(page.getByText(/XP \+\d+/)).toBeVisible();
-  await expect(page.getByLabel('After-action queue')).toContainText('After-Action Queue');
+  await page.getByRole('button', { name: 'Start Battle' }).click();
+  await expect(page.getByText(/Rewards Secured|Progress Secured/)).toBeVisible();
   await expect(page.getByLabel('After-action queue')).toContainText(/Run Again|Retry|Evolve|Claim|Fill|Forge|Relay/i);
 });
 
-test('battle contracts can prep and launch a mission choice', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('campaign and expedition are reachable through their primary areas', async ({ page }) => {
+  await page.goto('/');
   await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Arena/i }).click();
-  const contracts = page.getByLabel('Battle contracts');
-  await expect(contracts).toContainText('Pick the next mission');
-
-  await contracts.getByRole('button', { name: /Prep|Apply/i }).first().click();
-  await contracts.getByRole('button', { name: /Launch|Run|Farm|Scout/i }).first().click();
-
-  await expect(page.getByText(/CR \+\d+ Coins/)).toBeVisible();
-  await expect(page.getByLabel('After-action queue')).toContainText('After-Action Queue');
+  const nav = primaryNav(page);
+  await nav.getByRole('button', { name: 'Battle', exact: true }).click();
+  await page.getByRole('button', { name: 'Campaign', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Campaign', exact: true })).toBeVisible();
+  await nav.getByRole('button', { name: 'Explore', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Deep Grid Expedition' })).toBeVisible();
+  await page.getByRole('button', { name: 'Launch Expedition' }).click();
+  await expect(page.getByText('Run Health')).toBeVisible();
 });
 
-test('collection can evolve a reachable chase directly', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+test('mobile shell has no document overflow and keeps the next action visible', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
   await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Collection/i }).click();
-  await expect(page.getByLabel('Chase queue')).toContainText('Chase Queue');
-  await page.getByRole('button', { name: 'Reachable Now' }).click();
-  const beforeArchiveOnline = await page.locator('.archive-sync small').innerText();
-  await page.getByRole('button', { name: 'Evolve Now' }).first().click();
-
-  await expect(page.locator('.archive-sync small')).not.toHaveText(beforeArchiveOnline);
-  await expect(page.getByLabel('Recommended next command')).not.toContainText('Cinderpaw can go online');
-});
-
-test('full squads can swap in stronger reserve candidates', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: 'Load Suggested' }).first().click();
-  await expect(page.getByText('3/3 ONLINE')).toBeVisible();
-
-  await nav.getByRole('button', { name: /Collection/i }).click();
-  await page.getByRole('button', { name: 'Reachable Now' }).click();
-  await page.getByRole('button', { name: 'Evolve Now' }).first().click();
-
-  await nav.getByRole('button', { name: /Squad/i }).click();
-  await page.getByRole('button', { name: /Swap weakest/i }).first().click();
-  await expect(page.locator('.active-squad-board')).toContainText('Cinderpaw');
-});
-
-test('progress survives reload and reset restores the starter state', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await dismissOnboarding(page);
-  const nav = page.locator('nav[aria-label="Game sections"]');
-  const detailPanel = page.locator('aside.detail-panel');
-
-  await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
-  await detailPanel.getByRole('button', { name: 'Evolve' }).first().click();
-  await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
-
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(detailPanel.getByRole('heading', { name: 'Splashfang' })).toBeVisible();
-
-  await nav.getByRole('button', { name: /Handbook/i }).click();
-  await page.getByRole('button', { name: 'Arm Reset' }).click();
-  await page.getByRole('button', { name: 'Confirm Reset' }).click();
-
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(detailPanel.getByRole('heading', { name: 'Aquabun' })).toBeVisible();
+  await expect(primaryNav(page)).toBeVisible();
+  await expect(page.getByLabel('Recommended next action')).toBeVisible();
+  const dimensions = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client);
 });

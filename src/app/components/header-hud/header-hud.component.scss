@@ -1,6 +1,6 @@
-:host { display: block; }
+:host { position: relative; z-index: 90; display: block; }
 
-.header-hud { min-height: 88px; }
+.header-hud { position: relative; z-index: 100; min-height: 88px; overflow: visible; clip-path: none; }
 .hud-stats { display: flex; justify-content: flex-end; align-items: stretch; gap: 0.45rem; }
 .stat-chip { min-width: 118px; }
 .stat-chip.coins strong, .stat-chip.coins .stat-icon { color: var(--coin); }

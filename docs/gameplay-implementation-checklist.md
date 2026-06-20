@@ -213,3 +213,14 @@ Use this checklist during Angular implementation.
 - Consolidated the remaining `codex/` and `feat/` branch work into `develop`.
 - Bumped the release version to `0.22.0`.
 - Verified the build, tests, and GitHub Pages deployment path after the merge.
+
+2026-06-20 UI/UX simplification:
+
+- Replaced ten equally weighted tabs and the global command dashboards with five primary areas, contextual subviews, and one Next Goal action.
+- Rebuilt Evolve around one active family, Dex completion, mystery silhouettes, recent discoveries, family progress, and a vertical mobile route.
+- Simplified Squad, Loadout, Arena, Campaign, Expedition, and Collection while preserving all underlying progression and action paths.
+- Reduced onboarding from five system-heavy steps to the three-part core loop: discover, build, battle/evolve.
+- `npm.cmd run test -- --run` passed (155 tests / 26 files).
+- `npm.cmd run build` passed with the existing Pixi CommonJS warning and a reduced initial bundle warning (679.42 kB vs 650 kB); the previous Arena component-style warning is resolved.
+- `npm.cmd run test:e2e -- --reporter=list` passed (12 Playwright smoke tests).
+- Visual QA passed at 1440x960, 1280x800, 390x844, and 360x800 with no page errors or horizontal document overflow. Verified tab/subview switching, evolution, training, squad rebuild, loadout, battle rewards, Campaign, Expedition, Collection filters, Settings, persistence, reset, and the three-step onboarding.
