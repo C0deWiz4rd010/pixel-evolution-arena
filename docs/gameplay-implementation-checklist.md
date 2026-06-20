@@ -224,3 +224,15 @@ Use this checklist during Angular implementation.
 - `npm.cmd run build` passed with the existing Pixi CommonJS warning and a reduced initial bundle warning (679.42 kB vs 650 kB); the previous Arena component-style warning is resolved.
 - `npm.cmd run test:e2e -- --reporter=list` passed (12 Playwright smoke tests).
 - Visual QA passed at 1440x960, 1280x800, 390x844, and 360x800 with no page errors or horizontal document overflow. Verified tab/subview switching, evolution, training, squad rebuild, loadout, battle rewards, Campaign, Expedition, Collection filters, Settings, persistence, reset, and the three-step onboarding.
+
+2026-06-20 Collector Tech card system:
+
+- Added the accepted Collector Tech concept and decision-complete implementation plan under `docs/`.
+- Added locally bundled Pixelify Sans and Space Grotesk fonts with licenses; no external runtime font requests are used.
+- Unified shell, Next Goal, evolution family cards, monster detail, squad, battle, explore, archive, and settings around neutral card surfaces, readable type tiers, and narrow stage accents.
+- Added persistent `Collector Tech`, `Pixel Arcade`, and `Tactical Minimal` interface profiles plus independent `Dual Font`, `Pixel`, and `Tech Sans` typography profiles. Existing saves default safely to Collector Tech and Dual Font.
+- Mobile Evolve now prioritizes Next Goal, Dex progress, next discovery, and the active family before the selected-creature inspector.
+- `npm.cmd run test -- --run` passed (155 tests / 26 files).
+- `npm.cmd run build` passed with the existing initial bundle budget warning (693.72 kB vs 650 kB) and Pixi `@xmldom/xmldom` CommonJS warning.
+- `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including style/typography persistence.
+- Playwright visual QA passed on desktop 1440x960 across all five primary areas and on mobile 390x844 with no page errors or horizontal document overflow. Browser plugin was not available, so the repository Playwright workflow was used.

@@ -1,5 +1,7 @@
 # Collector Tech UI Design Plan
 
+**Status:** Implemented and verified on 2026-06-20.
+
 ## Zielbild
 
 Die gesamte Oberfläche folgt standardmäßig dem Profil **Collector Tech**: ruhige dunkelblaue Spielflächen, klar gestufte Hauptcards, große Kreaturenmotive und sparsame Stage-Akzente. Innerhalb von drei Sekunden sollen Spieler erkennen, welches Sammlerstück ausgewählt ist, was als Nächstes freigeschaltet wird und welche Aktion den Fortschritt voranbringt.
