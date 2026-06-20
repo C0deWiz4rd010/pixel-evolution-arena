@@ -1,171 +1,46 @@
 <a class="skip-link" href="#play-surface">Skip to content</a>
-<main class="app-shell" [class.arena-focus]="activeTab() === 'Arena'">
-  <app-arena-effects [activeTab]="activeTab()" />
+<main class="app-shell" [class.arena-focus]="activeView() === 'Arena'">
+  <app-arena-effects [activeTab]="activeView()" />
   <app-header-hud />
-  <app-tab-navigation [activeTab]="activeTab()" (tabChange)="setActiveTab($event)" />
+  <app-tab-navigation [activeSection]="activeSection()" (sectionChange)="openSection($event)" />
 
-  <section class="command-rail tone-{{ game.nextCommand().tone }}" aria-label="Command rail">
-    <button type="button" class="rail-mission" aria-label="Recommended next command" (click)="setActiveTab(game.nextCommand().tab)" [attr.title]="game.nextCommand().detail">
-      <span class="rail-pip" aria-hidden="true"></span>
-      <span class="rail-copy">
-        <span class="rail-kicker">{{ game.nextCommand().status }}</span>
-        <span class="rail-title">{{ game.nextCommand().title }}</span>
-      </span>
-      <span class="rail-go">{{ game.nextCommand().actionLabel }}</span>
-    </button>
-
-    <div class="rail-quick" role="group" aria-label="Quick commands">
-      <button type="button" class="qcb-btn" aria-label="Auto Squad" (click)="autoBuildSquad()" title="Auto-build the strongest squad">
-        <span class="quick-icon">SQ</span>
-        <span class="ql-title">Auto&nbsp;Squad</span>
-      </button>
-      <button type="button" class="qcb-btn" [attr.aria-label]="game.readyEvolutionCandidate() ? 'Evolve Ready' : 'No evolution ready'" [class.qcb-ready]="game.readyEvolutionCandidate()" [disabled]="!game.readyEvolutionCandidate()" (click)="evolveReadyCandidate()" [attr.title]="game.readyEvolutionCandidate() ? 'Evolve ' + game.readyEvolutionCandidate()!.target.name : 'No evolution ready'">
-        <span class="quick-icon">EV</span>
-        <span class="ql-title">Evolve</span>
-      </button>
-      <button type="button" class="qcb-btn" aria-label="Run Battle" [class.qcb-ready]="canStartQuickBattle()" [disabled]="!canStartQuickBattle()" (click)="runBattleNow()" [attr.title]="canStartQuickBattle() ? 'Run a battle with ' + game.squad().length + ' members' : 'Build a squad first'">
-        <span class="quick-icon">VS</span>
-        <span class="ql-title">Battle</span>
-      </button>
+  <section class="next-goal tone-{{ game.nextCommand().tone }}" aria-label="Recommended next action">
+    <span class="goal-marker" aria-hidden="true"></span>
+    <div class="goal-copy">
+      <span>Next Goal</span>
+      <strong>{{ game.nextCommand().title }}</strong>
+      <small>{{ game.nextCommand().detail }}</small>
     </div>
-
-    <button type="button" class="rail-dock-toggle" [class.open]="dockExpanded()" (click)="dockExpanded.set(!dockExpanded())" [attr.aria-expanded]="dockExpanded()" aria-controls="command-dock">
-      <span class="dock-count">{{ game.operationsCards().length }}</span>
-      <span class="dock-word">{{ dockExpanded() ? 'Hide Deck' : 'Command Deck' }}</span>
-      <span class="dock-chev" aria-hidden="true">{{ dockExpanded() ? '▲' : '▼' }}</span>
-    </button>
+    <button type="button" (click)="followNextGoal()">{{ game.nextCommand().actionLabel }}</button>
   </section>
 
-  @if (dockExpanded()) {
-    <section id="command-dock" class="command-dock" aria-label="Intel and operations dock">
-      <div class="dock-section">
-        <h2 class="dock-heading">Mission Control // Loop</h2>
-        <div class="mission-matrix" aria-label="Mission control matrix">
-          @for (card of game.missionControlCards(); track card.id) {
-            <button
-              type="button"
-              class="mission-card tone-{{ card.tone }}"
-              (click)="runMissionControlCard(card)"
-              [attr.title]="card.detail"
-            >
-              <span class="mission-topline">
-                <span>{{ card.label }}</span>
-                <strong>{{ card.metric }}</strong>
-              </span>
-              <span class="mission-title">{{ card.title }}</span>
-              <span class="mission-progress" aria-hidden="true">
-                <i [style.width.%]="card.progressPercent"></i>
-              </span>
-              <span class="mission-footer">
-                <small>{{ card.actionLabel }}</small>
-                <span>{{ card.progressPercent }}%</span>
-              </span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="dock-section">
-        <h2 class="dock-heading">Tactical Directives</h2>
-        <div class="tactical-directives" aria-label="Tactical directives">
-          @for (card of game.tacticalDirectiveCards(); track card.id) {
-            <button
-              type="button"
-              class="directive-card tone-{{ card.tone }}"
-              [attr.aria-label]="card.label + ': ' + card.title"
-              [attr.title]="card.detail"
-              (click)="runTacticalDirectiveCard(card)"
-            >
-              <span class="directive-kicker">{{ card.label }}</span>
-              <strong>{{ card.title }}</strong>
-              <span class="directive-detail">{{ card.detail }}</span>
-              <span class="directive-meta">
-                <b>{{ card.metric }}</b>
-                <small>{{ card.actionLabel }}</small>
-              </span>
-              <i aria-hidden="true"><em [style.width.%]="card.progressPercent"></em></i>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="dock-section">
-        <h2 class="dock-heading">Global Intel</h2>
-        <div class="intel-strip" aria-label="Global intel strip">
-          @for (card of intelCards(); track card.label) {
-            <article class="intel-card tone-{{ card.tone }}">
-              <span>{{ card.label }}</span>
-              <strong>{{ card.title }}</strong>
-              <p>{{ card.detail }}</p>
-              <small>{{ card.metric }}</small>
-            </article>
-          }
-        </div>
-      </div>
-
-      <div class="dock-section">
-        <h2 class="dock-heading">Operations // Meta Loop</h2>
-        <div class="operations-grid" aria-label="Operations deck">
-          @for (card of game.operationsCards(); track card.id) {
-            <article class="ops-card tone-{{ card.tone }}">
-              <div class="ops-topline">
-                <span>{{ card.label }}</span>
-                <strong>{{ card.metric }}</strong>
-              </div>
-              <h3>{{ card.title }}</h3>
-              <p>{{ card.detail }}</p>
-              <div class="ops-progress" aria-hidden="true">
-                <i [style.width.%]="card.progressPercent"></i>
-              </div>
-              <div class="ops-footer">
-                <small>{{ card.status }}</small>
-                <button type="button" (click)="runOperationsCard(card)">{{ card.actionLabel }}</button>
-              </div>
-            </article>
-          }
-        </div>
-      </div>
-    </section>
+  @if (secondaryViews().length > 1 || activeView() === 'Settings') {
+    <nav class="secondary-nav" [attr.aria-label]="activeSection() + ' views'">
+      @for (view of secondaryViews(); track view) {
+        <button type="button" [class.active]="activeView() === view" (click)="openView(view)">{{ viewLabel(view) }}</button>
+      }
+      @if (activeView() === 'Settings') {
+        <button type="button" class="active" aria-current="page">Settings</button>
+      }
+    </nav>
   }
 
-  <section class="play-surface" id="play-surface" tabindex="-1" [attr.aria-label]="activeTab() + ' view'">
-    @switch (activeTab()) {
-      @case ('Evolution Tree') {
-        <app-evolution-tree />
-      }
-      @case ('Squad') {
-        <app-squad />
-      }
-      @case ('Forge') {
-        <app-forge />
-      }
-      @case ('Arena') {
-        <app-arena />
-      }
-      @case ('Expedition') {
-        <app-expedition />
-      }
-      @case ('Collection') {
-        <app-collection />
-      }
-      @case ('Campaign') {
-        <app-campaign />
-      }
-      @case ('Medals') {
-        <app-medals />
-      }
-      @case ('Handbook') {
-        <app-handbook />
-      }
-      @case ('Settings') {
-        <app-settings />
-      }
+  <section class="play-surface" id="play-surface" tabindex="-1" [attr.aria-label]="activeView() + ' view'">
+    @switch (activeView()) {
+      @case ('Evolution Tree') { <app-evolution-tree /> }
+      @case ('Squad') { <app-squad /> }
+      @case ('Forge') { <app-forge /> }
+      @case ('Arena') { <app-arena /> }
+      @case ('Expedition') { <app-expedition /> }
+      @case ('Collection') { <app-collection /> }
+      @case ('Campaign') { <app-campaign /> }
+      @case ('Medals') { <app-medals /> }
+      @case ('Handbook') { <app-handbook /> }
+      @case ('Settings') { <app-settings /> }
     }
   </section>
-
 </main>
 
-<app-onboarding (navigate)="setActiveTab($event)" />
+<app-onboarding (navigate)="openView($event)" />
 <app-toast-stack />
-
 <div class="sr-only" aria-live="polite" role="status">{{ liveAnnouncement() }}</div>

@@ -1,33 +1,14 @@
-<nav class="tab-nav blueprint-nav" aria-label="Game sections">
-  <div class="tab-cluster" aria-label="Primary game sections">
-    @for (tab of tabs; track tab.label) {
-      <button
-        class="tab-button"
-        [class.active]="activeTab === tab.label"
-        [attr.aria-current]="activeTab === tab.label ? 'page' : null"
-        type="button"
-        (click)="tabChange.emit(tab.label)"
-      >
-        <span class="tab-icon">{{ tab.icon }}</span>
-        <span class="tab-copy">
-          <span class="tab-label">{{ 'tab.' + tab.label | t }}</span>
-          <span class="tab-status">{{ tab.signal }}</span>
-        </span>
-      </button>
-    }
-  </div>
-
-  <button
-    class="tab-button handbook-tab"
-    [class.active]="activeTab === handbookTab.label"
-    [attr.aria-current]="activeTab === handbookTab.label ? 'page' : null"
-    type="button"
-    (click)="tabChange.emit(handbookTab.label)"
-  >
-    <span class="tab-icon">{{ handbookTab.icon }}</span>
-    <span class="tab-copy">
-      <span class="tab-label">{{ 'tab.' + handbookTab.label | t }}</span>
-      <span class="tab-status">{{ handbookTab.signal }}</span>
-    </span>
-  </button>
+<nav class="primary-nav" aria-label="Game sections">
+  @for (tab of tabs; track tab.label) {
+    <button
+      type="button"
+      class="primary-nav-item"
+      [class.active]="activeSection === tab.label"
+      [attr.aria-current]="activeSection === tab.label ? 'page' : null"
+      (click)="sectionChange.emit(tab.label)"
+    >
+      <span class="primary-nav-icon" aria-hidden="true">{{ tab.icon }}</span>
+      <span>{{ tab.label }}</span>
+    </button>
+  }
 </nav>

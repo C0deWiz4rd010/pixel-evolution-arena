@@ -1,27 +1,23 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslatePipe } from '../../i18n/translate.pipe';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+
+export type PrimarySection = 'Evolve' | 'Squad' | 'Battle' | 'Explore' | 'Archive';
 
 @Component({
   selector: 'app-tab-navigation',
-  imports: [TranslatePipe],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tab-navigation.component.html',
   styleUrl: './tab-navigation.component.scss',
 })
 export class TabNavigationComponent {
-  @Input({ required: true }) activeTab = 'Evolution Tree';
-  @Output() tabChange = new EventEmitter<string>();
+  @Input({ required: true }) activeSection: PrimarySection = 'Evolve';
+  @Output() sectionChange = new EventEmitter<PrimarySection>();
 
-  readonly tabs = [
-    { label: 'Evolution Tree', icon: 'TREE', signal: 'Node map' },
-    { label: 'Squad', icon: 'SQ', signal: '3 slots' },
-    { label: 'Forge', icon: 'FRG', signal: 'Gear' },
-    { label: 'Arena', icon: 'VS', signal: 'Rewards' },
-    { label: 'Expedition', icon: 'EXP', signal: 'Roguelite' },
-    { label: 'Collection', icon: 'DEX', signal: 'Filters' },
-    { label: 'Campaign', icon: 'CMP', signal: 'Chapters' },
-    { label: 'Medals', icon: 'MDL', signal: 'Achievements' },
-    { label: 'Settings', icon: 'SET', signal: 'Audio/Save' },
+  readonly tabs: ReadonlyArray<{ label: PrimarySection; icon: string }> = [
+    { label: 'Evolve', icon: 'EV' },
+    { label: 'Squad', icon: 'SQ' },
+    { label: 'Battle', icon: 'VS' },
+    { label: 'Explore', icon: 'EX' },
+    { label: 'Archive', icon: 'DX' },
   ];
-
-  readonly handbookTab = { label: 'Handbook', icon: 'MAN', signal: 'Manual/Data' };
 }

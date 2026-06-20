@@ -1,111 +1,34 @@
 <header class="hud-panel header-hud">
   <div class="brand-block">
-    <img class="brand-mark-image" src="assets/brand/pixel-evolution-arena-mark.svg" alt="Pixel Evolution Arena mark" />
+    <img class="brand-mark-image" src="assets/brand/pixel-evolution-arena-mark.svg" alt="" />
     <div class="brand-copy">
       <h1>Pixel Evolution Arena</h1>
-      <p>Build your squad. Unlock evolutions. Dominate the arena.</p>
+      <p>Collect. Build. Battle. Evolve.</p>
     </div>
   </div>
 
-  <div class="hud-stats" aria-label="Player resources and status">
-    <!-- Primary resources: big, legible numbers -->
-    <div class="resource-cluster" aria-label="Resources">
-      <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
-        <span class="stat-icon">CR</span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.coins' | t }}</span>
-          <strong [appCountUp]="game.player().coins"></strong>
-        </span>
-      </div>
-      <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
-        <span class="stat-icon">DN</span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.dna' | t }}</span>
-          <strong [appCountUp]="game.player().dnaShards"></strong>
-        </span>
-      </div>
-      <div class="stat-chip power" [class.stat-pulse]="pulseFor('power')()">
-        <span class="stat-icon">PW</span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.power' | t }}</span>
-          <strong [appCountUp]="game.teamPower()"></strong>
-        </span>
-      </div>
-      <div class="stat-chip wins" [class.stat-pulse]="pulseFor('wins')()">
-        <span class="stat-icon">WN</span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.wins' | t }}</span>
-          <strong>{{ game.player().battlesWon }}</strong>
-        </span>
-      </div>
+  <div class="hud-stats" aria-label="Player resources">
+    <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
+      <span class="stat-icon">CR</span><span class="stat-body"><span class="stat-label">Coins</span><strong [appCountUp]="game.player().coins"></strong></span>
     </div>
-
-    <!-- Status badges: compact at-a-glance state -->
-    <div class="status-cluster" aria-label="Status">
-      <div
-        class="status-badge streak"
-        [class.on]="game.winStreak() > 0"
-        [class.stat-pulse]="pulseFor('streak')()"
-        [attr.title]="'Win streak ' + game.streakLabel() + ' — best x' + game.bestWinStreak()"
-      >
-        <span class="badge-label">{{ 'hud.streak' | t }}</span>
-        <strong>{{ game.streakLabel() }}</strong>
-      </div>
-      <div
-        class="status-badge overdrive"
-        [class.on]="game.overdriveReady()"
-        [class.armed]="game.overdriveArmed()"
-        title="Overdrive core charge"
-      >
-        <span class="badge-label">{{ 'hud.overdrive' | t }}</span>
-        <strong>{{ game.overdriveReady() ? (game.overdriveArmed() ? 'ARM' : 'RDY') : game.overdrivePercent() + '%' }}</strong>
-      </div>
-      <div
-        class="status-badge daily"
-        [class.on]="game.dailyComplete()"
-        [attr.title]="game.dailyObjective().detail"
-      >
-        <span class="badge-label">{{ 'hud.daily' | t }}</span>
-        <strong>{{ game.dailyComplete() ? 'OK' : game.dailyDirective().progress + '/' + game.dailyObjective().goal }}</strong>
-      </div>
+    <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
+      <span class="stat-icon">DN</span><span class="stat-body"><span class="stat-label">DNA</span><strong [appCountUp]="game.player().dnaShards"></strong></span>
     </div>
-
-    <!-- Context: selected monster + save -->
-    <div class="context-cluster" aria-label="Context">
-      @if (game.pinnedChase(); as pinned) {
-        <div class="stat-chip chase" title="Pinned chase target">
-          <span class="stat-icon">PN</span>
-          <span class="stat-body">
-            <span class="stat-label">{{ 'hud.chase' | t }}</span>
-            <strong>{{ pinned.name }}</strong>
-          </span>
+    <div class="stat-chip power secondary-stat" [class.stat-pulse]="pulseFor('power')()">
+      <span class="stat-icon">PW</span><span class="stat-body"><span class="stat-label">Team Power</span><strong [appCountUp]="game.teamPower()"></strong></span>
+    </div>
+    <div class="stat-chip dex secondary-stat" [class.stat-pulse]="pulseFor('dex')()">
+      <span class="stat-icon">DX</span><span class="stat-body"><span class="stat-label">Dex</span><strong>{{ unlockedCount() }}/{{ totalCount() }}</strong></span>
+      <i aria-hidden="true"><b [style.width.%]="dexPercent()"></b></i>
+    </div>
+    <div class="utility-wrap">
+      <button type="button" class="utility-button" aria-label="Open utility menu" [attr.aria-expanded]="utilityOpen()" (click)="utilityOpen.set(!utilityOpen())">•••</button>
+      @if (utilityOpen()) {
+        <div class="utility-menu">
+          <span>{{ game.saveStatusLabel() }} · {{ game.lastSavedLabel() }}</span>
+          <button type="button" (click)="openSettings()">Settings</button>
         </div>
       }
-      <div class="stat-chip selected">
-        <span class="selected-icon">
-          @if (game.selectedMonster(); as selectedMonster) {
-            @if (selectedMonster.unlocked && selectedMonster.spriteUrl) {
-              <img class="creature-sprite tiny" [src]="selectedMonster.spriteUrl" [alt]="selectedMonster.name + ' animated sprite'" />
-            } @else {
-              {{ selectedMonster.icon }}
-            }
-          } @else {
-            ID
-          }
-        </span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.selected' | t }}</span>
-          <strong>{{ game.selectedMonster()?.name ?? 'No Signal' }}</strong>
-          <small>LV. {{ game.selectedMonster()?.level ?? 0 }}</small>
-        </span>
-      </div>
-      <div class="stat-chip save" [attr.title]="game.lastSavedLabel()">
-        <span class="stat-icon">SV</span>
-        <span class="stat-body">
-          <span class="stat-label">{{ 'hud.save' | t }}</span>
-          <strong>{{ game.saveStatusLabel() }}</strong>
-        </span>
-      </div>
     </div>
   </div>
 </header>

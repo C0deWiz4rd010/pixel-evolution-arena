@@ -1,153 +1,94 @@
 :host {
   display: block;
-  margin: 0.34rem 0;
+  margin: 0.5rem 0;
 }
 
-.tab-nav {
-  position: relative;
+.primary-nav {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.5rem;
-  align-items: stretch;
-  overflow: visible;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1px solid rgba(19, 216, 255, 0.32);
+  background: rgba(2, 11, 20, 0.9);
+  clip-path: var(--chamfer);
 }
 
-.tab-nav::before {
-  position: absolute;
-  inset: -3px 0 auto;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(19, 216, 255, 0.5),
-    rgba(255, 85, 216, 0.42),
-    transparent
-  );
-  content: '';
-}
-
-.tab-cluster {
+.primary-nav-item {
+  position: relative;
   display: flex;
-  gap: 0.4rem;
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  padding-bottom: 0.12rem;
-}
-
-.tab-button {
-  position: relative;
-  display: inline-grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 0.42rem;
+  min-height: 52px;
+  gap: 0.65rem;
   align-items: center;
-  flex: 0 0 auto;
-  min-width: 124px;
-  max-width: 178px;
-  min-height: 44px;
-  padding: 0.32rem 0.56rem;
-  overflow: hidden;
-  border-color: rgba(19, 216, 255, 0.3);
+  justify-content: center;
+  border: 0;
+  border-right: 1px solid rgba(19, 216, 255, 0.16);
+  background: transparent;
   color: var(--muted);
-  text-align: left;
-  white-space: normal;
-  clip-path: var(--chamfer-tight);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.tab-button.active {
-  border-color: var(--line);
-  background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(19, 216, 255, 0.32), rgba(19, 216, 255, 0.08));
-  background-size: 16px 16px, auto;
+.primary-nav-item:last-child {
+  border-right: 0;
+}
+
+.primary-nav-item:hover,
+.primary-nav-item:focus-visible {
   color: var(--text);
-  box-shadow: 0 0 18px rgba(19, 216, 255, 0.3);
+  background: rgba(19, 216, 255, 0.08);
 }
 
-/* Bright accent bar under the active tab for an unmistakable selected state */
-.tab-button.active::before {
+.primary-nav-item.active {
+  color: var(--line-bright);
+  background: linear-gradient(180deg, rgba(19, 216, 255, 0.16), rgba(19, 216, 255, 0.04));
+}
+
+.primary-nav-item.active::after {
   position: absolute;
-  inset: auto 0 0;
-  height: 2px;
-  background: var(--line);
-  box-shadow: 0 0 10px var(--line);
+  inset: auto 15% 0;
+  height: 3px;
+  background: var(--success);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--success) 55%, transparent);
   content: '';
 }
 
-.tab-icon {
+.primary-nav-icon {
   display: grid;
-  width: 34px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   place-items: center;
-  border: 1px solid rgba(19, 216, 255, 0.62);
-  background: rgba(2, 12, 22, 0.76);
-  color: var(--line);
-  font-size: 0.64rem;
-  font-weight: 700;
-}
-
-.tab-button.active .tab-icon {
-  color: var(--line-bright);
-  border-color: var(--line-bright);
-}
-
-.tab-copy {
-  display: grid;
-  min-width: 0;
-}
-
-.tab-label {
-  min-width: 0;
+  border: 1px solid currentColor;
   color: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.tab-status {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.62rem;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.handbook-tab {
-  justify-self: end;
-  flex: 0 0 auto;
-  border-color: rgba(255, 85, 216, 0.65);
-  background:
-    linear-gradient(90deg, rgba(255, 85, 216, 0.16), rgba(19, 216, 255, 0.04)), rgba(0, 0, 0, 0.24);
-}
-
-.handbook-tab.active {
-  border-color: var(--special);
-  box-shadow: 0 0 20px rgba(255, 85, 216, 0.28);
-}
-
-.handbook-tab.active::before {
-  background: var(--special);
-  box-shadow: 0 0 10px var(--special);
-}
-
-.handbook-tab .tab-icon {
-  border-color: rgba(255, 85, 216, 0.7);
-  color: var(--special);
+  font-size: 0.68rem;
 }
 
 @media (max-width: 720px) {
-  .tab-button {
-    min-width: 112px;
+  :host {
+    position: fixed;
+    z-index: 80;
+    inset: auto 0 0;
+    margin: 0;
   }
 
-  .tab-button .tab-status {
-    display: none;
+  .primary-nav {
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    clip-path: none;
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.5);
+  }
+
+  .primary-nav-item {
+    min-height: 64px;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.38rem 0.16rem;
+    font-size: 0.66rem;
+  }
+
+  .primary-nav-icon {
+    width: 27px;
+    height: 25px;
   }
 }

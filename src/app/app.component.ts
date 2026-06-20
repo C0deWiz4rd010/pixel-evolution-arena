@@ -1,44 +1,42 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { ArenaComponent } from './components/arena/arena.component';
 import { ArenaEffectsComponent } from './components/arena-effects/arena-effects.component';
+import { CampaignComponent } from './components/campaign/campaign.component';
 import { CollectionComponent } from './components/collection/collection.component';
 import { EvolutionTreeComponent } from './components/evolution-tree/evolution-tree.component';
+import { ExpeditionComponent } from './components/expedition/expedition.component';
+import { ForgeComponent } from './components/forge/forge.component';
 import { HandbookComponent } from './components/handbook/handbook.component';
 import { HeaderHudComponent } from './components/header-hud/header-hud.component';
 import { MedalsComponent } from './components/medals/medals.component';
-import { SquadComponent } from './components/squad/squad.component';
-import { ForgeComponent } from './components/forge/forge.component';
-import { CampaignComponent } from './components/campaign/campaign.component';
-import { ExpeditionComponent } from './components/expedition/expedition.component';
-import { SettingsComponent } from './components/settings/settings.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
-import { TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { SquadComponent } from './components/squad/squad.component';
+import { PrimarySection, TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
-import { MissionControlCard } from './rules/mission-control.rules';
-import { TacticalDirectiveCard } from './rules/tactical-directive.rules';
 import { BattleAnimationService } from './services/battle-animation.service';
-import { GameSectionName, GameStateService, OperationsCard } from './services/game-state.service';
+import { GameSectionName, GameStateService } from './services/game-state.service';
 
-const TAB_ORDER: GameSectionName[] = [
-  'Evolution Tree',
-  'Squad',
-  'Forge',
-  'Arena',
-  'Expedition',
-  'Collection',
-  'Campaign',
-  'Medals',
-  'Handbook',
-  'Settings',
-];
+const SECTION_ORDER: PrimarySection[] = ['Evolve', 'Squad', 'Battle', 'Explore', 'Archive'];
+const SECTION_VIEWS: Record<PrimarySection, readonly GameSectionName[]> = {
+  Evolve: ['Evolution Tree'],
+  Squad: ['Squad', 'Forge'],
+  Battle: ['Arena', 'Campaign'],
+  Explore: ['Expedition'],
+  Archive: ['Collection', 'Medals', 'Handbook'],
+};
 
-interface IntelStripCard {
-  label: string;
-  title: string;
-  detail: string;
-  metric: string;
-  tone: 'combat' | 'campaign' | 'expedition';
-}
+const VIEW_LABELS: Partial<Record<GameSectionName, string>> = {
+  'Evolution Tree': 'Path',
+  Squad: 'Formation',
+  Forge: 'Loadout',
+  Arena: 'Arena',
+  Campaign: 'Campaign',
+  Expedition: 'Expedition',
+  Collection: 'Collection',
+  Medals: 'Achievements',
+  Handbook: 'Guide',
+};
 
 @Component({
   selector: 'app-root',
@@ -66,75 +64,21 @@ export class AppComponent {
   readonly game = inject(GameStateService);
   private readonly battleAnimation = inject(BattleAnimationService);
 
-  readonly activeTab = signal<GameSectionName>('Evolution Tree');
-  /** Collapsible Intel & Operations dock; collapsed by default to keep the play surface tall. */
-  readonly dockExpanded = signal(false);
-  readonly canStartQuickBattle = computed(() => this.game.squad().length > 0 && !this.battleAnimation.isPlaying());
-  readonly intelCards = computed<IntelStripCard[]>(() => {
-    const battleIntel = this.game.battleIntelSummary();
-    const nextChapter = this.game.nextCampaignEntry();
-    const expedition = this.game.expedition();
+  readonly activeSection = signal<PrimarySection>('Evolve');
+  readonly activeView = signal<GameSectionName>('Evolution Tree');
+  readonly secondaryViews = computed(() => SECTION_VIEWS[this.activeSection()]);
+  readonly viewLabel = (view: GameSectionName) => VIEW_LABELS[view] ?? view;
 
-    return [
-      {
-        label: 'Combat Intel',
-        title: battleIntel.trend === 'empty' ? 'No battle history yet' : `${battleIntel.winRate}% win rate / ${battleIntel.trend.toUpperCase()}`,
-        detail: battleIntel.trendLabel,
-        metric: battleIntel.total > 0 ? `${battleIntel.averageCoins} CR avg / ${battleIntel.averageXp} XP avg` : 'Run Arena to seed intel',
-        tone: 'combat',
-      },
-      {
-        label: 'Campaign Pressure',
-        title: this.game.claimableChapter()
-          ? `${this.game.claimableChapter()!.title} ready to claim`
-          : nextChapter
-            ? nextChapter.chapter.title
-            : 'Campaign synced',
-        detail: this.game.claimableChapter()
-          ? this.game.claimableChapter()!.reward.lore
-          : nextChapter
-            ? `${nextChapter.chapter.objective.label} (${nextChapter.current}/${nextChapter.goal})`
-            : 'All visible chapters are complete.',
-        metric: this.game.activeBoss() ? this.game.activeBoss()!.name : `${this.game.player().claimedChapters.length}/${this.game.campaignChapters.length} claimed`,
-        tone: 'campaign',
-      },
-      {
-        label: 'Expedition Relay',
-        title: !expedition
-          ? this.game.squad().length === 0
-            ? 'Squad required for launch'
-            : 'Relay launch available'
-          : expedition.status === 'active'
-            ? `Depth ${expedition.depth}/7 live`
-            : 'Core payout ready',
-        detail: !expedition
-          ? this.game.squad().length === 0
-            ? 'Load more signals before taking a side-run into the deep grid.'
-            : 'Current squad can bank cores through a short roguelite push.'
-          : expedition.lastEvent ?? 'Deep grid telemetry is stable.',
-        metric: !expedition ? `${this.game.expeditionCores()} banked` : expedition.status === 'active' ? `HP ${expedition.hp}/${expedition.maxHp}` : `${expedition.rewardCores} run cores`,
-        tone: 'expedition',
-      },
-    ];
-  });
-
-  /** Screen-reader announcement for the latest battle outcome. */
   readonly liveAnnouncement = computed(() => {
     const reward = this.game.lastReward();
-    if (!reward) {
-      return '';
-    }
-    const result = reward.won ? 'Victory' : 'Retreat';
-    return `${result}. ${reward.coins} coins, ${reward.dnaShards} DNA, ${reward.xp} XP.`;
+    if (!reward) return '';
+    return `${reward.won ? 'Victory' : 'Retreat'}. ${reward.coins} coins, ${reward.dnaShards} DNA, ${reward.xp} XP.`;
   });
 
   constructor() {
-    // Reflect presentation settings onto <html> so global CSS can theme + adapt.
     effect(() => {
       const settings = this.game.settings();
-      if (typeof document === 'undefined') {
-        return;
-      }
+      if (typeof document === 'undefined') return;
       const root = document.documentElement;
       root.dataset['accent'] = settings.accentTheme;
       root.dataset['colorblind'] = settings.colorblindMode ? 'on' : 'off';
@@ -144,202 +88,50 @@ export class AppComponent {
 
     effect(() => {
       const requested = this.game.requestedTab();
-      if (!requested || requested === this.activeTab()) {
-        if (requested) {
-          this.game.clearRequestedTab();
-        }
-        return;
-      }
-      this.setActiveTab(requested);
+      if (!requested) return;
+      this.openView(requested);
       this.game.clearRequestedTab();
     });
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab.set(tab as GameSectionName);
-    this.dockExpanded.set(false);
-    globalThis.requestAnimationFrame(() => {
-      const surface = document.querySelector<HTMLElement>('.play-surface');
-      if (surface) {
-        surface.scrollTop = 0;
-      }
-    });
+  openSection(section: PrimarySection): void {
+    this.activeSection.set(section);
+    this.openView(SECTION_VIEWS[section][0]);
   }
 
-  autoBuildSquad(): void {
-    this.game.autoBuildBestSquad();
-    this.setActiveTab('Squad');
+  openView(view: string): void {
+    const legacyView = view as GameSectionName;
+    this.activeView.set(legacyView);
+    const section = this.sectionForView(legacyView);
+    if (section) this.activeSection.set(section);
+    globalThis.requestAnimationFrame(() => document.querySelector<HTMLElement>('.play-surface')?.scrollTo({ top: 0 }));
   }
 
-  evolveReadyCandidate(): void {
-    if (this.game.evolveReadyCandidate()) {
-      this.setActiveTab('Evolution Tree');
+  followNextGoal(): void {
+    this.openView(this.game.nextCommand().tab);
+  }
+
+  private sectionForView(view: GameSectionName): PrimarySection | null {
+    for (const section of SECTION_ORDER) {
+      if (SECTION_VIEWS[section].includes(view)) return section;
     }
-  }
-
-  runBattleNow(): void {
-    if (!this.canStartQuickBattle()) {
-      return;
-    }
-
-    this.setActiveTab('Arena');
-    this.game.startBattle();
-  }
-
-  runOperationsCard(card: OperationsCard): void {
-    switch (card.id) {
-      case 'chase':
-        if (this.game.readyEvolutionCandidate()) {
-          this.evolveReadyCandidate();
-          return;
-        }
-        this.setActiveTab(card.tab);
-        return;
-      case 'forge':
-        if (card.tab === 'Squad') {
-          this.setActiveTab('Squad');
-          return;
-        }
-        this.setActiveTab('Forge');
-        this.game.runForgeQuickAction();
-        return;
-      case 'campaign':
-        this.setActiveTab('Campaign');
-        this.game.claimReadyChapter();
-        return;
-      case 'expedition': {
-        const expedition = this.game.expedition();
-        if (!expedition) {
-          if (this.game.squad().length === 0) {
-            this.setActiveTab('Squad');
-            return;
-          }
-          this.setActiveTab('Expedition');
-          this.game.startExpedition();
-          return;
-        }
-        this.setActiveTab('Expedition');
-        if (expedition.status !== 'active') {
-          this.game.claimExpedition();
-        }
-        return;
-      }
-    }
-  }
-
-  runMissionControlCard(card: MissionControlCard): void {
-    switch (card.actionId) {
-      case 'auto-squad':
-        this.autoBuildSquad();
-        return;
-      case 'evolve-ready':
-        if (this.game.readyEvolutionCandidate()) {
-          this.evolveReadyCandidate();
-          return;
-        }
-        this.setActiveTab('Collection');
-        return;
-      case 'run-battle':
-        if (this.canStartQuickBattle()) {
-          this.runBattleNow();
-          return;
-        }
-        this.setActiveTab(this.game.squad().length === 0 ? 'Squad' : 'Arena');
-        return;
-      case 'claim-chapter':
-        this.setActiveTab('Campaign');
-        this.game.claimReadyChapter();
-        return;
-      case 'forge-quick':
-        this.setActiveTab('Forge');
-        this.game.runForgeQuickAction();
-        return;
-      case 'expedition': {
-        const expedition = this.game.expedition();
-        if (!expedition) {
-          if (this.game.squad().length === 0) {
-            this.setActiveTab('Squad');
-            return;
-          }
-          this.setActiveTab('Expedition');
-          this.game.startExpedition();
-          return;
-        }
-        this.setActiveTab('Expedition');
-        if (expedition.status !== 'active') {
-          this.game.claimExpedition();
-        }
-        return;
-      }
-      case 'save-now':
-        this.game.syncSaveState();
-        return;
-    }
-  }
-
-  runTacticalDirectiveCard(card: TacticalDirectiveCard): void {
-    switch (card.actionId) {
-      case 'auto-squad':
-        this.autoBuildSquad();
-        return;
-      case 'evolve-ready':
-        this.evolveReadyCandidate();
-        return;
-      case 'run-battle':
-        this.runBattleNow();
-        return;
-      case 'claim-chapter':
-        this.setActiveTab('Campaign');
-        this.game.claimReadyChapter();
-        return;
-      case 'forge-quick':
-        this.setActiveTab('Forge');
-        this.game.runForgeQuickAction();
-        return;
-      case 'expedition': {
-        this.setActiveTab('Expedition');
-        const expedition = this.game.expedition();
-        if (!expedition && this.game.squad().length > 0) {
-          this.game.startExpedition();
-        } else if (expedition && expedition.status !== 'active') {
-          this.game.claimExpedition();
-        }
-        return;
-      }
-      case 'save-now':
-        this.game.syncSaveState();
-        return;
-    }
+    return null;
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent): void {
-    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    const target = event.target as HTMLElement | null;
+    if (target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) return;
+
+    if (event.key >= '1' && event.key <= '5') {
+      event.preventDefault();
+      this.openSection(SECTION_ORDER[Number.parseInt(event.key, 10) - 1]);
       return;
     }
 
-    const focusedElement = event.target as HTMLElement | null;
-    if (focusedElement) {
-      const tag = focusedElement.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || focusedElement.isContentEditable) {
-        return;
-      }
-    }
-
-    if (event.key >= '1' && event.key <= '9') {
-      const index = Number.parseInt(event.key, 10) - 1;
-      const tab = TAB_ORDER[index];
-      if (tab) {
-        event.preventDefault();
-        this.setActiveTab(tab);
-      }
-      return;
-    }
-
-    if ((event.key === ' ' || event.key === 'Enter') && this.activeTab() === 'Arena') {
-      if (this.battleAnimation.isPlaying() || this.game.squad().length === 0) {
-        return;
-      }
+    if ((event.key === ' ' || event.key === 'Enter') && this.activeView() === 'Arena') {
+      if (this.battleAnimation.isPlaying() || this.game.squad().length === 0) return;
       event.preventDefault();
       this.game.startBattle();
     }

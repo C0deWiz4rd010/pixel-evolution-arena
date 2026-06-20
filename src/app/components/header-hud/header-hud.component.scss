@@ -1,63 +1,39 @@
-:host {
-  display: block;
+:host { display: block; }
+
+.header-hud { min-height: 88px; }
+.hud-stats { display: flex; justify-content: flex-end; align-items: stretch; gap: 0.45rem; }
+.stat-chip { min-width: 118px; }
+.stat-chip.coins strong, .stat-chip.coins .stat-icon { color: var(--coin); }
+.stat-chip.dna strong, .stat-chip.dna .stat-icon { color: var(--dna); }
+.stat-chip.power strong, .stat-chip.power .stat-icon { color: var(--success); }
+.stat-chip.dex strong, .stat-chip.dex .stat-icon { color: var(--line-bright); }
+.stat-chip.dex { position: relative; padding-bottom: 0.55rem; }
+.stat-chip.dex i { position: absolute; inset: auto 0.5rem 0.25rem; height: 2px; background: rgba(19,216,255,.16); }
+.stat-chip.dex b { display: block; height: 100%; background: var(--line-bright); }
+
+.utility-wrap { position: relative; }
+.utility-button { min-width: 48px; height: 100%; font-size: 1rem; }
+.utility-menu { position: absolute; z-index: 100; top: calc(100% + 0.4rem); right: 0; display: grid; min-width: 220px; gap: 0.65rem; padding: 0.75rem; border: 1px solid var(--line); background: #06111f; box-shadow: 0 16px 30px rgba(0,0,0,.55); }
+.utility-menu span { color: var(--muted); font-size: 0.72rem; }
+
+.stat-pulse { animation: stat-pulse 700ms ease-out; }
+@keyframes stat-pulse { 25% { box-shadow: 0 0 22px currentColor; transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .stat-pulse { animation: none; } }
+
+@media (max-width: 900px) {
+  .brand-copy p { display: none; }
+  .stat-chip { min-width: 94px; }
 }
 
-/* Resource accent colours on the icon glyph + value */
-.stat-chip.coins .stat-icon,
-.stat-chip.coins strong {
-  color: var(--coin);
-}
-
-.stat-chip.dna .stat-icon,
-.stat-chip.dna strong {
-  color: var(--dna);
-}
-
-.stat-chip.power .stat-icon,
-.stat-chip.power strong,
-.stat-chip.wins .stat-icon,
-.stat-chip.wins strong {
-  color: var(--success);
-}
-
-.stat-chip.save .stat-icon {
-  color: var(--line-bright);
-}
-
-.stat-chip.stat-pulse,
-.status-badge.stat-pulse {
-  animation: stat-pulse-flash 860ms ease-out;
-}
-
-.stat-chip.stat-pulse strong,
-.status-badge.stat-pulse strong {
-  animation: stat-pulse-text 860ms ease-out;
-}
-
-@keyframes stat-pulse-flash {
-  0% {
-    box-shadow: 0 0 0 0 currentColor, 0 0 22px color-mix(in srgb, currentColor 28%, transparent);
-    transform: scale(1);
-  }
-  18% {
-    box-shadow: 0 0 0 2px currentColor, 0 0 30px color-mix(in srgb, currentColor 52%, transparent);
-    transform: scale(1.04);
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent, 0 0 0 transparent;
-    transform: scale(1);
-  }
-}
-
-@keyframes stat-pulse-text {
-  0% { text-shadow: 0 0 0 currentColor; }
-  20% { text-shadow: 0 0 18px currentColor, 0 0 32px currentColor; }
-  100% { text-shadow: 0 0 0 transparent; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stat-chip.stat-pulse,
-  .stat-chip.stat-pulse strong {
-    animation: none;
-  }
+@media (max-width: 620px) {
+  .header-hud { min-height: 0; align-items: center; padding: 0.65rem; }
+  .brand-copy h1 { font-size: clamp(0.9rem, 4vw, 1.15rem); white-space: nowrap; }
+  .brand-mark-image { width: 36px; height: 36px; }
+  .hud-stats { gap: 0.25rem; }
+  .secondary-stat { display: none; }
+  .stat-chip { min-width: 68px; padding: 0.3rem; }
+  .stat-chip .stat-label { font-size: 0.58rem; }
+  .stat-chip strong { font-size: 0.84rem; }
+  .stat-icon { display: none; }
+  .utility-button { min-width: 42px; min-height: 44px; }
 }
