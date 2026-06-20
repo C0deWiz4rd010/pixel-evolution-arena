@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Pixelify Sans Local";
+  src: url("/assets/fonts/pixelify-sans-latin-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk Local";
+  src: url("/assets/fonts/space-grotesk-latin-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --bg: #020711;
@@ -57,7 +73,9 @@
     0 calc(100% - var(--corner-cut-wide)),
     0 var(--corner-cut-wide)
   );
-  --font: "Cascadia Mono", "Consolas", "Courier New", monospace;
+  --font-display: "Pixelify Sans Local", "Cascadia Mono", monospace;
+  --font-body: "Space Grotesk Local", "Segoe UI", sans-serif;
+  --font: var(--font-body);
   --text-xs: 0.74rem;
   --text-sm: 0.8rem;
   --text-kicker: 0.7rem;
@@ -69,6 +87,14 @@
   --sprite-node: 96px;
   --sprite-target: 66px;
   --sprite-hero: 128px;
+}
+
+:root[data-typography="pixel"] {
+  --font-body: "Pixelify Sans Local", "Cascadia Mono", monospace;
+}
+
+:root[data-typography="tech-sans"] {
+  --font-display: "Space Grotesk Local", "Segoe UI", sans-serif;
 }
 
 * {
@@ -227,6 +253,8 @@ p {
 h1,
 h2,
 h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.015em;
   line-height: 1.08;
 }
 

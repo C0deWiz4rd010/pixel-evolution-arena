@@ -81,6 +81,8 @@ export class AppComponent {
       if (typeof document === 'undefined') return;
       const root = document.documentElement;
       root.dataset['accent'] = settings.accentTheme;
+      root.dataset['visualStyle'] = settings.visualStyle;
+      root.dataset['typography'] = settings.typographyProfile;
       root.dataset['colorblind'] = settings.colorblindMode ? 'on' : 'off';
       root.dataset['reducedFx'] = settings.effectIntensity < 0.5 ? 'on' : 'off';
       root.lang = settings.language;

@@ -237,12 +237,18 @@ function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings
   const candidate = (value ?? {}) as Partial<SaveStateSnapshot['player']['settings']>;
   const accent = candidate.accentTheme;
   const lang = candidate.language;
+  const visualStyle = candidate.visualStyle;
+  const typographyProfile = candidate.typographyProfile;
   return {
     masterVolume: typeof candidate.masterVolume === 'number' ? clamp(candidate.masterVolume, 0, 1) : 0.7,
     colorblindMode: candidate.colorblindMode === true,
     effectIntensity: typeof candidate.effectIntensity === 'number' ? clamp(candidate.effectIntensity, 0, 1) : 1,
     accentTheme: accent === 'ember' || accent === 'mono' ? accent : 'aurora',
     language: lang === 'de' ? 'de' : 'en',
+    visualStyle:
+      visualStyle === 'pixel-arcade' || visualStyle === 'tactical-minimal' ? visualStyle : 'collector-tech',
+    typographyProfile:
+      typographyProfile === 'pixel' || typographyProfile === 'tech-sans' ? typographyProfile : 'dual-font',
     combatBeats: candidate.combatBeats === true,
   };
 }

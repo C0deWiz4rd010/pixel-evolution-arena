@@ -4,7 +4,7 @@ import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { AudioService } from '../../services/audio.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
-import { AccentTheme, LanguageCode } from '../../models/player-state.model';
+import { AccentTheme, LanguageCode, TypographyProfile, VisualStyle } from '../../models/player-state.model';
 
 @Component({
   selector: 'app-settings',
@@ -29,6 +29,16 @@ export class SettingsComponent {
     { id: 'en', label: 'English' },
     { id: 'de', label: 'Deutsch' },
   ];
+  readonly visualStyles: { id: VisualStyle; label: string; detail: string }[] = [
+    { id: 'collector-tech', label: 'Collector Tech', detail: 'Balanced cards and focused collection accents.' },
+    { id: 'pixel-arcade', label: 'Pixel Arcade', detail: 'Tighter cards, hard pixels, and stronger grid energy.' },
+    { id: 'tactical-minimal', label: 'Tactical Minimal', detail: 'Airy cards, quiet borders, and almost no glow.' },
+  ];
+  readonly typographyProfiles: { id: TypographyProfile; label: string }[] = [
+    { id: 'dual-font', label: 'Dual Font' },
+    { id: 'pixel', label: 'Pixel' },
+    { id: 'tech-sans', label: 'Tech Sans' },
+  ];
 
   setAccent(theme: AccentTheme): void {
     this.game.setAccentTheme(theme);
@@ -36,6 +46,14 @@ export class SettingsComponent {
 
   setLanguage(language: LanguageCode): void {
     this.game.setLanguage(language);
+  }
+
+  setVisualStyle(style: VisualStyle): void {
+    this.game.setVisualStyle(style);
+  }
+
+  setTypographyProfile(profile: TypographyProfile): void {
+    this.game.setTypographyProfile(profile);
   }
 
   toggleCombatBeats(): void {
@@ -49,7 +67,7 @@ export class SettingsComponent {
   readonly confirmingReset = signal(false);
   readonly copied = signal(false);
   readonly profileSignal = computed(() => ({
-    title: `${this.settings().accentTheme.toUpperCase()} / ${this.settings().language.toUpperCase()}`,
+    title: `${this.settings().visualStyle.toUpperCase()} / ${this.settings().typographyProfile.toUpperCase()}`,
     detail: `${this.audio.enabled() ? 'Audio' : 'Silent'} / ${this.settings().combatBeats ? 'Beats' : 'No Beats'} / ${this.settings().colorblindMode ? 'Glyph Assist' : 'Default Grid'}`,
   }));
 

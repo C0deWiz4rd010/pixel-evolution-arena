@@ -92,6 +92,40 @@
 
     <article class="settings-card">
       <h3>Presentation &amp; Gameplay</h3>
+      <div class="appearance-picker" role="group" aria-label="Interface style">
+        <span class="picker-label">Interface style</span>
+        <div class="style-options">
+          @for (style of visualStyles; track style.id) {
+            <button
+              type="button"
+              class="style-option"
+              [class.on]="settings().visualStyle === style.id"
+              [attr.aria-pressed]="settings().visualStyle === style.id"
+              (click)="setVisualStyle(style.id)"
+            >
+              <span class="style-preview preview-{{ style.id }}" aria-hidden="true"><i></i><i></i><i></i></span>
+              <strong>{{ style.label }}</strong>
+              <small>{{ style.detail }}</small>
+            </button>
+          }
+        </div>
+      </div>
+      <div class="toggle-row" role="group" aria-label="Typography profile">
+        <span>Typography</span>
+        <span class="segmented">
+          @for (profile of typographyProfiles; track profile.id) {
+            <button
+              type="button"
+              class="seg"
+              [class.on]="settings().typographyProfile === profile.id"
+              [attr.aria-pressed]="settings().typographyProfile === profile.id"
+              (click)="setTypographyProfile(profile.id)"
+            >
+              {{ profile.label }}
+            </button>
+          }
+        </span>
+      </div>
       <div class="toggle-row" role="group" [attr.aria-label]="'settings.accent' | t">
         <span>{{ 'settings.accent' | t }}</span>
         <span class="segmented">

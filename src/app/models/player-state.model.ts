@@ -10,6 +10,8 @@ export interface SquadPreset {
 
 export type AccentTheme = 'aurora' | 'ember' | 'mono';
 export type LanguageCode = 'en' | 'de';
+export type VisualStyle = 'collector-tech' | 'pixel-arcade' | 'tactical-minimal';
+export type TypographyProfile = 'dual-font' | 'pixel' | 'tech-sans';
 
 /** Player-tunable presentation + accessibility settings. */
 export interface PlayerSettings {
@@ -23,6 +25,10 @@ export interface PlayerSettings {
   accentTheme: AccentTheme;
   /** UI language. */
   language: LanguageCode;
+  /** Card geometry, surface, and effects profile. */
+  visualStyle: VisualStyle;
+  /** Display/body font pairing. */
+  typographyProfile: TypographyProfile;
   /** Enable the optional Active Combat Beat timing prompt. */
   combatBeats: boolean;
 }
@@ -105,5 +111,7 @@ export const DEFAULT_SETTINGS: PlayerSettings = {
   effectIntensity: 1,
   accentTheme: 'aurora',
   language: 'en',
+  visualStyle: 'collector-tech',
+  typographyProfile: 'dual-font',
   combatBeats: false,
 };

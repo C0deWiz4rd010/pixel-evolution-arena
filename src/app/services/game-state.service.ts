@@ -1962,6 +1962,16 @@ export class GameStateService {
     this.persistState();
   }
 
+  setVisualStyle(visualStyle: PlayerSettings['visualStyle']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, visualStyle } }));
+    this.persistState();
+  }
+
+  setTypographyProfile(typographyProfile: PlayerSettings['typographyProfile']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, typographyProfile } }));
+    this.persistState();
+  }
+
   setLanguage(language: PlayerSettings['language']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, language } }));
     this.persistState();
@@ -3094,6 +3104,14 @@ function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings 
     effectIntensity: clampUnit(settings.effectIntensity ?? 1),
     accentTheme: settings.accentTheme === 'ember' || settings.accentTheme === 'mono' ? settings.accentTheme : 'aurora',
     language: settings.language === 'de' ? 'de' : 'en',
+    visualStyle:
+      settings.visualStyle === 'pixel-arcade' || settings.visualStyle === 'tactical-minimal'
+        ? settings.visualStyle
+        : 'collector-tech',
+    typographyProfile:
+      settings.typographyProfile === 'pixel' || settings.typographyProfile === 'tech-sans'
+        ? settings.typographyProfile
+        : 'dual-font',
     combatBeats: settings.combatBeats === true,
   };
 }
