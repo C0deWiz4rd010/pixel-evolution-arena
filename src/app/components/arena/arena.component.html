@@ -51,10 +51,13 @@
               <div><span>Decision window</span><h3>Tactical Pulse</h3></div>
               <strong>{{ game.tacticalPulseSeconds() }}s</strong>
             </header>
-            <p>Read the pressure and commit one command. Recommendation: <b>{{ game.recommendedTacticalPulse() }}</b>.</p>
+            <p>
+              Read the pressure and commit one command.
+              @if (game.settings().battleRecommendations) { Recommendation: <b>{{ game.recommendedTacticalPulse() }}</b>. }
+            </p>
             <div class="pulse-options">
               @for (option of game.tacticalPulseOptions; track option.id; let index = $index) {
-                <button type="button" class="tone-{{ option.tone }}" [class.recommended]="game.recommendedTacticalPulse() === option.id" (click)="chooseTacticalPulse(option.id)">
+                <button type="button" class="tone-{{ option.tone }}" [class.recommended]="game.settings().battleRecommendations && game.recommendedTacticalPulse() === option.id" (click)="chooseTacticalPulse(option.id)">
                   <span>{{ index + 1 }} / {{ option.tone }}</span>
                   <strong>{{ option.label }}</strong>
                   <small>{{ option.detail }}</small>
@@ -92,7 +95,7 @@
       @if (game.battleOrderOpen()) {
         <section class="tactical-pulse squad-order-rail command-rail" aria-label="Squad Order decision" aria-live="assertive">
           <header><div><span>Director command</span><h3>Choose Squad Order</h3></div><strong>{{ game.battleDecisionSeconds() }}s</strong></header>
-          <p>Shape the next two actions. Recommendation is highlighted.</p>
+          <p>Shape the next two actions. @if (game.settings().battleRecommendations) { Recommendation is highlighted. }</p>
           <div class="pulse-options">
             @for (option of game.battleOrderOptions; track option.id) {
               <button type="button" [class.recommended]="game.settings().battleRecommendations && option.id === game.recommendedBattleOrder()" (click)="chooseBattleOrder(option.id)"><span>{{ option.key }} / Order</span><strong>{{ option.label }}</strong><small>{{ option.detail }}</small></button>

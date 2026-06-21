@@ -235,6 +235,21 @@ Use this checklist during Angular implementation.
 - `npm.cmd run test:e2e -- --reporter=list` passed (12 Playwright smoke tests).
 - Visual QA passed at 1440x960, 1280x800, 390x844, and 360x800 with no page errors or horizontal document overflow. Verified tab/subview switching, evolution, training, squad rebuild, loadout, battle rewards, Campaign, Expedition, Collection filters, Settings, persistence, reset, and the three-step onboarding.
 
+2026-06-21 Phase 23 Tactical Director:
+
+- Added the decision-complete implementation plan and approved battle/settings concepts under `docs/phase-23-tactical-director-plan.md` and `docs/concept-images/generated/`.
+- Replaced the one-pass combat resolution with deterministic, stateful rounds, individual HP, status effects, knockouts, Opening/Pressure/Finish phases, squad orders, Tactical Pulse commands, and a hard eight-round limit.
+- Added Director, Assist, and Auto control modes plus persistent playback speed and optional recommendation highlights.
+- Reworked the Arena around a visible phase timeline, contextual command rail, exact combat feedback, delayed final rewards, and current-session Pixi state.
+- Added one shared stage-aware portrait component and normalized Recent Discoveries, squad, forge, evolution family, and Arena formation artwork.
+- Replaced the browser/game identity with the original Creature Eye Gate mark across favicon, app mark, manifest icons, Apple touch icon, and service-worker cache.
+- Reorganized Settings into Gameplay, Audio, Accessibility, Appearance, and Save Data categories with immediate local persistence and per-category resets.
+- Wired the Accessibility motion preference into the battle stage, global arena effects, and expedition map; disabling recommendations now removes both copy and highlights.
+- `npm.cmd run test -- --run` passed (166 tests / 29 files).
+- `npm.cmd run build:pages` passed without warnings (465.93 kB initial bundle).
+- `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including the full Arena reward loop and mobile overflow guard.
+- Desktop 1440x960 and mobile 390x844 visual QA passed for battle, settings, evolution, portrait sizing, and responsive command/category rails with no page or console errors.
+
 2026-06-20 Collector Tech card system:
 
 - Added the accepted Collector Tech concept and decision-complete implementation plan under `docs/`.

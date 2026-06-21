@@ -95,6 +95,11 @@ export class ExpeditionMapComponent {
 
   constructor() {
     effect(() => {
+      this.game.settings().motionMode;
+      this.applyMotionPreference();
+    });
+
+    effect(() => {
       const exp = this.game.expedition();
       const sig = exp ? `${exp.seed}:${exp.currentNodeId}:${exp.reachableIds.join(',')}:${exp.map.filter((n) => n.cleared).length}` : 'none';
       if (this.app && sig !== this.signature) {
@@ -116,7 +121,7 @@ export class ExpeditionMapComponent {
     try {
       this.pixi = await import('pixi.js');
       this.mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      this.reducedMotion.set(this.mediaQuery.matches);
+      this.applyMotionPreference(this.mediaQuery.matches);
 
       const exp = this.game.expedition();
       const rows = exp ? Math.max(...exp.map.map((n) => n.row)) + 1 : 7;
@@ -155,6 +160,18 @@ export class ExpeditionMapComponent {
       });
     } catch {
       // Pixi unavailable — the surrounding tab still shows run state in the DOM.
+    }
+  }
+
+  private applyMotionPreference(systemPrefersReduced = this.mediaQuery?.matches === true): void {
+    const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
+    this.reducedMotion.set(reduced);
+    if (!this.app) return;
+    if (reduced) {
+      this.app.ticker.stop();
+      this.app.renderer.render(this.app.stage);
+    } else {
+      this.app.ticker.start();
     }
   }
 

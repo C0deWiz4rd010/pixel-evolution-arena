@@ -62,16 +62,21 @@ export class ArenaEffectsComponent {
     this.ensureLoop();
   };
   private readonly handleMotionPreference = (event: MediaQueryListEvent): void => {
-    this.reducedMotion.set(event.matches);
+    this.applyMotionPreference(event.matches);
+  };
 
-    if (event.matches) {
+  private applyMotionPreference(systemPrefersReduced = this.mediaQuery?.matches === true): void {
+    const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
+    this.reducedMotion.set(reduced);
+
+    if (reduced) {
       this.stopLoop();
       this.renderFrame();
       return;
     }
 
     this.ensureLoop();
-  };
+  }
 
   private three: ThreeApi | null = null;
   private cueColor: Three.Color | null = null;
@@ -117,6 +122,11 @@ export class ArenaEffectsComponent {
   }
 
   private registerCueObservers(): void {
+    effect(() => {
+      this.game.settings().motionMode;
+      this.applyMotionPreference();
+    });
+
     effect(() => {
       const tab = this.activeTab();
 
@@ -221,7 +231,7 @@ export class ArenaEffectsComponent {
 
   private configureMotionPreference(): void {
     this.mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    this.reducedMotion.set(this.mediaQuery.matches);
+    this.applyMotionPreference(this.mediaQuery.matches);
     this.mediaQuery.addEventListener('change', this.handleMotionPreference);
   }
 

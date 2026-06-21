@@ -145,16 +145,21 @@ export class PixiBattleStageComponent {
   private readonly bannerMaxLife = 1.5;
 
   private readonly handleMotionChange = (event: MediaQueryListEvent): void => {
-    this.reducedMotion.set(event.matches);
+    this.applyMotionPreference(event.matches);
+  };
+
+  private applyMotionPreference(systemPrefersReduced = this.mediaQuery?.matches === true): void {
+    const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
+    this.reducedMotion.set(reduced);
     if (this.app) {
-      if (event.matches) {
+      if (reduced) {
         this.app.ticker.stop();
         this.renderStaticFrame();
       } else {
         this.app.ticker.start();
       }
     }
-  };
+  }
 
   constructor() {
     this.registerObservers();
@@ -168,6 +173,11 @@ export class PixiBattleStageComponent {
 
   /** Reactively rebuild the roster and feed per-frame inputs from the services. */
   private registerObservers(): void {
+    effect(() => {
+      this.game.settings().motionMode;
+      this.applyMotionPreference();
+    });
+
     effect(() => {
       const squad = this.game.squad();
       const enemies = this.game.enemies;
@@ -318,7 +328,7 @@ export class PixiBattleStageComponent {
 
   private configureMotion(): void {
     this.mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    this.reducedMotion.set(this.mediaQuery.matches);
+    this.applyMotionPreference(this.mediaQuery.matches);
     this.mediaQuery.addEventListener('change', this.handleMotionChange);
   }
 
