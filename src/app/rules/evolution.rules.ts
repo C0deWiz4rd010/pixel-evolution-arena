@@ -29,6 +29,11 @@ export function getRequirementStatuses(source: Monster, target: Monster, player:
     statuses.push({ label: requirements.item, met: count > 0, current: count, required: 1 });
   }
 
+  if (requirements.mastery !== undefined) {
+    const current = player.monsterMastery[source.id]?.battleXp ?? 0;
+    statuses.push({ label: 'Battle Mastery', met: current >= requirements.mastery, current, required: requirements.mastery });
+  }
+
   return statuses;
 }
 

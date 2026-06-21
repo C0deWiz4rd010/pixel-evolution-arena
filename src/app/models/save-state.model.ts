@@ -3,7 +3,7 @@ import { Monster } from './monster.model';
 import { PlayerState } from './player-state.model';
 import { ArenaThreatProfile } from '../rules/battle.rules';
 
-export const SAVE_STATE_VERSION = 9;
+export const SAVE_STATE_VERSION = 10;
 
 export interface SavedMonsterProgress {
   id: string;

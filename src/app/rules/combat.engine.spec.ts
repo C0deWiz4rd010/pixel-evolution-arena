@@ -69,6 +69,12 @@ describe('combat engine', () => {
     expect(a.playerRoll).toBe(b.playerRoll);
   });
 
+  it('lets Tactical Pulse choices alter the final roll', () => {
+    const guard = simulateBattle(baseParams({ pulseMitigation: 0.3 }));
+    const surge = simulateBattle(baseParams({ pulseAttackMod: 0.18, pulseMitigation: -0.1 }));
+    expect(guard.playerRoll).not.toBe(surge.playerRoll);
+  });
+
   it('emits an overdrive event only when overdrive is armed', () => {
     expect(simulateBattle(baseParams({ overdrive: false })).events.some((e) => e.kind === 'overdrive')).toBe(false);
 

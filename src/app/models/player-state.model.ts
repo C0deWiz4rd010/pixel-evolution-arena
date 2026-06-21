@@ -42,6 +42,13 @@ export interface CombatStats {
   gauntletBestWave: number;
 }
 
+export interface MonsterMasteryProgress {
+  battleXp: number;
+  signatureProgress: number;
+  completedGoals: string[];
+  unlockedMoves: string[];
+}
+
 export type RecentBattleMode = 'standard' | 'gauntlet';
 export type RecentBattleCategory = 'training' | 'standard' | 'risk';
 
@@ -81,6 +88,8 @@ export interface PlayerState {
   /** Claimed medal IDs. */
   claimedAchievements: string[];
   combatStats: CombatStats;
+  /** Persistent battle growth keyed by monster id. */
+  monsterMastery: Record<string, MonsterMasteryProgress>;
   /** Current daily directive, or null before the first roll. */
   dailyDirective: DailyDirectiveState | null;
   /** Most recent arena run records, newest first. */

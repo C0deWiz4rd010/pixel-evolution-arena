@@ -81,6 +81,19 @@ import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.ru
 import { BattleContractCard, buildBattleContracts } from '../rules/battle-contract.rules';
 import { buildSquadOrders, SquadOrderActionId, SquadOrderCard } from '../rules/squad-order.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
+import {
+  BattleMasteryAward,
+  applyMasteryAward,
+  awardBattleMastery,
+  emptyMonsterMastery,
+  masteryGoalFor,
+} from '../rules/battle-mastery.rules';
+import {
+  TACTICAL_PULSE_OPTIONS,
+  TacticalPulseChoice,
+  getTacticalPulseOption,
+  recommendTacticalPulse,
+} from '../rules/tactical-pulse.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -218,6 +231,7 @@ const STARTER_PLAYER_STATE: PlayerState = {
   overdriveCharge: 0,
   claimedAchievements: [],
   combatStats: { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 },
+  monsterMastery: {},
   dailyDirective: null,
   recentBattles: [],
   ownedGear: [],
@@ -281,6 +295,11 @@ export class GameStateService {
   readonly equippedConsumables = signal<string[]>([]);
   /** Transient, capped Active-Combat-Beat bonus applied to the next battle. */
   readonly comboCharge = signal(0);
+  readonly tacticalPulseOptions = TACTICAL_PULSE_OPTIONS;
+  readonly tacticalPulseOpen = signal(false);
+  readonly tacticalPulseSeconds = signal(0);
+  readonly lastTacticalPulse = signal<TacticalPulseChoice | null>(null);
+  readonly lastBattleMastery = signal<BattleMasteryAward[]>([]);
   /** Cross-tab navigation requests triggered by shared meta actions. */
   readonly requestedTab = signal<GameSectionName | null>(null);
 
@@ -309,6 +328,9 @@ export class GameStateService {
   readonly overdriveCharge = computed(() => this.player().overdriveCharge);
   readonly overdrivePercent = computed(() => Math.round(this.player().overdriveCharge));
   readonly overdriveReady = computed(() => canArmOverdrive(this.player().overdriveCharge));
+  private pendingTacticalPulse: TacticalPulseChoice | null = null;
+  private tacticalPulseTimer: ReturnType<typeof setInterval> | null = null;
+  private tacticalPulseDeadline = 0;
 
   readonly dailyDirective = computed(() => ensureDailyDirective(this.player().dailyDirective, getDateKey()));
   readonly dailyObjective = computed(() => getDailyObjectiveDef(this.dailyDirective().objectiveId));
@@ -489,6 +511,7 @@ export class GameStateService {
       hasSquad: this.squad().length > 0,
     }),
   );
+  readonly recommendedTacticalPulse = computed(() => recommendTacticalPulse(this.battleOutlook().winChancePercent));
 
   /**
    * Transparent breakdown of every contributor to the battle edge, so the
@@ -1514,6 +1537,49 @@ export class GameStateService {
     this.battleCategoryId.set(id);
   }
 
+  monsterMastery(monsterId: string) {
+    return this.player().monsterMastery[monsterId] ?? emptyMonsterMastery();
+  }
+
+  masteryGoal(monster: Monster) {
+    return masteryGoalFor(monster);
+  }
+
+  chooseTacticalPulse(choice: TacticalPulseChoice): boolean {
+    if (!this.tacticalPulseOpen()) return false;
+    this.clearTacticalPulseTimer();
+    this.tacticalPulseOpen.set(false);
+    this.tacticalPulseSeconds.set(0);
+    this.pendingTacticalPulse = choice;
+    this.lastTacticalPulse.set(choice);
+    this.battleAnimation.reset();
+    this.audio.play('menu');
+    void this.startBattle();
+    return true;
+  }
+
+  private beginTacticalPulse(): void {
+    this.clearTacticalPulseTimer();
+    this.lastReward.set(null);
+    this.lastBattleMastery.set([]);
+    this.tacticalPulseOpen.set(true);
+    this.tacticalPulseSeconds.set(6);
+    this.tacticalPulseDeadline = Date.now() + 6000;
+    this.battleAnimation.beginTacticalPulse();
+    this.tacticalPulseTimer = setInterval(() => {
+      const seconds = Math.max(0, Math.ceil((this.tacticalPulseDeadline - Date.now()) / 1000));
+      this.tacticalPulseSeconds.set(seconds);
+      if (seconds === 0) this.chooseTacticalPulse(this.recommendedTacticalPulse());
+    }, 120);
+  }
+
+  private clearTacticalPulseTimer(): void {
+    if (this.tacticalPulseTimer !== null) {
+      clearInterval(this.tacticalPulseTimer);
+      this.tacticalPulseTimer = null;
+    }
+  }
+
   setBattleStance(id: BattleStanceId): void {
     this.battleStanceId.set(id);
   }
@@ -2405,8 +2471,11 @@ export class GameStateService {
     });
   }
 
-  startBattle(): void {
-    if (this.battleAnimation.isPlaying()) {
+  async startBattle(): Promise<void> {
+    if (this.tacticalPulseOpen()) {
+      return;
+    }
+    if (this.battleAnimation.isPlaying() && this.pendingTacticalPulse === null) {
       return;
     }
 
@@ -2425,6 +2494,15 @@ export class GameStateService {
       return;
     }
 
+    if (this.pendingTacticalPulse === null) {
+      this.beginTacticalPulse();
+      return;
+    }
+
+    const pulseChoice = this.pendingTacticalPulse;
+    const pulse = getTacticalPulseOption(pulseChoice);
+    this.pendingTacticalPulse = null;
+
     const formation = this.activeFormation();
     const threat = this.upcomingArenaThreat();
     const category = this.battleCategory();
@@ -2440,6 +2518,8 @@ export class GameStateService {
       enemyModifier: this.enemyBattleModifier(),
       stanceAttackMod: stance.attackMod,
       stanceMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
+      pulseAttackMod: pulse.attackMod,
+      pulseMitigation: pulse.mitigation,
       overdrive: overdriveArmed,
       overdriveAttackBonus: OVERDRIVE_ATTACK_BONUS,
       consumables: toCombatEffects(equipped),
@@ -2447,11 +2527,23 @@ export class GameStateService {
       randomBetween: (min, max) => this.randomBetween(min, max),
       randomFrom: <T>(items: T[]) => this.randomFrom(items),
     });
+    await this.battleAnimation.play({
+      won: sim.won,
+      criticalHit: sim.criticalHit,
+      events: sim.events,
+    });
     const gauntletRewardBoost = isGauntlet ? 1 + 0.08 * gauntletStartWave : 1;
     const rewardMultiplier =
       formation.rewardModifier * threat.rewardModifier * category.rewardModifier * gauntletRewardBoost * (1 + this.traitBonus().rewardBonus);
     const baseReward = buildReward(sim.won, sim.criticalHit, rewardMultiplier);
     const currentPlayer = this.player();
+    const masteryAwards = squad.map((monster) =>
+      awardBattleMastery(monster, currentPlayer.monsterMastery[monster.id], sim.events, sim.won, pulseChoice),
+    );
+    const nextMonsterMastery = { ...currentPlayer.monsterMastery };
+    for (const award of masteryAwards) {
+      nextMonsterMastery[award.monsterId] = applyMasteryAward(nextMonsterMastery[award.monsterId], award);
+    }
     const nextStreak = sim.won ? currentPlayer.winStreak + 1 : 0;
     const streakBonus = sim.won ? calculateStreakBonus(nextStreak, baseReward) : { coins: 0, xp: 0 };
     let reward = sim.won ? applyStreakBonus(baseReward, streakBonus, nextStreak) : { ...baseReward, streakAfter: 0 };
@@ -2588,6 +2680,7 @@ export class GameStateService {
         crossedMilestone !== null ? [...player.claimedMilestones, crossedMilestone] : player.claimedMilestones,
       overdriveCharge,
       combatStats,
+      monsterMastery: nextMonsterMastery,
       dailyDirective: daily,
       recentBattles: [battleRecord, ...player.recentBattles].slice(0, MAX_RECENT_BATTLES),
       defeatedBosses: bossNewlyDefeated ? [...player.defeatedBosses, bossNewlyDefeated.id] : player.defeatedBosses,
@@ -2646,8 +2739,13 @@ export class GameStateService {
     const gauntletLog = isGauntlet
       ? [{ text: sim.won ? `Gauntlet wave ${nextGauntletWave} reached.` : `Gauntlet ended at wave ${gauntletStartWave + 1}.`, type: 'system' as const }]
       : [];
+    const masteryLogs = masteryAwards.map((award) => ({
+      text: `${award.monsterName} gained ${award.points} ${award.type} Mastery${award.goalCompleted ? ` and completed ${award.goal.label}` : ''}.`,
+      type: 'reward' as const,
+    }));
 
     this.lastReward.set(reward);
+    this.lastBattleMastery.set(masteryAwards);
     this.lastBattleThreat.set(threat);
     this.audio.play(sim.won ? 'win' : 'loss');
     if (item) {
@@ -2666,17 +2764,12 @@ export class GameStateService {
         ...milestoneLog,
         ...dailyLog,
         ...gauntletLog,
+        ...masteryLogs,
         ...lossHintLog,
         ...(item ? [{ text: `Item found: ${item}.`, type: 'reward' as const }] : []),
         ...this.battleLogs(),
       ].slice(0, 36),
     );
-
-    this.battleAnimation.play({
-      won: sim.won,
-      criticalHit: sim.criticalHit,
-      events: sim.events,
-    });
 
     if (sim.won) {
       const lead = squad[0];
@@ -3000,6 +3093,7 @@ function clonePlayerState(player: PlayerState): PlayerState {
     claimedStageMilestones: [...player.claimedStageMilestones],
     claimedAchievements: [...player.claimedAchievements],
     combatStats: { ...player.combatStats },
+    monsterMastery: cloneMonsterMastery(player.monsterMastery ?? {}),
     dailyDirective: player.dailyDirective ? { ...player.dailyDirective } : null,
     recentBattles: player.recentBattles.map((entry) => ({ ...entry })),
     ownedGear: player.ownedGear.map((entry) => ({ ...entry })),
@@ -3029,6 +3123,20 @@ function cloneGearLoadout(loadout: PlayerState['gearLoadout']): PlayerState['gea
     result[monsterId] = { ...slots };
   }
   return result;
+}
+
+function cloneMonsterMastery(mastery: PlayerState['monsterMastery']): PlayerState['monsterMastery'] {
+  return Object.fromEntries(
+    Object.entries(mastery).map(([monsterId, progress]) => [
+      monsterId,
+      {
+        battleXp: Math.max(0, progress.battleXp ?? 0),
+        signatureProgress: Math.max(0, Math.min(5, progress.signatureProgress ?? 0)),
+        completedGoals: [...(progress.completedGoals ?? [])],
+        unlockedMoves: [...(progress.unlockedMoves ?? [])],
+      },
+    ]),
+  );
 }
 
 function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
@@ -3064,6 +3172,7 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     overdriveCharge: Math.max(0, Math.min(100, player.overdriveCharge ?? 0)),
     claimedAchievements: Array.isArray(player.claimedAchievements) ? [...player.claimedAchievements] : [],
     combatStats: { ...STARTER_COMBAT_STATS, ...(player.combatStats ?? {}) },
+    monsterMastery: cloneMonsterMastery(player.monsterMastery ?? {}),
     dailyDirective: player.dailyDirective ?? null,
     recentBattles: player.recentBattles
       .map((entry): RecentBattleRecord => ({

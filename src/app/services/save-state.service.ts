@@ -183,6 +183,7 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         ? player.claimedAchievements.map((entry) => String(entry))
         : [],
       combatStats: sanitizeCombatStats(player.combatStats),
+      monsterMastery: sanitizeMonsterMastery(player.monsterMastery),
       dailyDirective: sanitizeDailyDirective(player.dailyDirective),
       recentBattles: sanitizeRecentBattles(player.recentBattles),
       ownedGear: Array.isArray(player.ownedGear)
@@ -267,6 +268,24 @@ function sanitizeCombatStats(stats: unknown): SaveStateSnapshot['player']['comba
     flawlessWins: num(candidate.flawlessWins),
     gauntletBestWave: num(candidate.gauntletBestWave),
   };
+}
+
+function sanitizeMonsterMastery(value: unknown): SaveStateSnapshot['player']['monsterMastery'] {
+  if (!value || typeof value !== 'object') return {};
+  const result: SaveStateSnapshot['player']['monsterMastery'] = {};
+  for (const [monsterId, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (!raw || typeof raw !== 'object') continue;
+    const candidate = raw as Record<string, unknown>;
+    result[monsterId] = {
+      battleXp: Math.max(0, Number(candidate['battleXp']) || 0),
+      signatureProgress: Math.max(0, Math.min(5, Number(candidate['signatureProgress']) || 0)),
+      completedGoals: Array.isArray(candidate['completedGoals'])
+        ? candidate['completedGoals'].map(String)
+        : [],
+      unlockedMoves: Array.isArray(candidate['unlockedMoves']) ? candidate['unlockedMoves'].map(String) : [],
+    };
+  }
+  return result;
 }
 
 function sanitizeDailyDirective(directive: unknown): SaveStateSnapshot['player']['dailyDirective'] {

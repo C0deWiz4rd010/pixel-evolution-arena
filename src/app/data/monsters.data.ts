@@ -87,7 +87,7 @@ const BASE_MONSTERS: Monster[] = [
   { id: 'M068', name: 'OmegaFrame', stage: 'Mega', type: 'Machine', icon: '🦿', level: 1, xp: 0, maxXp: 660, attack: 200, defense: 240, speed: 82, hp: 530, rarity: 'Legendary', unlocked: false, evolutionTargets: ['M046'], requirements: { level: 15, coins: 840, dnaShards: 44, item: 'Ancient Gear' } },
 
   // Ice/Frost Water branch — parallel path from M007 Aquabun, diverging at Rookie stage
-  { id: 'M069', name: 'TidalWolf', stage: 'Rookie', type: 'Water', icon: '🐺', level: 1, xp: 0, maxXp: 195, attack: 50, defense: 40, speed: 52, hp: 144, rarity: 'Rare', unlocked: false, evolutionTargets: ['M070'], requirements: { level: 3, coins: 160, dnaShards: 9 } },
+  { id: 'M069', name: 'TidalWolf', stage: 'Rookie', type: 'Water', icon: '🐺', level: 1, xp: 0, maxXp: 195, attack: 50, defense: 40, speed: 52, hp: 144, rarity: 'Rare', unlocked: false, evolutionTargets: ['M070'], requirements: { level: 3, coins: 160, dnaShards: 9, mastery: 12 } },
   { id: 'M070', name: 'FrostFang', stage: 'Champion', type: 'Water', icon: '🧊', level: 1, xp: 0, maxXp: 290, attack: 90, defense: 72, speed: 80, hp: 236, rarity: 'Epic', unlocked: false, evolutionTargets: ['M071'], requirements: { level: 7, coins: 360, dnaShards: 19 } },
   { id: 'M071', name: 'IceColossus', stage: 'Ultimate', type: 'Water', icon: '❄️', level: 1, xp: 0, maxXp: 420, attack: 144, defense: 118, speed: 110, hp: 390, rarity: 'Epic', unlocked: false, evolutionTargets: ['M063'], requirements: { level: 11, coins: 570, dnaShards: 29 } },
 ];

@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { BattleEvent } from '../rules/combat.engine';
 import { STATUS_DEFS, StatusId } from '../rules/status.rules';
 
-export type BattlePhase = 'idle' | 'engage' | 'exchange' | 'finale' | 'cooldown';
+export type BattlePhase = 'idle' | 'pulse' | 'engage' | 'exchange' | 'finale' | 'cooldown';
 export type BattleFlashTone = 'victory' | 'defeat' | 'crit';
 export type DamageSide = 'enemy' | 'player';
 
@@ -72,6 +72,7 @@ export class BattleAnimationService {
   private popupSeed = 0;
   private cueSeed = 0;
   private timers: ReturnType<typeof setTimeout>[] = [];
+  private activeResolve: (() => void) | null = null;
 
   reset(): void {
     this.clearTimers();
@@ -85,7 +86,19 @@ export class BattleAnimationService {
     this.shake.set(false);
   }
 
-  play(params: BattlePlayParams): void {
+  beginTacticalPulse(): void {
+    this.clearTimers();
+    this.popups.set([]);
+    this.statusCues.set([]);
+    this.playerHpPercent.set(100);
+    this.enemyHpPercent.set(100);
+    this.flash.set(null);
+    this.outcome.set(null);
+    this.shake.set(false);
+    this.phase.set('pulse');
+  }
+
+  play(params: BattlePlayParams): Promise<void> {
     if (this.phase() !== 'idle') {
       this.clearTimers();
     }
@@ -125,10 +138,16 @@ export class BattleAnimationService {
     this.scheduleTimer(() => this.phase.set('cooldown'), cooldownAt);
 
     const restAt = cooldownAt + 540;
-    this.scheduleTimer(() => {
-      this.phase.set('idle');
-      this.flash.set(null);
-    }, restAt);
+    return new Promise((resolve) => {
+      this.activeResolve = resolve;
+      this.scheduleTimer(() => {
+        this.phase.set('idle');
+        this.flash.set(null);
+        const complete = this.activeResolve;
+        this.activeResolve = null;
+        complete?.();
+      }, restAt);
+    });
   }
 
   private applyHit(hit: DerivedHit, params: BattlePlayParams, index: number): void {
@@ -236,6 +255,9 @@ export class BattleAnimationService {
   private clearTimers(): void {
     this.timers.forEach((timer) => clearTimeout(timer));
     this.timers = [];
+    const complete = this.activeResolve;
+    this.activeResolve = null;
+    complete?.();
   }
 }
 

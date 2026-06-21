@@ -9,6 +9,8 @@ export interface EvolutionRequirements {
   coins?: number;
   dnaShards?: number;
   item?: string;
+  /** Optional Battle Mastery gate for side branches only. */
+  mastery?: number;
 }
 
 export interface Monster {

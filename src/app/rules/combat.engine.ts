@@ -77,6 +77,9 @@ export interface BattleSimulationParams {
   /** Stance-Effekte (aus BATTLE_STANCES aufgelöst). */
   stanceAttackMod: number;
   stanceMitigation: number;
+  /** Mid-battle Tactical Pulse modifiers. */
+  pulseAttackMod?: number;
+  pulseMitigation?: number;
   /** Overdrive für diesen Run scharfgestellt? */
   overdrive: boolean;
   overdriveAttackBonus: number;
@@ -129,10 +132,13 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
   const playerAttackBonus =
     params.playerModifier +
     params.stanceAttackMod +
+    (params.pulseAttackMod ?? 0) +
     consumableAttackBonus +
     (params.overdrive ? params.overdriveAttackBonus : 0);
 
-  const playerBase = Math.max(1, teamPower * (1 + playerAttackBonus));
+  const totalMitigation = params.stanceMitigation + consumableMitigation + (params.pulseMitigation ?? 0);
+  const survivalFactor = 1 + Math.max(-0.2, Math.min(0.65, totalMitigation)) * 0.24;
+  const playerBase = Math.max(1, teamPower * (1 + playerAttackBonus) * survivalFactor);
   const enemyBase = Math.max(1, enemyPower * (1 + params.enemyModifier));
   // NOTE: these bounds must match ROLL_VARIANCE_MIN/MAX in battle.rules so the
   // forecast win-probability stays consistent with the actual rolls. Kept as
@@ -191,7 +197,7 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
       attacker: foe,
       defender: ally,
       isWinnerSide: !won,
-      mitigation: params.stanceMitigation + consumableMitigation,
+      mitigation: totalMitigation,
       randomBetween: params.randomBetween,
       randomFrom: params.randomFrom,
       events,
