@@ -45,8 +45,7 @@
 .recent-discoveries > div:first-child { display: grid; gap: .15rem; }
 .recent-discoveries small { color: var(--muted); }
 .recent-list { display: flex; gap: .45rem; }
-.recent-list button { display: grid; grid-template-columns: 42px auto; gap: .35rem; align-items: center; min-height: 48px; padding: .25rem .5rem; background: rgba(19,216,255,.04); }
-.recent-list img { width: 42px; height: 42px; object-fit: contain; }
+.recent-list button { display: grid; grid-template-columns: 56px auto; gap: .45rem; align-items: center; min-height: 62px; padding: .2rem .55rem; background: rgba(19,216,255,.04); }
 .recent-list span { font-size: .68rem; }
 
 @media (max-width: 1100px) { .evolve-layout { grid-template-columns: 1fr; } }

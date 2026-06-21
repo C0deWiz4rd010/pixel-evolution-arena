@@ -1,0 +1,13 @@
+:host { --portrait-size: 56px; --stage-scale: 1.28; display: grid; width: var(--portrait-size); height: var(--portrait-size); flex: 0 0 var(--portrait-size); place-items: center; overflow: hidden; background: radial-gradient(circle, color-mix(in srgb,var(--stage-color,var(--line)) 15%,transparent),transparent 70%); }
+:host(.size-micro) { --portrait-size: 40px; }
+:host(.size-compact) { --portrait-size: 56px; }
+:host(.size-card) { --portrait-size: 108px; }
+:host(.size-hero) { --portrait-size: 150px; }
+:host(.size-battle) { --portrait-size: 96px; }
+:host(.stage-baby), :host(.stage-intraining) { --stage-scale: 1.42; }
+:host(.stage-rookie) { --stage-scale: 1.34; }
+:host(.stage-champion) { --stage-scale: 1.25; }
+:host(.stage-ultimate), :host(.stage-mega), :host(.stage-special) { --stage-scale: 1.18; }
+img { width: 100%; height: 100%; object-fit: contain; transform: scale(var(--portrait-scale,var(--stage-scale))); transform-origin: 50% 54%; image-rendering: auto; }
+img.silhouette { filter: grayscale(1) brightness(.16) contrast(1.45); opacity: .78; }
+span { color: var(--muted); font: 800 1.2rem var(--font-display); }

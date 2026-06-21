@@ -1,223 +1,66 @@
 <section class="settings-view" aria-label="Settings">
   <header class="settings-head">
-    <div>
-      <span>System // Configuration</span>
-      <h2>Settings</h2>
-      <p>Audio, accessibility, and local save management. Everything stays on this device.</p>
-    </div>
-    <div class="save-state-chip">
-      <span>Save</span>
-      <strong>{{ game.saveStatusLabel() }}</strong>
-      <small>{{ game.lastSavedLabel() }}</small>
-    </div>
+    <div><h2>Settings</h2><p>Configure battle control, accessibility, presentation, and local saves.</p></div>
+    <div class="save-state-chip"><span>Local profile</span><strong>{{ profileSignal().title }}</strong><small>{{ game.saveStatusLabel() }} · {{ game.lastSavedLabel() }}</small></div>
   </header>
 
-  <section class="system-check-grid" aria-label="System checks">
-    @for (card of systemCheckCards(); track card.id) {
-      <article class="system-card tone-{{ card.tone }}">
-        <div class="system-head">
-          <span>{{ card.label }}</span>
-          <strong>{{ card.metric }}</strong>
-        </div>
-        <h3>{{ card.title }}</h3>
-        <p>{{ card.detail }}</p>
-        <div class="system-bar"><span [style.width.%]="card.progressPercent"></span></div>
-        <button type="button" (click)="runCard(card)">{{ card.actionLabel }}</button>
-      </article>
-    }
-  </section>
-
-  <div class="settings-grid">
-    <article class="settings-card">
-      <h3>Profile Signal</h3>
-      <p class="hint">{{ profileSignal().title }}</p>
-      <p class="hint">{{ profileSignal().detail }}</p>
-    </article>
-
-    <article class="settings-card">
-      <h3>Audio</h3>
-      <div class="toggle-row" role="group" aria-label="Sound effects">
-        <span>Sound effects</span>
-        <button
-          type="button"
-          class="pill"
-          [class.on]="audio.enabled()"
-          [attr.aria-pressed]="audio.enabled()"
-          aria-label="Toggle sound effects"
-          (click)="toggleAudio()"
-        >
-          {{ audio.enabled() ? 'ON' : 'OFF' }}
-        </button>
-      </div>
-      <div class="toggle-row" role="group" aria-label="Background music">
-        <span>Background music</span>
-        <button
-          type="button"
-          class="pill"
-          [class.on]="audio.musicEnabled()"
-          [attr.aria-pressed]="audio.musicEnabled()"
-          aria-label="Toggle background music"
-          (click)="toggleMusic()"
-        >
-          {{ audio.musicEnabled() ? 'ON' : 'OFF' }}
-        </button>
-      </div>
-      <label class="slider-row">
-        <span>Master volume <strong>{{ volumePercent() }}%</strong></span>
-        <input type="range" min="0" max="100" [value]="volumePercent()" (input)="onVolumeInput($event)" aria-label="Master volume" />
-      </label>
-    </article>
-
-    <article class="settings-card">
-      <h3>Accessibility &amp; Motion</h3>
-      <div class="toggle-row" role="group" aria-label="Colorblind-safe type glyphs">
-        <span>Colorblind-safe type glyphs</span>
-        <button
-          type="button"
-          class="pill"
-          [class.on]="settings().colorblindMode"
-          [attr.aria-pressed]="settings().colorblindMode"
-          aria-label="Toggle colorblind-safe type glyphs"
-          (click)="toggleColorblind()"
-        >
-          {{ settings().colorblindMode ? 'ON' : 'OFF' }}
-        </button>
-      </div>
-      <label class="slider-row">
-        <span>Effect intensity <strong>{{ intensityPercent() }}%</strong></span>
-        <input type="range" min="0" max="100" [value]="intensityPercent()" (input)="onIntensityInput($event)" aria-label="Effect intensity" />
-      </label>
-      <p class="hint">Reduced-motion from your OS still fully disables animation regardless of this slider.</p>
-    </article>
-
-    <article class="settings-card">
-      <h3>Presentation &amp; Gameplay</h3>
-      <div class="appearance-picker" role="group" aria-label="Interface style">
-        <span class="picker-label">Interface style</span>
-        <div class="style-options">
-          @for (style of visualStyles; track style.id) {
-            <button
-              type="button"
-              class="style-option"
-              [class.on]="settings().visualStyle === style.id"
-              [attr.aria-pressed]="settings().visualStyle === style.id"
-              (click)="setVisualStyle(style.id)"
-            >
-              <span class="style-preview preview-{{ style.id }}" aria-hidden="true"><i></i><i></i><i></i></span>
-              <strong>{{ style.label }}</strong>
-              <small>{{ style.detail }}</small>
-            </button>
-          }
-        </div>
-      </div>
-      <div class="toggle-row" role="group" aria-label="Typography profile">
-        <span>Typography</span>
-        <span class="segmented">
-          @for (profile of typographyProfiles; track profile.id) {
-            <button
-              type="button"
-              class="seg"
-              [class.on]="settings().typographyProfile === profile.id"
-              [attr.aria-pressed]="settings().typographyProfile === profile.id"
-              (click)="setTypographyProfile(profile.id)"
-            >
-              {{ profile.label }}
-            </button>
-          }
-        </span>
-      </div>
-      <div class="toggle-row" role="group" [attr.aria-label]="'settings.accent' | t">
-        <span>{{ 'settings.accent' | t }}</span>
-        <span class="segmented">
-          @for (theme of accentThemes; track theme.id) {
-            <button
-              type="button"
-              class="seg"
-              [class.on]="settings().accentTheme === theme.id"
-              [attr.aria-pressed]="settings().accentTheme === theme.id"
-              [attr.aria-label]="(('settings.accent' | t)) + ': ' + theme.label"
-              (click)="setAccent(theme.id)"
-            >
-              {{ theme.label }}
-            </button>
-          }
-        </span>
-      </div>
-      <div class="toggle-row" role="group" [attr.aria-label]="'settings.language' | t">
-        <span>{{ 'settings.language' | t }}</span>
-        <span class="segmented">
-          @for (lang of languages; track lang.id) {
-            <button
-              type="button"
-              class="seg"
-              [class.on]="settings().language === lang.id"
-              [attr.aria-pressed]="settings().language === lang.id"
-              [attr.aria-label]="(('settings.language' | t)) + ': ' + lang.label"
-              (click)="setLanguage(lang.id)"
-            >
-              {{ lang.label }}
-            </button>
-          }
-        </span>
-      </div>
-      <div class="toggle-row" role="group" [attr.aria-label]="'settings.combatBeats' | t">
-        <span>{{ 'settings.combatBeats' | t }}</span>
-        <button
-          type="button"
-          class="pill"
-          [class.on]="settings().combatBeats"
-          [attr.aria-pressed]="settings().combatBeats"
-          [attr.aria-label]="'settings.combatBeats' | t"
-          (click)="toggleCombatBeats()"
-        >
-          {{ settings().combatBeats ? ('common.on' | t) : ('common.off' | t) }}
-        </button>
-      </div>
-      <p class="hint">Combat beats add an optional timing prompt during battles for a small, capped bonus.</p>
-    </article>
-
-    <article class="settings-card">
-      <h3>Save Export</h3>
-      <p class="hint">Generate a portable code of your current progress.</p>
-      <div class="btn-row">
-        <button type="button" (click)="generateExport()">Generate Code</button>
-        <button type="button" (click)="copyExport()">{{ copied() ? 'Copied!' : 'Copy' }}</button>
-      </div>
-      @if (exportCode()) {
-        <textarea class="code-box" readonly rows="3" [value]="exportCode()" aria-label="Exported save code"></textarea>
+  <div class="settings-shell">
+    <nav class="settings-nav" aria-label="Settings categories">
+      @for (category of categories; track category.id) {
+        <button type="button" [class.active]="activeCategory() === category.id" [attr.aria-current]="activeCategory() === category.id ? 'page' : null" (click)="setCategory(category.id)"><span>{{ category.glyph }}</span><strong>{{ category.label }}</strong></button>
       }
-    </article>
+    </nav>
 
-    <article class="settings-card">
-      <h3>Save Import</h3>
-      <p class="hint">Paste a code to restore progress. This overwrites your current run.</p>
-      <textarea
-        class="code-box"
-        rows="3"
-        placeholder="Paste save code here"
-        aria-label="Save code to import"
-        [value]="importCode()"
-        (input)="importCode.set($any($event.target).value)"
-      ></textarea>
-      <div class="btn-row">
-        <button type="button" [disabled]="!importCode().trim()" (click)="applyImport()">Import Save</button>
-      </div>
-    </article>
-
-    <article class="settings-card danger">
-      <h3>Reset Run</h3>
-      <p class="hint">Restore the starter squad and wipe all local progress.</p>
-      @if (!confirmingReset()) {
-        <button type="button" class="danger-btn" [disabled]="!game.hasProgressToReset()" (click)="requestReset()">Reset Progress</button>
-      } @else {
-        <div class="confirm-row">
-          <span>Are you sure? This cannot be undone.</span>
-          <div class="btn-row">
-            <button type="button" class="danger-btn" (click)="confirmReset()">Yes, reset</button>
-            <button type="button" (click)="cancelReset()">Cancel</button>
-          </div>
-        </div>
+    <section class="settings-content" aria-live="polite">
+      @switch (activeCategory()) {
+        @case ('gameplay') {
+          <header><h3>Gameplay</h3><p>Choose how much control you want during Arena battles.</p></header>
+          <section class="settings-group">
+            <h4>Battle Control</h4>
+            <div class="option-cards three" role="radiogroup" aria-label="Battle control mode">
+              @for (mode of [{ id: 'director', label: 'Director', detail: 'Full eight-second order windows.' }, { id: 'assist', label: 'Assist', detail: 'Three-second recommended choices.' }, { id: 'auto', label: 'Auto', detail: 'Resolve every command automatically.' }]; track mode.id) {
+                <button type="button" role="radio" [class.on]="settings().battleControlMode === mode.id" [attr.aria-checked]="settings().battleControlMode === mode.id" (click)="setBattleControlMode($any(mode.id))"><strong>{{ mode.label }}</strong><small>{{ mode.detail }}</small></button>
+              }
+            </div>
+          </section>
+          <section class="settings-group split-group">
+            <div><h4>Default Battle Speed</h4><div class="segmented" role="radiogroup" aria-label="Default battle speed">@for (speed of [1,2,4]; track speed) { <button type="button" class="seg" [class.on]="settings().battleSpeed === speed" [attr.aria-checked]="settings().battleSpeed === speed" (click)="setBattleSpeed($any(speed))">{{ speed }}x</button> }</div></div>
+            <div class="toggle-row"><span><strong>Recommendations</strong><small>Highlight the safest tactical choice.</small></span><button type="button" class="pill" [class.on]="settings().battleRecommendations" [attr.aria-pressed]="settings().battleRecommendations" (click)="toggleBattleRecommendations()">{{ settings().battleRecommendations ? 'ON' : 'OFF' }}</button></div>
+            <div class="toggle-row"><span><strong>Combat Beats</strong><small>Optional timing prompt for a capped bonus.</small></span><button type="button" class="pill" [class.on]="settings().combatBeats" [attr.aria-pressed]="settings().combatBeats" (click)="toggleCombatBeats()">{{ settings().combatBeats ? 'ON' : 'OFF' }}</button></div>
+          </section>
+        }
+        @case ('audio') {
+          <header><h3>Audio</h3><p>Balance procedural music and immediate battle feedback.</p></header>
+          <section class="settings-group">
+            <div class="toggle-row"><span><strong>Sound Effects</strong><small>Moves, rewards, menus, and warnings.</small></span><button type="button" class="pill" [class.on]="audio.enabled()" [attr.aria-pressed]="audio.enabled()" (click)="toggleAudio()">{{ audio.enabled() ? 'ON' : 'OFF' }}</button></div>
+            <div class="toggle-row"><span><strong>Background Music</strong><small>Local procedural arena loop.</small></span><button type="button" class="pill" [class.on]="audio.musicEnabled()" [attr.aria-pressed]="audio.musicEnabled()" (click)="toggleMusic()">{{ audio.musicEnabled() ? 'ON' : 'OFF' }}</button></div>
+            <label class="slider-row"><span>Master Volume <strong>{{ volumePercent() }}%</strong></span><input type="range" min="0" max="100" [value]="volumePercent()" (input)="onVolumeInput($event)" aria-label="Master volume" /></label>
+            <button type="button" class="test-cue" (click)="audio.play('menu')">Play Test Cue</button>
+          </section>
+        }
+        @case ('accessibility') {
+          <header><h3>Accessibility</h3><p>Reduce visual strain without hiding combat information.</p></header>
+          <section class="settings-group">
+            <div class="toggle-row"><span><strong>Colorblind Type Glyphs</strong><small>Pair every elemental color with a symbol.</small></span><button type="button" class="pill" [class.on]="settings().colorblindMode" [attr.aria-pressed]="settings().colorblindMode" (click)="toggleColorblind()">{{ settings().colorblindMode ? 'ON' : 'OFF' }}</button></div>
+            <label class="slider-row"><span>Effect Intensity <strong>{{ intensityPercent() }}%</strong></span><input type="range" min="0" max="100" [value]="intensityPercent()" (input)="onIntensityInput($event)" aria-label="Effect intensity" /></label>
+            <div><h4>Motion</h4><div class="segmented" role="radiogroup" aria-label="Motion mode"><button type="button" class="seg" [class.on]="settings().motionMode === 'system'" (click)="setMotionMode('system')">Use System</button><button type="button" class="seg" [class.on]="settings().motionMode === 'reduced'" (click)="setMotionMode('reduced')">Reduced</button></div></div>
+          </section>
+        }
+        @case ('appearance') {
+          <header><h3>Appearance</h3><p>Customize how the collection terminal looks and reads.</p></header>
+          <section class="settings-group"><h4>Interface Style</h4><div class="style-options">@for (style of visualStyles; track style.id) { <button type="button" class="style-option" [class.on]="settings().visualStyle === style.id" [attr.aria-pressed]="settings().visualStyle === style.id" (click)="setVisualStyle(style.id)"><span class="style-preview preview-{{ style.id }}" aria-hidden="true"><i></i><i></i><i></i></span><strong>{{ style.label }}</strong><small>{{ style.detail }}</small></button> }</div></section>
+          <section class="settings-group"><h4>Typography</h4><div class="option-cards three">@for (profile of typographyProfiles; track profile.id) { <button type="button" [class.on]="settings().typographyProfile === profile.id" (click)="setTypographyProfile(profile.id)"><strong>{{ profile.label }}</strong><small>Aa / 0123</small></button> }</div></section>
+          <section class="settings-group split-group"><div><h4>Accent</h4><div class="segmented">@for (theme of accentThemes; track theme.id) { <button type="button" class="seg" [class.on]="settings().accentTheme === theme.id" (click)="setAccent(theme.id)">{{ theme.label }}</button> }</div></div><div><h4>Language</h4><div class="segmented">@for (lang of languages; track lang.id) { <button type="button" class="seg" [class.on]="settings().language === lang.id" (click)="setLanguage(lang.id)">{{ lang.label }}</button> }</div></div></section>
+        }
+        @case ('save') {
+          <header><h3>Save Data</h3><p>Progress stays local. Export a recovery code before resetting.</p></header>
+          <section class="settings-group" aria-label="System checks"><h4>System Checks</h4><div class="system-check-grid">@for (card of systemCheckCards(); track card.id) { <article class="system-card tone-{{ card.tone }}"><div><span>{{ card.label }}</span><strong>{{ card.metric }}</strong></div><h4>{{ card.title }}</h4><p>{{ card.detail }}</p><button type="button" (click)="runCard(card)">{{ card.actionLabel }}</button></article> }</div></section>
+          <section class="settings-group save-tools"><div><h4>Export Save</h4><p>Generate a portable code for this profile.</p><div class="btn-row"><button type="button" (click)="generateExport()">Generate Code</button><button type="button" (click)="copyExport()">{{ copied() ? 'Copied!' : 'Copy' }}</button></div>@if (exportCode()) { <textarea class="code-box" readonly rows="3" [value]="exportCode()" aria-label="Exported save code"></textarea> }</div><div><h4>Import Save</h4><p>Importing replaces current local progress.</p><textarea class="code-box" rows="3" placeholder="Paste save code here" aria-label="Save code to import" [value]="importCode()" (input)="importCode.set($any($event.target).value)"></textarea><button type="button" [disabled]="!importCode().trim()" (click)="applyImport()">Import Save</button></div></section>
+          <section class="settings-group danger-zone"><div><h4>Reset Progress</h4><p>Restore the starter profile and remove all local progression.</p></div>@if (!confirmingReset()) { <button type="button" class="danger-btn" [disabled]="!game.hasProgressToReset()" (click)="requestReset()">Reset Progress</button> } @else { <div class="confirm-row"><strong>This cannot be undone.</strong><div class="btn-row"><button type="button" class="danger-btn" (click)="confirmReset()">Yes, reset</button><button type="button" (click)="cancelReset()">Cancel</button></div></div> }</section>
+        }
       }
-    </article>
+
+      <footer class="settings-footer"><span><i></i> Saved locally</span>@if (activeCategory() !== 'save') { <button type="button" (click)="resetCategory()">Reset Category</button> }</footer>
+    </section>
   </div>
 </section>

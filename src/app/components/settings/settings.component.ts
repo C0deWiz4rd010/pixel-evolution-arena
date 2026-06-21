@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { AudioService } from '../../services/audio.service';
-import { TranslatePipe } from '../../i18n/translate.pipe';
 import { AccentTheme, LanguageCode, TypographyProfile, VisualStyle } from '../../models/player-state.model';
+
+type SettingsCategory = 'gameplay' | 'audio' | 'accessibility' | 'appearance' | 'save';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [FormsModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -19,6 +18,14 @@ export class SettingsComponent {
   readonly audio = inject(AudioService);
 
   readonly settings = this.game.settings;
+  readonly activeCategory = signal<SettingsCategory>('gameplay');
+  readonly categories: readonly { id: SettingsCategory; label: string; glyph: string }[] = [
+    { id: 'gameplay', label: 'Gameplay', glyph: 'VS' },
+    { id: 'audio', label: 'Audio', glyph: 'AU' },
+    { id: 'accessibility', label: 'Accessibility', glyph: 'AC' },
+    { id: 'appearance', label: 'Appearance', glyph: 'UI' },
+    { id: 'save', label: 'Save Data', glyph: 'SV' },
+  ];
   readonly systemCheckCards = this.game.systemCheckCards;
   readonly accentThemes: { id: AccentTheme; label: string }[] = [
     { id: 'aurora', label: 'Aurora' },
@@ -94,10 +101,8 @@ export class SettingsComponent {
   }
 
   toggleMusic(): void {
-    if (!this.audio.enabled()) {
-      this.game.toggleAudio();
-    }
-    this.game.toggleMusic();
+    if (!this.audio.enabled()) this.game.toggleAudio();
+    this.game.setMusicEnabled(!this.audio.musicEnabled());
   }
 
   toggleColorblind(): void {
@@ -141,5 +146,53 @@ export class SettingsComponent {
   confirmReset(): void {
     this.game.resetProgress();
     this.confirmingReset.set(false);
+  }
+
+  setCategory(category: SettingsCategory): void {
+    this.activeCategory.set(category);
+  }
+
+  setBattleControlMode(mode: 'director' | 'assist' | 'auto'): void {
+    this.game.setBattleControlMode(mode);
+  }
+
+  setBattleSpeed(speed: 1 | 2 | 4): void {
+    this.game.setBattleSpeed(speed);
+  }
+
+  toggleBattleRecommendations(): void {
+    this.game.toggleBattleRecommendations();
+  }
+
+  setMotionMode(mode: 'system' | 'reduced'): void {
+    this.game.setMotionMode(mode);
+  }
+
+  resetCategory(): void {
+    switch (this.activeCategory()) {
+      case 'gameplay':
+        this.game.setBattleControlMode('director');
+        this.game.setBattleSpeed(1);
+        if (!this.settings().battleRecommendations) this.game.toggleBattleRecommendations();
+        if (this.settings().combatBeats) this.game.toggleCombatBeats();
+        break;
+      case 'audio':
+        this.game.setMasterVolume(0.7);
+        this.game.setMusicEnabled(false);
+        break;
+      case 'accessibility':
+        if (this.settings().colorblindMode) this.game.toggleColorblindMode();
+        this.game.setEffectIntensity(1);
+        this.game.setMotionMode('system');
+        break;
+      case 'appearance':
+        this.game.setVisualStyle('collector-tech');
+        this.game.setTypographyProfile('dual-font');
+        this.game.setAccentTheme('aurora');
+        this.game.setLanguage('en');
+        break;
+      default:
+        break;
+    }
   }
 }

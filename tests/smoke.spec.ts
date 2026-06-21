@@ -74,9 +74,13 @@ test('arena battle plan and reward loop work', async ({ page }) => {
   await page.getByRole('radio', { name: /Assault/ }).click();
   await expect(page.getByRole('radio', { name: /Assault/ })).toHaveAttribute('aria-checked', 'true');
   await page.getByRole('button', { name: 'Start Battle' }).click();
-  await expect(page.getByRole('heading', { name: 'Tactical Pulse' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Choose Squad Order' })).toBeVisible({ timeout: 15_000 });
+  await page.getByRole('button', { name: /Focus Target/ }).click();
+  await expect(page.getByRole('heading', { name: 'Tactical Pulse' })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByLabel('Battle growth result')).toHaveCount(0);
   await page.getByRole('button', { name: /Break/ }).click();
+  const secondOrder = page.getByRole('heading', { name: 'Choose Squad Order' });
+  if (await secondOrder.isVisible({ timeout: 10_000 }).catch(() => false)) await page.getByRole('button', { name: /Build Overdrive/ }).click();
   await expect(page.getByLabel('Battle growth result')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByLabel('Battle growth result')).toContainText(/Mastery/);
 

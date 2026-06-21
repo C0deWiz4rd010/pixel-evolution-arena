@@ -18,7 +18,7 @@
           <article class="squad-slot stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
             <div class="slot-role"><span>Slot {{ slot.index + 1 }}</span><strong>{{ slot.role.label }}</strong></div>
             <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
-              @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.name" /> }
+              <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="hero" />
             </button>
             <div class="slot-copy"><span>{{ monster.stage }} · {{ monster.type }}</span><h3>{{ monster.name }}</h3><small>LV {{ monster.level }} · {{ power(monster) }} PW</small></div>
             <div class="slot-actions"><button type="button" (click)="game.selectMonster(monster.id)">Inspect</button><button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button></div>
@@ -39,7 +39,7 @@
     <div class="reserve-list">
       @for (monster of candidates().slice(0, 8); track monster.id) {
         <button type="button" class="reserve-card stage-{{ game.stageClass(monster.stage) }}" [class.recommended]="recommendedCandidateId() === monster.id" [class.swap-ready]="canSwapCandidate(monster)" [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)" (click)="addOrSwapCandidate(monster)">
-          @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" alt="" /> }
+          <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="compact" [decorative]="true" />
           <span><strong>{{ monster.name }}</strong><small>{{ monster.type }} · {{ power(monster) }} PW</small></span>
           <em>{{ candidateActionLabel(monster) }}</em>
         </button>

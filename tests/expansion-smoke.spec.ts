@@ -46,6 +46,7 @@ test('settings remain accessible from the header utility menu', async ({ page })
   await dismissOnboarding(page);
   await page.getByRole('button', { name: 'Open utility menu' }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: /Save Data/ }).click();
   await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
   await expect(page.getByLabel('System checks')).toContainText('Save Core');
 });
@@ -55,9 +56,10 @@ test('visual style and typography profiles apply and persist independently', asy
   await dismissOnboarding(page);
   await page.getByRole('button', { name: 'Open utility menu' }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: /Appearance/ }).click();
 
   await page.getByRole('button', { name: /Pixel Arcade/ }).click();
-  await page.getByRole('button', { name: 'Pixel', exact: true }).click();
+  await page.getByRole('button', { name: /Pixel.*Aa/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-visual-style', 'pixel-arcade');
   await expect(page.locator('html')).toHaveAttribute('data-typography', 'pixel');
 
@@ -67,8 +69,9 @@ test('visual style and typography profiles apply and persist independently', asy
 
   await page.getByRole('button', { name: 'Open utility menu' }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: /Appearance/ }).click();
   await page.getByRole('button', { name: /Tactical Minimal/ }).click();
-  await page.getByRole('button', { name: 'Dual Font', exact: true }).click();
+  await page.getByRole('button', { name: /Dual Font.*Aa/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-visual-style', 'tactical-minimal');
   await expect(page.locator('html')).toHaveAttribute('data-typography', 'dual-font');
 });
@@ -92,6 +95,7 @@ test('progress survives reload and reset restores starter selection', async ({ p
   await expect(page.locator('aside.detail-panel').getByRole('heading', { name: 'Splashfang' })).toBeVisible();
   await page.getByRole('button', { name: 'Open utility menu' }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: /Save Data/ }).click();
   await page.getByRole('button', { name: 'Reset Progress' }).click();
   await page.getByRole('button', { name: 'Yes, reset' }).click();
   await page.reload();

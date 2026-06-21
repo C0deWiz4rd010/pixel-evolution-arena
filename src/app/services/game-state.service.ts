@@ -1299,12 +1299,16 @@ export class GameStateService {
       this.lastBattleThreat.set(savedState.lastBattleThreat ? { ...savedState.lastBattleThreat } : null);
       this.audio.setEnabled(this.player().audioEnabled);
       this.audio.setMasterVolume(this.player().settings.masterVolume);
+      this.audio.setMusicEnabled(this.player().settings.musicEnabled);
+      this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
       this.ensureDailyDirectiveState();
       return;
     }
 
     this.audio.setEnabled(this.player().audioEnabled);
     this.audio.setMasterVolume(this.player().settings.masterVolume);
+    this.audio.setMusicEnabled(this.player().settings.musicEnabled);
+    this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
     this.ensureDailyDirectiveState();
     this.persistState();
   }
@@ -2430,6 +2434,8 @@ export class GameStateService {
       this.lastBattleThreat.set(parsed.lastBattleThreat ? { ...parsed.lastBattleThreat } : null);
       this.audio.setEnabled(this.player().audioEnabled);
       this.audio.setMasterVolume(this.player().settings.masterVolume);
+      this.audio.setMusicEnabled(this.player().settings.musicEnabled);
+      this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
       this.ensureDailyDirectiveState();
       this.persistState();
       this.toast.push({ title: 'Save Imported', message: 'Progress restored from your code.', tone: 'success', icon: 'IN', durationMs: 3600 });

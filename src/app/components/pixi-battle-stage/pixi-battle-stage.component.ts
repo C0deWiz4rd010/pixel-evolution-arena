@@ -60,9 +60,9 @@ interface FloatingNumber {
   vy: number;
 }
 
-const STAGE_HEIGHT = 230;
-const UNIT_SPRITE_HEIGHT = 96;
-const HP_BAR_WIDTH = 88;
+const STAGE_HEIGHT = 360;
+const UNIT_SPRITE_HEIGHT = 140;
+const HP_BAR_WIDTH = 110;
 const HP_BAR_HEIGHT = 7;
 
 @Component({

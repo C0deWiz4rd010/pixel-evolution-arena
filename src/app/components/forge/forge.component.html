@@ -17,7 +17,7 @@
       <div class="empty-state"><strong>Build a squad first</strong><p>Return to Formation and add at least one creature before equipping gear.</p></div>
     } @else {
       <div class="monster-tabs">
-        @for (monster of squad(); track monster.id) { <button type="button" [class.active]="selectedMonster()?.id === monster.id" (click)="selectMonster(monster.id)">@if(monster.spriteUrl){<img [src]="monster.spriteUrl" alt=""/>}<span>{{ monster.name }}</span></button> }
+        @for (monster of squad(); track monster.id) { <button type="button" [class.active]="selectedMonster()?.id === monster.id" (click)="selectMonster(monster.id)"><app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="micro" [decorative]="true"/><span>{{ monster.name }}</span></button> }
       </div>
       @if (statComparison(); as cmp) { <div class="power-summary"><span>Power</span><strong>{{ cmp.basePower }} → {{ cmp.power }}</strong><small>ATK {{ cmp.geared.attack }} · DEF {{ cmp.geared.defense }} · SPD {{ cmp.geared.speed }} · HP {{ cmp.geared.hp }}</small></div> }
       <div class="slot-grid">

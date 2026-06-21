@@ -1,5 +1,5 @@
 /* Pixel Evolution Arena — offline-first service worker (local, no backend). */
-const CACHE = 'pea-cache-v1';
+const CACHE = 'pea-cache-v2';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

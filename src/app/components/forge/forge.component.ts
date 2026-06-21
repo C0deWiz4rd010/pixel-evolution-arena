@@ -3,6 +3,7 @@ import { GameStateService } from '../../services/game-state.service';
 import { GearDef, GearInstance, GearSlot, GEAR_SLOTS } from '../../models/gear.model';
 import { describeGearBonus, forgeCost, gearInstanceBonus, getGearDef } from '../../rules/gear.rules';
 import { Monster } from '../../models/monster.model';
+import { CreaturePortraitComponent } from '../creature-portrait/creature-portrait.component';
 
 const SLOT_LABEL: Record<GearSlot, string> = {
   core: 'Core',
@@ -21,6 +22,7 @@ interface ForgeDiagnosticCard {
 @Component({
   selector: 'app-forge',
   standalone: true,
+  imports: [CreaturePortraitComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './forge.component.html',
   styleUrl: './forge.component.scss',

@@ -55,6 +55,12 @@
 .pulse-options button:hover strong, .pulse-options button:focus-visible strong { color: var(--pulse); }
 .squad-order-rail { border-color: var(--success); box-shadow: 0 0 28px rgba(131,255,69,.18); }
 .squad-order-rail .pulse-options button.recommended { border-color: var(--success); }
+.battle-brief.decision-active > :not(.command-rail) { display:none; }
+.command-rail { position:static; inset:auto; min-height:100%; align-content:start; border:0; background:transparent; box-shadow:none; }
+.command-rail .pulse-options { grid-template-columns:1fr; }
+.command-rail .pulse-options button { min-height:104px; }
+.command-intel { display:grid; gap:.2rem; margin-top:.4rem; padding:.6rem; border:1px solid rgba(19,216,255,.2); }
+.command-intel span,.command-intel small { color:var(--muted); font-size:.62rem; text-transform:uppercase; }
 
 .formation-summary { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: .45rem; align-items: center; }
 .formation-summary > section { display: grid; gap: .3rem; padding: .5rem; border: 1px solid rgba(19,216,255,.16); background: rgba(0,7,15,.48); }

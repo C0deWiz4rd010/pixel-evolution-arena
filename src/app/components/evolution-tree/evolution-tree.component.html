@@ -15,9 +15,7 @@
 
     @if (nextDiscovery(); as next) {
       <section class="discovery-goal stage-{{ game.stageClass(next.stage) }}" aria-label="Next discovery">
-        <div class="mystery-preview" [class.revealed]="next.unlocked">
-          @if (next.spriteUrl) { <img [src]="next.spriteUrl" alt="" /> } @else { <span>?</span> }
-        </div>
+        <app-creature-portrait class="mystery-preview" [src]="next.spriteUrl" [name]="next.name" [stage]="next.stage" size="compact" [silhouette]="!next.unlocked" [decorative]="true" />
         <div>
           <span>Next Discovery</span>
           <strong>{{ next.name }}</strong>
@@ -48,9 +46,7 @@
             [attr.aria-label]="(monster.unlocked ? 'Inspect ' : 'Inspect locked ') + monster.name"
           >
             <span class="node-state">{{ monster.unlocked ? 'DISCOVERED' : isReady(monster) ? 'READY' : 'UNKNOWN' }}</span>
-            <span class="node-art">
-              @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.unlocked ? monster.name : ''" /> }
-            </span>
+            <app-creature-portrait class="node-art" [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="card" [silhouette]="!monster.unlocked" [decorative]="!monster.unlocked" />
             <strong>{{ monster.unlocked ? monster.name : 'Unknown Form' }}</strong>
             <small>{{ monster.stage }}</small>
             @if (monster.unlocked) { <span class="completion-mark" aria-hidden="true">OK</span> }
@@ -68,7 +64,7 @@
       <div class="recent-list">
         @for (monster of recentDiscoveries(); track monster.id) {
           <button type="button" (click)="selectMonster(monster)" [attr.aria-label]="'Inspect ' + monster.name">
-            @if (monster.spriteUrl) { <img [src]="monster.spriteUrl" alt="" /> }
+            <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="compact" [decorative]="true" />
             <span>{{ monster.name }}</span>
           </button>
         }

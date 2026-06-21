@@ -45,19 +45,6 @@
         @if (!anim.isPlaying() && !game.lastReward()) {
           <div class="stage-standby" aria-hidden="true"><span>Squad uplink ready</span><strong>Deploy to engage</strong><small>{{ game.squad().length }}/3 signals locked</small></div>
         }
-        @if (game.battleOrderOpen()) {
-          <section class="tactical-pulse squad-order-rail" aria-label="Squad Order decision" aria-live="assertive">
-            <header><div><span>Director command</span><h3>Choose Squad Order</h3></div><strong>{{ game.battleDecisionSeconds() }}s</strong></header>
-            <p>Shape the next two actions. Recommendation is highlighted.</p>
-            <div class="pulse-options">
-              @for (option of game.battleOrderOptions; track option.id) {
-                <button type="button" [class.recommended]="game.settings().battleRecommendations && option.id === game.recommendedBattleOrder()" (click)="chooseBattleOrder(option.id)">
-                  <span>{{ option.key }} / Order</span><strong>{{ option.label }}</strong><small>{{ option.detail }}</small>
-                </button>
-              }
-            </div>
-          </section>
-        }
         @if (game.tacticalPulseOpen()) {
           <section class="tactical-pulse" aria-label="Tactical Pulse decision" aria-live="assertive">
             <header>
@@ -85,7 +72,7 @@
           <div><span>Your Squad</span><strong>{{ game.teamPower() }} PW</strong></div>
           <div class="unit-strip">
             @for (monster of game.squad(); track monster.id) {
-              <article>@if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.name" /> }<small>{{ monster.name }}</small></article>
+              <article><app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="micro" /><small>{{ monster.name }}</small></article>
             } @empty { <p>No squad loaded.</p> }
           </div>
         </section>
@@ -101,7 +88,19 @@
       </div>
     </section>
 
-    <aside class="battle-brief" aria-label="Battle brief">
+    <aside class="battle-brief" [class.decision-active]="game.battleOrderOpen()" aria-label="Battle brief">
+      @if (game.battleOrderOpen()) {
+        <section class="tactical-pulse squad-order-rail command-rail" aria-label="Squad Order decision" aria-live="assertive">
+          <header><div><span>Director command</span><h3>Choose Squad Order</h3></div><strong>{{ game.battleDecisionSeconds() }}s</strong></header>
+          <p>Shape the next two actions. Recommendation is highlighted.</p>
+          <div class="pulse-options">
+            @for (option of game.battleOrderOptions; track option.id) {
+              <button type="button" [class.recommended]="game.settings().battleRecommendations && option.id === game.recommendedBattleOrder()" (click)="chooseBattleOrder(option.id)"><span>{{ option.key }} / Order</span><strong>{{ option.label }}</strong><small>{{ option.detail }}</small></button>
+            }
+          </div>
+          @if (battleSession(); as session) { <div class="command-intel"><span>Battle Intel</span><strong>Round {{ session.round }}/8 · {{ session.phase }}</strong><small>{{ session.combatants.length }} linked units · {{ session.overdriveCharge }}% Overdrive</small></div> }
+        </section>
+      }
       <header><span class="eyebrow">Battle Brief</span><h3>Choose the mission</h3><p>Three decisions define risk, pace, and payout.</p></header>
 
       <section class="brief-section">

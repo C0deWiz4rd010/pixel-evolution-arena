@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { Monster, MonsterStage } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { MonsterDetailComponent } from '../monster-detail/monster-detail.component';
+import { CreaturePortraitComponent } from '../creature-portrait/creature-portrait.component';
 
 const STAGE_ORDER: MonsterStage[] = ['Baby', 'In-Training', 'Rookie', 'Champion', 'Ultimate', 'Mega', 'Special'];
 
 @Component({
   selector: 'app-evolution-tree',
   standalone: true,
-  imports: [MonsterDetailComponent],
+  imports: [MonsterDetailComponent, CreaturePortraitComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './evolution-tree.component.html',
   styleUrl: './evolution-tree.component.scss',

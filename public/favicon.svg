@@ -1,25 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">Pixel Evolution Arena favicon</title>
-  <desc id="desc">A compact neon pixel creature arena icon.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Evolution Arena Creature Eye Gate</title>
+  <desc id="desc">A lime pixel creature eye inside a cyan hexagonal arena gate.</desc>
   <g shape-rendering="crispEdges">
-    <polygon points="12 4 52 4 60 12 60 48 48 60 16 60 4 48 4 12" fill="#050913"/>
-    <polygon points="14 7 50 7 57 14 57 46 46 57 18 57 7 46 7 14" fill="#08111f" stroke="#19f8ff" stroke-width="3"/>
-    <path d="M32 10V18M24 16H40" stroke="#39ff88" stroke-width="3"/>
-    <rect x="29" y="9" width="6" height="6" fill="#39ff88"/>
-    <path d="M12 52H25V48H39V52H52" fill="none" stroke="#19f8ff" stroke-width="2"/>
-    <path d="M52 52l-6 -4v8z" fill="#19f8ff"/>
-    <rect x="13" y="51" width="3" height="3" fill="#7cff3a"/>
-    <rect x="22" y="47" width="3" height="3" fill="#18d2ff"/>
-    <rect x="31" y="51" width="3" height="3" fill="#ffe12b"/>
-    <rect x="40" y="47" width="3" height="3" fill="#b663ff"/>
-    <rect x="49" y="51" width="3" height="3" fill="#ff55d8"/>
-    <polygon points="20 22 44 22 49 27 49 43 44 48 20 48 15 43 15 27" fill="#0b1928" stroke="#39ff88" stroke-width="3"/>
-    <rect x="22" y="30" width="8" height="8" fill="#19f8ff"/>
-    <rect x="25" y="33" width="3" height="3" fill="#050913"/>
-    <rect x="34" y="30" width="8" height="8" fill="#ff35d1"/>
-    <rect x="37" y="33" width="3" height="3" fill="#050913"/>
-    <rect x="25" y="42" width="14" height="2" fill="#39ff88"/>
-    <rect x="12" y="15" width="4" height="4" fill="#ff35d1"/>
-    <rect x="48" y="45" width="4" height="4" fill="#19f8ff"/>
+    <path d="M128 32h256l96 96v256l-96 96H128l-96-96V128z" fill="#020711"/>
+    <path d="M144 56h224l88 88v224l-88 88H144l-88-88V144z" fill="#071522" stroke="#13d8ff" stroke-width="20"/>
+    <path d="M160 92h192l68 68v192l-68 68H160l-68-68V160z" fill="none" stroke="#1b5970" stroke-width="12"/>
+    <path d="M112 256l64-72h160l64 72-64 72H176z" fill="#0b2530" stroke="#83ff45" stroke-width="18"/>
+    <path d="M176 256l48-48h64l48 48-48 48h-64z" fill="#83ff45"/>
+    <rect x="232" y="216" width="48" height="80" fill="#020711"/>
+    <rect x="248" y="232" width="32" height="32" fill="#9cf6ff"/>
+    <path d="M88 112h72v16H104v56H88zm336 0h-72v16h56v56h16zM88 400h72v-16h-56v-56H88zm336 0h-72v-16h56v-56h16z" fill="#13d8ff"/>
+    <rect x="72" y="240" width="24" height="32" fill="#ff55d8"/>
+    <rect x="416" y="240" width="24" height="32" fill="#ff55d8"/>
   </g>
 </svg>
