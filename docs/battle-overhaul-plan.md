@@ -75,3 +75,15 @@ Visuelle Referenzen:
 - Tactical Pulse ist die einzige verpflichtende Entscheidung während des Kampfes; Overdrive bleibt optional.
 - Standarddauer ist 35-50 Sekunden bei 1x; 2x und 4x bleiben erhalten.
 - Collector Tech bleibt Default-Design; Pixel Arcade und Tactical Minimal erben dieselbe Informationsarchitektur.
+
+## Implementierungsstand 2026-06-21
+
+- Battle Brief ersetzt die redundanten Forecast-, Coach-, Contract- und Plan-Flaechen durch Mission, Squad Plan, Support, eine Prognose und eine Hauptaktion.
+- Tactical Pulse ist mit `Break`, `Guard` und `Surge`, sechs Sekunden Timeout, Empfehlung und Tastatursteuerung `1` bis `3` umgesetzt.
+- Rewards, XP, Logs und Mastery werden erst nach Abschluss der Battle-Animation atomar uebernommen.
+- Monster Mastery wird gespeichert, migriert und im Growth Result sowie im Monster Detail angezeigt. Bei 25 MP wird ein typbasierter Move freigeschaltet.
+- Der optionale TidalWolf-Pfad demonstriert eine Mastery-Anforderung; der zentrale Evolutionspfad bleibt frei von Mastery-Zwang.
+- Pixi zeigt individuelle HP-Zustaende, Actor/Target-basierte Treffer, Move-Namen, Status, Effektivitaet und ein Pulse-Signal.
+- Training skaliert bei einem unvollstaendigen Starter-Squad adaptiv auf eine knappe, spielbare Begegnung. Standard und Risk bleiben unveraendert.
+- Standby, Desktop 1440x960 und Mobile 390x844 wurden ohne horizontales Overflow oder Browserfehler geprueft.
+- Bewusste Abweichung: Die Timeline bleibt kurz und direkt, statt den Spieler bei 1x fuer 35 bis 50 Sekunden zu binden. Das folgt der technischen Vorgabe, lokale Interaktionen nicht durch cineastische Wartezeit auszubremsen.

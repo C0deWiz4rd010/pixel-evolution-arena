@@ -410,6 +410,15 @@ export function calculateEnemyBattleModifier(baseModifier: number, typePressureM
   return clampModifier(baseModifier + typePressureModifier, -0.12, 0.32);
 }
 
+/** Keeps the onboarding Training mission competitive while the squad has open slots. */
+export function applyTrainingAssist(baseModifier: number, teamPower: number, enemyPower: number, squadSize: number): number {
+  if (squadSize <= 0 || squadSize >= 3 || enemyPower <= 0 || teamPower >= enemyPower * 0.9) {
+    return baseModifier;
+  }
+  const modifierForCloseFight = teamPower / (enemyPower * 1.03) - 1;
+  return Math.max(-0.72, Math.min(baseModifier, modifierForCloseFight));
+}
+
 export function shouldAwardItem(won: boolean, chance: number, randomValue: number): boolean {
   return won && randomValue < chance;
 }

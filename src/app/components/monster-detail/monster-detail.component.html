@@ -29,6 +29,19 @@
       <span>SPD <strong>{{ selected.speed }}</strong></span>
     </div>
 
+    @if (selected.unlocked) {
+      <section class="mastery-panel" aria-label="Battle mastery">
+        <div class="mastery-title"><div><span>Battle Mastery</span><strong>{{ game.monsterMastery(selected.id).battleXp }} MP</strong></div><small>{{ game.masteryGoal(selected).label }}</small></div>
+        <div class="mastery-track"><i [style.width.%]="masteryPercent(selected.id)"></i></div>
+        <div class="mastery-stats"><span>Signature {{ game.monsterMastery(selected.id).signatureProgress }}/{{ signatureGoal }}</span><span>Move unlock {{ game.monsterMastery(selected.id).battleXp }}/{{ masteryMoveThreshold }}</span></div>
+        @if (game.monsterMastery(selected.id).unlockedMoves.length) {
+          <div class="mastery-moves"><span>Unlocked</span>@for (move of game.monsterMastery(selected.id).unlockedMoves; track move) { <strong>{{ move }}</strong> }</div>
+        } @else {
+          <p>Use this monster in Arena battles and complete its signature goal to unlock a unique move.</p>
+        }
+      </section>
+    }
+
     <div class="detail-actions">
       <button type="button" class="primary-action" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">Add to Squad</button>
       @if (addToSquadReason(selected); as reason) { <p class="action-note">{{ reason }}</p> }

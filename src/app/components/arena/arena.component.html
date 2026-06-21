@@ -1,64 +1,153 @@
 <section class="hud-panel arena-view" [class.battle-live]="anim.isPlaying()" [class.battle-shake]="anim.shake()" [attr.data-flash]="anim.flash()">
   <header class="arena-header">
-    <div><span>Battle</span><h2>Arena Control</h2><p>{{ arenaDirective().title }} · {{ arenaThreat().label }}</p></div>
-    <div class="arena-status"><span>Status</span><strong>{{ terminalStatus() }}</strong><small>{{ battleOutlook().winChancePercent }}% win forecast</small></div>
+    <div>
+      <span class="eyebrow">Battle / {{ activeBattleCategory().shortLabel }}</span>
+      <h2>Arena Control</h2>
+      <p>{{ arenaDirective().title }} · {{ arenaThreat().label }}</p>
+    </div>
+    <div class="arena-status">
+      <span>{{ anim.isPlaying() ? 'Live combat' : 'Mission forecast' }}</span>
+      <strong>{{ terminalStatus() }}</strong>
+      <small>{{ battleOutlook().winChancePercent }}% predicted success</small>
+    </div>
   </header>
 
   <ol class="battle-phases" aria-label="Battle flow">
-    <li class="active"><span>1</span><strong>Prepare</strong><small>Choose your plan</small></li>
-    <li [class.active]="anim.isPlaying()"><span>2</span><strong>Battle</strong><small>Watch the sim</small></li>
-    <li [class.active]="game.lastReward()"><span>3</span><strong>Rewards</strong><small>Spend or run again</small></li>
+    <li [class.active]="!anim.isPlaying() && !game.lastReward()"><span>01</span><strong>Brief</strong></li>
+    <li [class.active]="anim.isPlaying() || game.tacticalPulseOpen()"><span>02</span><strong>Engage</strong></li>
+    <li [class.active]="game.lastReward()"><span>03</span><strong>Grow</strong></li>
   </ol>
 
   <div class="arena-grid">
     <section class="battle-stage" aria-label="Battle stage">
       <div class="stage-toolbar">
-        <div><span>{{ game.activeMutator().name }}</span><strong>{{ activeFormation().name }}</strong></div>
+        <div><span>Active protocol</span><strong>{{ game.activeMutator().name }} / {{ activeFormation().name }}</strong></div>
         <div class="battle-speed-bar" role="group" aria-label="Battle playback speed">
-          @for (option of anim.speedOptions; track option) { <button type="button" [class.active]="anim.speed() === option" [attr.aria-pressed]="anim.speed() === option" (click)="anim.setSpeed(option)">{{ option }}x</button> }
+          @for (option of anim.speedOptions; track option) {
+            <button type="button" [class.active]="anim.speed() === option" [attr.aria-pressed]="anim.speed() === option" (click)="anim.setSpeed(option)">{{ option }}x</button>
+          }
         </div>
       </div>
+
+      <div class="stage-shell">
+        <app-pixi-battle-stage class="pixi-battle-stage" />
+        @if (!anim.isPlaying() && !game.lastReward()) {
+          <div class="stage-standby" aria-hidden="true"><span>Squad uplink ready</span><strong>Deploy to engage</strong><small>{{ game.squad().length }}/3 signals locked</small></div>
+        }
+        @if (game.tacticalPulseOpen()) {
+          <section class="tactical-pulse" aria-label="Tactical Pulse decision" aria-live="assertive">
+            <header>
+              <div><span>Decision window</span><h3>Tactical Pulse</h3></div>
+              <strong>{{ game.tacticalPulseSeconds() }}s</strong>
+            </header>
+            <p>Read the pressure and commit one command. Recommendation: <b>{{ game.recommendedTacticalPulse() }}</b>.</p>
+            <div class="pulse-options">
+              @for (option of game.tacticalPulseOptions; track option.id; let index = $index) {
+                <button type="button" class="tone-{{ option.tone }}" [class.recommended]="game.recommendedTacticalPulse() === option.id" (click)="chooseTacticalPulse(option.id)">
+                  <span>{{ index + 1 }} / {{ option.tone }}</span>
+                  <strong>{{ option.label }}</strong>
+                  <small>{{ option.detail }}</small>
+                </button>
+              }
+            </div>
+          </section>
+        }
+      </div>
+
       <app-combat-beat />
-      <div class="stage-shell"><app-pixi-battle-stage class="pixi-battle-stage" /></div>
+
       <div class="formation-summary">
-        <section aria-label="Your squad formation"><span>Your Squad</span><strong>{{ game.teamPower() }} PW</strong><div>@for(monster of game.squad();track monster.id){<article>@if(monster.spriteUrl){<img [src]="monster.spriteUrl" [alt]="monster.name"/>}<small>{{ monster.name }}</small></article>}@empty{<p>No squad loaded.</p>}</div></section>
+        <section aria-label="Your squad formation">
+          <div><span>Your Squad</span><strong>{{ game.teamPower() }} PW</strong></div>
+          <div class="unit-strip">
+            @for (monster of game.squad(); track monster.id) {
+              <article>@if (monster.spriteUrl) { <img [src]="monster.spriteUrl" [alt]="monster.name" /> }<small>{{ monster.name }}</small></article>
+            } @empty { <p>No squad loaded.</p> }
+          </div>
+        </section>
         <div class="versus"><span>VS</span><strong>{{ powerDeltaLabel() }}</strong><small>{{ pressureLabel() }}</small></div>
-        <section aria-label="Enemy team formation"><span>Enemy Team</span><strong>{{ game.enemyPower() }} PW</strong><div>@for(enemy of game.enemies;track enemy.id){<article>@if(enemy.spriteUrl){<img [src]="enemy.spriteUrl" [alt]="enemy.name"/>}<small>{{ enemy.name }}</small></article>}</div></section>
+        <section aria-label="Enemy team formation">
+          <div><span>Enemy Team</span><strong>{{ game.enemyPower() }} PW</strong></div>
+          <div class="unit-strip">
+            @for (enemy of game.enemies; track enemy.id) {
+              <article>@if (enemy.spriteUrl) { <img [src]="enemy.spriteUrl" [alt]="enemy.name" /> }<small>{{ enemy.name }}</small></article>
+            }
+          </div>
+        </section>
       </div>
     </section>
 
-    <aside class="battle-prep" aria-label="Battle preparation">
-      <section class="forecast-card outlook-{{ battleOutlook().tone }}">
-        <span>Forecast</span><div><strong>{{ battleOutlook().label }}</strong><b>{{ battleOutlook().winChancePercent }}%</b></div><i><em [style.width.%]="battleOutlook().winChancePercent"></em></i><p>{{ battleOutlook().detail }}</p>
-      </section>
-      <section class="payout-card" aria-label="Reward forecast"><span>Expected Rewards</span><div><strong>+{{ rewardForecast().win.coins }} CR</strong><strong>+{{ rewardForecast().win.dnaShards }} DNA</strong><strong>+{{ rewardForecast().win.xp }} XP</strong><strong>{{ rewardForecast().itemChancePercent }}% item</strong></div></section>
+    <aside class="battle-brief" aria-label="Battle brief">
+      <header><span class="eyebrow">Battle Brief</span><h3>Choose the mission</h3><p>Three decisions define risk, pace, and payout.</p></header>
 
-      <section class="coach-card"><div><span>Recommended Plan</span><strong>{{ battleCoach().title }}</strong><small>{{ battleCoach().detail }}</small></div><button type="button" [disabled]="game.squad().length === 0" (click)="applyBattleCoach()">{{ battleCoach().actionLabel }}</button></section>
-
-      <details class="battle-disclosure">
-        <summary>Battle Plan <span>{{ activeBattleStance().shortLabel }} · {{ activeBattleCategory().shortLabel }}</span></summary>
-        <div class="command-deck">
-          <div role="radiogroup" aria-label="Battle mode"><span>Mode</span><div><button type="button" [class.active]="battleMode() === 'standard'" role="radio" [attr.aria-checked]="battleMode() === 'standard'" (click)="setBattleMode('standard')">Standard</button><button type="button" [class.active]="battleMode() === 'gauntlet'" role="radio" [attr.aria-checked]="battleMode() === 'gauntlet'" (click)="setBattleMode('gauntlet')">Gauntlet</button></div></div>
-          <div role="radiogroup" aria-label="Battle stance"><span>Stance</span><div>@for(stance of battleStances;track stance.id){<button type="button" [class.active]="activeBattleStanceId() === stance.id" role="radio" [attr.aria-checked]="activeBattleStanceId() === stance.id" (click)="setBattleStance(stance.id)">{{ stance.shortLabel }}</button>}</div></div>
-          <div role="radiogroup" aria-label="Run category"><span>Risk</span><div>@for(category of battleCategories;track category.id){<button type="button" [class.active]="activeBattleCategoryId() === category.id" role="radio" [attr.aria-checked]="activeBattleCategoryId() === category.id" (click)="setBattleCategory(category.id)">{{ category.shortLabel }}</button>}</div></div>
-          <div><span>Overdrive {{ overdrivePercent() }}%</span><button type="button" [class.active]="overdriveArmed()" [disabled]="!overdriveReady()" (click)="toggleOverdrive()">{{ overdriveArmed() ? 'Disarm' : 'Arm Overdrive' }}</button></div>
-          <details class="items"><summary>Items & Fabricator</summary>@for(entry of ownedConsumables();track entry.def.name){<article><span>{{ entry.def.icon }} {{ entry.def.name }} · x{{ entry.count }}</span><button type="button" [class.active]="isEquipped(entry.def.name)" [disabled]="entry.count === 0 && !isEquipped(entry.def.name)" (click)="toggleConsumable(entry.def.name)">{{ isEquipped(entry.def.name) ? 'Equipped' : 'Equip' }}</button><button type="button" (click)="buyConsumable(entry.def.name)">{{ entry.def.cost }} CR</button></article>}</details>
+      <section class="brief-section">
+        <div class="section-label"><span>01</span><div><strong>Mission</strong><small>Higher pressure pays more.</small></div></div>
+        <div class="choice-grid three" role="radiogroup" aria-label="Mission category">
+          @for (category of battleCategories; track category.id) {
+            <button type="button" role="radio" [class.active]="activeBattleCategoryId() === category.id" [attr.aria-checked]="activeBattleCategoryId() === category.id" [disabled]="anim.isPlaying() || game.tacticalPulseOpen()" (click)="setBattleCategory(category.id)">{{ category.shortLabel }}</button>
+          }
         </div>
+      </section>
+
+      <section class="brief-section">
+        <div class="section-label"><span>02</span><div><strong>Squad Plan</strong><small>{{ activeBattleStance().detail }}</small></div></div>
+        <div class="plan-grid" role="radiogroup" aria-label="Squad plan">
+          @for (plan of squadPlans; track plan.id) {
+            <button type="button" role="radio" [class.active]="activeBattleStanceId() === plan.id" [attr.aria-checked]="activeBattleStanceId() === plan.id" [disabled]="anim.isPlaying() || game.tacticalPulseOpen()" (click)="setBattleStance(plan.id)"><strong>{{ plan.label }}</strong><small>{{ plan.detail }}</small></button>
+          }
+        </div>
+      </section>
+
+      <section class="brief-section support-section">
+        <div class="section-label"><span>03</span><div><strong>Support</strong><small>Optional tools for difficult runs.</small></div></div>
+        <button type="button" class="overdrive-toggle" [class.active]="overdriveArmed()" [disabled]="!overdriveReady() || anim.isPlaying()" (click)="toggleOverdrive()">
+          <span>Overdrive {{ overdrivePercent() }}%</span><strong>{{ overdriveArmed() ? 'Armed' : overdriveReady() ? 'Ready' : 'Charging' }}</strong>
+        </button>
+        <details class="support-items">
+          <summary>Consumables <span>{{ equippedConsumables().length }} equipped</span></summary>
+          @for (entry of ownedConsumables(); track entry.def.name) {
+            <article><span>{{ entry.def.icon }} {{ entry.def.name }} · x{{ entry.count }}</span><button type="button" [class.active]="isEquipped(entry.def.name)" [disabled]="entry.count === 0 && !isEquipped(entry.def.name)" (click)="toggleConsumable(entry.def.name)">{{ isEquipped(entry.def.name) ? 'Equipped' : 'Equip' }}</button></article>
+          }
+        </details>
+      </section>
+
+      <section class="mission-readout outlook-{{ battleOutlook().tone }}">
+        <div><span>Forecast</span><strong>{{ battleOutlook().winChancePercent }}%</strong></div>
+        <i><em [style.width.%]="battleOutlook().winChancePercent"></em></i>
+        <p>{{ battleOutlook().label }} · {{ battleOutlook().detail }}</p>
+        <div class="reward-line"><span>+{{ rewardForecast().win.coins }} CR</span><span>+{{ rewardForecast().win.dnaShards }} DNA</span><span>+{{ rewardForecast().win.xp }} XP</span></div>
+      </section>
+
+      <div class="prep-actions">
+        <button type="button" [disabled]="game.squad().length === 0 || anim.isPlaying()" (click)="applyBattleCoach()">Auto Plan</button>
+        <button type="button" class="primary" [disabled]="anim.isPlaying() || game.tacticalPulseOpen() || game.squad().length === 0" (click)="game.startBattle()">{{ startBattleLabel() }}</button>
+      </div>
+
+      <details class="advanced-brief">
+        <summary>Advanced Run <span>{{ battleMode() === 'gauntlet' ? 'Gauntlet ' + gauntletWave() : 'Standard' }}</span></summary>
+        <div class="choice-grid"><button type="button" [class.active]="battleMode() === 'standard'" (click)="setBattleMode('standard')">Standard</button><button type="button" [class.active]="battleMode() === 'gauntlet'" (click)="setBattleMode('gauntlet')">Gauntlet</button></div>
       </details>
-
-      <details class="battle-disclosure" aria-label="Battle contracts"><summary>Battle Contracts <span>{{ battleContractCards().length }} options</span></summary><div class="contract-list">@for(contract of battleContractCards();track contract.id){<article><div><span>{{ contract.label }}</span><strong>{{ contract.title }}</strong><small>{{ contract.detail }}</small></div><button type="button" [disabled]="contract.disabled || anim.isPlaying()" (click)="applyBattleContract(contract)">{{ contract.applyLabel }}</button><button type="button" [disabled]="contract.disabled || anim.isPlaying()" (click)="launchBattleContract(contract)">{{ contract.launchLabel }}</button></article>}</div></details>
-
-      <section class="prep-actions" aria-label="Prep console"><button type="button" [disabled]="game.squad().length === 0" (click)="applyBattleCoach()">Auto Prep</button><button type="button" class="primary" [disabled]="anim.isPlaying() || game.squad().length === 0" (click)="game.startBattle()">{{ startBattleLabel() }}</button></section>
     </aside>
   </div>
 
   @if (game.lastReward(); as reward) {
-    <section class="battle-result" [class.victory]="reward.won">
-      <div><span>{{ reward.won ? 'Victory' : 'Retreat' }}</span><strong>{{ reward.won ? 'Rewards Secured' : 'Progress Secured' }}</strong></div>
-      <div class="reward-grid"><span>+{{ reward.coins }} CR</span><span>+{{ reward.dnaShards }} DNA</span><span>+{{ reward.xp }} XP</span>@if(reward.item){<span>{{ reward.item }}</span>}</div>
-      <div class="after-actions" aria-label="After-action queue">@for(card of afterActionCards().slice(0,3);track card.id){<button type="button" (click)="runAfterAction(card)"><span>{{ card.label }}</span><strong>{{ card.actionLabel }}</strong><small>{{ card.detail }}</small></button>}</div>
+    <section class="growth-result" [class.victory]="reward.won" aria-label="Battle growth result">
+      <header><span class="eyebrow">{{ reward.won ? 'Victory secured' : 'Retreat complete' }}</span><h3>{{ reward.won ? 'Your squad grew stronger' : 'Every run builds mastery' }}</h3><p>Battle rewards are secured. Review each monster's progress before the next run.</p></header>
+      <div class="reward-line large"><span>+{{ reward.coins }} CR</span><span>+{{ reward.dnaShards }} DNA</span><span>+{{ reward.xp }} XP</span>@if (reward.item) { <span>{{ reward.item }}</span> }</div>
+      <div class="mastery-grid">
+        @for (award of masteryAwards(); track award.monsterId) {
+          <article>
+            <div class="mastery-head"><div><span>{{ award.type }} Mastery</span><strong>{{ award.monsterName }}</strong></div><b>+{{ award.points }}</b></div>
+            <div class="mastery-meter"><i [style.width.%]="masteryPercent(award.total)"></i></div>
+            <p>{{ award.goalCompleted ? 'Signature complete' : 'Signature in progress' }} · {{ award.signatureProgress }}/5</p>
+            @if (award.unlockedMove) { <div class="move-unlock"><span>New Move</span><strong>{{ award.unlockedMove }}</strong></div> }
+            <small>Next route: {{ nextRouteName(award.monsterId) }}</small>
+          </article>
+        }
+      </div>
+      <div class="result-actions"><button type="button" (click)="continueGrowth()">Continue Growth</button><button type="button" class="primary" [disabled]="anim.isPlaying()" (click)="game.startBattle()">Run Again</button></div>
     </section>
   }
 
-  <details class="battle-log" aria-label="Battle log"><summary>Battle Log <span>{{ recentLogs().length }} entries</span></summary>@for(log of recentLogs();track $index){<p class="log-{{ log.type }}">{{ log.text }}</p>}</details>
+  <details class="battle-log" aria-label="Battle log"><summary>Battle Log <span>{{ recentLogs().length }} entries</span></summary>@for (log of recentLogs(); track $index) { <p class="log-{{ log.type }}">{{ log.text }}</p> }</details>
 </section>

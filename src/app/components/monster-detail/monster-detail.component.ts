@@ -2,6 +2,7 @@ import { Component, inject, Input } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { MonsterTrainingDrill } from '../../rules/training.rules';
+import { MASTERY_MOVE_THRESHOLD, SIGNATURE_GOAL } from '../../rules/battle-mastery.rules';
 
 interface TrainingPlan {
   status: string;
@@ -20,6 +21,12 @@ export class MonsterDetailComponent {
   @Input() familyUnlocked = 0;
   @Input() familyTotal = 0;
   readonly game = inject(GameStateService);
+  readonly masteryMoveThreshold = MASTERY_MOVE_THRESHOLD;
+  readonly signatureGoal = SIGNATURE_GOAL;
+
+  masteryPercent(monsterId: string): number {
+    return Math.min(100, Math.round((this.game.monsterMastery(monsterId).battleXp / MASTERY_MOVE_THRESHOLD) * 100));
+  }
 
   stageClass(monster: Monster): string {
     return this.game.stageClass(monster.stage);

@@ -4,6 +4,7 @@ import {
   BATTLE_STANCES,
   OVERDRIVE_MAX,
   applyStreakBonus,
+  applyTrainingAssist,
   buildReward,
   calculateEnemyBattleModifier,
   calculateStreakBonus,
@@ -63,6 +64,12 @@ describe('battle rules', () => {
   it('clamps the enemy modifier into the allowed combat range', () => {
     expect(calculateEnemyBattleModifier(0.25, 0.2)).toBe(0.32);
     expect(calculateEnemyBattleModifier(-0.25, -0.2)).toBe(-0.12);
+  });
+
+  it('adapts Training pressure for an incomplete starter squad only', () => {
+    expect(applyTrainingAssist(-0.08, 390, 1208, 2)).toBeLessThan(-0.65);
+    expect(applyTrainingAssist(-0.08, 390, 1208, 3)).toBe(-0.08);
+    expect(applyTrainingAssist(-0.08, 1100, 1208, 2)).toBe(-0.08);
   });
 
   it('exposes the three battle categories with distinct modifiers', () => {

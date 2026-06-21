@@ -16,6 +16,7 @@ import {
   OVERDRIVE_ATTACK_BONUS,
   WIN_STREAK_MILESTONES,
   applyStreakBonus,
+  applyTrainingAssist,
   buildBattleLogsFromEvents,
   buildReward,
   calculateEnemyBattleModifier,
@@ -280,7 +281,7 @@ export class GameStateService {
   readonly battleLogs = signal<BattleLog[]>(createStarterBattleLogs());
   readonly lastReward = signal<BattleReward | null>(null);
   readonly lastBattleThreat = signal<ArenaThreatProfile | null>(null);
-  readonly battleCategoryId = signal<BattleCategoryId>('standard');
+  readonly battleCategoryId = signal<BattleCategoryId>('training');
   readonly battleCategory = computed<BattleCategoryProfile>(() => getBattleCategoryProfile(this.battleCategoryId()));
 
   // --- Hybrid-Steuerung + neue Modi (teils transient, teils aus PlayerState) ---
@@ -470,15 +471,18 @@ export class GameStateService {
       this.mutatorModifier().playerAttackBonus,
   );
 
-  readonly enemyBattleModifier = computed(() =>
-    calculateEnemyBattleModifier(
+  readonly enemyBattleModifier = computed(() => {
+    const baseModifier = calculateEnemyBattleModifier(
       this.activeFormation().enemyModifier +
         this.upcomingArenaThreat().enemyModifier +
         this.battleCategory().enemyModifier +
         this.mutatorModifier().enemyModifier,
       this.enemyTypePressure().modifier,
-    ),
-  );
+    );
+    return this.battleCategoryId() === 'training'
+      ? applyTrainingAssist(baseModifier, this.teamPower(), this.enemyPower(), this.squad().length)
+      : baseModifier;
+  });
 
   /** Summed attack bonus from the currently equipped consumables (matches the engine). */
   readonly equippedAttackBonus = computed(() =>

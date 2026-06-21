@@ -49,6 +49,7 @@ interface StageUnit {
   faint: number;
   bobPhase: number;
   prismatic: boolean;
+  hpPercent: number;
 }
 
 interface FloatingNumber {
@@ -190,7 +191,7 @@ export class PixiBattleStageComponent {
           continue;
         }
         this.seenPopupIds.add(popup.id);
-        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive, popup.actorName, popup.targetName);
+        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive, popup.actorName, popup.targetName, popup.moveName);
       }
       if (this.seenPopupIds.size > 256) {
         this.seenPopupIds = new Set(popups.map((p) => p.id));
@@ -421,6 +422,7 @@ export class PixiBattleStageComponent {
       faint: 0,
       bobPhase: index * 1.7 + (side === 'enemy' ? Math.PI : 0),
       prismatic,
+      hpPercent: 100,
     };
 
     if (spriteUrl) {
@@ -436,7 +438,7 @@ export class PixiBattleStageComponent {
       unit.placeholder = placeholder;
     }
 
-    this.updateUnitHp(unit, side === 'player' ? this.anim.playerHpPercent() : this.anim.enemyHpPercent());
+    this.updateUnitHp(unit, unit.hpPercent);
     return unit;
   }
 
@@ -505,6 +507,7 @@ export class PixiBattleStageComponent {
     overdrive?: boolean,
     actorName?: string,
     targetName?: string,
+    moveName?: string,
   ): void {
     // `side` is the side that TAKES damage.
     const attackerSide: StageSide = side === 'player' ? 'enemy' : 'player';
@@ -518,8 +521,13 @@ export class PixiBattleStageComponent {
     }
     if (target) {
       target.hit = 1;
+      target.hpPercent = Math.max(0, target.hpPercent - Math.min(55, Math.max(14, amount / 9)));
     }
     this.spawnFloatingNumber(target, amount, critical, offset);
+
+    if (moveName && attacker) {
+      this.spawnLabel(attacker, moveName.toUpperCase(), overdrive ? 0xffd23c : 0x7de8ff, -22);
+    }
 
     if (effective) {
       this.spawnLabel(target, effective > 0 ? 'SUPER' : 'RESIST', effective > 0 ? 0x9dff5a : 0x9fb0c8, -28);
@@ -598,13 +606,21 @@ export class PixiBattleStageComponent {
         unit.lunge = 0;
         unit.container.alpha = 1;
         unit.container.rotation = 0;
+        unit.hpPercent = 100;
       }
+    }
+
+    if (phase === 'pulse') {
+      this.showBanner('TACTICAL PULSE', 0x12d8ff);
     }
 
     if (phase === 'finale') {
       const outcome = this.anim.outcome();
       const losingSide: StageSide = outcome === 'defeat' ? 'player' : 'enemy';
       const lead = this.leadOf(losingSide);
+      for (const unit of this.units.filter((entry) => entry.side === losingSide)) {
+        unit.hpPercent = 0;
+      }
       if (lead) {
         lead.faint = 0.0001; // start the dissolve
       }
@@ -626,11 +642,8 @@ export class PixiBattleStageComponent {
       return;
     }
     const clamped = Math.min(0.05, Math.max(0.001, dt));
-    const playerHp = this.anim.playerHpPercent();
-    const enemyHp = this.anim.enemyHpPercent();
-
     for (const unit of this.units) {
-      this.updateUnit(unit, clamped, unit.side === 'player' ? playerHp : enemyHp);
+      this.updateUnit(unit, clamped);
     }
     this.updateFloaters(clamped);
     this.updateShake(clamped);
@@ -664,7 +677,7 @@ export class PixiBattleStageComponent {
     }
   }
 
-  private updateUnit(unit: StageUnit, dt: number, hpPercent: number): void {
+  private updateUnit(unit: StageUnit, dt: number): void {
     unit.bobPhase += dt * 2.4;
     const dir = unit.side === 'player' ? 1 : -1;
 
@@ -697,7 +710,7 @@ export class PixiBattleStageComponent {
       }
     }
 
-    this.updateUnitHp(unit, hpPercent);
+    this.updateUnitHp(unit, unit.hpPercent);
   }
 
   private updateUnitHp(unit: StageUnit, hpPercent: number): void {
@@ -748,7 +761,7 @@ export class PixiBattleStageComponent {
     for (const unit of this.units) {
       unit.container.position.set(unit.baseX, unit.baseY);
       unit.container.alpha = unit.faint > 0 ? 0.4 : 1;
-      this.updateUnitHp(unit, unit.side === 'player' ? this.anim.playerHpPercent() : this.anim.enemyHpPercent());
+      this.updateUnitHp(unit, unit.hpPercent);
     }
     this.root?.position.set(0, 0);
     this.app.renderer.render(this.app.stage);

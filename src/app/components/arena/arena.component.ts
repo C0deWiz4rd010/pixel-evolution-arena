@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, HostListener, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { BattleAnimationService } from '../../services/battle-animation.service';
 import { BattleCategoryId, BattleStanceId } from '../../rules/battle.rules';
@@ -59,6 +59,7 @@ export class ArenaComponent {
   });
 
   readonly startBattleLabel = computed(() => {
+    if (this.game.tacticalPulseOpen()) return 'Choose Tactical Pulse';
     if (this.anim.isPlaying()) return 'Battle In Progress...';
     if (this.game.squad().length === 0) return 'Add Squad To Start';
     const reward = this.game.lastReward();
@@ -87,6 +88,19 @@ export class ArenaComponent {
   readonly battleIntelSummary = this.game.battleIntelSummary;
   readonly afterActionCards = this.game.afterActionCards;
   readonly battleContractCards = this.game.battleContractCards;
+  readonly masteryAwards = this.game.lastBattleMastery;
+  readonly masteryGoals = computed(() =>
+    this.game.squad().map((monster) => ({
+      monster,
+      goal: this.game.masteryGoal(monster),
+      progress: this.game.monsterMastery(monster.id),
+    })),
+  );
+  readonly squadPlans: readonly { id: BattleStanceId; label: string; detail: string }[] = [
+    { id: 'aggressive', label: 'Assault', detail: 'Faster damage, lighter cover.' },
+    { id: 'balanced', label: 'Balance', detail: 'Stable output and defense.' },
+    { id: 'defensive', label: 'Guard', detail: 'Lower damage, strong cover.' },
+  ];
 
   readonly readinessChecks = computed<ReadinessCheck[]>(() => {
     const squadSize = this.game.squad().length;
@@ -252,6 +266,37 @@ export class ArenaComponent {
   applyBattleCoach(): void {
     const plan = this.battleCoach();
     this.game.applyBattlePrep(plan.stanceId, plan.categoryId, plan.itemName);
+  }
+
+  chooseTacticalPulse(choice: 'break' | 'guard' | 'surge'): void {
+    this.game.chooseTacticalPulse(choice);
+  }
+
+  continueGrowth(): void {
+    this.game.requestTab('Evolution Tree');
+  }
+
+  growthMonster(monsterId: string): Monster | null {
+    return this.game.monsters().find((monster) => monster.id === monsterId) ?? null;
+  }
+
+  nextRouteName(monsterId: string): string {
+    const monster = this.growthMonster(monsterId);
+    const target = monster ? this.game.getEvolutionTargets(monster).find((entry) => !entry.unlocked) : null;
+    return target?.name ?? 'Family mastery';
+  }
+
+  masteryPercent(total: number): number {
+    return Math.min(100, Math.round((total / 50) * 100));
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handlePulseKey(event: KeyboardEvent): void {
+    if (!this.game.tacticalPulseOpen() || event.altKey || event.ctrlKey || event.metaKey) return;
+    const choice = event.key === '1' ? 'break' : event.key === '2' ? 'guard' : event.key === '3' ? 'surge' : null;
+    if (!choice) return;
+    event.preventDefault();
+    this.chooseTacticalPulse(choice);
   }
 
   applyBattleCoachAndLaunch(): void {

@@ -218,6 +218,16 @@ Use this checklist during Angular implementation.
 
 - Replaced ten equally weighted tabs and the global command dashboards with five primary areas, contextual subviews, and one Next Goal action.
 - Rebuilt Evolve around one active family, Dex completion, mystery silhouettes, recent discoveries, family progress, and a vertical mobile route.
+
+2026-06-21 Battle overhaul:
+
+- Added the documented Battle Brief, Tactical Pulse, delayed reward reveal, per-monster Battle Mastery, move unlocks, and an optional Mastery-gated evolution route.
+- Added adaptive Training pressure for incomplete starter squads; the clean starter state now reads a competitive 62% forecast instead of 0%.
+- Upgraded the Pixi stage with individual HP, move callouts, targeted impacts, pulse signaling, and an immediate standby state.
+- `npm.cmd test -- --run` passed (162 tests / 28 files).
+- `npm.cmd run build` passed without warnings.
+- `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including Tactical Pulse, delayed rewards, and Mastery persistence.
+- Visual smoke passed at desktop 1440x960 and mobile 390x844 with no page/console errors and no horizontal document overflow.
 - Simplified Squad, Loadout, Arena, Campaign, Expedition, and Collection while preserving all underlying progression and action paths.
 - Reduced onboarding from five system-heavy steps to the three-part core loop: discover, build, battle/evolve.
 - `npm.cmd run test -- --run` passed (155 tests / 26 files).

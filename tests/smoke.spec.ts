@@ -71,12 +71,20 @@ test('arena battle plan and reward loop work', async ({ page }) => {
   await dismissOnboarding(page);
   await primaryNav(page).getByRole('button', { name: 'Battle', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Arena Control' })).toBeVisible();
-  await page.locator('.battle-disclosure').first().locator(':scope > summary').click();
-  await page.getByRole('radio', { name: 'Aggro' }).click();
-  await expect(page.getByRole('radio', { name: 'Aggro' })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('radio', { name: /Assault/ }).click();
+  await expect(page.getByRole('radio', { name: /Assault/ })).toHaveAttribute('aria-checked', 'true');
   await page.getByRole('button', { name: 'Start Battle' }).click();
-  await expect(page.getByText(/Rewards Secured|Progress Secured/)).toBeVisible();
-  await expect(page.getByLabel('After-action queue')).toContainText(/Run Again|Retry|Evolve|Claim|Fill|Forge|Relay/i);
+  await expect(page.getByRole('heading', { name: 'Tactical Pulse' })).toBeVisible();
+  await expect(page.getByLabel('Battle growth result')).toHaveCount(0);
+  await page.getByRole('button', { name: /Break/ }).click();
+  await expect(page.getByLabel('Battle growth result')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByLabel('Battle growth result')).toContainText(/Mastery/);
+
+  const masteryBeforeReload = await page.getByLabel('Battle growth result').locator('.mastery-head b').first().innerText();
+  expect(masteryBeforeReload).toMatch(/^\+\d+$/);
+  await page.reload();
+  await primaryNav(page).getByRole('button', { name: 'Evolve', exact: true }).click();
+  await expect(page.getByLabel('Battle mastery')).toContainText(/\d+ MP/);
 });
 
 test('campaign and expedition are reachable through their primary areas', async ({ page }) => {

@@ -20,6 +20,8 @@ export interface DamagePopup {
   /** Names let the Pixi stage choreograph the exact units involved, not just the lead. */
   actorName?: string;
   targetName?: string;
+  /** Move label shown beside the combatants during the impact beat. */
+  moveName?: string;
 }
 
 /** A floating status icon cue consumed by the Pixi stage. */
@@ -152,7 +154,7 @@ export class BattleAnimationService {
 
   private applyHit(hit: DerivedHit, params: BattlePlayParams, index: number): void {
     const isCritical = Boolean(hit.critical);
-    this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive, hit.actorName, hit.targetName);
+    this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive, hit.actorName, hit.targetName, hit.moveName);
 
     if (hit.side === 'enemy') {
       const targetReduction = params.won
@@ -199,6 +201,7 @@ export class BattleAnimationService {
     overdrive?: boolean,
     actorName?: string,
     targetName?: string,
+    moveName?: string,
   ): void {
     const id = ++this.popupSeed;
     const popup: DamagePopup = {
@@ -212,6 +215,7 @@ export class BattleAnimationService {
       overdrive,
       actorName,
       targetName,
+      moveName,
     };
     this.popups.update((current) => [...current.slice(-5), popup]);
     this.scheduleTimer(() => {
@@ -274,6 +278,7 @@ interface DerivedHit {
   /** Acting unit (deals the hit) and target unit, so the stage animates the real combatants. */
   actorName?: string;
   targetName?: string;
+  moveName?: string;
 }
 
 function deriveHits(events: BattleEvent[]): DerivedHit[] {
@@ -288,6 +293,7 @@ function deriveHits(events: BattleEvent[]): DerivedHit[] {
         overdrive: true,
         actorName: event.actorName,
         targetName: event.targetName,
+        moveName: event.moveName,
       });
     } else if (event.kind === 'strike' && event.amount) {
       hits.push({
@@ -297,6 +303,7 @@ function deriveHits(events: BattleEvent[]): DerivedHit[] {
         effective: event.effective,
         actorName: event.actorName,
         targetName: event.targetName,
+        moveName: event.moveName,
       });
     } else if (event.kind === 'status-tick' && (event.amount ?? 0) > 0) {
       // A positive status-tick is DoT damage taken by the carrying unit.
