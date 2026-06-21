@@ -12,6 +12,9 @@ export type AccentTheme = 'aurora' | 'ember' | 'mono';
 export type LanguageCode = 'en' | 'de';
 export type VisualStyle = 'collector-tech' | 'pixel-arcade' | 'tactical-minimal';
 export type TypographyProfile = 'dual-font' | 'pixel' | 'tech-sans';
+export type BattleControlMode = 'director' | 'assist' | 'auto';
+export type MotionMode = 'system' | 'reduced';
+export type BattleSpeedSetting = 1 | 2 | 4;
 
 /** Player-tunable presentation + accessibility settings. */
 export interface PlayerSettings {
@@ -31,6 +34,11 @@ export interface PlayerSettings {
   typographyProfile: TypographyProfile;
   /** Enable the optional Active Combat Beat timing prompt. */
   combatBeats: boolean;
+  battleControlMode: BattleControlMode;
+  battleSpeed: BattleSpeedSetting;
+  battleRecommendations: boolean;
+  motionMode: MotionMode;
+  musicEnabled: boolean;
 }
 
 /** Cumulative combat stats that feed medals. */
@@ -66,6 +74,11 @@ export interface RecentBattleRecord {
   dnaShards: number;
   xp: number;
   streakAfter: number;
+  orders?: Array<'focus' | 'protect' | 'charge'>;
+  pulse?: 'break' | 'guard' | 'surge';
+  survivors?: string[];
+  rounds?: number;
+  controlMode?: BattleControlMode;
 }
 
 export interface PlayerState {
@@ -123,4 +136,9 @@ export const DEFAULT_SETTINGS: PlayerSettings = {
   visualStyle: 'collector-tech',
   typographyProfile: 'dual-font',
   combatBeats: false,
+  battleControlMode: 'director',
+  battleSpeed: 1,
+  battleRecommendations: true,
+  motionMode: 'system',
+  musicEnabled: false,
 };

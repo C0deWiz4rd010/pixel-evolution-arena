@@ -251,6 +251,14 @@ function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings
     typographyProfile:
       typographyProfile === 'pixel' || typographyProfile === 'tech-sans' ? typographyProfile : 'dual-font',
     combatBeats: candidate.combatBeats === true,
+    battleControlMode:
+      candidate.battleControlMode === 'assist' || candidate.battleControlMode === 'auto'
+        ? candidate.battleControlMode
+        : 'director',
+    battleSpeed: candidate.battleSpeed === 2 || candidate.battleSpeed === 4 ? candidate.battleSpeed : 1,
+    battleRecommendations: candidate.battleRecommendations !== false,
+    motionMode: candidate.motionMode === 'reduced' ? 'reduced' : 'system',
+    musicEnabled: candidate.musicEnabled === true,
   };
 }
 
@@ -334,6 +342,13 @@ function sanitizeRecentBattles(value: unknown): SaveStateSnapshot['player']['rec
         dnaShards: typeof candidate['dnaShards'] === 'number' ? Math.max(0, candidate['dnaShards']) : 0,
         xp: typeof candidate['xp'] === 'number' ? Math.max(0, candidate['xp']) : 0,
         streakAfter: typeof candidate['streakAfter'] === 'number' ? Math.max(0, candidate['streakAfter']) : 0,
+        orders: Array.isArray(candidate['orders'])
+          ? candidate['orders'].filter((order): order is 'focus' | 'protect' | 'charge' => order === 'focus' || order === 'protect' || order === 'charge').slice(0, 2)
+          : [],
+        pulse: candidate['pulse'] === 'break' || candidate['pulse'] === 'surge' ? candidate['pulse'] : 'guard',
+        survivors: Array.isArray(candidate['survivors']) ? candidate['survivors'].filter((id): id is string => typeof id === 'string').slice(0, 3) : [],
+        rounds: typeof candidate['rounds'] === 'number' ? Math.max(0, Math.min(8, Math.round(candidate['rounds']))) : 0,
+        controlMode: candidate['controlMode'] === 'assist' || candidate['controlMode'] === 'auto' ? candidate['controlMode'] : 'director',
       };
     })
     .slice(0, 12);

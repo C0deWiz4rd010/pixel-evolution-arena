@@ -29,10 +29,34 @@
         </div>
       </div>
 
+      @if (battleSession(); as session) {
+        <div class="combat-timeline" aria-label="Battle phase timeline">
+          <span>Round {{ session.round }}/8</span>
+          <div [class.active]="battlePhase() === 'opening'" [class.done]="session.round > 2"><b>Opening</b><small>R1-R2</small></div>
+          <i></i>
+          <div [class.active]="battlePhase() === 'pressure'" [class.done]="session.round > 4"><b>Pressure</b><small>R3-R4</small></div>
+          <i></i>
+          <div [class.active]="battlePhase() === 'finish' || battlePhase() === 'complete'"><b>Finish</b><small>R5-R8</small></div>
+        </div>
+      }
+
       <div class="stage-shell">
         <app-pixi-battle-stage class="pixi-battle-stage" />
         @if (!anim.isPlaying() && !game.lastReward()) {
           <div class="stage-standby" aria-hidden="true"><span>Squad uplink ready</span><strong>Deploy to engage</strong><small>{{ game.squad().length }}/3 signals locked</small></div>
+        }
+        @if (game.battleOrderOpen()) {
+          <section class="tactical-pulse squad-order-rail" aria-label="Squad Order decision" aria-live="assertive">
+            <header><div><span>Director command</span><h3>Choose Squad Order</h3></div><strong>{{ game.battleDecisionSeconds() }}s</strong></header>
+            <p>Shape the next two actions. Recommendation is highlighted.</p>
+            <div class="pulse-options">
+              @for (option of game.battleOrderOptions; track option.id) {
+                <button type="button" [class.recommended]="game.settings().battleRecommendations && option.id === game.recommendedBattleOrder()" (click)="chooseBattleOrder(option.id)">
+                  <span>{{ option.key }} / Order</span><strong>{{ option.label }}</strong><small>{{ option.detail }}</small>
+                </button>
+              }
+            </div>
+          </section>
         }
         @if (game.tacticalPulseOpen()) {
           <section class="tactical-pulse" aria-label="Tactical Pulse decision" aria-live="assertive">
@@ -120,7 +144,7 @@
 
       <div class="prep-actions">
         <button type="button" [disabled]="game.squad().length === 0 || anim.isPlaying()" (click)="applyBattleCoach()">Auto Plan</button>
-        <button type="button" class="primary" [disabled]="anim.isPlaying() || game.tacticalPulseOpen() || game.squad().length === 0" (click)="game.startBattle()">{{ startBattleLabel() }}</button>
+        <button type="button" class="primary" [disabled]="anim.isPlaying() || game.tacticalPulseOpen() || game.battleOrderOpen() || game.squad().length === 0" (click)="game.startBattle()">{{ startBattleLabel() }}</button>
       </div>
 
       <details class="advanced-brief">

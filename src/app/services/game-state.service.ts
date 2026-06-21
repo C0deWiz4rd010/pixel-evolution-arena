@@ -95,6 +95,17 @@ import {
   getTacticalPulseOption,
   recommendTacticalPulse,
 } from '../rules/tactical-pulse.rules';
+import {
+  BattleDecision,
+  BattleOrderId,
+  BattleSessionState,
+  TacticalBattleResult,
+  advanceBattleSession,
+  applyBattleDecision,
+  battleResult,
+  createBattleSession,
+  recommendedDecision,
+} from '../rules/tactical-director.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
@@ -301,6 +312,19 @@ export class GameStateService {
   readonly tacticalPulseSeconds = signal(0);
   readonly lastTacticalPulse = signal<TacticalPulseChoice | null>(null);
   readonly lastBattleMastery = signal<BattleMasteryAward[]>([]);
+  readonly battleSession = signal<BattleSessionState | null>(null);
+  readonly battleOrderOpen = computed(() => this.battleSession()?.pendingDecision === 'order');
+  readonly recommendedBattleOrder = computed<BattleOrderId | null>(() => {
+    const session = this.battleSession();
+    const decision = session?.pendingDecision === 'order' ? recommendedDecision(session) : null;
+    return decision?.kind === 'order' ? decision.id : null;
+  });
+  readonly battleDecisionSeconds = signal(0);
+  readonly battleOrderOptions: readonly { id: BattleOrderId; label: string; detail: string; key: string }[] = [
+    { id: 'focus', label: 'Focus Target', detail: 'Two stronger attacks, but lighter cover.', key: '1' },
+    { id: 'protect', label: 'Protect Lead', detail: 'Reduce the next two enemy impacts.', key: '2' },
+    { id: 'charge', label: 'Build Overdrive', detail: '+30 charge for lower short-term damage.', key: '3' },
+  ];
   /** Cross-tab navigation requests triggered by shared meta actions. */
   readonly requestedTab = signal<GameSectionName | null>(null);
 
@@ -332,6 +356,8 @@ export class GameStateService {
   private pendingTacticalPulse: TacticalPulseChoice | null = null;
   private tacticalPulseTimer: ReturnType<typeof setInterval> | null = null;
   private tacticalPulseDeadline = 0;
+  private battleDecisionResolve: ((decision: BattleDecision) => void) | null = null;
+  private battleRunning = false;
 
   readonly dailyDirective = computed(() => ensureDailyDirective(this.player().dailyDirective, getDateKey()));
   readonly dailyObjective = computed(() => getDailyObjectiveDef(this.dailyDirective().objectiveId));
@@ -515,7 +541,11 @@ export class GameStateService {
       hasSquad: this.squad().length > 0,
     }),
   );
-  readonly recommendedTacticalPulse = computed(() => recommendTacticalPulse(this.battleOutlook().winChancePercent));
+  readonly recommendedTacticalPulse = computed<TacticalPulseChoice>(() => {
+    const session = this.battleSession();
+    const decision = session?.pendingDecision === 'pulse' ? recommendedDecision(session) : null;
+    return decision?.kind === 'pulse' ? decision.id : recommendTacticalPulse(this.battleOutlook().winChancePercent);
+  });
 
   /**
    * Transparent breakdown of every contributor to the battle edge, so the
@@ -1551,30 +1581,47 @@ export class GameStateService {
 
   chooseTacticalPulse(choice: TacticalPulseChoice): boolean {
     if (!this.tacticalPulseOpen()) return false;
-    this.clearTacticalPulseTimer();
-    this.tacticalPulseOpen.set(false);
-    this.tacticalPulseSeconds.set(0);
-    this.pendingTacticalPulse = choice;
     this.lastTacticalPulse.set(choice);
-    this.battleAnimation.reset();
     this.audio.play('menu');
-    void this.startBattle();
+    this.resolveBattleDecision({ kind: 'pulse', id: choice });
     return true;
   }
 
-  private beginTacticalPulse(): void {
+  chooseBattleOrder(choice: BattleOrderId, targetId?: string): boolean {
+    if (!this.battleOrderOpen()) return false;
+    this.audio.play('menu');
+    this.resolveBattleDecision({ kind: 'order', id: choice, targetId });
+    return true;
+  }
+
+  private waitForBattleDecision(session: BattleSessionState): Promise<BattleDecision> {
     this.clearTacticalPulseTimer();
-    this.lastReward.set(null);
-    this.lastBattleMastery.set([]);
-    this.tacticalPulseOpen.set(true);
-    this.tacticalPulseSeconds.set(6);
-    this.tacticalPulseDeadline = Date.now() + 6000;
-    this.battleAnimation.beginTacticalPulse();
+    const recommended = recommendedDecision(session);
+    const mode = this.settings().battleControlMode;
+    if (mode === 'auto') return Promise.resolve(recommended);
+    const duration = session.pendingDecision === 'pulse' ? 6 : mode === 'assist' ? 3 : 8;
+    this.tacticalPulseOpen.set(session.pendingDecision === 'pulse');
+    this.battleDecisionSeconds.set(duration);
+    this.tacticalPulseSeconds.set(session.pendingDecision === 'pulse' ? duration : 0);
+    this.tacticalPulseDeadline = Date.now() + duration * 1000;
+    if (session.pendingDecision === 'pulse') this.battleAnimation.beginTacticalPulse();
     this.tacticalPulseTimer = setInterval(() => {
       const seconds = Math.max(0, Math.ceil((this.tacticalPulseDeadline - Date.now()) / 1000));
-      this.tacticalPulseSeconds.set(seconds);
-      if (seconds === 0) this.chooseTacticalPulse(this.recommendedTacticalPulse());
+      this.battleDecisionSeconds.set(seconds);
+      if (session.pendingDecision === 'pulse') this.tacticalPulseSeconds.set(seconds);
+      if (seconds === 0) this.resolveBattleDecision(recommended);
     }, 120);
+    return new Promise((resolve) => { this.battleDecisionResolve = resolve; });
+  }
+
+  private resolveBattleDecision(decision: BattleDecision): void {
+    this.clearTacticalPulseTimer();
+    this.tacticalPulseOpen.set(false);
+    this.tacticalPulseSeconds.set(0);
+    this.battleDecisionSeconds.set(0);
+    const resolve = this.battleDecisionResolve;
+    this.battleDecisionResolve = null;
+    resolve?.(decision);
   }
 
   private clearTacticalPulseTimer(): void {
@@ -2476,12 +2523,7 @@ export class GameStateService {
   }
 
   async startBattle(): Promise<void> {
-    if (this.tacticalPulseOpen()) {
-      return;
-    }
-    if (this.battleAnimation.isPlaying() && this.pendingTacticalPulse === null) {
-      return;
-    }
+    if (this.battleRunning || this.tacticalPulseOpen() || this.battleOrderOpen() || this.battleAnimation.isPlaying()) return;
 
     const squad = this.squad();
     if (squad.length === 0) {
@@ -2498,15 +2540,6 @@ export class GameStateService {
       return;
     }
 
-    if (this.pendingTacticalPulse === null) {
-      this.beginTacticalPulse();
-      return;
-    }
-
-    const pulseChoice = this.pendingTacticalPulse;
-    const pulse = getTacticalPulseOption(pulseChoice);
-    this.pendingTacticalPulse = null;
-
     const formation = this.activeFormation();
     const threat = this.upcomingArenaThreat();
     const category = this.battleCategory();
@@ -2515,26 +2548,39 @@ export class GameStateService {
     const equipped = [...this.equippedConsumables()];
     const isGauntlet = this.battleMode() === 'gauntlet';
     const gauntletStartWave = this.gauntletWave();
-    const sim = simulateBattle({
+    this.battleRunning = true;
+    this.lastReward.set(null);
+    this.lastBattleMastery.set([]);
+    this.lastTacticalPulse.set(null);
+    let session = createBattleSession({
       squad: this.effectiveSquad(),
       enemies: this.enemies,
-      playerModifier: this.squadBattleModifier() + this.comboCharge(),
-      enemyModifier: this.enemyBattleModifier(),
-      stanceAttackMod: stance.attackMod,
-      stanceMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
-      pulseAttackMod: pulse.attackMod,
-      pulseMitigation: pulse.mitigation,
-      overdrive: overdriveArmed,
-      overdriveAttackBonus: OVERDRIVE_ATTACK_BONUS,
-      consumables: toCombatEffects(equipped),
-      synergyLabel: this.squadSynergies()[0]?.label ?? null,
-      randomBetween: (min, max) => this.randomBetween(min, max),
-      randomFrom: <T>(items: T[]) => this.randomFrom(items),
+      seed: Date.now(),
+      playerAttackModifier: this.effectivePlayerModifier(),
+      enemyAttackModifier: this.enemyBattleModifier(),
+      playerMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
+      overdriveCharge: this.overdriveCharge(),
+      overdriveArmed,
     });
+    this.battleSession.set(session);
+    while (!session.completed) {
+      session = advanceBattleSession(session);
+      this.battleSession.set(session);
+      if (session.completed) break;
+      await this.battleAnimation.playSegment(session.lastBatch);
+      if (session.pendingDecision) {
+        const decision = await this.waitForBattleDecision(session);
+        session = applyBattleDecision(session, decision);
+        this.battleSession.set(session);
+      }
+    }
+    const sim: TacticalBattleResult = battleResult(session);
+    const pulseChoice: TacticalPulseChoice = sim.pulseChoice;
+    this.lastTacticalPulse.set(pulseChoice);
     await this.battleAnimation.play({
       won: sim.won,
       criticalHit: sim.criticalHit,
-      events: sim.events,
+      events: session.lastBatch,
     });
     const gauntletRewardBoost = isGauntlet ? 1 + 0.08 * gauntletStartWave : 1;
     const rewardMultiplier =
@@ -2596,7 +2642,7 @@ export class GameStateService {
     }
 
     // Overdrive is consumed when armed; otherwise it charges after battle.
-    const overdriveCharge = overdriveArmed ? 0 : chargeOverdrive(currentPlayer.overdriveCharge, sim.won);
+    const overdriveCharge = sim.overdriveUsed ? sim.overdriveCharge : chargeOverdrive(sim.overdriveCharge, sim.won);
 
     // Advance gauntlet wave state.
     let nextGauntletWave = gauntletStartWave;
@@ -2669,6 +2715,11 @@ export class GameStateService {
       dnaShards: reward.dnaShards,
       xp: reward.xp,
       streakAfter: reward.streakAfter ?? nextStreak,
+      orders: sim.orderHistory,
+      pulse: sim.pulseChoice,
+      survivors: sim.survivors,
+      rounds: sim.rounds,
+      controlMode: this.settings().battleControlMode,
     };
 
     this.player.update((player) => ({
@@ -2855,6 +2906,34 @@ export class GameStateService {
     }
 
     this.checkAchievements();
+    this.persistState();
+    this.battleRunning = false;
+  }
+
+  setBattleControlMode(mode: PlayerSettings['battleControlMode']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleControlMode: mode } }));
+    this.persistState();
+  }
+
+  setBattleSpeed(speed: PlayerSettings['battleSpeed']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleSpeed: speed } }));
+    this.battleAnimation.setSpeed(speed);
+    this.persistState();
+  }
+
+  toggleBattleRecommendations(): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleRecommendations: !player.settings.battleRecommendations } }));
+    this.persistState();
+  }
+
+  setMotionMode(mode: PlayerSettings['motionMode']): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, motionMode: mode } }));
+    this.persistState();
+  }
+
+  setMusicEnabled(value: boolean): void {
+    this.player.update((player) => ({ ...player, settings: { ...player.settings, musicEnabled: value } }));
+    this.audio.setMusicEnabled(value);
     this.persistState();
   }
 
@@ -3193,6 +3272,13 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
         dnaShards: typeof entry.dnaShards === 'number' ? Math.max(0, entry.dnaShards) : 0,
         xp: typeof entry.xp === 'number' ? Math.max(0, entry.xp) : 0,
         streakAfter: typeof entry.streakAfter === 'number' ? Math.max(0, entry.streakAfter) : 0,
+        orders: Array.isArray(entry.orders)
+          ? entry.orders.filter((order): order is 'focus' | 'protect' | 'charge' => order === 'focus' || order === 'protect' || order === 'charge').slice(0, 2)
+          : [],
+        pulse: entry.pulse === 'break' || entry.pulse === 'surge' ? entry.pulse : 'guard',
+        survivors: Array.isArray(entry.survivors) ? entry.survivors.map(String).slice(0, 3) : [],
+        rounds: typeof entry.rounds === 'number' ? Math.max(0, Math.min(8, Math.round(entry.rounds))) : 0,
+        controlMode: entry.controlMode === 'assist' || entry.controlMode === 'auto' ? entry.controlMode : 'director',
       }))
       .slice(0, MAX_RECENT_BATTLES),
     ownedGear: Array.isArray(player.ownedGear) ? player.ownedGear.map((entry) => ({ ...entry })) : [],
@@ -3226,6 +3312,14 @@ function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings 
         ? settings.typographyProfile
         : 'dual-font',
     combatBeats: settings.combatBeats === true,
+    battleControlMode:
+      settings.battleControlMode === 'assist' || settings.battleControlMode === 'auto'
+        ? settings.battleControlMode
+        : 'director',
+    battleSpeed: settings.battleSpeed === 2 || settings.battleSpeed === 4 ? settings.battleSpeed : 1,
+    battleRecommendations: settings.battleRecommendations !== false,
+    motionMode: settings.motionMode === 'reduced' ? 'reduced' : 'system',
+    musicEnabled: settings.musicEnabled === true,
   };
 }
 

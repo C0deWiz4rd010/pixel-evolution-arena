@@ -96,6 +96,12 @@ export class AudioService {
     return next;
   }
 
+  setMusicEnabled(value: boolean): void {
+    this.musicEnabled.set(value);
+    if (value) this.startMusic();
+    else this.stopMusic();
+  }
+
   private startMusic(): void {
     const context = this.ensureContext();
     if (!context || !this.masterGain || this.musicTimer) {

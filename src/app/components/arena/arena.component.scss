@@ -23,6 +23,13 @@
 .battle-speed-bar { display: flex; gap: .2rem; }
 .battle-speed-bar button { min-width: 42px; min-height: 36px; }
 .battle-speed-bar button.active { border-color: var(--success); color: var(--success); }
+.combat-timeline { display: grid; grid-template-columns: auto minmax(80px,1fr) minmax(24px,.35fr) minmax(80px,1fr) minmax(24px,.35fr) minmax(80px,1fr); gap: .35rem; align-items: center; padding: .45rem .55rem; border: 1px solid rgba(19,216,255,.2); background: rgba(0,7,15,.56); }
+.combat-timeline > span { color: var(--line-bright); font-size: .62rem; text-transform: uppercase; }
+.combat-timeline > div { display: flex; gap: .35rem; justify-content: center; color: var(--muted); opacity: .55; text-transform: uppercase; }
+.combat-timeline > div.active, .combat-timeline > div.done { color: var(--line-bright); opacity: 1; }
+.combat-timeline > div.active { text-shadow: 0 0 10px rgba(19,216,255,.55); }
+.combat-timeline small { color: inherit; font-size: .56rem; }
+.combat-timeline > i { height: 1px; background: rgba(19,216,255,.25); }
 .stage-shell { position: relative; min-height: 390px; overflow: hidden; border: 1px solid rgba(19,216,255,.28); background: linear-gradient(180deg,rgba(4,18,35,.7),rgba(0,5,13,.9)); clip-path: polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px)); }
 .pixi-battle-stage { display: block; min-height: 390px; }
 .stage-standby { position: absolute; inset: 50% auto auto 50%; z-index: 2; display: grid; min-width: 190px; gap: .18rem; padding: .65rem .8rem; border: 1px solid rgba(19,216,255,.34); background: rgba(1,9,19,.76); text-align: center; transform: translate(-50%,-50%); pointer-events: none; }
@@ -46,6 +53,8 @@
 .pulse-options .tone-focus { --pulse: var(--coin); }
 .pulse-options .tone-risk { --pulse: var(--danger); }
 .pulse-options button:hover strong, .pulse-options button:focus-visible strong { color: var(--pulse); }
+.squad-order-rail { border-color: var(--success); box-shadow: 0 0 28px rgba(131,255,69,.18); }
+.squad-order-rail .pulse-options button.recommended { border-color: var(--success); }
 
 .formation-summary { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: .45rem; align-items: center; }
 .formation-summary > section { display: grid; gap: .3rem; padding: .5rem; border: 1px solid rgba(19,216,255,.16); background: rgba(0,7,15,.48); }
@@ -125,6 +134,8 @@
   .formation-summary { grid-template-columns: 1fr; }
   .versus { grid-template-columns: auto auto auto; gap: .35rem; justify-content: center; }
   .pulse-options, .mastery-grid { grid-template-columns: 1fr; }
+  .combat-timeline { grid-template-columns: auto repeat(3,1fr); }
+  .combat-timeline > i { display: none; }
   .pulse-options button { min-height: 68px; }
   .tactical-pulse { inset: auto .45rem .45rem; max-height: calc(100% - .9rem); overflow: auto; }
   .plan-grid { grid-template-columns: 1fr; }

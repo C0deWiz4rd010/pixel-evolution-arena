@@ -56,6 +56,9 @@ export interface BattleEvent {
   critical?: boolean;
   effective?: -1 | 0 | 1;
   text?: string;
+  round?: number;
+  targetHp?: number;
+  targetMaxHp?: number;
 }
 
 export interface ConsumableCombatEffect {

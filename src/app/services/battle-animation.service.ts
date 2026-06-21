@@ -22,6 +22,8 @@ export interface DamagePopup {
   targetName?: string;
   /** Move label shown beside the combatants during the impact beat. */
   moveName?: string;
+  targetHp?: number;
+  targetMaxHp?: number;
 }
 
 /** A floating status icon cue consumed by the Pixi stage. */
@@ -152,6 +154,35 @@ export class BattleAnimationService {
     });
   }
 
+  playSegment(events: BattleEvent[]): Promise<void> {
+    this.clearTimers();
+    this.popups.set([]);
+    this.statusCues.set([]);
+    this.flash.set(null);
+    this.shake.set(false);
+    this.phase.set('exchange');
+    const hits = deriveHits(events).slice(0, 8);
+    const step = 260;
+    hits.forEach((hit, index) => {
+      this.scheduleTimer(
+        () => this.spawnPopup(hit.amount, hit.side, hit.critical, hit.effective, hit.overdrive, hit.actorName, hit.targetName, hit.moveName, hit.targetHp, hit.targetMaxHp),
+        80 + index * step,
+      );
+    });
+    deriveStatusCues(events).slice(0, 6).forEach((cue, index) => {
+      this.scheduleTimer(() => this.spawnStatusCue(cue.side, cue.icon, cue.label, cue.carrierName), 150 + index * step);
+    });
+    return new Promise((resolve) => {
+      this.activeResolve = resolve;
+      this.scheduleTimer(() => {
+        this.phase.set('idle');
+        const complete = this.activeResolve;
+        this.activeResolve = null;
+        complete?.();
+      }, Math.max(420, 180 + hits.length * step));
+    });
+  }
+
   private applyHit(hit: DerivedHit, params: BattlePlayParams, index: number): void {
     const isCritical = Boolean(hit.critical);
     this.spawnPopup(hit.amount, hit.side, isCritical, hit.effective, hit.overdrive, hit.actorName, hit.targetName, hit.moveName);
@@ -202,6 +233,8 @@ export class BattleAnimationService {
     actorName?: string,
     targetName?: string,
     moveName?: string,
+    targetHp?: number,
+    targetMaxHp?: number,
   ): void {
     const id = ++this.popupSeed;
     const popup: DamagePopup = {
@@ -216,6 +249,8 @@ export class BattleAnimationService {
       actorName,
       targetName,
       moveName,
+      targetHp,
+      targetMaxHp,
     };
     this.popups.update((current) => [...current.slice(-5), popup]);
     this.scheduleTimer(() => {
@@ -279,6 +314,8 @@ interface DerivedHit {
   actorName?: string;
   targetName?: string;
   moveName?: string;
+  targetHp?: number;
+  targetMaxHp?: number;
 }
 
 function deriveHits(events: BattleEvent[]): DerivedHit[] {
@@ -294,6 +331,8 @@ function deriveHits(events: BattleEvent[]): DerivedHit[] {
         actorName: event.actorName,
         targetName: event.targetName,
         moveName: event.moveName,
+        targetHp: event.targetHp,
+        targetMaxHp: event.targetMaxHp,
       });
     } else if (event.kind === 'strike' && event.amount) {
       hits.push({
@@ -304,6 +343,8 @@ function deriveHits(events: BattleEvent[]): DerivedHit[] {
         actorName: event.actorName,
         targetName: event.targetName,
         moveName: event.moveName,
+        targetHp: event.targetHp,
+        targetMaxHp: event.targetMaxHp,
       });
     } else if (event.kind === 'status-tick' && (event.amount ?? 0) > 0) {
       // A positive status-tick is DoT damage taken by the carrying unit.
@@ -312,6 +353,8 @@ function deriveHits(events: BattleEvent[]): DerivedHit[] {
         side: event.side === 'player' ? 'player' : 'enemy',
         critical: false,
         targetName: event.actorName,
+        targetHp: event.targetHp,
+        targetMaxHp: event.targetMaxHp,
       });
     }
   }

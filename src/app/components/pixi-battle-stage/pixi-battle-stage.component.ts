@@ -39,6 +39,7 @@ interface StageUnit {
   placeholder: PixiText | null;
   hpTrack: PixiGraphics;
   hpFill: PixiGraphics;
+  targetRing: PixiGraphics;
   baseX: number;
   baseY: number;
   /** Lunge progress 0..1 (decays back to 0). */
@@ -180,6 +181,12 @@ export class PixiBattleStageComponent {
       }
     });
 
+    effect(() => {
+      const session = this.game.battleSession();
+      if (!this.app || !session) return;
+      this.syncSessionState(session.combatants, session.activeOrder?.id === 'focus' ? session.activeOrder.targetId : undefined);
+    });
+
     // New damage popups -> lunge attacker, hit the receiving side, spawn a number.
     effect(() => {
       const popups = this.anim.popups();
@@ -191,7 +198,7 @@ export class PixiBattleStageComponent {
           continue;
         }
         this.seenPopupIds.add(popup.id);
-        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive, popup.actorName, popup.targetName, popup.moveName);
+        this.onDamageBeat(popup.side, popup.amount, popup.critical, popup.offset, popup.effective, popup.overdrive, popup.actorName, popup.targetName, popup.moveName, popup.targetHp, popup.targetMaxHp);
       }
       if (this.seenPopupIds.size > 256) {
         this.seenPopupIds = new Set(popups.map((p) => p.id));
@@ -385,6 +392,8 @@ export class PixiBattleStageComponent {
     });
 
     this.layoutUnits();
+    const session = this.game.battleSession();
+    if (session) this.syncSessionState(session.combatants, session.activeOrder?.id === 'focus' ? session.activeOrder.targetId : undefined);
   }
 
   private createUnit(
@@ -404,7 +413,9 @@ export class PixiBattleStageComponent {
       .roundRect(-HP_BAR_WIDTH / 2, -UNIT_SPRITE_HEIGHT - 16, HP_BAR_WIDTH, HP_BAR_HEIGHT, 3)
       .fill({ color: 0x0a1424, alpha: 0.85 });
     const hpFill = new pixi.Graphics();
-    container.addChild(hpTrack, hpFill);
+    const targetRing = new pixi.Graphics().ellipse(0, -4, 48, 14).stroke({ color: 0x12d8ff, width: 3, alpha: 0.95 });
+    targetRing.visible = false;
+    container.addChild(targetRing, hpTrack, hpFill);
 
     const unit: StageUnit = {
       side,
@@ -415,6 +426,7 @@ export class PixiBattleStageComponent {
       placeholder: null,
       hpTrack,
       hpFill,
+      targetRing,
       baseX: 0,
       baseY: 0,
       lunge: 0,
@@ -508,6 +520,8 @@ export class PixiBattleStageComponent {
     actorName?: string,
     targetName?: string,
     moveName?: string,
+    targetHp?: number,
+    targetMaxHp?: number,
   ): void {
     // `side` is the side that TAKES damage.
     const attackerSide: StageSide = side === 'player' ? 'enemy' : 'player';
@@ -521,7 +535,9 @@ export class PixiBattleStageComponent {
     }
     if (target) {
       target.hit = 1;
-      target.hpPercent = Math.max(0, target.hpPercent - Math.min(55, Math.max(14, amount / 9)));
+      target.hpPercent = typeof targetHp === 'number' && targetMaxHp
+        ? Math.max(0, Math.min(100, (targetHp / targetMaxHp) * 100))
+        : Math.max(0, target.hpPercent - Math.min(55, Math.max(14, amount / 9)));
     }
     this.spawnFloatingNumber(target, amount, critical, offset);
 
@@ -606,7 +622,7 @@ export class PixiBattleStageComponent {
         unit.lunge = 0;
         unit.container.alpha = 1;
         unit.container.rotation = 0;
-        unit.hpPercent = 100;
+        if (!this.game.battleSession()) unit.hpPercent = 100;
       }
     }
 
@@ -765,6 +781,18 @@ export class PixiBattleStageComponent {
     }
     this.root?.position.set(0, 0);
     this.app.renderer.render(this.app.stage);
+  }
+
+  private syncSessionState(combatants: readonly { id: string; currentHp: number; maxHp: number; defeated: boolean }[], focusTargetId?: string): void {
+    for (const unit of this.units) {
+      const state = combatants.find((entry) => entry.id === unit.id);
+      if (!state) continue;
+      unit.hpPercent = state.maxHp > 0 ? (state.currentHp / state.maxHp) * 100 : 0;
+      unit.targetRing.visible = unit.id === focusTargetId && !state.defeated;
+      if (state.defeated) unit.faint = Math.max(unit.faint, 0.72);
+      this.updateUnitHp(unit, unit.hpPercent);
+    }
+    if (this.reducedMotion()) this.renderStaticFrame();
   }
 
   private leadOf(side: StageSide): StageUnit | null {

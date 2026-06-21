@@ -59,6 +59,7 @@ export class ArenaComponent {
   });
 
   readonly startBattleLabel = computed(() => {
+    if (this.game.battleOrderOpen()) return 'Choose Squad Order';
     if (this.game.tacticalPulseOpen()) return 'Choose Tactical Pulse';
     if (this.anim.isPlaying()) return 'Battle In Progress...';
     if (this.game.squad().length === 0) return 'Add Squad To Start';
@@ -89,6 +90,9 @@ export class ArenaComponent {
   readonly afterActionCards = this.game.afterActionCards;
   readonly battleContractCards = this.game.battleContractCards;
   readonly masteryAwards = this.game.lastBattleMastery;
+  readonly battleSession = this.game.battleSession;
+  readonly battleRound = computed(() => this.battleSession()?.round ?? 0);
+  readonly battlePhase = computed(() => this.battleSession()?.phase ?? 'opening');
   readonly masteryGoals = computed(() =>
     this.game.squad().map((monster) => ({
       monster,
@@ -272,6 +276,10 @@ export class ArenaComponent {
     this.game.chooseTacticalPulse(choice);
   }
 
+  chooseBattleOrder(choice: 'focus' | 'protect' | 'charge'): void {
+    this.game.chooseBattleOrder(choice);
+  }
+
   continueGrowth(): void {
     this.game.requestTab('Evolution Tree');
   }
@@ -292,11 +300,15 @@ export class ArenaComponent {
 
   @HostListener('window:keydown', ['$event'])
   handlePulseKey(event: KeyboardEvent): void {
-    if (!this.game.tacticalPulseOpen() || event.altKey || event.ctrlKey || event.metaKey) return;
-    const choice = event.key === '1' ? 'break' : event.key === '2' ? 'guard' : event.key === '3' ? 'surge' : null;
-    if (!choice) return;
+    if ((!this.game.tacticalPulseOpen() && !this.game.battleOrderOpen()) || event.altKey || event.ctrlKey || event.metaKey) return;
     event.preventDefault();
-    this.chooseTacticalPulse(choice);
+    if (this.game.battleOrderOpen()) {
+      const order = event.key === '1' ? 'focus' : event.key === '2' ? 'protect' : event.key === '3' ? 'charge' : null;
+      if (order) this.chooseBattleOrder(order);
+      return;
+    }
+    const pulse = event.key === '1' ? 'break' : event.key === '2' ? 'guard' : event.key === '3' ? 'surge' : null;
+    if (pulse) this.chooseTacticalPulse(pulse);
   }
 
   applyBattleCoachAndLaunch(): void {
