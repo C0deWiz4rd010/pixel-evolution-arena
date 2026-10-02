@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host { display: block; }
 
 .arena-view { display: grid; gap: .9rem; padding: 1rem; overflow: hidden; }
@@ -126,13 +128,13 @@
 .battle-log p { margin: 0; padding: .4rem .6rem; border-top: 1px solid rgba(19,216,255,.1); color: var(--muted); font-size: .68rem; }
 .battle-log .log-reward, .battle-log .log-level { color: var(--success); }
 
-@media (max-width: 1050px) {
+@include bp.media-max(1050px) {
   .arena-grid { grid-template-columns: 1fr; }
   .battle-brief { position: static; }
   .stage-shell, .pixi-battle-stage { min-height: 340px; }
 }
 
-@media (max-width: 680px) {
+@include bp.media-max(680px) {
   .arena-view { padding: .65rem; }
   .arena-header { align-items: stretch; flex-direction: column; }
   .arena-status { text-align: left; }

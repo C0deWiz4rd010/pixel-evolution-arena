@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host {
   display: block;
   margin: 0.5rem 0;
@@ -63,7 +65,7 @@
   font-size: 0.68rem;
 }
 
-@media (max-width: 720px) {
+@include bp.media-max(nav) {
   :host {
     position: fixed;
     z-index: 80;

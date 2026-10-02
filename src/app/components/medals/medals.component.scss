@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -304,7 +306,7 @@
   font-size: 0.82rem;
 }
 
-@media (max-width: 1100px) {
+@include bp.media-max(xxl) {
   .medals-layout {
     grid-template-columns: 1fr;
   }

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host {
   position: fixed;
   top: 1rem;
@@ -130,7 +132,7 @@
   }
 }
 
-@media (max-width: 820px) {
+@include bp.media-max(md) {
   :host {
     top: 0.65rem;
     right: 0.65rem;

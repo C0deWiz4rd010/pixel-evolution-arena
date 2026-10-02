@@ -1,3 +1,5 @@
+@use 'styles/breakpoints' as bp;
+
 @font-face {
   font-family: "Pixelify Sans Local";
   src: url("../public/assets/fonts/pixelify-sans-latin-variable.woff2") format("woff2");
@@ -2262,7 +2264,7 @@ app-monster-card {
   }
 }
 
-@media (max-width: 1400px) {
+@include bp.media-max(max) {
   .tree-layout {
     grid-template-columns: minmax(0, 1fr) minmax(310px, 350px);
   }
@@ -2284,7 +2286,7 @@ app-monster-card {
   }
 }
 
-@media (max-width: 1280px) {
+@include bp.media-max(ultra) {
   .tree-layout,
   .squad-layout,
   .collection-layout,
@@ -2301,7 +2303,7 @@ app-monster-card {
   }
 }
 
-@media (max-width: 1180px) {
+@include bp.media-max(wide) {
   .header-hud {
     grid-template-columns: 1fr;
   }
@@ -2335,7 +2337,7 @@ app-monster-card {
   }
 }
 
-@media (max-width: 820px) {
+@include bp.media-max(md) {
   .app-shell {
     padding: 0.4rem 0.45rem 0.3rem;
   }
@@ -2660,7 +2662,7 @@ app-monster-card {
   text-transform: uppercase;
 }
 
-@media (max-width: 1020px) {
+@include bp.media-max(1020px) {
   .readiness-head,
   .readiness-grid,
   .forecast-grid {
@@ -3373,7 +3375,7 @@ app-monster-card {
   scroll-margin-top: 12rem;
 }
 
-@media (max-width: 820px) {
+@include bp.media-max(md) {
   .contract-grid {
     display: flex;
     gap: 0.38rem;
@@ -3396,7 +3398,7 @@ app-monster-card {
   }
 }
 
-@media (max-width: 520px) {
+@include bp.media-max(xs) {
   .contract-board-head {
     align-items: start;
     flex-direction: column;
@@ -3714,7 +3716,7 @@ body .app-shell :is(.detail-disclosure, .squad-disclosure, .battle-disclosure, .
   min-height: 224px;
 }
 
-@media (max-width: 720px) {
+@include bp.media-max(nav) {
   body .app-shell .next-goal {
     min-height: 0;
     padding: 0.68rem;
@@ -3744,3 +3746,66 @@ body .app-shell :is(.detail-disclosure, .squad-disclosure, .battle-disclosure, .
     height: 86px;
   }
 }
+
+/* ===========================================================================
+   Cross-view mobile hardening
+   Global safety nets that apply to every view without touching component SCSS.
+   Targets the real issues found on small phones: horizontal overflow,
+   hard-to-discover swim lanes, and media that escapes its container.
+   =========================================================================== */
+
+/* Media never forces horizontal page scroll. */
+img,
+canvas,
+svg,
+video {
+  max-width: 100%;
+}
+
+@include bp.media-max(nav) {
+  /* The single internal scroll region should never scroll sideways: a wide
+     grid is a layout bug, not a feature — clip it instead of leaking overflow. */
+  body .app-shell .play-surface {
+    overflow-x: hidden;
+  }
+
+  /* Intentional horizontal swim lanes (settings/collection/contracts/orders)
+     get momentum scrolling + gentle snapping so off-screen cards are reachable
+     and feel discoverable on touch. */
+  body .app-shell :is(
+    .stage-progress,
+    .option-cards,
+    .style-options,
+    .system-check-grid,
+    .status-switch,
+    .contract-grid,
+    .squad-order-grid,
+    .scan-list
+  ) {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  body .app-shell :is(
+    .stage-progress,
+    .option-cards,
+    .style-options,
+    .system-check-grid,
+    .status-switch
+  ) > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Very small phones: keep the dense HUD readable instead of cramped. */
+@include bp.media-max(xs) {
+  body .app-shell .header-hud .hud-stats {
+    gap: 0.35rem;
+  }
+
+  body .app-shell .header-hud .stat-chip {
+    padding-inline: 0.4rem;
+  }
+}
+

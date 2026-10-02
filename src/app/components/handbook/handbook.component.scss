@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -576,7 +578,7 @@
   padding-left: 0.48rem;
 }
 
-@media (max-width: 1180px) {
+@include bp.media-max(wide) {
   .command-center-grid,
   .prep-grid {
     grid-template-columns: 1fr;
@@ -587,7 +589,7 @@
   }
 }
 
-@media (max-width: 820px) {
+@include bp.media-max(md) {
   .manual-hero {
     grid-template-columns: 1fr;
   }
@@ -603,7 +605,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@include bp.media-max(560px) {
   .directive-banner,
   .rule-line,
   .selected-readout,

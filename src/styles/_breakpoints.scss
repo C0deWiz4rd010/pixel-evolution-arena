@@ -1,0 +1,45 @@
+@use 'sass:map';
+@use 'sass:meta';
+
+/// Canonical responsive breakpoints — the single source of truth for the app.
+///
+/// Values intentionally match the historical per-view breakpoints so adopting
+/// the mixins never shifts an existing layout. Use named tokens where possible;
+/// a raw length (e.g. `1050px`) may still be passed for one-off cases.
+$breakpoints: (
+  'xs': 520px,     // compact phones / modals
+  'sm': 620px,     // small phones
+  'nav': 720px,    // primary tab bar collapses to bottom nav
+  'md': 820px,     // large phone / small tablet
+  'lg': 900px,     // tablet portrait
+  'xl': 1000px,    // tablet landscape
+  'xxl': 1100px,   // small laptop
+  'wide': 1180px,  // main desktop collapse
+  'ultra': 1280px, // wide desktop
+  'max': 1400px,   // ultrawide cap
+);
+
+/// Resolve a token name to a length, or pass a raw length through unchanged.
+@function resolve($bp) {
+  @if meta.type-of($bp) == 'number' {
+    @return $bp;
+  }
+  @if map.has-key($breakpoints, $bp) {
+    @return map.get($breakpoints, $bp);
+  }
+  @error "Unknown breakpoint token `#{$bp}`. Add it to $breakpoints or pass a length.";
+}
+
+/// Styles applied at or below the given breakpoint (mobile-first max-width).
+@mixin media-max($bp) {
+  @media (max-width: #{resolve($bp)}) {
+    @content;
+  }
+}
+
+/// Styles applied at or above the given breakpoint (progressive enhancement).
+@mixin media-min($bp) {
+  @media (min-width: #{resolve($bp)}) {
+    @content;
+  }
+}

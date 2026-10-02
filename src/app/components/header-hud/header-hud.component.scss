@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host { position: relative; z-index: 90; display: block; }
 
 .header-hud { position: relative; z-index: 100; min-height: 88px; overflow: visible; clip-path: none; }
@@ -20,12 +22,12 @@
 @keyframes stat-pulse { 25% { box-shadow: 0 0 22px currentColor; transform: translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .stat-pulse { animation: none; } }
 
-@media (max-width: 900px) {
+@include bp.media-max(lg) {
   .brand-copy p { display: none; }
   .stat-chip { min-width: 94px; }
 }
 
-@media (max-width: 620px) {
+@include bp.media-max(sm) {
   .header-hud { min-height: 0; align-items: center; padding: 0.65rem; }
   .brand-copy h1 { font-size: clamp(0.9rem, 4vw, 1.15rem); white-space: nowrap; }
   .brand-mark-image { width: 36px; height: 36px; }

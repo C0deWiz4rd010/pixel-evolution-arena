@@ -1,6 +1,9 @@
+@use '../../../styles/breakpoints' as bp;
+
 :host { display: block; }
 .evolve-layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(320px, .72fr); gap: 0.75rem; align-items: start; }
-.evolution-workspace { display: grid; gap: 1rem; min-width: 0; padding: 1rem; }
+.evolution-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; padding: 1rem; }
+.evolution-workspace > * { min-width: 0; }
 .evolve-header { display: flex; gap: 1rem; align-items: end; justify-content: space-between; padding-bottom: 0.85rem; border-bottom: 1px solid rgba(19,216,255,.22); }
 .evolve-header span, .family-heading span, .recent-discoveries > div > span { color: var(--line-bright); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .evolve-header h2 { margin: .2rem 0; font-size: clamp(1.35rem, 2.4vw, 2rem); }
@@ -48,8 +51,8 @@
 .recent-list button { display: grid; grid-template-columns: 56px auto; gap: .45rem; align-items: center; min-height: 62px; padding: .2rem .55rem; background: rgba(19,216,255,.04); }
 .recent-list span { font-size: .68rem; }
 
-@media (max-width: 1100px) { .evolve-layout { grid-template-columns: 1fr; } }
-@media (max-width: 720px) {
+@include bp.media-max(xxl) { .evolve-layout { grid-template-columns: 1fr; } }
+@include bp.media-max(nav) {
   .evolution-workspace { padding: .7rem; }
   .evolve-header { align-items: stretch; flex-direction: column; }
   .dex-progress { min-width: 0; }
