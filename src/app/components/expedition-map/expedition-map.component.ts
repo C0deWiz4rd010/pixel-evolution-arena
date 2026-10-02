@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  NgZone,
   PLATFORM_ID,
   afterNextRender,
   effect,
@@ -77,7 +76,6 @@ export class ExpeditionMapComponent {
 
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
   private readonly game = inject(GameStateService);
 
@@ -151,13 +149,11 @@ export class ExpeditionMapComponent {
 
       this.rebuild(this.game.expedition());
 
-      this.zone.runOutsideAngular(() => {
-        app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
-        if (this.reducedMotion()) {
-          app.ticker.stop();
-          app.renderer.render(app.stage);
-        }
-      });
+      app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
+      if (this.reducedMotion()) {
+        app.ticker.stop();
+        app.renderer.render(app.stage);
+      }
     } catch {
       // Pixi unavailable — the surrounding tab still shows run state in the DOM.
     }
@@ -246,7 +242,7 @@ export class ExpeditionMapComponent {
     if (isReachable) {
       container.eventMode = 'static';
       container.cursor = 'pointer';
-      container.on('pointertap', () => this.zone.run(() => this.enterNode.emit(node.id)));
+      container.on('pointertap', () => this.enterNode.emit(node.id));
     }
 
     return { node, container, glow, pulsePhase: Math.random() * Math.PI * 2 };

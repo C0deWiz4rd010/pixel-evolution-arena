@@ -175,5 +175,5 @@
     </section>
   }
 
-  <details class="battle-log" aria-label="Battle log"><summary>Battle Log <span>{{ recentLogs().length }} entries</span></summary>@for (log of recentLogs(); track $index) { <p class="log-{{ log.type }}">{{ log.text }}</p> }</details>
+  <details class="battle-log" aria-label="Battle log"><summary>Battle Log <span>{{ recentLogs().length }} entries</span></summary>@for (log of recentLogs(); track log) { <p class="log-{{ log.type }}">{{ log.text }}</p> }</details>
 </section>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, NgZone, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { COMBO_GOOD_ZONE, COMBO_PERFECT_ZONE } from '../../rules/combo.rules';
 
@@ -13,7 +13,6 @@ type BeatPhase = 'idle' | 'running' | 'perfect' | 'good' | 'miss';
 })
 export class CombatBeatComponent {
   private readonly game = inject(GameStateService);
-  private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly enabled = computed(() => this.game.settings().combatBeats);
@@ -29,9 +28,13 @@ export class CombatBeatComponent {
 
   private frame = 0;
   private startTime = 0;
+  private resetTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.stop());
+    this.destroyRef.onDestroy(() => {
+      this.stop();
+      clearTimeout(this.resetTimer);
+    });
   }
 
   primary(): void {
@@ -45,16 +48,14 @@ export class CombatBeatComponent {
   private start(): void {
     this.phase.set('running');
     this.startTime = performance.now();
-    this.zone.runOutsideAngular(() => {
-      this.frame = requestAnimationFrame(this.step);
-    });
+    this.frame = requestAnimationFrame(this.step);
   }
 
   private readonly step = (now: number): void => {
     const t = ((now - this.startTime) / 900) % 1;
     // Triangle wave 0->1->0 for a back-and-forth marker.
     const pos = t < 0.5 ? t * 2 : 2 - t * 2;
-    this.zone.run(() => this.marker.set(pos));
+    this.marker.set(pos);
     this.frame = requestAnimationFrame(this.step);
   };
 
@@ -62,7 +63,8 @@ export class CombatBeatComponent {
     this.stop();
     const result = this.game.lockComboBeat(this.marker());
     this.phase.set(result.tier);
-    setTimeout(() => {
+    clearTimeout(this.resetTimer);
+    this.resetTimer = setTimeout(() => {
       if (this.phase() !== 'running') {
         this.phase.set('idle');
       }

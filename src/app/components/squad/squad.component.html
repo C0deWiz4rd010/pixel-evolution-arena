@@ -15,7 +15,7 @@
     <div class="squad-slots">
       @for (slot of squadSlots(); track slot.index) {
         @if (slot.monster; as monster) {
-          <article class="squad-slot stage-{{ game.stageClass(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
+          <article class="squad-slot stage-{{ stageClassOf(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
             <div class="slot-role"><span>Slot {{ slot.index + 1 }}</span><strong>{{ slot.role.label }}</strong></div>
             <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
               <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="hero" />
@@ -37,11 +37,11 @@
   <section class="reserve-section" aria-label="Unlocked reserve monsters">
     <div class="section-title"><div><span>Reserves</span><h3>Available Creatures</h3></div><small>{{ candidates().length }} outside squad</small></div>
     <div class="reserve-list">
-      @for (monster of candidates().slice(0, 8); track monster.id) {
-        <button type="button" class="reserve-card stage-{{ game.stageClass(monster.stage) }}" [class.recommended]="recommendedCandidateId() === monster.id" [class.swap-ready]="canSwapCandidate(monster)" [disabled]="slotsFilled() >= 3 && !canSwapCandidate(monster)" (click)="addOrSwapCandidate(monster)">
-          <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="compact" [decorative]="true" />
-          <span><strong>{{ monster.name }}</strong><small>{{ monster.type }} · {{ power(monster) }} PW</small></span>
-          <em>{{ candidateActionLabel(monster) }}</em>
+      @for (reserve of reserveViews(); track reserve.monster.id) {
+        <button type="button" class="reserve-card stage-{{ reserve.stageClass }}" [class.recommended]="recommendedCandidateId() === reserve.monster.id" [class.swap-ready]="reserve.canSwap" [disabled]="reserve.disabled" (click)="addOrSwapCandidate(reserve.monster)">
+          <app-creature-portrait [src]="reserve.monster.spriteUrl" [name]="reserve.monster.name" [stage]="reserve.monster.stage" size="compact" [decorative]="true" />
+          <span><strong>{{ reserve.monster.name }}</strong><small>{{ reserve.monster.type }} · {{ reserve.power }} PW</small></span>
+          <em>{{ reserve.actionLabel }}</em>
         </button>
       } @empty { <p class="empty-note">Unlock another creature in Evolve to expand your reserves.</p> }
     </div>

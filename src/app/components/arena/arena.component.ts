@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { BattleAnimationService } from '../../services/battle-animation.service';
 import { BattleCategoryId, BattleStanceId } from '../../rules/battle.rules';
@@ -28,6 +28,7 @@ interface ReadinessCheck {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-arena',
   imports: [PixiBattleStageComponent, CombatBeatComponent, CreaturePortraitComponent],
   templateUrl: './arena.component.html',

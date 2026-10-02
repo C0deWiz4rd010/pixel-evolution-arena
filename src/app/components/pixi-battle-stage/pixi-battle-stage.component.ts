@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  NgZone,
   PLATFORM_ID,
   afterNextRender,
   effect,
@@ -115,7 +114,6 @@ export class PixiBattleStageComponent {
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
 
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
   private readonly game = inject(GameStateService);
   private readonly anim = inject(BattleAnimationService);
@@ -314,13 +312,11 @@ export class PixiBattleStageComponent {
 
       this.observeResize(hostEl);
 
-      this.zone.runOutsideAngular(() => {
-        app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
-        if (this.reducedMotion()) {
-          app.ticker.stop();
-          this.renderStaticFrame();
-        }
-      });
+      app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
+      if (this.reducedMotion()) {
+        app.ticker.stop();
+        this.renderStaticFrame();
+      }
     } catch {
       this.failed.set(true);
     }

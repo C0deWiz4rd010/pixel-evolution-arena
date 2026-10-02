@@ -1,6 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
 import { CommandCenterCard } from '../../rules/command-center.rules';
+import { stageClass, stageGlyph } from '../../rules/stage.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { StatsCodexComponent } from '../stats-codex/stats-codex.component';
 
@@ -20,17 +21,9 @@ interface StageManualRow {
   total: number;
 }
 
-const STAGE_GLYPHS: Record<MonsterStage, string> = {
-  Baby: 'B-1',
-  'In-Training': 'IT',
-  Rookie: 'RK',
-  Champion: 'CH',
-  Ultimate: 'UL',
-  Mega: 'MG',
-  Special: 'SP',
-};
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-handbook',
   imports: [StatsCodexComponent],
   templateUrl: './handbook.component.html',
@@ -52,8 +45,8 @@ export class HandbookComponent {
 
       return {
         stage,
-        className: this.game.stageClass(stage),
-        glyph: STAGE_GLYPHS[stage],
+        className: stageClass(stage),
+        glyph: stageGlyph(stage),
         unlocked: stageMonsters.filter((monster) => monster.unlocked).length,
         total: stageMonsters.length,
       };

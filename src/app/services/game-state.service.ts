@@ -53,6 +53,7 @@ import { BOSSES, BossDef, getBossForBattle } from '../data/bosses.data';
 import { CAMPAIGN_CHAPTERS, CampaignChapter } from '../data/campaign.data';
 import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapter } from '../rules/campaign.rules';
 import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
+import { stageClass } from '../rules/stage.rules';
 import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
 import { resolveMutator } from '../rules/mutators.rules';
 import { totalSquadTraitBonus } from '../rules/traits.rules';
@@ -307,6 +308,8 @@ export class GameStateService {
 
   readonly monsters = signal<Monster[]>(createStarterMonsters());
   readonly player = signal<PlayerState>(createStarterPlayerState());
+  /** O(1) id lookup; rebuilt only when the roster signal changes. */
+  private readonly monsterIndex = computed(() => new Map(this.monsters().map((monster) => [monster.id, monster])));
   readonly battleLogs = signal<BattleLog[]>(createStarterBattleLogs());
   readonly lastReward = signal<BattleReward | null>(null);
   readonly lastBattleThreat = signal<ArenaThreatProfile | null>(null);
@@ -427,7 +430,7 @@ export class GameStateService {
 
   readonly selectedMonster = computed(() => {
     const selectedId = this.player().selectedMonsterId;
-    return this.monsters().find((monster) => monster.id === selectedId) ?? this.monsters().find((monster) => monster.unlocked) ?? null;
+    return (selectedId ? this.monsterIndex().get(selectedId) : undefined) ?? this.monsters().find((monster) => monster.unlocked) ?? null;
   });
 
   readonly squad = computed(() => this.player().squadIds.map((id) => this.getMonsterById(id)).filter((monster): monster is Monster => Boolean(monster)));
@@ -1202,11 +1205,11 @@ export class GameStateService {
   }
 
   stageClass(stage: MonsterStage): string {
-    return stage.toLowerCase().replace(/\s+/g, '-').replace('in-training', 'intraining');
+    return stageClass(stage);
   }
 
   getMonsterById(id: string): Monster | undefined {
-    return this.monsters().find((monster) => monster.id === id);
+    return this.monsterIndex().get(id);
   }
 
   selectMonster(id: string): void {

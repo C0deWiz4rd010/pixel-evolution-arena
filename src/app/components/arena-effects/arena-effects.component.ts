@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  NgZone,
   PLATFORM_ID,
   ViewChild,
   afterNextRender,
@@ -39,7 +38,6 @@ export class ArenaEffectsComponent {
   private readonly canvasRef?: ElementRef<HTMLCanvasElement>;
 
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
   private readonly effectRules = inject(ArenaEffectsService);
   private readonly game = inject(GameStateService);
@@ -463,10 +461,8 @@ export class ArenaEffectsComponent {
       return;
     }
 
-    this.zone.runOutsideAngular(() => {
-      this.lastFrameMs = performance.now();
-      this.animationFrame = window.requestAnimationFrame(this.animate);
-    });
+    this.lastFrameMs = performance.now();
+    this.animationFrame = window.requestAnimationFrame(this.animate);
   }
 
   private readonly animate = (timeMs: number): void => {

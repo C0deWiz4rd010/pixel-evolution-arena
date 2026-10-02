@@ -1,41 +1,41 @@
-@if (monster; as selected) {
-  <aside class="hud-panel detail-panel stage-{{ stageClass(selected) }}">
+@if (view(); as v) {
+  <aside class="hud-panel detail-panel stage-{{ v.stageClass }}">
     <div class="detail-topline">
-      <span class="monster-id">{{ selected.id }}</span>
-      <span class="rarity">{{ selected.rarity }}</span>
+      <span class="monster-id">{{ v.monster.id }}</span>
+      <span class="rarity">{{ v.monster.rarity }}</span>
     </div>
 
     <div class="detail-hero">
-      <span class="detail-icon sprite-node" [class.silhouette]="!selected.unlocked && !game.revealLocked()" aria-hidden="true">
-        @if (selected.spriteUrl) { <img class="creature-sprite hero" [src]="selected.spriteUrl" alt="" /> }
+      <span class="detail-icon sprite-node" [class.silhouette]="!v.revealed" aria-hidden="true">
+        @if (v.monster.spriteUrl) { <img class="creature-sprite hero" [src]="v.monster.spriteUrl" alt="" /> }
       </span>
       <div class="detail-identity">
-        <h2>{{ selected.unlocked || game.revealLocked() ? selected.name : 'Unknown Form' }}</h2>
-        <p><span>{{ selected.stage }}</span><span>{{ selected.type }}</span></p>
-        <small>{{ familyUnlocked }} / {{ familyTotal }} family forms</small>
+        <h2>{{ v.revealed ? v.monster.name : 'Unknown Form' }}</h2>
+        <p><span>{{ v.monster.stage }}</span><span>{{ v.monster.type }}</span></p>
+        <small>{{ familyUnlocked() }} / {{ familyTotal() }} family forms</small>
       </div>
     </div>
 
     <div class="xp-bar">
-      <span>Level {{ selected.level }}</span>
-      <div class="bar-track"><span [style.width.%]="(selected.xp / selected.maxXp) * 100"></span></div>
-      <span>{{ selected.xp }} / {{ selected.maxXp }} XP</span>
+      <span>Level {{ v.monster.level }}</span>
+      <div class="bar-track"><span [style.width.%]="v.xpPercent"></span></div>
+      <span>{{ v.monster.xp }} / {{ v.monster.maxXp }} XP</span>
     </div>
 
     <div class="stat-grid primary-stats">
-      <span>ATK <strong>{{ selected.attack }}</strong></span>
-      <span>DEF <strong>{{ selected.defense }}</strong></span>
-      <span>HP <strong>{{ selected.hp }}</strong></span>
-      <span>SPD <strong>{{ selected.speed }}</strong></span>
+      <span>ATK <strong>{{ v.monster.attack }}</strong></span>
+      <span>DEF <strong>{{ v.monster.defense }}</strong></span>
+      <span>HP <strong>{{ v.monster.hp }}</strong></span>
+      <span>SPD <strong>{{ v.monster.speed }}</strong></span>
     </div>
 
-    @if (selected.unlocked) {
+    @if (v.mastery; as mastery) {
       <section class="mastery-panel" aria-label="Battle mastery">
-        <div class="mastery-title"><div><span>Battle Mastery</span><strong>{{ game.monsterMastery(selected.id).battleXp }} MP</strong></div><small>{{ game.masteryGoal(selected).label }}</small></div>
-        <div class="mastery-track"><i [style.width.%]="masteryPercent(selected.id)"></i></div>
-        <div class="mastery-stats"><span>Signature {{ game.monsterMastery(selected.id).signatureProgress }}/{{ signatureGoal }}</span><span>Move unlock {{ game.monsterMastery(selected.id).battleXp }}/{{ masteryMoveThreshold }}</span></div>
-        @if (game.monsterMastery(selected.id).unlockedMoves.length) {
-          <div class="mastery-moves"><span>Unlocked</span>@for (move of game.monsterMastery(selected.id).unlockedMoves; track move) { <strong>{{ move }}</strong> }</div>
+        <div class="mastery-title"><div><span>Battle Mastery</span><strong>{{ mastery.battleXp }} MP</strong></div><small>{{ mastery.goalLabel }}</small></div>
+        <div class="mastery-track"><i [style.width.%]="mastery.percent"></i></div>
+        <div class="mastery-stats"><span>Signature {{ mastery.signatureProgress }}/{{ signatureGoal }}</span><span>Move unlock {{ mastery.battleXp }}/{{ masteryMoveThreshold }}</span></div>
+        @if (mastery.unlockedMoves.length) {
+          <div class="mastery-moves"><span>Unlocked</span>@for (move of mastery.unlockedMoves; track move) { <strong>{{ move }}</strong> }</div>
         } @else {
           <p>Use this monster in Arena battles and complete its signature goal to unlock a unique move.</p>
         }
@@ -43,53 +43,52 @@
     }
 
     <div class="detail-actions">
-      <button type="button" class="primary-action" [disabled]="addToSquadReason(selected) !== null" (click)="game.addToSquad(selected.id)">Add to Squad</button>
-      @if (addToSquadReason(selected); as reason) { <p class="action-note">{{ reason }}</p> }
+      <button type="button" class="primary-action" [disabled]="v.addToSquadReason !== null" (click)="game.addToSquad(v.monster.id)">Add to Squad</button>
+      @if (v.addToSquadReason; as reason) { <p class="action-note">{{ reason }}</p> }
     </div>
 
-    @if (trainingPlan(selected); as plan) {
-      <section class="training-plan tone-{{ plan.tone }}" aria-label="Recommended evolution action">
-        <span>{{ plan.status }}</span><h3>{{ plan.title }}</h3><p>{{ plan.detail }}</p>
-      </section>
-    }
+    <section class="training-plan tone-{{ v.plan.tone }}" aria-label="Recommended evolution action">
+      <span>{{ v.plan.status }}</span><h3>{{ v.plan.title }}</h3><p>{{ v.plan.detail }}</p>
+    </section>
 
     <details class="detail-disclosure" open>
-      <summary>Requirements & Evolutions <span>{{ game.getEvolutionTargets(selected).length }}</span></summary>
+      <summary>Requirements & Evolutions <span>{{ v.targets.length }}</span></summary>
       <section class="evolution-targets">
-        @if (game.getEvolutionTargets(selected).length === 0) { <p class="empty-note">This family route currently ends here.</p> }
-        @for (target of game.getEvolutionTargets(selected); track target.id) {
-          <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
+        @for (entry of v.targets; track entry.target.id) {
+          <article class="target-card" [class.ready]="entry.ready" [class.unlocked]="entry.target.unlocked">
             <div class="target-head">
-              <span class="target-icon sprite-node" [class.silhouette]="!target.unlocked && !game.revealLocked()" aria-hidden="true">
-                @if (target.spriteUrl) { <img class="creature-sprite target" [src]="target.spriteUrl" alt="" /> }
+              <span class="target-icon sprite-node" [class.silhouette]="!entry.revealed" aria-hidden="true">
+                @if (entry.target.spriteUrl) { <img class="creature-sprite target" [src]="entry.target.spriteUrl" alt="" /> }
               </span>
-              <div class="target-copy"><strong>{{ target.name }}</strong><span>{{ target.stage }} · {{ powerDeltaLabel(selected, target) }}</span></div>
+              <div class="target-copy"><strong>{{ entry.target.name }}</strong><span>{{ entry.target.stage }} · {{ entry.powerDeltaLabel }}</span></div>
             </div>
             <div class="requirements compact-requirements">
-              @for (status of game.getRequirementStatuses(selected, target); track status.label) {
+              @for (status of entry.requirements; track status.label) {
                 <span [class.met]="status.met" [class.missing]="!status.met">{{ requirementMarker(status.met) }} {{ status.label }} {{ status.current }}/{{ status.required }}</span>
               }
             </div>
             <div class="target-actions">
-              @if (!target.unlocked && game.pinnedChaseId() !== target.id) { <button type="button" class="pin-action" (click)="game.pinChaseTarget(target.id)">Track</button> }
-              <button type="button" [disabled]="!game.canEvolve(selected, target)" [attr.aria-label]="'Evolve ' + target.name" (click)="game.evolve(selected.id, target.id)">
-                {{ target.unlocked ? 'Discovered' : game.canEvolve(selected, target) ? 'Evolve ' + target.name : 'Requirements Missing' }}
+              @if (!entry.target.unlocked && !entry.tracked) { <button type="button" class="pin-action" (click)="game.pinChaseTarget(entry.target.id)">Track</button> }
+              <button type="button" [disabled]="!entry.ready" [attr.aria-label]="'Evolve ' + entry.target.name" (click)="game.evolve(v.monster.id, entry.target.id)">
+                {{ entry.actionLabel }}
               </button>
             </div>
           </article>
+        } @empty {
+          <p class="empty-note">This family route currently ends here.</p>
         }
       </section>
     </details>
 
-    @if (selected.unlocked) {
+    @if (v.drills.length) {
       <details class="detail-disclosure training-console">
         <summary>Training <span>{{ game.routeStatusChip().status }}</span></summary>
         <div class="drill-grid">
-          @for (drill of monsterTrainingDrills(selected); track drill.id) {
-            <article class="drill-card" [class.ready]="canRunTrainingDrill(drill, selected)">
-              <div class="drill-topline"><strong>{{ drill.label }}</strong><span>+{{ drill.xpGain }} XP</span></div>
-              <p>{{ drill.detail }}</p>
-              <div class="drill-footer"><small>{{ drill.costCoins }} CR</small><button type="button" [disabled]="!canRunTrainingDrill(drill, selected)" (click)="runTrainingDrill(selected, drill)">Run Drill</button></div>
+          @for (entry of v.drills; track entry.drill.id) {
+            <article class="drill-card" [class.ready]="entry.ready">
+              <div class="drill-topline"><strong>{{ entry.drill.label }}</strong><span>+{{ entry.drill.xpGain }} XP</span></div>
+              <p>{{ entry.drill.detail }}</p>
+              <div class="drill-footer"><small>{{ entry.drill.costCoins }} CR</small><button type="button" [disabled]="!entry.ready" (click)="runTrainingDrill(v.monster, entry.drill)">Run Drill</button></div>
             </article>
           }
         </div>

@@ -1,5 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Monster, MonsterType } from '../../models/monster.model';
+import { stageClass } from '../../rules/stage.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { getSlotRole, SlotRoleDescriptor } from '../../rules/squad.rules';
 import { SquadOrderCard } from '../../rules/squad-order.rules';
@@ -38,6 +39,7 @@ interface RoleFitView {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-squad',
   imports: [CreaturePortraitComponent],
   templateUrl: './squad.component.html',
@@ -104,6 +106,25 @@ export class SquadComponent {
       .filter((monster) => monster.unlocked && !squadIds.has(monster.id))
       .sort((a, b) => this.candidateScore(b) - this.candidateScore(a));
   });
+
+  readonly stageClassOf = stageClass;
+
+  /** First eight reserves with power, swap state and action copy resolved once per change. */
+  readonly reserveViews = computed(() =>
+    this.candidates()
+      .slice(0, 8)
+      .map((monster) => {
+        const canSwap = this.canSwapCandidate(monster);
+        return {
+          monster,
+          stageClass: stageClass(monster.stage),
+          power: this.power(monster),
+          canSwap,
+          disabled: this.slotsFilled() >= 3 && !canSwap,
+          actionLabel: this.candidateActionLabel(monster),
+        };
+      }),
+  );
 
   readonly recommendedCandidate = computed(() => this.candidates()[0] ?? null);
   readonly recommendedCandidateId = computed(() => this.recommendedCandidate()?.id ?? '');

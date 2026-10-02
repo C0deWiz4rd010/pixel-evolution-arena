@@ -8,20 +8,20 @@
   </div>
 
   <div class="hud-stats" aria-label="Player resources">
-    <div class="stat-chip coins" [class.stat-pulse]="pulseFor('coins')()">
+    <div class="stat-chip coins" [class.stat-pulse]="pulseState().coins">
       <span class="stat-icon">CR</span><span class="stat-body"><span class="stat-label">Coins</span><strong [appCountUp]="game.player().coins"></strong></span>
     </div>
-    <div class="stat-chip dna" [class.stat-pulse]="pulseFor('dna')()">
+    <div class="stat-chip dna" [class.stat-pulse]="pulseState().dna">
       <span class="stat-icon">DN</span><span class="stat-body"><span class="stat-label">DNA</span><strong [appCountUp]="game.player().dnaShards"></strong></span>
     </div>
-    <div class="stat-chip power secondary-stat" [class.stat-pulse]="pulseFor('power')()">
+    <div class="stat-chip power secondary-stat" [class.stat-pulse]="pulseState().power">
       <span class="stat-icon">PW</span><span class="stat-body"><span class="stat-label">Team Power</span><strong [appCountUp]="game.teamPower()"></strong></span>
     </div>
-    <div class="stat-chip dex secondary-stat" [class.stat-pulse]="pulseFor('dex')()">
+    <div class="stat-chip dex secondary-stat" [class.stat-pulse]="pulseState().dex">
       <span class="stat-icon">DX</span><span class="stat-body"><span class="stat-label">Dex</span><strong>{{ unlockedCount() }}/{{ totalCount() }}</strong></span>
       <i aria-hidden="true"><b [style.width.%]="dexPercent()"></b></i>
     </div>
-    <div class="stat-chip data secondary-stat" [class.stat-pulse]="pulseFor('data')()">
+    <div class="stat-chip data secondary-stat" [class.stat-pulse]="pulseState().data">
       <span class="stat-icon">DT</span><span class="stat-body"><span class="stat-label">Bio-Data</span><strong [appCountUp]="game.bioData()"></strong></span>
     </div>
     <div class="utility-wrap">

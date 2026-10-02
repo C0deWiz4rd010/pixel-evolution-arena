@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Monster } from '../../models/monster.model';
+import { stageClass } from '../../rules/stage.rules';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-monster-card',
   templateUrl: './monster-card.component.html',
   styleUrl: './monster-card.component.scss',
@@ -28,6 +30,6 @@ export class MonsterCardComponent {
   }
 
   get stageClass(): string {
-    return this.monster.stage.toLowerCase().replace(/\s+/g, '-').replace('in-training', 'intraining');
+    return stageClass(this.monster.stage);
   }
 }

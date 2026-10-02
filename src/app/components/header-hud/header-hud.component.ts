@@ -19,8 +19,8 @@ export class HeaderHudComponent {
   readonly dexPercent = computed(() => Math.round((this.unlockedCount() / Math.max(1, this.totalCount())) * 100));
   readonly utilityOpen = signal(false);
 
-  private readonly pulseState = signal<Record<PulseKey, boolean>>({ coins: false, dna: false, power: false, dex: false, data: false });
-  readonly pulseFor = (key: PulseKey) => computed(() => this.pulseState()[key]);
+  /** Which HUD stat chips are currently flashing after a value change. */
+  readonly pulseState = signal<Record<PulseKey, boolean>>({ coins: false, dna: false, power: false, dex: false, data: false });
   private readonly previous = new Map<PulseKey, number>();
   private readonly pulseTimers = new Map<PulseKey, ReturnType<typeof setTimeout>>();
 

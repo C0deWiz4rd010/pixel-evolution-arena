@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
+import { stageClass } from '../../rules/stage.rules';
 
 export type CreaturePortraitSize = 'micro' | 'compact' | 'card' | 'hero' | 'battle';
 
@@ -24,6 +25,6 @@ export class CreaturePortraitComponent {
   @Input() scale: number | null = null;
 
   get stageClass(): string {
-    return this.stage.toLowerCase().replace(/[^a-z]/g, '');
+    return stageClass(this.stage);
   }
 }

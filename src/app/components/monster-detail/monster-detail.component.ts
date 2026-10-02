@@ -1,8 +1,10 @@
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
 import { MonsterTrainingDrill } from '../../rules/training.rules';
 import { MASTERY_MOVE_THRESHOLD, SIGNATURE_GOAL } from '../../rules/battle-mastery.rules';
+import { RequirementStatus } from '../../rules/evolution.rules';
+import { stageClass } from '../../rules/stage.rules';
 
 interface TrainingPlan {
   status: string;
@@ -11,80 +13,107 @@ interface TrainingPlan {
   tone: 'ready' | 'train' | 'squad' | 'endpoint' | 'locked';
 }
 
+interface EvolutionTargetView {
+  target: Monster;
+  ready: boolean;
+  revealed: boolean;
+  tracked: boolean;
+  powerDeltaLabel: string;
+  requirements: RequirementStatus[];
+  actionLabel: string;
+}
+
+interface DrillView {
+  drill: MonsterTrainingDrill;
+  ready: boolean;
+}
+
+interface MonsterDetailView {
+  monster: Monster;
+  stageClass: string;
+  revealed: boolean;
+  xpPercent: number;
+  mastery: { battleXp: number; signatureProgress: number; unlockedMoves: string[]; goalLabel: string; percent: number } | null;
+  addToSquadReason: string | null;
+  plan: TrainingPlan;
+  targets: EvolutionTargetView[];
+  drills: DrillView[];
+}
+
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-monster-detail',
   templateUrl: './monster-detail.component.html',
   styleUrl: './monster-detail.component.scss',
 })
 export class MonsterDetailComponent {
-  @Input() monster: Monster | null = null;
-  @Input() familyUnlocked = 0;
-  @Input() familyTotal = 0;
+  readonly monster = input<Monster | null>(null);
+  readonly familyUnlocked = input(0);
+  readonly familyTotal = input(0);
   readonly game = inject(GameStateService);
   readonly masteryMoveThreshold = MASTERY_MOVE_THRESHOLD;
   readonly signatureGoal = SIGNATURE_GOAL;
 
-  masteryPercent(monsterId: string): number {
-    return Math.min(100, Math.round((this.game.monsterMastery(monsterId).battleXp / MASTERY_MOVE_THRESHOLD) * 100));
-  }
-
-  stageClass(monster: Monster): string {
-    return this.game.stageClass(monster.stage);
-  }
-
-  addToSquadReason(monster: Monster): string | null {
-    const player = this.game.player();
-
-    if (!monster.unlocked) {
-      return 'Unlock this signal before adding it to the squad.';
-    }
-
-    if (player.squadIds.includes(monster.id)) {
-      return 'Already assigned to the squad.';
-    }
-
-    if (player.squadIds.length >= 3) {
-      return 'Squad is full. Remove a member to add this form.';
-    }
-
-    return null;
-  }
+  /** Everything the template renders, derived once per state change instead of per check. */
+  readonly view = computed<MonsterDetailView | null>(() => {
+    const monster = this.monster();
+    if (!monster) return null;
+    const revealLocked = this.game.revealLocked();
+    const pinnedId = this.game.pinnedChaseId();
+    const sourcePower = this.game.getMonsterPower(monster);
+    const targets = this.game.getEvolutionTargets(monster).map((target): EvolutionTargetView => {
+      const ready = this.game.canEvolve(monster, target);
+      return {
+        target,
+        ready,
+        revealed: target.unlocked || revealLocked,
+        tracked: pinnedId === target.id,
+        powerDeltaLabel: formatPowerDelta(this.game.getMonsterPower(target) - sourcePower),
+        requirements: this.game.getRequirementStatuses(monster, target),
+        actionLabel: target.unlocked ? 'Discovered' : ready ? `Evolve ${target.name}` : 'Requirements Missing',
+      };
+    });
+    const mastery = this.game.monsterMastery(monster.id);
+    return {
+      monster,
+      stageClass: stageClass(monster.stage),
+      revealed: monster.unlocked || revealLocked,
+      xpPercent: monster.maxXp > 0 ? (monster.xp / monster.maxXp) * 100 : 0,
+      mastery: monster.unlocked
+        ? {
+            battleXp: mastery.battleXp,
+            signatureProgress: mastery.signatureProgress,
+            unlockedMoves: mastery.unlockedMoves,
+            goalLabel: this.game.masteryGoal(monster).label,
+            percent: Math.min(100, Math.round((mastery.battleXp / MASTERY_MOVE_THRESHOLD) * 100)),
+          }
+        : null,
+      addToSquadReason: this.addToSquadReason(monster),
+      plan: this.trainingPlan(monster, targets),
+      targets,
+      drills: monster.unlocked
+        ? this.game.getMonsterTrainingDrills(monster).map((drill) => ({ drill, ready: this.game.canAffordCoins(drill.costCoins) }))
+        : [],
+    };
+  });
 
   requirementMarker(met: boolean): string {
     return met ? 'OK' : 'MISS';
-  }
-
-  powerDelta(source: Monster, target: Monster): number {
-    return this.game.getMonsterPower(target) - this.game.getMonsterPower(source);
-  }
-
-  powerDeltaLabel(source: Monster, target: Monster): string {
-    const delta = this.powerDelta(source, target);
-    return `${delta >= 0 ? '+' : ''}${delta} PW`;
-  }
-
-  monsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
-    return this.game.getMonsterTrainingDrills(monster);
-  }
-
-  canRunTrainingDrill(drill: MonsterTrainingDrill, monster: Monster): boolean {
-    return monster.unlocked && this.game.canAffordCoins(drill.costCoins);
   }
 
   runTrainingDrill(monster: Monster, drill: MonsterTrainingDrill): void {
     this.game.runMonsterTraining(monster.id, drill.id);
   }
 
-  primaryLockedTarget(monster: Monster): Monster | null {
-    return this.game.getEvolutionTargets(monster).find((target) => !target.unlocked) ?? null;
+  private addToSquadReason(monster: Monster): string | null {
+    const squadIds = this.game.player().squadIds;
+    if (!monster.unlocked) return 'Unlock this signal before adding it to the squad.';
+    if (squadIds.includes(monster.id)) return 'Already assigned to the squad.';
+    if (squadIds.length >= 3) return 'Squad is full. Remove a member to add this form.';
+    return null;
   }
 
-  squadCalibrationReady(): boolean {
-    const drill = this.game.squadTrainingDrill();
-    return this.game.squad().length > 0 && this.game.canAffordCoins(drill.costCoins);
-  }
-
-  trainingPlan(monster: Monster): TrainingPlan {
+  private trainingPlan(monster: Monster, targets: EvolutionTargetView[]): TrainingPlan {
     if (!monster.unlocked) {
       return {
         status: 'LOCKED',
@@ -94,25 +123,22 @@ export class MonsterDetailComponent {
       };
     }
 
-    const targets = this.game.getEvolutionTargets(monster);
-    const readyTarget = targets.find((target) => this.game.canEvolve(monster, target) && !target.unlocked);
+    const readyTarget = targets.find((entry) => entry.ready && !entry.target.unlocked);
     if (readyTarget) {
       return {
         status: 'READY',
-        title: `${readyTarget.name} route is open`,
-        detail: `Evolve now for ${this.powerDeltaLabel(monster, readyTarget)} and a stronger ${readyTarget.stage} signal.`,
+        title: `${readyTarget.target.name} route is open`,
+        detail: `Evolve now for ${readyTarget.powerDeltaLabel} and a stronger ${readyTarget.target.stage} signal.`,
         tone: 'ready',
       };
     }
 
-    const nextTarget = targets.find((target) => !target.unlocked);
+    const nextTarget = targets.find((entry) => !entry.target.unlocked);
     if (nextTarget) {
-      const missing = this.game.getRequirementStatuses(monster, nextTarget).filter((status) => !status.met);
-      const first = missing[0];
-
+      const first = nextTarget.requirements.find((status) => !status.met);
       return {
         status: 'TRAIN',
-        title: `${nextTarget.name} is the next route`,
+        title: `${nextTarget.target.name} is the next route`,
         detail: first
           ? `Missing ${first.label}: ${first.current}/${first.required}. Arena rewards feed XP, coins, DNA, and items.`
           : 'Keep battling to build margin before evolving.',
@@ -120,7 +146,8 @@ export class MonsterDetailComponent {
       };
     }
 
-    if (!this.game.player().squadIds.includes(monster.id) && this.game.player().squadIds.length < 3) {
+    const squadIds = this.game.player().squadIds;
+    if (!squadIds.includes(monster.id) && squadIds.length < 3) {
       return {
         status: 'SQUAD',
         title: 'Use this signal in battle',
@@ -136,4 +163,8 @@ export class MonsterDetailComponent {
       tone: 'endpoint',
     };
   }
+}
+
+function formatPowerDelta(delta: number): string {
+  return `${delta >= 0 ? '+' : ''}${delta} PW`;
 }

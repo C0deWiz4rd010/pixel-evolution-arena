@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { GearDef, GearInstance, GearSlot, GEAR_SLOTS } from '../../models/gear.model';
-import { describeGearBonus, forgeCost, gearInstanceBonus, getGearDef } from '../../rules/gear.rules';
+import { describeGearBonus, forgeCost, getGearDef } from '../../rules/gear.rules';
 import { Monster } from '../../models/monster.model';
 import { CreaturePortraitComponent } from '../creature-portrait/creature-portrait.component';
 
@@ -46,15 +46,46 @@ export class ForgeComponent {
     return id ? this.game.getMonsterById(id) ?? null : null;
   });
 
-  describeBonus(bonus: ReturnType<typeof gearInstanceBonus>): string {
-    return describeGearBonus(bonus);
-  }
+  /** Blueprint cards with cost and affordability resolved once per wallet change. */
+  readonly blueprints = computed(() => {
+    const { coins, dnaShards } = this.game.player();
+    return this.defs.map((def) => {
+      const cost = forgeCost(def, 0);
+      return { def, cost, bonusLabel: describeGearBonus(def.base), affordable: coins >= cost.coins && dnaShards >= cost.dnaShards };
+    });
+  });
 
-  forgeCostFor(def: GearDef): { coins: number; dnaShards: number } {
-    return forgeCost(def, 0);
-  }
+  /** Per-slot view for the selected monster: equipped item plus every matching owned item. */
+  readonly slotViews = computed(() => {
+    const monster = this.selectedMonster();
+    const owned = this.owned();
+    return this.slots.map((slot) => {
+      const equipped = monster ? this.game.getEquippedGear(monster.id, slot) : null;
+      return {
+        slot,
+        equipped,
+        equippedBonusLabel: equipped ? describeGearBonus(equipped.bonus) : '',
+        options: owned
+          .filter((entry) => entry.def.slot === slot)
+          .map((entry) => ({ entry, active: equipped?.instance.instanceId === entry.instance.instanceId })),
+      };
+    });
+  });
 
-  upgradeCostFor(instance: GearInstance): { coins: number; dnaShards: number } | null {
+  readonly lockerViews = computed(() => {
+    const { coins, dnaShards } = this.game.player();
+    return this.owned().map((entry) => {
+      const upgradeCost = this.upgradeCostFor(entry.instance);
+      return {
+        entry,
+        bonusLabel: describeGearBonus(entry.bonus),
+        upgradeCost,
+        canUpgrade: !!upgradeCost && coins >= upgradeCost.coins && dnaShards >= upgradeCost.dnaShards,
+      };
+    });
+  });
+
+  private upgradeCostFor(instance: GearInstance): { coins: number; dnaShards: number } | null {
     const def = getGearDef(instance.defId);
     if (!def || instance.tier >= 5) {
       return null;
@@ -62,31 +93,8 @@ export class ForgeComponent {
     return forgeCost(def, instance.tier);
   }
 
-  canForge(def: GearDef): boolean {
-    const cost = this.forgeCostFor(def);
-    return this.game.player().coins >= cost.coins && this.game.player().dnaShards >= cost.dnaShards;
-  }
-
-  canUpgrade(instance: GearInstance): boolean {
-    const cost = this.upgradeCostFor(instance);
-    return !!cost && this.game.player().coins >= cost.coins && this.game.player().dnaShards >= cost.dnaShards;
-  }
-
   selectMonster(id: string): void {
     this.selectedMonsterId.set(id);
-  }
-
-  equippedFor(slot: GearSlot) {
-    const monster = this.selectedMonster();
-    return monster ? this.game.getEquippedGear(monster.id, slot) : null;
-  }
-
-  ownedForSlot(slot: GearSlot) {
-    return this.owned().filter((entry) => entry.def.slot === slot);
-  }
-
-  isEquippedHere(instanceId: string, slot: GearSlot): boolean {
-    return this.equippedFor(slot)?.instance.instanceId === instanceId;
   }
 
   forge(def: GearDef): void {

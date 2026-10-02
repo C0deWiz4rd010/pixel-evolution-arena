@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { ArenaComponent } from './components/arena/arena.component';
 import { ArenaEffectsComponent } from './components/arena-effects/arena-effects.component';
 import { CampaignComponent } from './components/campaign/campaign.component';
@@ -40,6 +40,7 @@ const VIEW_LABELS: Partial<Record<GameSectionName, string>> = {
 };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   imports: [
     ArenaEffectsComponent,

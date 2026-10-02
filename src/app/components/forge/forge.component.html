@@ -21,11 +21,11 @@
       </div>
       @if (statComparison(); as cmp) { <div class="power-summary"><span>Power</span><strong>{{ cmp.basePower }} → {{ cmp.power }}</strong><small>ATK {{ cmp.geared.attack }} · DEF {{ cmp.geared.defense }} · SPD {{ cmp.geared.speed }} · HP {{ cmp.geared.hp }}</small></div> }
       <div class="slot-grid">
-        @for (slot of slots; track slot) {
+        @for (view of slotViews(); track view.slot) {
           <article class="gear-slot">
-            <div><span>{{ slotLabel[slot] }}</span>@if(equippedFor(slot);as eq){<button type="button" class="danger mini" (click)="unequip(slot)">Unequip</button>}</div>
-            @if (equippedFor(slot); as eq) { <strong>{{ eq.def.name }} T{{ eq.instance.tier }}</strong><small>{{ describeBonus(eq.bonus) }}</small> } @else { <strong class="empty">Empty slot</strong><small>Forge or select a matching item below.</small> }
-            <div class="slot-options">@for(entry of ownedForSlot(slot);track entry.instance.instanceId){<button type="button" class="mini" [class.active]="isEquippedHere(entry.instance.instanceId,slot)" (click)="equip(entry.instance.instanceId)">{{ entry.def.name }} T{{ entry.instance.tier }}</button>}@empty{<span>No matching gear owned.</span>}</div>
+            <div><span>{{ slotLabel[view.slot] }}</span>@if(view.equipped){<button type="button" class="danger mini" (click)="unequip(view.slot)">Unequip</button>}</div>
+            @if (view.equipped; as eq) { <strong>{{ eq.def.name }} T{{ eq.instance.tier }}</strong><small>{{ view.equippedBonusLabel }}</small> } @else { <strong class="empty">Empty slot</strong><small>Forge or select a matching item below.</small> }
+            <div class="slot-options">@for(option of view.options;track option.entry.instance.instanceId){<button type="button" class="mini" [class.active]="option.active" (click)="equip(option.entry.instance.instanceId)">{{ option.entry.def.name }} T{{ option.entry.instance.tier }}</button>}@empty{<span>No matching gear owned.</span>}</div>
           </article>
         }
       </div>
@@ -35,8 +35,8 @@
   <details class="loadout-disclosure" open>
     <summary><span>Blueprints</span><strong>{{ defs.length }} available</strong></summary>
     <div class="blueprint-grid">
-      @for (def of defs; track def.id) {
-        <article class="blueprint"><span class="bp-icon">{{ def.icon }}</span><div><strong>{{ def.name }}</strong><small>{{ slotLabel[def.slot] }} · {{ describeBonus(def.base) }} per tier</small><p>{{ def.detail }}</p></div><button type="button" [disabled]="!canForge(def)" (click)="forge(def)">Forge {{ forgeCostFor(def).coins }} CR / {{ forgeCostFor(def).dnaShards }} DNA</button></article>
+      @for (bp of blueprints(); track bp.def.id) {
+        <article class="blueprint"><span class="bp-icon">{{ bp.def.icon }}</span><div><strong>{{ bp.def.name }}</strong><small>{{ slotLabel[bp.def.slot] }} · {{ bp.bonusLabel }} per tier</small><p>{{ bp.def.detail }}</p></div><button type="button" [disabled]="!bp.affordable" (click)="forge(bp.def)">Forge {{ bp.cost.coins }} CR / {{ bp.cost.dnaShards }} DNA</button></article>
       }
     </div>
   </details>
@@ -44,7 +44,7 @@
   <details class="loadout-disclosure">
     <summary><span>Gear Locker</span><strong>{{ owned().length }} owned</strong></summary>
     <div class="locker-list">
-      @for (entry of owned(); track entry.instance.instanceId) { <article><span class="bp-icon">{{ entry.def.icon }}</span><div><strong>{{ entry.def.name }} T{{ entry.instance.tier }}</strong><small>{{ describeBonus(entry.bonus) }}</small></div>@if(upgradeCostFor(entry.instance);as cost){<button type="button" class="mini" [disabled]="!canUpgrade(entry.instance)" (click)="upgrade(entry.instance)">Upgrade {{ cost.coins }} CR / {{ cost.dnaShards }} DNA</button>}@else{<span class="maxed">MAX</span>}</article> } @empty { <p class="empty-state">Forge your first blueprint to fill the locker.</p> }
+      @for (item of lockerViews(); track item.entry.instance.instanceId) { <article><span class="bp-icon">{{ item.entry.def.icon }}</span><div><strong>{{ item.entry.def.name }} T{{ item.entry.instance.tier }}</strong><small>{{ item.bonusLabel }}</small></div>@if(item.upgradeCost;as cost){<button type="button" class="mini" [disabled]="!item.canUpgrade" (click)="upgrade(item.entry.instance)">Upgrade {{ cost.coins }} CR / {{ cost.dnaShards }} DNA</button>}@else{<span class="maxed">MAX</span>}</article> } @empty { <p class="empty-state">Forge your first blueprint to fill the locker.</p> }
     </div>
   </details>
 </section>

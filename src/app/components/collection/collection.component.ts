@@ -1,6 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../../models/monster.model';
+import { stageClass, stageGlyph } from '../../rules/stage.rules';
 import { GameStateService } from '../../services/game-state.service';
 import { GridNavDirective } from '../../directives/grid-nav.directive';
 
@@ -59,6 +60,7 @@ interface ChaseTarget {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-collection',
   imports: [FormsModule, GridNavDirective],
   templateUrl: './collection.component.html',
@@ -183,8 +185,8 @@ export class CollectionComponent {
 
       return {
         stage,
-        className: this.game.stageClass(stage),
-        glyph: this.stageGlyph(stage),
+        className: stageClass(stage),
+        glyph: stageGlyph(stage),
         total: monsters.length,
         unlocked,
         locked: monsters.length - unlocked,
@@ -212,8 +214,8 @@ export class CollectionComponent {
   readonly stageTypeMatrix = computed<MatrixRow[]>(() =>
     this.game.stages.map((stage) => ({
       stage,
-      className: this.game.stageClass(stage),
-      glyph: this.stageGlyph(stage),
+      className: stageClass(stage),
+      glyph: stageGlyph(stage),
       cells: this.game.types.map((type) => {
         const monsters = this.game
           .monsters()
@@ -259,7 +261,7 @@ export class CollectionComponent {
     return {
       target: pinned,
       source,
-      className: this.game.stageClass(pinned.stage),
+      className: stageClass(pinned.stage),
       requirements,
       missing,
       ready,
@@ -272,7 +274,7 @@ export class CollectionComponent {
     this.game.evolutionCandidates().slice(0, 3).map((candidate) => ({
       target: candidate.target,
       source: candidate.source,
-      className: this.game.stageClass(candidate.target.stage),
+      className: stageClass(candidate.target.stage),
       requirements: candidate.requirements,
       missing: candidate.missing,
       ready: candidate.ready,
@@ -310,7 +312,7 @@ export class CollectionComponent {
         return {
           target,
           source,
-          className: this.game.stageClass(target.stage),
+          className: stageClass(target.stage),
           requirements,
           missing,
           ready,
@@ -407,19 +409,6 @@ export class CollectionComponent {
     return codes[type];
   }
 
-  stageGlyph(stage: MonsterStage): string {
-    const glyphs: Record<MonsterStage, string> = {
-      Baby: 'BB',
-      'In-Training': 'IT',
-      Rookie: 'RK',
-      Champion: 'CH',
-      Ultimate: 'UL',
-      Mega: 'MG',
-      Special: 'SP',
-    };
-
-    return glyphs[stage];
-  }
 
   private percent(value: number, total: number): number {
     return total === 0 ? 0 : Math.round((value / total) * 100);

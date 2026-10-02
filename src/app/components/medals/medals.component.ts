@@ -1,8 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommandCenterCard } from '../../rules/command-center.rules';
 import { GameStateService } from '../../services/game-state.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-medals',
   templateUrl: './medals.component.html',
   styleUrl: './medals.component.scss',
