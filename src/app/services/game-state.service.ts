@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
@@ -279,6 +279,8 @@ const MAX_SQUAD_PRESETS = 3;
 const MAX_LOADOUT = 2;
 const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
 const MAX_RECENT_BATTLES = 12;
+/** Coalesces bursts of state updates (one action often touches several signals) into one write. */
+const SAVE_DEBOUNCE_MS = 250;
 
 const STARTER_BATTLE_LOGS: BattleLog[] = [
   { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
@@ -1087,8 +1089,26 @@ export class GameStateService {
     };
   });
 
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private autosaveArmed = false;
+
   constructor() {
+    // Single persistence path: any change to saved state schedules one debounced write.
+    // The first run only observes the freshly loaded state, so loading never rewrites it.
+    effect(() => {
+      this.player();
+      this.monsters();
+      this.battleLogs();
+      this.lastReward();
+      this.lastBattleThreat();
+      if (!this.autosaveArmed) {
+        this.autosaveArmed = true;
+        return;
+      }
+      this.scheduleSave();
+    });
     this.watchCalendarDay();
+    this.watchPageLifecycle();
     const savedState = this.saveState.loadState();
 
     if (savedState) {
@@ -1115,7 +1135,6 @@ export class GameStateService {
     this.audio.setMusicEnabled(this.player().settings.musicEnabled);
     this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
     this.ensureDailyDirectiveState();
-    this.persistState();
   }
 
   requestTab(tab: GameSectionName): void {
@@ -1136,7 +1155,6 @@ export class GameStateService {
       if (key !== this.todayKey()) {
         this.todayKey.set(key);
         this.ensureDailyDirectiveState();
-        this.persistState();
       }
       schedule();
     };
@@ -1168,7 +1186,6 @@ export class GameStateService {
     if (next) {
       this.audio.play('menu');
     }
-    this.persistState();
     return next;
   }
 
@@ -1194,7 +1211,6 @@ export class GameStateService {
 
   selectMonster(id: string): void {
     this.player.update((player) => ({ ...player, selectedMonsterId: id }));
-    this.persistState();
   }
 
   addToSquad(id: string): void {
@@ -1212,12 +1228,10 @@ export class GameStateService {
       return { ...player, squadIds: [...player.squadIds, id] };
     });
 
-    this.persistState();
   }
 
   removeFromSquad(id: string): void {
     this.player.update((player) => ({ ...player, squadIds: player.squadIds.filter((squadId) => squadId !== id) }));
-    this.persistState();
   }
 
   replaceSquadMember(removeId: string, addId: string): void {
@@ -1239,12 +1253,10 @@ export class GameStateService {
     });
 
     this.prependLog(`${monster.name} replaced a squad slot for the next run.`, 'info');
-    this.persistState();
   }
 
   clearSquad(): void {
     this.player.update((player) => ({ ...player, squadIds: [] }));
-    this.persistState();
   }
 
   autoBuildBestSquad(): void {
@@ -1285,7 +1297,6 @@ export class GameStateService {
       icon: 'SQ',
       durationMs: 3400,
     });
-    this.persistState();
   }
 
   getMonsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
@@ -1344,7 +1355,6 @@ export class GameStateService {
       });
     }
 
-    this.persistState();
     return true;
   }
 
@@ -1398,7 +1408,6 @@ export class GameStateService {
       });
     }
 
-    this.persistState();
     return true;
   }
 
@@ -1597,7 +1606,6 @@ export class GameStateService {
     this.player.update((player) => ({ ...player, coins: player.coins - def.cost, inventory: [...player.inventory, def.name] }));
     this.audio.play('item');
     this.toast.push({ title: 'Fabricated', message: `${def.name} added to inventory (-${def.cost} CR).`, tone: 'info', icon: def.icon, durationMs: 3200 });
-    this.persistState();
   }
 
   saveSquadPreset(name: string): SquadPreset | null {
@@ -1636,7 +1644,6 @@ export class GameStateService {
       return { ...player, squadPresets: nextPresets };
     });
 
-    this.persistState();
     return saved;
   }
 
@@ -1660,7 +1667,6 @@ export class GameStateService {
       ...player,
       squadPresets: player.squadPresets.filter((preset) => preset.id !== presetId),
     }));
-    this.persistState();
   }
 
   pinChaseTarget(id: string): void {
@@ -1669,12 +1675,10 @@ export class GameStateService {
       return;
     }
     this.player.update((player) => ({ ...player, pinnedChaseId: id }));
-    this.persistState();
   }
 
   unpinChaseTarget(): void {
     this.player.update((player) => ({ ...player, pinnedChaseId: null }));
-    this.persistState();
   }
 
   resetProgress(): void {
@@ -1684,7 +1688,6 @@ export class GameStateService {
     this.lastReward.set(null);
     this.lastBattleThreat.set(null);
     this.battleLogs.set([{ text: 'Archive reset complete. Starter squad and resources restored.', type: 'system' as const }, ...createStarterBattleLogs()].slice(0, 36));
-    this.persistState();
   }
 
   // --- Prismatic variants (shiny system) ---
@@ -1746,7 +1749,6 @@ export class GameStateService {
     }));
     this.audio.play('forge');
     this.toast.push({ title: 'Gear Forged', message: `${def.name} (T1) added to your gear locker.`, tone: 'info', icon: def.icon, durationMs: 3400 });
-    this.persistState();
   }
 
   upgradeGear(instanceId: string): void {
@@ -1772,7 +1774,6 @@ export class GameStateService {
     }));
     this.audio.play('forge');
     this.toast.push({ title: 'Gear Upgraded', message: `${def.name} reached tier ${instance.tier + 1}.`, tone: 'reward', icon: def.icon, durationMs: 3200 });
-    this.persistState();
   }
 
   equipGear(monsterId: string, instanceId: string): void {
@@ -1794,7 +1795,6 @@ export class GameStateService {
       loadout[monsterId] = { ...(loadout[monsterId] ?? {}), [def.slot]: instanceId };
       return { ...player, gearLoadout: loadout };
     });
-    this.persistState();
   }
 
   unequipGear(monsterId: string, slot: GearSlot): void {
@@ -1805,7 +1805,6 @@ export class GameStateService {
       }
       return { ...player, gearLoadout: loadout };
     });
-    this.persistState();
   }
 
   autoEquipBestGear(): boolean {
@@ -1864,7 +1863,6 @@ export class GameStateService {
       icon: 'GE',
       durationMs: 3800,
     });
-    this.persistState();
     return true;
   }
 
@@ -1895,43 +1893,35 @@ export class GameStateService {
     const clamped = Math.max(0, Math.min(1, value));
     this.player.update((player) => ({ ...player, settings: { ...player.settings, masterVolume: clamped } }));
     this.audio.setMasterVolume(clamped);
-    this.persistState();
   }
 
   toggleColorblindMode(): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, colorblindMode: !player.settings.colorblindMode } }));
-    this.persistState();
   }
 
   setEffectIntensity(value: number): void {
     const clamped = Math.max(0, Math.min(1, value));
     this.player.update((player) => ({ ...player, settings: { ...player.settings, effectIntensity: clamped } }));
-    this.persistState();
   }
 
   setAccentTheme(theme: PlayerSettings['accentTheme']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, accentTheme: theme } }));
-    this.persistState();
   }
 
   setVisualStyle(visualStyle: PlayerSettings['visualStyle']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, visualStyle } }));
-    this.persistState();
   }
 
   setTypographyProfile(typographyProfile: PlayerSettings['typographyProfile']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, typographyProfile } }));
-    this.persistState();
   }
 
   setLanguage(language: PlayerSettings['language']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, language } }));
-    this.persistState();
   }
 
   toggleCombatBeats(): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, combatBeats: !player.settings.combatBeats } }));
-    this.persistState();
   }
 
   toggleMusic(): boolean {
@@ -2028,7 +2018,6 @@ export class GameStateService {
       icon: '▣',
       durationMs: 4800,
     });
-    this.persistState();
   }
 
   // --- Onboarding ---
@@ -2037,7 +2026,6 @@ export class GameStateService {
       return;
     }
     this.player.update((player) => ({ ...player, tutorialDone: true }));
-    this.persistState();
   }
 
   // --- Expedition (roguelite) ---
@@ -2115,7 +2103,6 @@ export class GameStateService {
       durationMs: 4200,
     });
     this.checkAchievements();
-    this.persistState();
     return true;
   }
   /** Transient relic options the player may pick from a reward/shop node. */
@@ -2131,14 +2118,12 @@ export class GameStateService {
     this.player.update((player) => ({ ...player, expedition: state }));
     this.prependLog('Expedition launched. Descend the grid node by node.', 'system');
     this.audio.play('menu');
-    this.persistState();
   }
 
   abandonExpedition(): void {
     this.relicChoices.set([]);
     this.player.update((player) => ({ ...player, expedition: null }));
     this.prependLog('Expedition abandoned.', 'system');
-    this.persistState();
   }
 
   /** Banks accrued Cores and clears the finished run. */
@@ -2166,7 +2151,6 @@ export class GameStateService {
       icon: 'CO',
       durationMs: 4200,
     });
-    this.persistState();
   }
 
   pickExpeditionRelic(relicId: string): void {
@@ -2185,7 +2169,6 @@ export class GameStateService {
       this.prependLog(`Relic acquired: ${def.name}.`, 'reward');
       this.audio.play('item');
     }
-    this.persistState();
   }
 
   enterExpeditionNode(nodeId: string): void {
@@ -2237,7 +2220,6 @@ export class GameStateService {
     if (message) {
       this.prependLog(`Expedition — ${message}`, 'info');
     }
-    this.persistState();
   }
 
   private resolveExpeditionBattle(exp: ExpeditionState, nodeId: string, type: ExpeditionNodeType, depth: number): void {
@@ -2308,7 +2290,6 @@ export class GameStateService {
       this.prependLog(`Expedition — battle lost (-${cost} run HP).`, 'system');
       this.audio.play('loss');
     }
-    this.persistState();
   }
 
   // --- Save export / import ---
@@ -2349,7 +2330,6 @@ export class GameStateService {
       return false;
     }
     this.applySnapshot(snapshot);
-    this.persistState();
     this.toast.push({ title: 'Save Imported', message: 'Progress restored from your code.', tone: 'success', icon: 'IN', durationMs: 3600 });
     return true;
   }
@@ -2414,7 +2394,6 @@ export class GameStateService {
 
     this.awardStageMilestoneIfComplete(target.stage);
     this.checkAchievements();
-    this.persistState();
   }
 
   evolveReadyCandidate(): boolean {
@@ -2916,35 +2895,29 @@ export class GameStateService {
     }
 
     this.checkAchievements();
-    this.persistState();
     this.battleRunning = false;
   }
 
   setBattleControlMode(mode: PlayerSettings['battleControlMode']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, battleControlMode: mode } }));
-    this.persistState();
   }
 
   setBattleSpeed(speed: PlayerSettings['battleSpeed']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, battleSpeed: speed } }));
     this.battleAnimation.setSpeed(speed);
-    this.persistState();
   }
 
   toggleBattleRecommendations(): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, battleRecommendations: !player.settings.battleRecommendations } }));
-    this.persistState();
   }
 
   setMotionMode(mode: PlayerSettings['motionMode']): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, motionMode: mode } }));
-    this.persistState();
   }
 
   setMusicEnabled(value: boolean): void {
     this.player.update((player) => ({ ...player, settings: { ...player.settings, musicEnabled: value } }));
     this.audio.setMusicEnabled(value);
-    this.persistState();
   }
 
   /** Pays out completed, unclaimed medals. */
@@ -2974,17 +2947,40 @@ export class GameStateService {
     }
   }
 
+  /** Write any pending autosave immediately (manual "Save now" and page hide). */
   syncSaveState(): void {
-    this.persistState();
+    this.flushSave();
   }
 
-  private persistState(): void {
+  private scheduleSave(): void {
+    if (this.saveTimer !== null) return;
+    this.saveTimer = setTimeout(() => this.flushSave(), SAVE_DEBOUNCE_MS);
+  }
+
+  private flushSave(): void {
+    if (this.saveTimer !== null) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
+    }
+    // Signal values are immutable snapshots, so they can be serialized without cloning.
     this.saveState.saveState({
-      player: clonePlayerState(this.player()),
+      player: this.player(),
       monsters: this.monsters().map((monster) => serializeMonsterProgress(monster)),
-      battleLogs: cloneBattleLogs(this.battleLogs()),
-      lastReward: this.lastReward() ? { ...this.lastReward()! } : null,
-      lastBattleThreat: this.lastBattleThreat() ? { ...this.lastBattleThreat()! } : null,
+      battleLogs: this.battleLogs(),
+      lastReward: this.lastReward(),
+      lastBattleThreat: this.lastBattleThreat(),
+    });
+  }
+
+  /** Flush the debounced save when the page is hidden or closed so no progress is lost. */
+  private watchPageLifecycle(): void {
+    if (typeof window === 'undefined') return;
+    const flushIfPending = () => {
+      if (this.saveTimer !== null) this.flushSave();
+    };
+    window.addEventListener('pagehide', flushIfPending);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushIfPending();
     });
   }
 
@@ -3053,7 +3049,6 @@ export class GameStateService {
 
   private prependLog(text: string, type: BattleLog['type']): void {
     this.battleLogs.update((logs) => [{ text, type }, ...logs].slice(0, 36));
-    this.persistState();
   }
 
   private buildRouteEtaInput(candidate: EvolutionCandidate | null, reward: ArenaRewardForecast): RouteEtaInput {
