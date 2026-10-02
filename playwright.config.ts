@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Browsers live project-locally (node_modules/playwright-core/.local-browsers) so e2e runs
+// do not depend on a writable user profile. Install with `npm run test:e2e:install`.
+if (!process.env['CI']) process.env['PLAYWRIGHT_BROWSERS_PATH'] ??= '0';
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,

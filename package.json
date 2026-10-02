@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:install": "node -e \"process.env.PLAYWRIGHT_BROWSERS_PATH='0';require('child_process').execSync('npx playwright install chromium',{stdio:'inherit'})\""
   },
   "private": true,
   "packageManager": "npm@11.4.2",
