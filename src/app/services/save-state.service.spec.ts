@@ -236,7 +236,7 @@ describe('save state service', () => {
     expect(restored[1].evolutionTargets).toEqual(MONSTERS[1].evolutionTargets);
   });
 
-  it('clears incompatible saves instead of loading them', () => {
+  it('backs up incompatible saves instead of loading them', () => {
     globalThis.localStorage.setItem(
       'pixel-evolution-arena.save',
       JSON.stringify({
@@ -253,5 +253,63 @@ describe('save state service', () => {
 
     expect(loaded).toBeNull();
     expect(globalThis.localStorage.getItem('pixel-evolution-arena.save')).toBeNull();
+    expect(service.loadIssue()).toBe('newer-version');
+    expect(service.readBackup()).toContain('"saveVersion":99');
+  });
+
+  it('keeps unreadable JSON as a backup and reports it as corrupt', () => {
+    globalThis.localStorage.setItem('pixel-evolution-arena.save', '{not json');
+    const service = new SaveStateService();
+    expect(service.loadState()).toBeNull();
+    expect(service.loadIssue()).toBe('corrupt');
+    expect(service.readBackup()).toBe('{not json');
+  });
+
+  it('migrates a v11 snapshot into v12 Bio-Data and research defaults', () => {
+    const service = new SaveStateService();
+    const { snapshot, issue } = service.parseSnapshot({
+      saveVersion: 11,
+      savedAt: new Date().toISOString(),
+      player: { coins: 500, dnaShards: 20, squadIds: [MONSTERS[0].id] },
+      monsters: [],
+      battleLogs: [],
+    });
+    expect(issue).toBeNull();
+    expect(snapshot?.saveVersion).toBe(12);
+    expect(snapshot?.player.bioData).toBe(0);
+    expect(snapshot?.player.researchNodes).toEqual([]);
+    expect(snapshot?.player.scanProgress).toEqual({});
+    expect(snapshot?.player.coins).toBe(500);
+  });
+
+  it('rejects NaN, negative and non-string values in player data', () => {
+    const service = new SaveStateService();
+    const { snapshot } = service.parseSnapshot({
+      saveVersion: 12,
+      savedAt: new Date().toISOString(),
+      player: { coins: Number.NaN, dnaShards: -40, bioData: 'lots', squadIds: [MONSTERS[0].id, 7, null], inventory: ['Repair Cell', 3] },
+      monsters: [],
+      battleLogs: [],
+    });
+    expect(snapshot?.player.coins).toBe(0);
+    expect(snapshot?.player.dnaShards).toBe(0);
+    expect(snapshot?.player.bioData).toBe(0);
+    expect(snapshot?.player.squadIds).toEqual([MONSTERS[0].id]);
+    expect(snapshot?.player.inventory).toEqual(['Repair Cell']);
+  });
+
+  it('falls back to roster stats when saved monster numbers are invalid', () => {
+    const service = new SaveStateService();
+    const broken = { ...serializeMonsterProgress(MONSTERS[0]), level: Number.NaN, attack: -5, hp: 'x' as unknown as number };
+    const [restored] = service.restoreMonsters(MONSTERS, [broken]);
+    expect(restored.level).toBe(MONSTERS[0].level);
+    expect(restored.attack).toBe(1);
+    expect(restored.hp).toBe(MONSTERS[0].hp);
+  });
+
+  it('removes the legacy battle-speed key on load', () => {
+    globalThis.localStorage.setItem('pea-battle-speed', '4');
+    new SaveStateService().loadState();
+    expect(globalThis.localStorage.getItem('pea-battle-speed')).toBeNull();
   });
 });

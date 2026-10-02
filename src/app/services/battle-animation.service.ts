@@ -46,16 +46,6 @@ export interface BattlePlayParams {
 
 export type BattleSpeed = 1 | 2 | 4;
 const SPEED_OPTIONS: readonly BattleSpeed[] = [1, 2, 4];
-const SPEED_STORAGE_KEY = 'pea-battle-speed';
-
-function loadInitialSpeed(): BattleSpeed {
-  if (typeof localStorage === 'undefined') {
-    return 1;
-  }
-  const stored = Number(localStorage.getItem(SPEED_STORAGE_KEY));
-  return SPEED_OPTIONS.includes(stored as BattleSpeed) ? (stored as BattleSpeed) : 1;
-}
-
 @Injectable({ providedIn: 'root' })
 export class BattleAnimationService {
   readonly phase = signal<BattlePhase>('idle');
@@ -70,7 +60,7 @@ export class BattleAnimationService {
   readonly isPlaying = computed(() => this.phase() !== 'idle');
 
   /** Playback speed multiplier for battle animations (1x / 2x / 4x). */
-  readonly speed = signal<BattleSpeed>(loadInitialSpeed());
+  readonly speed = signal<BattleSpeed>(1);
   readonly speedOptions = SPEED_OPTIONS;
 
   private popupSeed = 0;
@@ -272,12 +262,9 @@ export class BattleAnimationService {
     this.scheduleTimer(() => this.shake.set(false), 380);
   }
 
-  /** Pick a playback speed; persisted so it survives reloads. */
+  /** Pick a playback speed; GameStateService persists it in player settings. */
   setSpeed(speed: BattleSpeed): void {
     this.speed.set(speed);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(SPEED_STORAGE_KEY, String(speed));
-    }
   }
 
   private scheduleTimer(callback: () => void, delay: number): void {

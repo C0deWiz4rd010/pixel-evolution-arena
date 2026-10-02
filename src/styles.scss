@@ -2140,31 +2140,38 @@ app-monster-card {
 }
 
 .stage-baby {
-  color: var(--baby);
+  --stage-color: var(--baby);
+  color: var(--stage-color);
 }
 
 .stage-intraining {
-  color: var(--intraining);
+  --stage-color: var(--intraining);
+  color: var(--stage-color);
 }
 
 .stage-rookie {
-  color: var(--rookie);
+  --stage-color: var(--rookie);
+  color: var(--stage-color);
 }
 
 .stage-champion {
-  color: var(--champion);
+  --stage-color: var(--champion);
+  color: var(--stage-color);
 }
 
 .stage-ultimate {
-  color: var(--ultimate);
+  --stage-color: var(--ultimate);
+  color: var(--stage-color);
 }
 
 .stage-mega {
-  color: var(--mega);
+  --stage-color: var(--mega);
+  color: var(--stage-color);
 }
 
 .stage-special {
-  color: var(--special);
+  --stage-color: var(--special);
+  color: var(--stage-color);
 }
 
 @media (prefers-reduced-motion: no-preference) {

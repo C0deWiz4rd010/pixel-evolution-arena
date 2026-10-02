@@ -60,7 +60,7 @@ import { activeSquadTraits, squadCompositionTrait, totalSquadTraitBonus } from '
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
-import { RESEARCH_NODES, RESEARCH_NODE_IDS, getResearchNode } from '../data/research.data';
+import { RESEARCH_NODES, getResearchNode } from '../data/research.data';
 import {
   buildResearchTree,
   canUnlockNode,
@@ -380,7 +380,9 @@ export class GameStateService {
   private battleDecisionResolve: ((decision: BattleDecision) => void) | null = null;
   private battleRunning = false;
 
-  readonly dailyDirective = computed(() => ensureDailyDirective(this.player().dailyDirective, getDateKey()));
+  /** Local calendar day; refreshed at midnight and when the tab becomes visible again. */
+  readonly todayKey = signal(getDateKey());
+  readonly dailyDirective = computed(() => ensureDailyDirective(this.player().dailyDirective, this.todayKey()));
   readonly dailyObjective = computed(() => getDailyObjectiveDef(this.dailyDirective().objectiveId));
   readonly dailyComplete = computed(() => isDailyComplete(this.dailyDirective()));
 
@@ -1328,20 +1330,26 @@ export class GameStateService {
   });
 
   constructor() {
+    this.watchCalendarDay();
     const savedState = this.saveState.loadState();
 
     if (savedState) {
-      this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), savedState.monsters));
-      this.player.set(sanitizePlayerState(savedState.player));
-      this.battleLogs.set(savedState.battleLogs.length ? cloneBattleLogs(savedState.battleLogs) : createStarterBattleLogs());
-      this.lastReward.set(savedState.lastReward ? { ...savedState.lastReward } : null);
-      this.lastBattleThreat.set(savedState.lastBattleThreat ? { ...savedState.lastBattleThreat } : null);
-      this.audio.setEnabled(this.player().audioEnabled);
-      this.audio.setMasterVolume(this.player().settings.masterVolume);
-      this.audio.setMusicEnabled(this.player().settings.musicEnabled);
-      this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
-      this.ensureDailyDirectiveState();
+      this.applySnapshot(savedState);
       return;
+    }
+
+    const issue = this.saveState.loadIssue();
+    if (issue) {
+      this.toast.push({
+        title: 'Save Backed Up',
+        message:
+          issue === 'newer-version'
+            ? 'Your save is from a newer version. It was kept as a backup and a fresh run started.'
+            : 'Your save could not be read. It was kept as a backup and a fresh run started.',
+        tone: 'warn',
+        icon: '!',
+        durationMs: 6000,
+      });
     }
 
     this.audio.setEnabled(this.player().audioEnabled);
@@ -1361,9 +1369,35 @@ export class GameStateService {
   }
 
   /** Rollt eine frische Tages-Directive, falls keine existiert oder der Tag wechselte. */
+  /** Roll the Daily Directive over at local midnight, even if the tab stays open. */
+  private watchCalendarDay(): void {
+    if (typeof window === 'undefined') return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const refresh = () => {
+      const key = getDateKey();
+      if (key !== this.todayKey()) {
+        this.todayKey.set(key);
+        this.ensureDailyDirectiveState();
+        this.persistState();
+      }
+      schedule();
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      const now = new Date();
+      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+      timer = setTimeout(refresh, nextMidnight.getTime() - now.getTime());
+    };
+    // Timers are throttled in background tabs, so re-check whenever the player returns.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') refresh();
+    });
+    schedule();
+  }
+
   private ensureDailyDirectiveState(): void {
     const current = this.player().dailyDirective;
-    const ensured = ensureDailyDirective(current, getDateKey());
+    const ensured = ensureDailyDirective(current, this.todayKey());
     if (ensured !== current) {
       this.player.update((player) => ({ ...player, dailyDirective: ensured }));
     }
@@ -2543,28 +2577,46 @@ export class GameStateService {
   }
 
   importSave(code: string): boolean {
+    let parsed: unknown;
     try {
-      const parsed = JSON.parse(base64Decode(code.trim())) as Partial<SaveStateSnapshot>;
-      if (!parsed || typeof parsed !== 'object' || !parsed.player || !Array.isArray(parsed.monsters)) {
-        return false;
-      }
-      this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), parsed.monsters));
-      this.player.set(sanitizePlayerState(parsed.player as PlayerState));
-      this.battleLogs.set(Array.isArray(parsed.battleLogs) && parsed.battleLogs.length ? cloneBattleLogs(parsed.battleLogs) : createStarterBattleLogs());
-      this.lastReward.set(parsed.lastReward ? { ...parsed.lastReward } : null);
-      this.lastBattleThreat.set(parsed.lastBattleThreat ? { ...parsed.lastBattleThreat } : null);
-      this.audio.setEnabled(this.player().audioEnabled);
-      this.audio.setMasterVolume(this.player().settings.masterVolume);
-      this.audio.setMusicEnabled(this.player().settings.musicEnabled);
-      this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
-      this.ensureDailyDirectiveState();
-      this.persistState();
-      this.toast.push({ title: 'Save Imported', message: 'Progress restored from your code.', tone: 'success', icon: 'IN', durationMs: 3600 });
-      return true;
+      parsed = JSON.parse(base64Decode(code.trim()));
     } catch {
-      this.toast.push({ title: 'Import Failed', message: 'That save code could not be read.', tone: 'warn', icon: '!', durationMs: 3600 });
+      parsed = null;
+    }
+    // Imported codes travel the same validate -> migrate -> sanitize path as local saves,
+    // so codes exported by any older version still restore.
+    const { snapshot, issue } = this.saveState.parseSnapshot(parsed);
+    if (!snapshot) {
+      this.toast.push({
+        title: 'Import Failed',
+        message:
+          issue === 'newer-version'
+            ? 'That save code comes from a newer game version.'
+            : 'That save code could not be read.',
+        tone: 'warn',
+        icon: '!',
+        durationMs: 3600,
+      });
       return false;
     }
+    this.applySnapshot(snapshot);
+    this.persistState();
+    this.toast.push({ title: 'Save Imported', message: 'Progress restored from your code.', tone: 'success', icon: 'IN', durationMs: 3600 });
+    return true;
+  }
+
+  /** Load a validated snapshot into live state and sync the audio/animation side services. */
+  private applySnapshot(snapshot: SaveStateSnapshot): void {
+    this.monsters.set(this.saveState.restoreMonsters(createStarterMonsters(), snapshot.monsters));
+    this.player.set(sanitizePlayerState(snapshot.player));
+    this.battleLogs.set(snapshot.battleLogs.length ? cloneBattleLogs(snapshot.battleLogs) : createStarterBattleLogs());
+    this.lastReward.set(snapshot.lastReward ? { ...snapshot.lastReward } : null);
+    this.lastBattleThreat.set(snapshot.lastBattleThreat ? { ...snapshot.lastBattleThreat } : null);
+    this.audio.setEnabled(this.player().audioEnabled);
+    this.audio.setMasterVolume(this.player().settings.masterVolume);
+    this.audio.setMusicEnabled(this.player().settings.musicEnabled);
+    this.battleAnimation.setSpeed(this.player().settings.battleSpeed);
+    this.ensureDailyDirectiveState();
   }
 
   getEvolutionTargets(monster: Monster): Monster[] {
@@ -2696,6 +2748,7 @@ export class GameStateService {
       playerMitigation: stance.mitigation + this.traitBonus().mitigation + this.mutatorModifier().playerMitigation,
       overdriveCharge: this.overdriveCharge(),
       overdriveArmed,
+      consumables: toCombatEffects(this.equippedConsumables()),
     });
     this.battleSession.set(session);
     while (!session.completed) {
@@ -2803,7 +2856,7 @@ export class GameStateService {
     };
 
     // Advance the daily directive and auto-claim on completion.
-    let daily = ensureDailyDirective(currentPlayer.dailyDirective, getDateKey());
+    let daily = ensureDailyDirective(currentPlayer.dailyDirective, this.todayKey());
     daily = progressDaily(daily, {
       won: sim.won,
       criticalHit: sim.criticalHit,
@@ -3438,126 +3491,32 @@ function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
   return logs.map((log) => ({ ...log }));
 }
 
+/**
+ * Bind an already structurally sanitized player (see SaveStateService.parseSnapshot) to the
+ * current roster: drop ids that no longer exist so stale saves cannot reference ghost creatures.
+ */
 function sanitizePlayerState(player: PlayerState): PlayerState {
+  const known = (id: string | null | undefined): id is string => !!id && STARTER_MONSTER_IDS.has(id);
+  const cloned = clonePlayerState(player);
   return {
-    ...clonePlayerState(player),
-    selectedMonsterId:
-      player.selectedMonsterId && STARTER_MONSTER_IDS.has(player.selectedMonsterId)
-        ? player.selectedMonsterId
-        : STARTER_PLAYER_STATE.selectedMonsterId,
-    squadIds: player.squadIds.filter((id) => STARTER_MONSTER_IDS.has(id)).slice(0, 3),
-    winStreak: Math.max(0, player.winStreak ?? 0),
-    bestWinStreak: Math.max(0, player.bestWinStreak ?? player.winStreak ?? 0),
-    claimedMilestones: Array.isArray(player.claimedMilestones) ? [...player.claimedMilestones] : [],
-    squadPresets: Array.isArray(player.squadPresets)
-      ? player.squadPresets
-          .map((preset) => ({
-            id: preset.id,
-            name: preset.name,
-            squadIds: preset.squadIds.filter((id) => STARTER_MONSTER_IDS.has(id)).slice(0, 3),
-          }))
-          .slice(0, 3)
-      : [],
-    pinnedChaseId:
-      player.pinnedChaseId && STARTER_MONSTER_IDS.has(player.pinnedChaseId) ? player.pinnedChaseId : null,
-    claimedStageMilestones: Array.isArray(player.claimedStageMilestones)
-      ? [...player.claimedStageMilestones]
-      : [],
-    audioEnabled: typeof player.audioEnabled === 'boolean' ? player.audioEnabled : false,
-    overdriveCharge: Math.max(0, Math.min(100, player.overdriveCharge ?? 0)),
-    claimedAchievements: Array.isArray(player.claimedAchievements) ? [...player.claimedAchievements] : [],
-    combatStats: { ...STARTER_COMBAT_STATS, ...(player.combatStats ?? {}) },
-    monsterMastery: cloneMonsterMastery(player.monsterMastery ?? {}),
-    dailyDirective: player.dailyDirective ?? null,
-    recentBattles: player.recentBattles
-      .map((entry): RecentBattleRecord => ({
-        id: String(entry.id),
-        timestamp: typeof entry.timestamp === 'string' ? entry.timestamp : new Date(0).toISOString(),
-        won: entry.won === true,
-        mode: entry.mode === 'gauntlet' ? 'gauntlet' : 'standard',
-        category: entry.category === 'training' || entry.category === 'risk' ? entry.category : 'standard',
-        formationName: String(entry.formationName ?? 'Unknown Formation'),
-        threatLabel: String(entry.threatLabel ?? 'Unknown Threat'),
-        teamPower: typeof entry.teamPower === 'number' ? Math.max(0, entry.teamPower) : 0,
-        enemyPower: typeof entry.enemyPower === 'number' ? Math.max(0, entry.enemyPower) : 0,
-        coins: typeof entry.coins === 'number' ? Math.max(0, entry.coins) : 0,
-        dnaShards: typeof entry.dnaShards === 'number' ? Math.max(0, entry.dnaShards) : 0,
-        xp: typeof entry.xp === 'number' ? Math.max(0, entry.xp) : 0,
-        streakAfter: typeof entry.streakAfter === 'number' ? Math.max(0, entry.streakAfter) : 0,
-        orders: Array.isArray(entry.orders)
-          ? entry.orders.filter((order): order is 'focus' | 'protect' | 'charge' => order === 'focus' || order === 'protect' || order === 'charge').slice(0, 2)
-          : [],
-        pulse: entry.pulse === 'break' || entry.pulse === 'surge' ? entry.pulse : 'guard',
-        survivors: Array.isArray(entry.survivors) ? entry.survivors.map(String).slice(0, 3) : [],
-        rounds: typeof entry.rounds === 'number' ? Math.max(0, Math.min(8, Math.round(entry.rounds))) : 0,
-        controlMode: entry.controlMode === 'assist' || entry.controlMode === 'auto' ? entry.controlMode : 'director',
-      }))
-      .slice(0, MAX_RECENT_BATTLES),
-    ownedGear: Array.isArray(player.ownedGear) ? player.ownedGear.map((entry) => ({ ...entry })) : [],
-    gearLoadout: player.gearLoadout ? cloneGearLoadout(player.gearLoadout) : {},
-    defeatedBosses: Array.isArray(player.defeatedBosses) ? [...player.defeatedBosses] : [],
-    claimedChapters: Array.isArray(player.claimedChapters) ? [...player.claimedChapters] : [],
-    encounteredEnemies: Array.isArray(player.encounteredEnemies) ? [...player.encounteredEnemies] : [],
-    tutorialDone: player.tutorialDone === true,
-    settings: sanitizeSettings(player.settings),
-    expedition: player.expedition ? cloneExpedition(player.expedition) : null,
-    expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
-    bioData: typeof player.bioData === 'number' ? Math.max(0, player.bioData) : 0,
-    totalBioData: typeof player.totalBioData === 'number' ? Math.max(0, player.totalBioData) : 0,
-    scanProgress: sanitizeScanProgressMap(player.scanProgress),
-    researchNodes: Array.isArray(player.researchNodes)
-      ? Array.from(new Set(player.researchNodes.filter((id): id is string => typeof id === 'string' && RESEARCH_NODE_IDS.has(id))))
-      : [],
+    ...cloned,
+    selectedMonsterId: known(player.selectedMonsterId) ? player.selectedMonsterId : STARTER_PLAYER_STATE.selectedMonsterId,
+    squadIds: Array.from(new Set(cloned.squadIds.filter(known))).slice(0, 3),
+    squadPresets: cloned.squadPresets
+      .map((preset) => ({ ...preset, squadIds: preset.squadIds.filter(known).slice(0, 3) }))
+      .slice(0, 3),
+    pinnedChaseId: known(player.pinnedChaseId) ? player.pinnedChaseId : null,
+    bestWinStreak: Math.max(cloned.bestWinStreak, cloned.winStreak),
+    combatStats: { ...STARTER_COMBAT_STATS, ...cloned.combatStats },
+    recentBattles: cloned.recentBattles.slice(0, MAX_RECENT_BATTLES),
+    gearLoadout: Object.fromEntries(Object.entries(cloned.gearLoadout).filter(([monsterId]) => known(monsterId))),
+    monsterMastery: Object.fromEntries(Object.entries(cloned.monsterMastery).filter(([monsterId]) => known(monsterId))),
+    scanProgress: Object.fromEntries(Object.entries(cloned.scanProgress).filter(([monsterId]) => known(monsterId))),
   };
 }
 
-function sanitizeScanProgressMap(value: unknown): Record<string, number> {
-  if (!value || typeof value !== 'object') {
-    return {};
-  }
-  const result: Record<string, number> = {};
-  for (const [id, raw] of Object.entries(value as Record<string, unknown>)) {
-    const num = Number(raw);
-    if (Number.isFinite(num)) {
-      result[id] = Math.max(0, Math.min(100, num));
-    }
-  }
-  return result;
-}
 
-function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings {
-  if (!settings) {
-    return { ...DEFAULT_SETTINGS };
-  }
-  return {
-    masterVolume: clampUnit(settings.masterVolume ?? DEFAULT_SETTINGS.masterVolume),
-    colorblindMode: settings.colorblindMode === true,
-    effectIntensity: clampUnit(settings.effectIntensity ?? 1),
-    accentTheme: settings.accentTheme === 'ember' || settings.accentTheme === 'mono' ? settings.accentTheme : 'aurora',
-    language: settings.language === 'de' ? 'de' : 'en',
-    visualStyle:
-      settings.visualStyle === 'pixel-arcade' || settings.visualStyle === 'tactical-minimal'
-        ? settings.visualStyle
-        : 'collector-tech',
-    typographyProfile:
-      settings.typographyProfile === 'pixel' || settings.typographyProfile === 'tech-sans'
-        ? settings.typographyProfile
-        : 'dual-font',
-    combatBeats: settings.combatBeats === true,
-    battleControlMode:
-      settings.battleControlMode === 'assist' || settings.battleControlMode === 'auto'
-        ? settings.battleControlMode
-        : 'director',
-    battleSpeed: settings.battleSpeed === 2 || settings.battleSpeed === 4 ? settings.battleSpeed : 1,
-    battleRecommendations: settings.battleRecommendations !== false,
-    motionMode: settings.motionMode === 'reduced' ? 'reduced' : 'system',
-    musicEnabled: settings.musicEnabled === true,
-  };
-}
 
-function clampUnit(value: number): number {
-  return Math.max(0, Math.min(1, value));
-}
 
 function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
   if (

@@ -24,7 +24,7 @@
         <div><span>Active protocol</span><strong>{{ game.activeMutator().name }} / {{ activeFormation().name }}</strong></div>
         <div class="battle-speed-bar" role="group" aria-label="Battle playback speed">
           @for (option of anim.speedOptions; track option) {
-            <button type="button" [class.active]="anim.speed() === option" [attr.aria-pressed]="anim.speed() === option" (click)="anim.setSpeed(option)">{{ option }}x</button>
+            <button type="button" [class.active]="anim.speed() === option" [attr.aria-pressed]="anim.speed() === option" (click)="game.setBattleSpeed(option)">{{ option }}x</button>
           }
         </div>
       </div>

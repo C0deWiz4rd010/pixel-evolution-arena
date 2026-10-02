@@ -4,14 +4,19 @@ import { SaveStateData, SaveStateSnapshot, SAVE_STATE_VERSION, SavedMonsterProgr
 import { RESEARCH_NODE_IDS } from '../data/research.data';
 
 const SAVE_STORAGE_KEY = 'pixel-evolution-arena.save';
+const SAVE_BACKUP_KEY = 'pixel-evolution-arena.save-backup';
+const LEGACY_BATTLE_SPEED_KEY = 'pea-battle-speed';
 
 export type SaveSyncState = 'ready' | 'unsupported' | 'error';
+/** Why the stored save could not be used; the raw data is kept as a backup. */
+export type SaveLoadIssue = 'corrupt' | 'newer-version' | null;
 
 @Injectable({ providedIn: 'root' })
 export class SaveStateService {
   readonly saveVersion = SAVE_STATE_VERSION;
   readonly syncState = signal<SaveSyncState>('ready');
   readonly lastSavedAt = signal<string | null>(null);
+  readonly loadIssue = signal<SaveLoadIssue>(null);
 
   loadState(): SaveStateSnapshot | null {
     const storage = this.getStorage();
@@ -21,6 +26,8 @@ export class SaveStateService {
     }
 
     try {
+      // Battle speed used to live under its own key; it is now part of player settings.
+      storage.removeItem(LEGACY_BATTLE_SPEED_KEY);
       const raw = storage.getItem(SAVE_STORAGE_KEY);
       if (!raw) {
         this.lastSavedAt.set(null);
@@ -28,27 +35,49 @@ export class SaveStateService {
         return null;
       }
 
-      const parsed = JSON.parse(raw);
-      if (!isSaveStateSnapshot(parsed)) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        parsed = null;
+      }
+      const result = this.parseSnapshot(parsed);
+      if (!result.snapshot) {
+        // Never silently destroy progress: keep the unreadable save next to a fresh start.
+        storage.setItem(SAVE_BACKUP_KEY, raw);
         storage.removeItem(SAVE_STORAGE_KEY);
+        this.loadIssue.set(result.issue);
         this.lastSavedAt.set(null);
         this.syncState.set('ready');
         return null;
       }
 
-      const migrated = migrateSnapshot(parsed);
-      if (!migrated) {
-        storage.removeItem(SAVE_STORAGE_KEY);
-        this.lastSavedAt.set(null);
-        this.syncState.set('ready');
-        return null;
-      }
-
-      this.lastSavedAt.set(migrated.savedAt);
+      this.lastSavedAt.set(result.snapshot.savedAt);
       this.syncState.set('ready');
-      return migrated;
+      return result.snapshot;
     } catch {
       this.syncState.set('error');
+      return null;
+    }
+  }
+
+  /** Validate, migrate and sanitize any untrusted snapshot (local save or imported code). */
+  parseSnapshot(value: unknown): { snapshot: SaveStateSnapshot | null; issue: SaveLoadIssue } {
+    if (!isSaveStateSnapshot(value)) {
+      return { snapshot: null, issue: 'corrupt' };
+    }
+    if (value.saveVersion > SAVE_STATE_VERSION) {
+      return { snapshot: null, issue: 'newer-version' };
+    }
+    const migrated = migrateSnapshot(value);
+    return migrated ? { snapshot: migrated, issue: null } : { snapshot: null, issue: 'corrupt' };
+  }
+
+  /** Raw JSON of the last save that could not be loaded, if one was kept. */
+  readBackup(): string | null {
+    try {
+      return this.getStorage()?.getItem(SAVE_BACKUP_KEY) ?? null;
+    } catch {
       return null;
     }
   }
@@ -94,25 +123,28 @@ export class SaveStateService {
   }
 
   restoreMonsters(baseMonsters: Monster[], savedMonsters: SavedMonsterProgress[]): Monster[] {
-    const savedById = new Map(savedMonsters.map((monster) => [monster.id, monster]));
+    const savedById = new Map(
+      savedMonsters.filter((monster) => monster && typeof monster.id === 'string').map((monster) => [monster.id, monster]),
+    );
 
     return baseMonsters.map((monster) => {
       const saved = savedById.get(monster.id);
-
-      return saved
-        ? {
-            ...monster,
-            unlocked: saved.unlocked,
-            level: saved.level,
-            xp: saved.xp,
-            maxXp: saved.maxXp,
-            attack: saved.attack,
-            defense: saved.defense,
-            speed: saved.speed,
-            hp: saved.hp,
-            prismatic: saved.prismatic === true,
-          }
-        : { ...monster, evolutionTargets: [...monster.evolutionTargets] };
+      if (!saved) {
+        return { ...monster, evolutionTargets: [...monster.evolutionTargets] };
+      }
+      // Untrusted numbers fall back to the roster baseline instead of poisoning stats with NaN.
+      return {
+        ...monster,
+        unlocked: saved.unlocked === true,
+        level: Math.round(finiteAtLeast(saved.level, 1, monster.level)),
+        xp: finiteAtLeast(saved.xp, 0, 0),
+        maxXp: finiteAtLeast(saved.maxXp, 1, monster.maxXp),
+        attack: finiteAtLeast(saved.attack, 1, monster.attack),
+        defense: finiteAtLeast(saved.defense, 1, monster.defense),
+        speed: finiteAtLeast(saved.speed, 1, monster.speed),
+        hp: finiteAtLeast(saved.hp, 1, monster.hp),
+        prismatic: saved.prismatic === true,
+      };
     });
   }
 
@@ -140,16 +172,26 @@ function isSaveStateSnapshot(value: unknown): value is SaveStateSnapshot {
   );
 }
 
+type SaveMigration = (snapshot: SaveStateSnapshot) => SaveStateSnapshot;
+
+/**
+ * Structural upgrades keyed by the version they upgrade FROM. Versions without an entry only
+ * added optional fields, which `ensurePlayerDefaults` fills in after the chain has run.
+ */
+const SAVE_MIGRATIONS: Partial<Record<number, SaveMigration>> = {
+  // v11 -> v12 introduced Bio-Data, scan progress and research nodes (all defaulted).
+};
+
 function migrateSnapshot(snapshot: SaveStateSnapshot): SaveStateSnapshot | null {
-  if (snapshot.saveVersion === SAVE_STATE_VERSION) {
-    return ensurePlayerDefaults(snapshot);
+  if (snapshot.saveVersion < 1 || snapshot.saveVersion > SAVE_STATE_VERSION) {
+    return null;
   }
-
-  if (snapshot.saveVersion >= 1 && snapshot.saveVersion < SAVE_STATE_VERSION) {
-    return ensurePlayerDefaults({ ...snapshot, saveVersion: SAVE_STATE_VERSION });
+  let current = snapshot;
+  for (let version = snapshot.saveVersion; version < SAVE_STATE_VERSION; version++) {
+    const step = SAVE_MIGRATIONS[version];
+    current = { ...(step ? step(current) : current), saveVersion: version + 1 };
   }
-
-  return null;
+  return ensurePlayerDefaults(current);
 }
 
 function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
@@ -157,21 +199,21 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
   return {
     ...snapshot,
     player: {
-      coins: typeof player.coins === 'number' ? player.coins : 0,
-      dnaShards: typeof player.dnaShards === 'number' ? player.dnaShards : 0,
-      battlesFought: typeof player.battlesFought === 'number' ? player.battlesFought : 0,
-      battlesWon: typeof player.battlesWon === 'number' ? player.battlesWon : 0,
-      selectedMonsterId: player.selectedMonsterId ?? null,
-      squadIds: Array.isArray(player.squadIds) ? [...player.squadIds] : [],
-      inventory: Array.isArray(player.inventory) ? [...player.inventory] : [],
-      winStreak: typeof player.winStreak === 'number' ? player.winStreak : 0,
-      bestWinStreak: typeof player.bestWinStreak === 'number' ? player.bestWinStreak : 0,
+      coins: nonNegative(player.coins),
+      dnaShards: nonNegative(player.dnaShards),
+      battlesFought: nonNegative(player.battlesFought),
+      battlesWon: nonNegative(player.battlesWon),
+      selectedMonsterId: typeof player.selectedMonsterId === 'string' ? player.selectedMonsterId : null,
+      squadIds: stringArray(player.squadIds),
+      inventory: stringArray(player.inventory),
+      winStreak: nonNegative(player.winStreak),
+      bestWinStreak: nonNegative(player.bestWinStreak),
       claimedMilestones: Array.isArray(player.claimedMilestones) ? [...player.claimedMilestones] : [],
       squadPresets: Array.isArray(player.squadPresets)
         ? player.squadPresets.map((preset) => ({
             id: String(preset.id ?? ''),
             name: String(preset.name ?? ''),
-            squadIds: Array.isArray(preset.squadIds) ? [...preset.squadIds] : [],
+            squadIds: stringArray(preset.squadIds),
           }))
         : [],
       pinnedChaseId: typeof player.pinnedChaseId === 'string' ? player.pinnedChaseId : null,
@@ -179,7 +221,7 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
         ? player.claimedStageMilestones.map((entry) => String(entry))
         : [],
       audioEnabled: typeof player.audioEnabled === 'boolean' ? player.audioEnabled : false,
-      overdriveCharge: typeof player.overdriveCharge === 'number' ? clamp(player.overdriveCharge, 0, 100) : 0,
+      overdriveCharge: clamp(nonNegative(player.overdriveCharge), 0, 100),
       claimedAchievements: Array.isArray(player.claimedAchievements)
         ? player.claimedAchievements.map((entry) => String(entry))
         : [],
@@ -199,9 +241,9 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
       tutorialDone: player.tutorialDone === true,
       settings: sanitizeSettings(player.settings),
       expedition: sanitizeExpedition(player.expedition),
-      expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
-      bioData: typeof player.bioData === 'number' ? Math.max(0, player.bioData) : 0,
-      totalBioData: typeof player.totalBioData === 'number' ? Math.max(0, player.totalBioData) : 0,
+      expeditionCores: nonNegative(player.expeditionCores),
+      bioData: nonNegative(player.bioData),
+      totalBioData: nonNegative(player.totalBioData),
       scanProgress: sanitizeScanProgress(player.scanProgress),
       researchNodes: sanitizeResearchNodes(player.researchNodes),
     },
@@ -290,6 +332,19 @@ function sanitizeSettings(value: unknown): SaveStateSnapshot['player']['settings
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+/** Finite, non-negative number or 0 (rejects NaN, Infinity, strings and negatives). */
+function nonNegative(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0;
+}
+
+function finiteAtLeast(value: unknown, min: number, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(min, value) : fallback;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
 }
 
 function sanitizeCombatStats(stats: unknown): SaveStateSnapshot['player']['combatStats'] {
