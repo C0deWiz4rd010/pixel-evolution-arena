@@ -270,3 +270,11 @@ Use this checklist during Angular implementation.
 - Documented Pixi's transitive `@xmldom/xmldom` dependency in Angular's `allowedCommonJsDependencies`; the production build now completes without warnings.
 - `npm.cmd run test -- --run` passed (155 tests / 26 files).
 - `npm.cmd run test:e2e -- --reporter=list` passed (13 Playwright smoke tests), including rapid primary/secondary view loading and persisted presentation settings.
+
+2026-10-02 Perfection roadmap, Phases 0-2:
+
+- Phase 0: committed the Research Lab WIP with fixes (paid yield now equals displayed reward/forecast, cheapest-node recommendation, capped Auto-Scan, reveal-locked in Collection/targets, Handbook entry, e2e smoke). Baseline recorded in `docs/perf-baseline.md`.
+- Phase 1: defensive consumables (shield/repair/purge) now act in tactical combat; save import/load share one validate-migrate-sanitize path with a versioned migration chain, NaN/negative guards, backups instead of silent deletion; Daily Directive rolls over at midnight; battle speed stored only in settings; `--stage-color` defined so stage tints render.
+- Phase 2: GameStateService split into GameStore (root signals, roster index, log, debounced autosave) plus Gear, Research, Settings, Campaign, Achievements and Squad stores; 48 manual saves replaced by one debounced autosave (a full battle writes once); OnPush on every component; computed view-models for monster detail, forge and squad reserves; dead dashboard code and the mission-control module removed; `noUnusedLocals` enforced; TestBed store specs under jsdom.
+- Added `tests/layout-guard.spec.ts`: every primary view at 360/390/768/1440 px must render without page errors or content escaping the viewport. Fixed the evolution-target action buttons and the Handbook stage index that it caught.
+- `npm.cmd run typecheck` passed; `npm.cmd test -- --run` passed (194 tests / 32 files); `npm.cmd run build` passed without warnings (458.89 kB initial); `npm.cmd run test:e2e` passed (18 Playwright tests).

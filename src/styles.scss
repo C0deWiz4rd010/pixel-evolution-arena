@@ -859,49 +859,9 @@ li {
   padding-right: 0.2rem;
 }
 
-.stage-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  gap: 0.48rem;
-  align-items: stretch;
-  min-height: 154px;
-  padding: 0.5rem;
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, currentColor 11%, transparent), transparent 34%),
-    rgba(0, 0, 0, 0.22);
-  box-shadow: 0 0 14px color-mix(in srgb, currentColor 16%, transparent);
-  clip-path: var(--chamfer);
-}
 
-.stage-row::before {
-  position: absolute;
-  top: 50%;
-  left: 122px;
-  right: 0.4rem;
-  z-index: 0;
-  border-top: 1px solid currentColor;
-  content: "";
-  opacity: 0.35;
-}
 
-.stage-row::after {
-  position: absolute;
-  top: -0.45rem;
-  bottom: -0.45rem;
-  left: calc(120px + 0.24rem);
-  border-left: 1px dashed currentColor;
-  content: "";
-  opacity: 0.22;
-}
 
-.stage-row.stage-mega::after,
-.stage-row.stage-special::after {
-  border-left-color: var(--special);
-  opacity: 0.42;
-}
 
 .stage-label {
   position: relative;
@@ -2276,17 +2236,8 @@ app-monster-card {
     grid-template-columns: minmax(0, 1fr) minmax(310px, 350px);
   }
 
-  .stage-row {
-    grid-template-columns: 108px minmax(0, 1fr);
-  }
 
-  .stage-row::before {
-    left: 110px;
-  }
 
-  .stage-row::after {
-    left: calc(108px + 0.24rem);
-  }
 
   .monster-row {
     grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
@@ -2394,14 +2345,7 @@ app-monster-card {
     text-align: left;
   }
 
-  .stage-row {
-    grid-template-columns: 1fr;
-  }
 
-  .stage-row::before,
-  .stage-row::after {
-    display: none;
-  }
 
   .stage-label {
     grid-template-columns: auto 1fr;
