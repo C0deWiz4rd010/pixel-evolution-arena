@@ -29,7 +29,7 @@ export class HeaderHudComponent {
     effect(() => this.observe('dna', this.game.player().dnaShards));
     effect(() => this.observe('power', this.game.teamPower()));
     effect(() => this.observe('dex', this.unlockedCount()));
-    effect(() => this.observe('data', this.game.bioData()));
+    effect(() => this.observe('data', this.game.research.bioData()));
   }
 
   openSettings(): void {

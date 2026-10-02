@@ -32,10 +32,10 @@ export class ForgeComponent {
 
   readonly slots = GEAR_SLOTS;
   readonly slotLabel = SLOT_LABEL;
-  readonly defs = this.game.gearDefs;
-  readonly owned = this.game.ownedGearDetailed;
-  readonly loadoutPlan = this.game.squadLoadoutPlan;
-  readonly quickRecommendation = this.game.forgeQuickRecommendation;
+  readonly defs = this.game.gear.gearDefs;
+  readonly owned = this.game.gear.ownedGearDetailed;
+  readonly loadoutPlan = this.game.gear.squadLoadoutPlan;
+  readonly quickRecommendation = this.game.gear.forgeQuickRecommendation;
 
   readonly selectedMonsterId = signal<string | null>(null);
 
@@ -60,7 +60,7 @@ export class ForgeComponent {
     const monster = this.selectedMonster();
     const owned = this.owned();
     return this.slots.map((slot) => {
-      const equipped = monster ? this.game.getEquippedGear(monster.id, slot) : null;
+      const equipped = monster ? this.game.gear.getEquippedGear(monster.id, slot) : null;
       return {
         slot,
         equipped,
@@ -98,33 +98,33 @@ export class ForgeComponent {
   }
 
   forge(def: GearDef): void {
-    this.game.forgeGear(def.id);
+    this.game.gear.forgeGear(def.id);
   }
 
   upgrade(instance: GearInstance): void {
-    this.game.upgradeGear(instance.instanceId);
+    this.game.gear.upgradeGear(instance.instanceId);
   }
 
   equip(instanceId: string): void {
     const monster = this.selectedMonster();
     if (monster) {
-      this.game.equipGear(monster.id, instanceId);
+      this.game.gear.equipGear(monster.id, instanceId);
     }
   }
 
   unequip(slot: GearSlot): void {
     const monster = this.selectedMonster();
     if (monster) {
-      this.game.unequipGear(monster.id, slot);
+      this.game.gear.unequipGear(monster.id, slot);
     }
   }
 
   autoEquip(): void {
-    this.game.autoEquipBestGear();
+    this.game.gear.autoEquipBestGear();
   }
 
   runQuickAction(): void {
-    this.game.runForgeQuickAction();
+    this.game.gear.runForgeQuickAction();
   }
 
   /** Base vs. geared stat line for the selected monster. */
@@ -133,7 +133,7 @@ export class ForgeComponent {
     if (!monster) {
       return null;
     }
-    const geared = this.game.getEffectiveMonster(monster);
+    const geared = this.game.gear.getEffectiveMonster(monster);
     return {
       base: monster,
       geared,

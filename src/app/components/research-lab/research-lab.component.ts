@@ -25,16 +25,16 @@ interface ResearchBranchView {
 export class ResearchLabComponent {
   readonly game = inject(GameStateService);
 
-  readonly bioData = this.game.bioData;
-  readonly totalBioData = this.game.totalBioData;
-  readonly unlockedCount = this.game.researchUnlockedCount;
-  readonly totalNodes = this.game.researchTotalCount;
-  readonly scanRegistry = this.game.scanRegistry;
-  readonly fullyScanned = this.game.fullyScannedCount;
-  readonly scanCompletion = this.game.scanCompletionPercent;
+  readonly bioData = this.game.research.bioData;
+  readonly totalBioData = this.game.research.totalBioData;
+  readonly unlockedCount = this.game.research.researchUnlockedCount;
+  readonly totalNodes = this.game.research.researchTotalCount;
+  readonly scanRegistry = this.game.research.scanRegistry;
+  readonly fullyScanned = this.game.research.fullyScannedCount;
+  readonly scanCompletion = this.game.research.scanCompletionPercent;
 
   readonly branches = computed<ResearchBranchView[]>(() => {
-    const grouped = researchNodesByBranch(this.game.researchTree());
+    const grouped = researchNodesByBranch(this.game.research.researchTree());
     return (Object.keys(grouped) as ResearchBranch[]).map((branch) => {
       const nodes = grouped[branch];
       const meta = RESEARCH_BRANCH_META[branch];
@@ -52,12 +52,12 @@ export class ResearchLabComponent {
 
   /** Next affordable node, to point the player at a clear goal. */
   readonly nextNode = computed<ResearchNodeView | null>(
-    () => this.game.researchTree().find((node) => node.status === 'available') ?? null,
+    () => this.game.research.researchTree().find((node) => node.status === 'available') ?? null,
   );
 
   unlock(node: ResearchNodeView): void {
     if (node.status === 'available') {
-      this.game.unlockResearch(node.def.id);
+      this.game.research.unlockResearch(node.def.id);
     }
   }
 

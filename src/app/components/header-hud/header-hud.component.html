@@ -22,7 +22,7 @@
       <i aria-hidden="true"><b [style.width.%]="dexPercent()"></b></i>
     </div>
     <div class="stat-chip data secondary-stat" [class.stat-pulse]="pulseState().data">
-      <span class="stat-icon">DT</span><span class="stat-body"><span class="stat-label">Bio-Data</span><strong [appCountUp]="game.bioData()"></strong></span>
+      <span class="stat-icon">DT</span><span class="stat-body"><span class="stat-label">Bio-Data</span><strong [appCountUp]="game.research.bioData()"></strong></span>
     </div>
     <div class="utility-wrap">
       <button type="button" class="utility-button" aria-label="Open utility menu" [attr.aria-expanded]="utilityOpen()" (click)="utilityOpen.set(!utilityOpen())">•••</button>

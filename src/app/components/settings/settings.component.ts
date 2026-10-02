@@ -48,23 +48,23 @@ export class SettingsComponent {
   ];
 
   setAccent(theme: AccentTheme): void {
-    this.game.setAccentTheme(theme);
+    this.game.prefs.setAccentTheme(theme);
   }
 
   setLanguage(language: LanguageCode): void {
-    this.game.setLanguage(language);
+    this.game.prefs.setLanguage(language);
   }
 
   setVisualStyle(style: VisualStyle): void {
-    this.game.setVisualStyle(style);
+    this.game.prefs.setVisualStyle(style);
   }
 
   setTypographyProfile(profile: TypographyProfile): void {
-    this.game.setTypographyProfile(profile);
+    this.game.prefs.setTypographyProfile(profile);
   }
 
   toggleCombatBeats(): void {
-    this.game.toggleCombatBeats();
+    this.game.prefs.toggleCombatBeats();
   }
   readonly volumePercent = computed(() => Math.round(this.settings().masterVolume * 100));
   readonly intensityPercent = computed(() => Math.round(this.settings().effectIntensity * 100));
@@ -84,29 +84,29 @@ export class SettingsComponent {
 
   onVolumeInput(event: Event): void {
     const value = Number((event.target as HTMLInputElement).value);
-    this.game.setMasterVolume(value / 100);
+    this.game.prefs.setMasterVolume(value / 100);
     if (!this.audio.enabled()) {
-      this.game.toggleAudio();
+      this.game.prefs.toggleAudio();
     }
     this.audio.play('menu');
   }
 
   onIntensityInput(event: Event): void {
     const value = Number((event.target as HTMLInputElement).value);
-    this.game.setEffectIntensity(value / 100);
+    this.game.prefs.setEffectIntensity(value / 100);
   }
 
   toggleAudio(): void {
-    this.game.toggleAudio();
+    this.game.prefs.toggleAudio();
   }
 
   toggleMusic(): void {
-    if (!this.audio.enabled()) this.game.toggleAudio();
-    this.game.setMusicEnabled(!this.audio.musicEnabled());
+    if (!this.audio.enabled()) this.game.prefs.toggleAudio();
+    this.game.prefs.setMusicEnabled(!this.audio.musicEnabled());
   }
 
   toggleColorblind(): void {
-    this.game.toggleColorblindMode();
+    this.game.prefs.toggleColorblindMode();
   }
 
   generateExport(): void {
@@ -153,43 +153,43 @@ export class SettingsComponent {
   }
 
   setBattleControlMode(mode: 'director' | 'assist' | 'auto'): void {
-    this.game.setBattleControlMode(mode);
+    this.game.prefs.setBattleControlMode(mode);
   }
 
   setBattleSpeed(speed: 1 | 2 | 4): void {
-    this.game.setBattleSpeed(speed);
+    this.game.prefs.setBattleSpeed(speed);
   }
 
   toggleBattleRecommendations(): void {
-    this.game.toggleBattleRecommendations();
+    this.game.prefs.toggleBattleRecommendations();
   }
 
   setMotionMode(mode: 'system' | 'reduced'): void {
-    this.game.setMotionMode(mode);
+    this.game.prefs.setMotionMode(mode);
   }
 
   resetCategory(): void {
     switch (this.activeCategory()) {
       case 'gameplay':
-        this.game.setBattleControlMode('director');
-        this.game.setBattleSpeed(1);
-        if (!this.settings().battleRecommendations) this.game.toggleBattleRecommendations();
-        if (this.settings().combatBeats) this.game.toggleCombatBeats();
+        this.game.prefs.setBattleControlMode('director');
+        this.game.prefs.setBattleSpeed(1);
+        if (!this.settings().battleRecommendations) this.game.prefs.toggleBattleRecommendations();
+        if (this.settings().combatBeats) this.game.prefs.toggleCombatBeats();
         break;
       case 'audio':
-        this.game.setMasterVolume(0.7);
-        this.game.setMusicEnabled(false);
+        this.game.prefs.setMasterVolume(0.7);
+        this.game.prefs.setMusicEnabled(false);
         break;
       case 'accessibility':
-        if (this.settings().colorblindMode) this.game.toggleColorblindMode();
-        this.game.setEffectIntensity(1);
-        this.game.setMotionMode('system');
+        if (this.settings().colorblindMode) this.game.prefs.toggleColorblindMode();
+        this.game.prefs.setEffectIntensity(1);
+        this.game.prefs.setMotionMode('system');
         break;
       case 'appearance':
-        this.game.setVisualStyle('collector-tech');
-        this.game.setTypographyProfile('dual-font');
-        this.game.setAccentTheme('aurora');
-        this.game.setLanguage('en');
+        this.game.prefs.setVisualStyle('collector-tech');
+        this.game.prefs.setTypographyProfile('dual-font');
+        this.game.prefs.setAccentTheme('aurora');
+        this.game.prefs.setLanguage('en');
         break;
       default:
         break;

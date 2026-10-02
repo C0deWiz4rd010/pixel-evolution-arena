@@ -58,7 +58,7 @@ export class MonsterDetailComponent {
   readonly view = computed<MonsterDetailView | null>(() => {
     const monster = this.monster();
     if (!monster) return null;
-    const revealLocked = this.game.revealLocked();
+    const revealLocked = this.game.research.revealLocked();
     const pinnedId = this.game.pinnedChaseId();
     const sourcePower = this.game.getMonsterPower(monster);
     const targets = this.game.getEvolutionTargets(monster).map((target): EvolutionTargetView => {

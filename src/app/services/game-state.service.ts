@@ -1,9 +1,9 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { ARENA_FORMATIONS } from '../data/enemies.data';
-import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
-import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
-import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
-import { CombatStats, DEFAULT_SETTINGS, PlayerSettings, PlayerState, RecentBattleRecord, SquadPreset } from '../models/player-state.model';
+import { STAGES, TYPES } from '../data/monsters.data';
+import { ArenaFormation, BattleLog, EnemyMonster } from '../models/battle.model';
+import { Monster, MonsterRarity, MonsterStage } from '../models/monster.model';
+import { CombatStats, RecentBattleRecord, SquadPreset } from '../models/player-state.model';
 import { serializeMonsterProgress } from '../models/save-state.model';
 import {
   ArenaThreatProfile,
@@ -46,9 +46,6 @@ import {
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
 import { evaluateTypePressure } from '../rules/type-matchup.rules';
 import { applyXpToMonster, applyXpToSquad } from '../rules/xp.rules';
-import { GEAR_DEFS } from '../data/gear.data';
-import { GearSlot } from '../models/gear.model';
-import { applyGearToMonster, canAfford, forgeCost, getGearDef, getGearInstance, gearInstanceBonus, clampTier } from '../rules/gear.rules';
 import { BOSSES, BossDef, getBossForBattle } from '../data/bosses.data';
 import { CAMPAIGN_CHAPTERS, CampaignChapter } from '../data/campaign.data';
 import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapter } from '../rules/campaign.rules';
@@ -60,23 +57,14 @@ import { totalSquadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
-import { RESEARCH_NODES, getResearchNode } from '../data/research.data';
 import {
-  buildResearchTree,
-  canUnlockNode,
   dataFromBattle,
-  deriveResearchModifiers,
   EVOLUTION_DATA_BONUS,
   FULL_SCAN_BONUS,
-  ResearchModifiers,
-  ResearchNodeView,
   scanGain,
   applyResearchYield,
-  cheapestAvailableNode,
   pickReserveScanTargets,
-  reserveScanGain,
-} from '../rules/research.rules';
-import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
+  reserveScanGain } from '../rules/research.rules';
 import { BattleIntelSummary, summarizeBattleRecords } from '../rules/battle-intel.rules';
 import {
   buildBossPrepCards,
@@ -122,177 +110,47 @@ import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
 import { ToastService } from './toast.service';
+import { GameStore } from './game-store.service';
+import { SettingsStore } from './settings.store';
+import { ResearchStore } from './research.store';
+import { GearStore } from './gear.store';
+import {
+  MAX_LOADOUT,
+  MAX_RECENT_BATTLES,
+  MAX_SQUAD_PRESETS,
+  STAGE_MILESTONE_REWARD,
+  base64Decode,
+  base64Encode,
+  cloneBattleLogs,
+  clonePlayerState,
+  createStarterBattleLogs,
+  createStarterMonsters,
+  createStarterPlayerState,
+  formatSaveTimestamp,
+  hasProgressBeyondStarter,
+  nodeHash,
+  rarityWeight,
+  sanitizePlayerState } from './game-state.helpers';
+import {
+  ArenaMomentumPanel,
+  ArenaObjectiveCard,
+  ArenaRewardForecast,
+  ArenaRunDirective,
+  BattleMilestonePreview,
+  EvolutionCandidate,
+  GameSectionName,
+  NextCommand,
+  RouteStatusChip,
+} from './game-state.models';
 
-export interface ArenaRunDirective {
-  title: string;
-  objective: string;
-  rewardFocus: string;
-  tacticalHint: string;
-}
-
-export interface BattleEdgeRow {
-  label: string;
-  value: number;
-  percent: string;
-  tone: 'pos' | 'neg';
-}
-
-export interface EnemyTypeScanEntry {
-  type: MonsterType;
-  /** Squad already has a type that beats this enemy type. */
-  countered: boolean;
-  /** This enemy type beats at least one squad type. */
-  threatens: boolean;
-  /** A type that would crack this enemy type (prefers one not already in squad). */
-  suggestion: MonsterType | null;
-  tone: 'good' | 'warn' | 'neutral';
-}
-
-export type GameSectionName =
-  | 'Evolution Tree'
-  | 'Squad'
-  | 'Forge'
-  | 'Arena'
-  | 'Expedition'
-  | 'Collection'
-  | 'Research'
-  | 'Campaign'
-  | 'Medals'
-  | 'Handbook'
-  | 'Settings';
-
-export interface EvolutionCandidate {
-  target: Monster;
-  source: Monster | null;
-  requirements: RequirementStatus[];
-  missing: RequirementStatus[];
-  ready: boolean;
-  percent: number;
-  score: number;
-}
-
-export interface NextCommand {
-  tab: GameSectionName;
-  status: string;
-  title: string;
-  detail: string;
-  actionLabel: string;
-  tone: 'blocked' | 'ready' | 'battle' | 'squad' | 'collection' | 'meta';
-}
-
-export interface ArenaRewardForecast {
-  win: BattleReward;
-  loss: BattleReward;
-  itemChancePercent: number;
-  multiplier: number;
-  nextStreak: number;
-  streakBonus: StreakBonusPreview;
-}
-
-export interface StreakBonusPreview {
-  coins: number;
-  xp: number;
-}
-
-export interface BattleMilestonePreview {
-  threshold: number;
-  winsNeeded: number;
-  label: string;
-}
-
-export interface ArenaMomentumPanel {
-  title: string;
-  status: string;
-  detail: string;
-  meterPercent: number;
-  nextGoalLabel: string;
-  rewardHint: string;
-  tone: 'blocked' | 'building' | 'hot' | 'charged' | 'risk';
-}
-
-export interface ArenaObjectiveCard {
-  label: string;
-  value: string;
-  detail: string;
-  progressPercent: number;
-  tone: 'daily' | 'evolution' | 'milestone';
-}
-
-export interface OperationsCard {
-  id: 'chase' | 'forge' | 'campaign' | 'expedition';
-  tab: GameSectionName;
-  label: string;
-  status: string;
-  title: string;
-  detail: string;
-  metric: string;
-  progressPercent: number;
-  tone: 'ready' | 'meta' | 'warning' | 'info';
-  actionLabel: string;
-}
-
-export interface RouteStatusChip {
-  status: string;
-  detail: string;
-  metric: string;
-  tone: 'ready' | 'train' | 'clear';
-}
-
-const STARTER_PLAYER_STATE: PlayerState = {
-  coins: 1200,
-  dnaShards: 45,
-  battlesFought: 0,
-  battlesWon: 0,
-  selectedMonsterId: 'M007',
-  squadIds: ['M007', 'M008'],
-  inventory: ['Shadow Gem', 'Ancient Gear'],
-  winStreak: 0,
-  bestWinStreak: 0,
-  claimedMilestones: [],
-  squadPresets: [],
-  pinnedChaseId: null,
-  claimedStageMilestones: [],
-  audioEnabled: false,
-  overdriveCharge: 0,
-  claimedAchievements: [],
-  combatStats: { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 },
-  monsterMastery: {},
-  dailyDirective: null,
-  recentBattles: [],
-  ownedGear: [],
-  gearLoadout: {},
-  defeatedBosses: [],
-  claimedChapters: [],
-  encounteredEnemies: [],
-  tutorialDone: false,
-  settings: { ...DEFAULT_SETTINGS },
-  expedition: null,
-  expeditionCores: 0,
-  bioData: 0,
-  totalBioData: 0,
-  scanProgress: {},
-  researchNodes: [],
-};
-
-const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 };
-
-const MAX_SQUAD_PRESETS = 3;
-const MAX_LOADOUT = 2;
-const STAGE_MILESTONE_REWARD = { coins: 200, dnaShards: 10 } as const;
-const MAX_RECENT_BATTLES = 12;
-/** Coalesces bursts of state updates (one action often touches several signals) into one write. */
-const SAVE_DEBOUNCE_MS = 250;
-
-const STARTER_BATTLE_LOGS: BattleLog[] = [
-  { text: 'Digital arena online. Build your squad and start a battle.', type: 'system' },
-  { text: 'Tip: Aquabun can evolve early if you spend starter resources.', type: 'info' },
-];
-
-const STARTER_MONSTERS: Monster[] = MONSTERS.map(cloneMonster);
-const STARTER_MONSTER_IDS = new Set(STARTER_MONSTERS.map((monster) => monster.id));
+export * from './game-state.models';
 
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
+  private readonly store = inject(GameStore);
+  readonly prefs = inject(SettingsStore);
+  readonly research = inject(ResearchStore);
+  readonly gear = inject(GearStore);
   private readonly saveState = inject(SaveStateService);
   private readonly audio = inject(AudioService);
   private readonly toast = inject(ToastService);
@@ -306,13 +164,12 @@ export class GameStateService {
 
   readonly battleCategories = BATTLE_CATEGORIES;
 
-  readonly monsters = signal<Monster[]>(createStarterMonsters());
-  readonly player = signal<PlayerState>(createStarterPlayerState());
-  /** O(1) id lookup; rebuilt only when the roster signal changes. */
-  private readonly monsterIndex = computed(() => new Map(this.monsters().map((monster) => [monster.id, monster])));
-  readonly battleLogs = signal<BattleLog[]>(createStarterBattleLogs());
-  readonly lastReward = signal<BattleReward | null>(null);
-  readonly lastBattleThreat = signal<ArenaThreatProfile | null>(null);
+  // Root state lives in GameStore; these aliases keep the existing component API stable.
+  readonly monsters = this.store.monsters;
+  readonly player = this.store.player;
+  readonly battleLogs = this.store.battleLogs;
+  readonly lastReward = this.store.lastReward;
+  readonly lastBattleThreat = this.store.lastBattleThreat;
   readonly battleCategoryId = signal<BattleCategoryId>('training');
   readonly battleCategory = computed<BattleCategoryProfile>(() => getBattleCategoryProfile(this.battleCategoryId()));
 
@@ -400,7 +257,7 @@ export class GameStateService {
       prismaticCount: this.monsters().filter((monster) => monster.prismatic).length,
       bossesDefeated: player.defeatedBosses.length,
       researchUnlocked: player.researchNodes.length,
-      fullyScanned: this.fullyScannedCount(),
+      fullyScanned: this.research.fullyScannedCount(),
     };
   });
   readonly achievementProgress = computed(() => evaluateAchievements(this.achievementMetrics(), this.player().claimedAchievements));
@@ -430,18 +287,13 @@ export class GameStateService {
 
   readonly selectedMonster = computed(() => {
     const selectedId = this.player().selectedMonsterId;
-    return (selectedId ? this.monsterIndex().get(selectedId) : undefined) ?? this.monsters().find((monster) => monster.unlocked) ?? null;
+    return (selectedId ? this.store.getMonsterById(selectedId) : undefined) ?? this.monsters().find((monster) => monster.unlocked) ?? null;
   });
 
-  readonly squad = computed(() => this.player().squadIds.map((id) => this.getMonsterById(id)).filter((monster): monster is Monster => Boolean(monster)));
+  readonly squad = this.store.squad;
 
-  /** Squad with gear + prismatic bonuses folded in — used for battle and power. */
-  readonly effectiveSquad = computed(() => {
-    const player = this.player();
-    return this.squad().map((monster) => applyGearToMonster(monster, player.gearLoadout, player.ownedGear));
-  });
 
-  readonly teamPower = computed(() => this.effectiveSquad().reduce((total, monster) => total + getMonsterPower(monster), 0));
+  readonly teamPower = computed(() => this.gear.effectiveSquad().reduce((total, monster) => total + getMonsterPower(monster), 0));
 
   readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
 
@@ -567,7 +419,7 @@ export class GameStateService {
     const streakBonus = calculateStreakBonus(nextStreak, baseWin);
     const win = applyStreakBonus(baseWin, streakBonus, nextStreak);
     const loss = buildReward(false, false, multiplier);
-    const research = this.researchModifiers();
+    const research = this.research.researchModifiers();
     const itemChance = Math.min(
       0.65,
       Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + research.itemChanceBonus / 100),
@@ -684,11 +536,10 @@ export class GameStateService {
   });
 
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
-  readonly gearDefs = GEAR_DEFS;
   readonly bosses = BOSSES;
   readonly campaignChapters = CAMPAIGN_CHAPTERS;
 
-  readonly settings = computed(() => this.player().settings);
+  readonly settings = this.store.settings;
 
   /** Named boss for the upcoming run, if it is a Boss Surge battle. */
   readonly activeBoss = computed<BossDef | null>(() =>
@@ -715,28 +566,8 @@ export class GameStateService {
   readonly campaignProgress = computed<ChapterProgress[]>(() => evaluateCampaign(this.campaignMetrics(), this.player().claimedChapters));
   readonly claimableChapter = computed(() => findClaimableChapter(this.campaignMetrics(), this.player().claimedChapters));
 
-  /** Owned gear with resolved definition + tier bonus, for the Forge UI. */
-  readonly ownedGearDetailed = computed(() =>
-    this.player().ownedGear.map((instance) => ({
-      instance,
-      def: getGearDef(instance.defId)!,
-      bonus: gearInstanceBonus(instance),
-    })).filter((entry) => entry.def),
-  );
 
-  readonly squadLoadoutPlan = computed<SquadLoadoutPlan>(() =>
-    buildSquadLoadoutPlan(this.squad(), this.player().ownedGear, this.player().gearLoadout),
-  );
 
-  readonly forgeQuickRecommendation = computed<ForgeQuickRecommendation>(() =>
-    recommendForgeQuickAction({
-      squad: this.squad(),
-      ownedGear: this.player().ownedGear,
-      currentLoadout: this.player().gearLoadout,
-      coins: this.player().coins,
-      dnaShards: this.player().dnaShards,
-    }),
-  );
 
   readonly prismaticCount = computed(() => this.monsters().filter((monster) => monster.prismatic).length);
 
@@ -859,7 +690,7 @@ export class GameStateService {
   readonly squadOrderCards = computed<SquadOrderCard[]>(() => {
     const patch = this.buildSquadPatchInput();
     const drill = this.squadTrainingDrill();
-    const gear = this.squadLoadoutPlan();
+    const gear = this.gear.squadLoadoutPlan();
 
     return buildSquadOrders({
       squadSize: this.squad().length,
@@ -883,7 +714,7 @@ export class GameStateService {
   readonly afterActionCards = computed<AfterActionCard[]>(() => {
     const reward = this.lastReward();
     const expedition = this.expedition();
-    const forge = this.forgeQuickRecommendation();
+    const forge = this.gear.forgeQuickRecommendation();
 
     return buildAfterActionQueue({
       hasBattleResult: reward !== null,
@@ -912,7 +743,7 @@ export class GameStateService {
     const claimableChapter = this.claimableChapter();
     const nextChapter = this.nextCampaignEntry();
     const expedition = this.expedition();
-    const forge = this.forgeQuickRecommendation();
+    const forge = this.gear.forgeQuickRecommendation();
 
     return buildCommandCenterCards({
       squadSize: this.squad().length,
@@ -1055,7 +886,7 @@ export class GameStateService {
       };
     }
 
-    const availableResearch = this.recommendedResearch();
+    const availableResearch = this.research.recommendedResearch();
     if (availableResearch) {
       return {
         tab: 'Research',
@@ -1092,26 +923,13 @@ export class GameStateService {
     };
   });
 
-  private saveTimer: ReturnType<typeof setTimeout> | null = null;
-  private autosaveArmed = false;
-
   constructor() {
-    // Single persistence path: any change to saved state schedules one debounced write.
-    // The first run only observes the freshly loaded state, so loading never rewrites it.
+    // Medals pay out whenever their metrics complete, no matter which store changed the state.
     effect(() => {
-      this.player();
-      this.monsters();
-      this.battleLogs();
-      this.lastReward();
-      this.lastBattleThreat();
-      if (!this.autosaveArmed) {
-        this.autosaveArmed = true;
-        return;
-      }
-      this.scheduleSave();
+      this.achievementMetrics();
+      untracked(() => this.checkAchievements());
     });
     this.watchCalendarDay();
-    this.watchPageLifecycle();
     const savedState = this.saveState.loadState();
 
     if (savedState) {
@@ -1182,19 +1000,7 @@ export class GameStateService {
     }
   }
 
-  toggleAudio(): boolean {
-    const next = !this.player().audioEnabled;
-    this.player.update((current) => ({ ...current, audioEnabled: next }));
-    this.audio.setEnabled(next);
-    if (next) {
-      this.audio.play('menu');
-    }
-    return next;
-  }
 
-  get audioEnabled(): boolean {
-    return this.player().audioEnabled;
-  }
 
   get enemies(): EnemyMonster[] {
     return this.activeEnemies();
@@ -1209,7 +1015,7 @@ export class GameStateService {
   }
 
   getMonsterById(id: string): Monster | undefined {
-    return this.monsterIndex().get(id);
+    return this.store.getMonsterById(id);
   }
 
   selectMonster(id: string): void {
@@ -1561,7 +1367,7 @@ export class GameStateService {
       case 'train-squad':
         return this.runSquadTrainingDrill();
       case 'auto-equip':
-        return this.autoEquipBestGear();
+        return this.gear.autoEquipBestGear();
       case 'evolve-ready':
         return this.runMetaAction('evolve-ready');
       case 'open-arena':
@@ -1715,221 +1521,26 @@ export class GameStateService {
       icon: '✦',
       durationMs: 5200,
     });
-    this.checkAchievements();
   }
 
   // --- Gear / Forge ---
-  getEffectiveMonster(monster: Monster): Monster {
-    const player = this.player();
-    return applyGearToMonster(monster, player.gearLoadout, player.ownedGear);
-  }
 
-  getEquippedGear(monsterId: string, slot: GearSlot) {
-    const instanceId = this.player().gearLoadout[monsterId]?.[slot];
-    const instance = getGearInstance(this.player().ownedGear, instanceId);
-    if (!instance) {
-      return null;
-    }
-    return { instance, def: getGearDef(instance.defId)!, bonus: gearInstanceBonus(instance) };
-  }
 
-  forgeGear(defId: string): void {
-    const def = getGearDef(defId);
-    if (!def) {
-      return;
-    }
-    const cost = forgeCost(def, 0);
-    if (!canAfford(cost, this.player().coins, this.player().dnaShards)) {
-      this.toast.push({ title: 'Forge Blocked', message: `${def.name} needs ${cost.coins} CR + ${cost.dnaShards} DNA.`, tone: 'warn', icon: '!', durationMs: 3200 });
-      return;
-    }
-    const instance = { instanceId: `gear-${Date.now()}-${Math.floor(Math.random() * 1000)}`, defId, tier: 1 };
-    this.player.update((player) => ({
-      ...player,
-      coins: player.coins - cost.coins,
-      dnaShards: player.dnaShards - cost.dnaShards,
-      ownedGear: [...player.ownedGear, instance],
-    }));
-    this.audio.play('forge');
-    this.toast.push({ title: 'Gear Forged', message: `${def.name} (T1) added to your gear locker.`, tone: 'info', icon: def.icon, durationMs: 3400 });
-  }
 
-  upgradeGear(instanceId: string): void {
-    const instance = getGearInstance(this.player().ownedGear, instanceId);
-    const def = instance ? getGearDef(instance.defId) : null;
-    if (!instance || !def) {
-      return;
-    }
-    if (instance.tier >= 5) {
-      this.toast.push({ title: 'Max Tier', message: `${def.name} is already at the maximum tier.`, tone: 'warn', icon: '!', durationMs: 2800 });
-      return;
-    }
-    const cost = forgeCost(def, instance.tier);
-    if (!canAfford(cost, this.player().coins, this.player().dnaShards)) {
-      this.toast.push({ title: 'Upgrade Blocked', message: `Needs ${cost.coins} CR + ${cost.dnaShards} DNA.`, tone: 'warn', icon: '!', durationMs: 3200 });
-      return;
-    }
-    this.player.update((player) => ({
-      ...player,
-      coins: player.coins - cost.coins,
-      dnaShards: player.dnaShards - cost.dnaShards,
-      ownedGear: player.ownedGear.map((entry) => (entry.instanceId === instanceId ? { ...entry, tier: clampTier(entry.tier + 1) } : entry)),
-    }));
-    this.audio.play('forge');
-    this.toast.push({ title: 'Gear Upgraded', message: `${def.name} reached tier ${instance.tier + 1}.`, tone: 'reward', icon: def.icon, durationMs: 3200 });
-  }
 
-  equipGear(monsterId: string, instanceId: string): void {
-    const instance = getGearInstance(this.player().ownedGear, instanceId);
-    const def = instance ? getGearDef(instance.defId) : null;
-    if (!instance || !def) {
-      return;
-    }
-    this.player.update((player) => {
-      const loadout = cloneGearLoadout(player.gearLoadout);
-      // An instance can only be equipped in one place — remove it elsewhere.
-      for (const slots of Object.values(loadout)) {
-        for (const slot of Object.keys(slots) as GearSlot[]) {
-          if (slots[slot] === instanceId) {
-            delete slots[slot];
-          }
-        }
-      }
-      loadout[monsterId] = { ...(loadout[monsterId] ?? {}), [def.slot]: instanceId };
-      return { ...player, gearLoadout: loadout };
-    });
-  }
 
-  unequipGear(monsterId: string, slot: GearSlot): void {
-    this.player.update((player) => {
-      const loadout = cloneGearLoadout(player.gearLoadout);
-      if (loadout[monsterId]) {
-        delete loadout[monsterId][slot];
-      }
-      return { ...player, gearLoadout: loadout };
-    });
-  }
 
-  autoEquipBestGear(): boolean {
-    const squad = this.squad();
-    if (squad.length === 0) {
-      this.toast.push({ title: 'Squad Required', message: 'Load a squad before auto-equipping gear.', tone: 'warn', icon: '!', durationMs: 3200 });
-      return false;
-    }
 
-    const plan = this.squadLoadoutPlan();
-    if (plan.assignedSlots === 0) {
-      this.toast.push({ title: 'No Gear Ready', message: 'Forge or claim gear first so the squad has something to equip.', tone: 'warn', icon: '!', durationMs: 3400 });
-      return false;
-    }
-
-    if (plan.assignedSlots === plan.currentEquippedSlots && plan.powerGain <= 0) {
-      this.toast.push({ title: 'Loadout Stable', message: 'The squad is already carrying the best available gear set.', tone: 'info', icon: 'OK', durationMs: 3200 });
-      return false;
-    }
-
-    const nextLoadout = cloneGearLoadout(this.player().gearLoadout);
-    const squadIds = new Set(squad.map((monster) => monster.id));
-    const usedByPlan = new Set<string>();
-    for (const slots of Object.values(plan.loadout)) {
-      for (const slot of Object.keys(slots) as GearSlot[]) {
-        const instanceId = slots[slot];
-        if (instanceId) {
-          usedByPlan.add(instanceId);
-        }
-      }
-    }
-
-    for (const [monsterId, slots] of Object.entries(nextLoadout)) {
-      for (const slot of Object.keys(slots) as GearSlot[]) {
-        if (usedByPlan.has(slots[slot]!)) {
-          delete nextLoadout[monsterId][slot];
-        }
-      }
-      if (squadIds.has(monsterId)) {
-        delete nextLoadout[monsterId];
-      }
-    }
-
-    for (const monster of squad) {
-      if (plan.loadout[monster.id]) {
-        nextLoadout[monster.id] = { ...plan.loadout[monster.id] };
-      }
-    }
-
-    this.player.update((player) => ({ ...player, gearLoadout: nextLoadout }));
-    this.audio.play('forge');
-    this.toast.push({
-      title: 'Loadout Synced',
-      message: `Auto-equipped ${plan.assignedSlots}/${plan.totalSlots} slots. Projected team power +${plan.powerGain}.`,
-      tone: 'success',
-      icon: 'GE',
-      durationMs: 3800,
-    });
-    return true;
-  }
-
-  runForgeQuickAction(): boolean {
-    const recommendation = this.forgeQuickRecommendation();
-    switch (recommendation.kind) {
-      case 'equip':
-        return this.autoEquipBestGear();
-      case 'forge':
-        if (recommendation.defId) {
-          this.forgeGear(recommendation.defId);
-          return true;
-        }
-        return false;
-      case 'upgrade':
-        if (recommendation.instanceId) {
-          this.upgradeGear(recommendation.instanceId);
-          return true;
-        }
-        return false;
-      default:
-        return false;
-    }
-  }
 
   // --- Settings + accessibility ---
-  setMasterVolume(value: number): void {
-    const clamped = Math.max(0, Math.min(1, value));
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, masterVolume: clamped } }));
-    this.audio.setMasterVolume(clamped);
-  }
 
-  toggleColorblindMode(): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, colorblindMode: !player.settings.colorblindMode } }));
-  }
 
-  setEffectIntensity(value: number): void {
-    const clamped = Math.max(0, Math.min(1, value));
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, effectIntensity: clamped } }));
-  }
 
-  setAccentTheme(theme: PlayerSettings['accentTheme']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, accentTheme: theme } }));
-  }
 
-  setVisualStyle(visualStyle: PlayerSettings['visualStyle']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, visualStyle } }));
-  }
 
-  setTypographyProfile(typographyProfile: PlayerSettings['typographyProfile']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, typographyProfile } }));
-  }
 
-  setLanguage(language: PlayerSettings['language']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, language } }));
-  }
 
-  toggleCombatBeats(): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, combatBeats: !player.settings.combatBeats } }));
-  }
 
-  toggleMusic(): boolean {
-    return this.audio.toggleMusic();
-  }
 
   // --- Campaign ---
   claimReadyChapter(): boolean {
@@ -1968,8 +1579,8 @@ export class GameStateService {
         return this.claimReadyChapter() || true;
       case 'forge-quick':
         this.requestTab('Forge');
-        if (this.forgeQuickRecommendation().kind !== 'blocked') {
-          return this.runForgeQuickAction();
+        if (this.gear.forgeQuickRecommendation().kind !== 'blocked') {
+          return this.gear.runForgeQuickAction();
         }
         return true;
       case 'expedition': {
@@ -2040,74 +1651,8 @@ export class GameStateService {
   readonly relicDefs = RELIC_DEFS;
 
   // --- Bio-Data & Research Lab (Datenbeschaffung) ---
-  readonly bioData = computed(() => this.player().bioData);
-  readonly totalBioData = computed(() => this.player().totalBioData);
-  readonly researchModifiers = computed<ResearchModifiers>(() => deriveResearchModifiers(this.player().researchNodes));
-  readonly researchTree = computed<ResearchNodeView[]>(() =>
-    buildResearchTree(this.player().researchNodes, this.player().bioData),
-  );
-  readonly researchUnlockedCount = computed(() => this.player().researchNodes.length);
-  readonly researchTotalCount = RESEARCH_NODES.length;
-  /** Owned creatures with their scan completion, richest data first. */
-  readonly scanRegistry = computed(() => {
-    const progress = this.player().scanProgress;
-    return this.monsters()
-      .filter((monster) => monster.unlocked)
-      .map((monster) => ({ monster, scan: Math.round(progress[monster.id] ?? 0) }))
-      .sort((a, b) => b.scan - a.scan);
-  });
-  /** Fully-scanned creature count out of unlocked creatures. */
-  readonly fullyScannedCount = computed(() => this.scanRegistry().filter((entry) => entry.scan >= 100).length);
-  readonly scanCompletionPercent = computed(() => {
-    const registry = this.scanRegistry();
-    if (registry.length === 0) return 0;
-    const total = registry.reduce((sum, entry) => sum + entry.scan, 0);
-    return Math.round(total / registry.length);
-  });
 
-  /** True once research reveals exact locked evolution intel everywhere. */
-  readonly revealLocked = computed(() => this.researchModifiers().revealLocked);
-  /** The cheapest research node the player can unlock right now, if any. */
-  readonly recommendedResearch = computed<ResearchNodeView | null>(
-    () => cheapestAvailableNode(this.researchTree()),
-  );
 
-  /** Spend Bio-Data to permanently unlock a research node. */
-  unlockResearch(nodeId: string): boolean {
-    const node = getResearchNode(nodeId);
-    if (!node) {
-      return false;
-    }
-    const player = this.player();
-    const unlocked = new Set(player.researchNodes);
-    if (!canUnlockNode(node, unlocked, player.bioData)) {
-      if (unlocked.has(nodeId)) {
-        this.prependLog(`${node.name} is already online.`, 'system');
-      } else if (!node.requires.every((req) => unlocked.has(req))) {
-        this.prependLog(`${node.name} needs an earlier research first.`, 'system');
-      } else {
-        this.prependLog(`Not enough Bio-Data for ${node.name} (need ${node.cost}).`, 'system');
-      }
-      return false;
-    }
-
-    this.player.update((current) => ({
-      ...current,
-      bioData: current.bioData - node.cost,
-      researchNodes: [...current.researchNodes, node.id],
-    }));
-    this.prependLog(`Research online: ${node.name}. ${node.detail}`, 'reward');
-    this.audio.play('item');
-    this.toast.push({
-      title: 'Research Complete',
-      message: `${node.name} — ${node.detail}`,
-      tone: 'reward',
-      icon: node.icon,
-      durationMs: 4200,
-    });
-    this.checkAchievements();
-    return true;
-  }
   /** Transient relic options the player may pick from a reward/shop node. */
   readonly relicChoices = signal<string[]>([]);
 
@@ -2240,7 +1785,7 @@ export class GameStateService {
     }));
 
     const sim = simulateBattle({
-      squad: this.effectiveSquad(),
+      squad: this.gear.effectiveSquad(),
       enemies,
       playerModifier: this.squadBattleModifier() + relics.attackBonus,
       enemyModifier: calculateEnemyBattleModifier(0.04 + 0.04 * depth + eliteBump, 0),
@@ -2396,7 +1941,6 @@ export class GameStateService {
     }
 
     this.awardStageMilestoneIfComplete(target.stage);
-    this.checkAchievements();
   }
 
   evolveReadyCandidate(): boolean {
@@ -2471,7 +2015,7 @@ export class GameStateService {
     this.lastBattleMastery.set([]);
     this.lastTacticalPulse.set(null);
     let session = createBattleSession({
-      squad: this.effectiveSquad(),
+      squad: this.gear.effectiveSquad(),
       enemies: this.enemies,
       seed: Date.now(),
       playerAttackModifier: this.effectivePlayerModifier(),
@@ -2522,7 +2066,7 @@ export class GameStateService {
 
     const itemChance = Math.min(
       0.65,
-      Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + this.researchModifiers().itemChanceBonus / 100),
+      Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + this.research.researchModifiers().itemChanceBonus / 100),
     );
     const item = shouldAwardItem(sim.won, itemChance, Math.random()) ? this.randomDropItem() : undefined;
 
@@ -2626,7 +2170,7 @@ export class GameStateService {
     const encounteredAfter = Array.from(new Set([...currentPlayer.encounteredEnemies, ...enemyIds]));
 
     // --- Datenbeschaffung: Bio-Data accrual + creature scan progress ---
-    const research = this.researchModifiers();
+    const research = this.research.researchModifiers();
     const knownEnemies = new Set(currentPlayer.encounteredEnemies);
     const newEnemyCount = enemyIds.filter((id) => !knownEnemies.has(id)).length;
     // Research yield is folded into the reward itself so logs, toasts, records and the
@@ -2897,31 +2441,13 @@ export class GameStateService {
       });
     }
 
-    this.checkAchievements();
     this.battleRunning = false;
   }
 
-  setBattleControlMode(mode: PlayerSettings['battleControlMode']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleControlMode: mode } }));
-  }
 
-  setBattleSpeed(speed: PlayerSettings['battleSpeed']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleSpeed: speed } }));
-    this.battleAnimation.setSpeed(speed);
-  }
 
-  toggleBattleRecommendations(): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, battleRecommendations: !player.settings.battleRecommendations } }));
-  }
 
-  setMotionMode(mode: PlayerSettings['motionMode']): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, motionMode: mode } }));
-  }
 
-  setMusicEnabled(value: boolean): void {
-    this.player.update((player) => ({ ...player, settings: { ...player.settings, musicEnabled: value } }));
-    this.audio.setMusicEnabled(value);
-  }
 
   /** Pays out completed, unclaimed medals. */
   private checkAchievements(): void {
@@ -2952,40 +2478,11 @@ export class GameStateService {
 
   /** Write any pending autosave immediately (manual "Save now" and page hide). */
   syncSaveState(): void {
-    this.flushSave();
+    this.store.flushSave();
   }
 
-  private scheduleSave(): void {
-    if (this.saveTimer !== null) return;
-    this.saveTimer = setTimeout(() => this.flushSave(), SAVE_DEBOUNCE_MS);
-  }
 
-  private flushSave(): void {
-    if (this.saveTimer !== null) {
-      clearTimeout(this.saveTimer);
-      this.saveTimer = null;
-    }
-    // Signal values are immutable snapshots, so they can be serialized without cloning.
-    this.saveState.saveState({
-      player: this.player(),
-      monsters: this.monsters().map((monster) => serializeMonsterProgress(monster)),
-      battleLogs: this.battleLogs(),
-      lastReward: this.lastReward(),
-      lastBattleThreat: this.lastBattleThreat(),
-    });
-  }
 
-  /** Flush the debounced save when the page is hidden or closed so no progress is lost. */
-  private watchPageLifecycle(): void {
-    if (typeof window === 'undefined') return;
-    const flushIfPending = () => {
-      if (this.saveTimer !== null) this.flushSave();
-    };
-    window.addEventListener('pagehide', flushIfPending);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') flushIfPending();
-    });
-  }
 
   private getArenaThreatProfile(battleNumber: number): ArenaThreatProfile {
     if (battleNumber > 0 && battleNumber % 5 === 0) {
@@ -3051,7 +2548,7 @@ export class GameStateService {
   }
 
   private prependLog(text: string, type: BattleLog['type']): void {
-    this.battleLogs.update((logs) => [{ text, type }, ...logs].slice(0, 36));
+    this.store.prependLog(text, type);
   }
 
   private buildRouteEtaInput(candidate: EvolutionCandidate | null, reward: ArenaRewardForecast): RouteEtaInput {
@@ -3147,222 +2644,3 @@ export class GameStateService {
   }
 }
 
-function createStarterMonsters(): Monster[] {
-  return STARTER_MONSTERS.map(cloneMonster);
-}
-
-function createStarterPlayerState(): PlayerState {
-  return clonePlayerState(STARTER_PLAYER_STATE);
-}
-
-function createStarterBattleLogs(): BattleLog[] {
-  return cloneBattleLogs(STARTER_BATTLE_LOGS);
-}
-
-function cloneMonster(monster: Monster): Monster {
-  return {
-    ...monster,
-    evolutionTargets: [...monster.evolutionTargets],
-  };
-}
-
-function clonePlayerState(player: PlayerState): PlayerState {
-  return {
-    ...player,
-    squadIds: [...player.squadIds],
-    inventory: [...player.inventory],
-    claimedMilestones: [...player.claimedMilestones],
-    squadPresets: player.squadPresets.map((preset) => ({ ...preset, squadIds: [...preset.squadIds] })),
-    claimedStageMilestones: [...player.claimedStageMilestones],
-    claimedAchievements: [...player.claimedAchievements],
-    combatStats: { ...player.combatStats },
-    monsterMastery: cloneMonsterMastery(player.monsterMastery ?? {}),
-    dailyDirective: player.dailyDirective ? { ...player.dailyDirective } : null,
-    recentBattles: player.recentBattles.map((entry) => ({ ...entry })),
-    ownedGear: player.ownedGear.map((entry) => ({ ...entry })),
-    gearLoadout: cloneGearLoadout(player.gearLoadout),
-    defeatedBosses: [...player.defeatedBosses],
-    claimedChapters: [...player.claimedChapters],
-    encounteredEnemies: [...player.encounteredEnemies],
-    tutorialDone: player.tutorialDone,
-    settings: { ...player.settings },
-    expedition: player.expedition ? cloneExpedition(player.expedition) : null,
-    expeditionCores: player.expeditionCores,
-    bioData: player.bioData,
-    totalBioData: player.totalBioData,
-    scanProgress: { ...player.scanProgress },
-    researchNodes: [...player.researchNodes],
-  };
-}
-
-function cloneExpedition(state: NonNullable<PlayerState['expedition']>): NonNullable<PlayerState['expedition']> {
-  return {
-    ...state,
-    relicIds: [...state.relicIds],
-    reachableIds: [...state.reachableIds],
-    map: state.map.map((node) => ({ ...node, nextIds: [...node.nextIds] })),
-  };
-}
-
-function cloneGearLoadout(loadout: PlayerState['gearLoadout']): PlayerState['gearLoadout'] {
-  const result: PlayerState['gearLoadout'] = {};
-  for (const [monsterId, slots] of Object.entries(loadout)) {
-    result[monsterId] = { ...slots };
-  }
-  return result;
-}
-
-function cloneMonsterMastery(mastery: PlayerState['monsterMastery']): PlayerState['monsterMastery'] {
-  return Object.fromEntries(
-    Object.entries(mastery).map(([monsterId, progress]) => [
-      monsterId,
-      {
-        battleXp: Math.max(0, progress.battleXp ?? 0),
-        signatureProgress: Math.max(0, Math.min(5, progress.signatureProgress ?? 0)),
-        completedGoals: [...(progress.completedGoals ?? [])],
-        unlockedMoves: [...(progress.unlockedMoves ?? [])],
-      },
-    ]),
-  );
-}
-
-function cloneBattleLogs(logs: BattleLog[]): BattleLog[] {
-  return logs.map((log) => ({ ...log }));
-}
-
-/**
- * Bind an already structurally sanitized player (see SaveStateService.parseSnapshot) to the
- * current roster: drop ids that no longer exist so stale saves cannot reference ghost creatures.
- */
-function sanitizePlayerState(player: PlayerState): PlayerState {
-  const known = (id: string | null | undefined): id is string => !!id && STARTER_MONSTER_IDS.has(id);
-  const cloned = clonePlayerState(player);
-  return {
-    ...cloned,
-    selectedMonsterId: known(player.selectedMonsterId) ? player.selectedMonsterId : STARTER_PLAYER_STATE.selectedMonsterId,
-    squadIds: Array.from(new Set(cloned.squadIds.filter(known))).slice(0, 3),
-    squadPresets: cloned.squadPresets
-      .map((preset) => ({ ...preset, squadIds: preset.squadIds.filter(known).slice(0, 3) }))
-      .slice(0, 3),
-    pinnedChaseId: known(player.pinnedChaseId) ? player.pinnedChaseId : null,
-    bestWinStreak: Math.max(cloned.bestWinStreak, cloned.winStreak),
-    combatStats: { ...STARTER_COMBAT_STATS, ...cloned.combatStats },
-    recentBattles: cloned.recentBattles.slice(0, MAX_RECENT_BATTLES),
-    gearLoadout: Object.fromEntries(Object.entries(cloned.gearLoadout).filter(([monsterId]) => known(monsterId))),
-    monsterMastery: Object.fromEntries(Object.entries(cloned.monsterMastery).filter(([monsterId]) => known(monsterId))),
-    scanProgress: Object.fromEntries(Object.entries(cloned.scanProgress).filter(([monsterId]) => known(monsterId))),
-  };
-}
-
-function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
-  if (
-    player.coins !== STARTER_PLAYER_STATE.coins ||
-    player.dnaShards !== STARTER_PLAYER_STATE.dnaShards ||
-    player.battlesFought !== STARTER_PLAYER_STATE.battlesFought ||
-    player.battlesWon !== STARTER_PLAYER_STATE.battlesWon ||
-    player.selectedMonsterId !== STARTER_PLAYER_STATE.selectedMonsterId ||
-    player.squadIds.join('|') !== STARTER_PLAYER_STATE.squadIds.join('|') ||
-    player.inventory.join('|') !== STARTER_PLAYER_STATE.inventory.join('|') ||
-    (player.winStreak ?? 0) !== 0 ||
-    (player.bestWinStreak ?? 0) !== 0 ||
-    (player.claimedMilestones?.length ?? 0) > 0 ||
-    (player.squadPresets?.length ?? 0) > 0 ||
-    player.pinnedChaseId !== null ||
-    (player.claimedStageMilestones?.length ?? 0) > 0 ||
-    player.audioEnabled !== STARTER_PLAYER_STATE.audioEnabled ||
-    (player.overdriveCharge ?? 0) !== 0 ||
-    (player.claimedAchievements?.length ?? 0) > 0 ||
-    (player.recentBattles?.length ?? 0) > 0 ||
-    hasCombatProgress(player.combatStats) ||
-    (player.ownedGear?.length ?? 0) > 0 ||
-    (player.defeatedBosses?.length ?? 0) > 0 ||
-    (player.claimedChapters?.length ?? 0) > 0 ||
-    (player.expeditionCores ?? 0) > 0 ||
-    player.expedition != null ||
-    (player.dailyDirective ? player.dailyDirective.progress > 0 || player.dailyDirective.claimed : false)
-  ) {
-    return true;
-  }
-
-  return monsters.some((monster, index) => {
-    const starter = STARTER_MONSTERS[index];
-    return (
-      monster.unlocked !== starter.unlocked ||
-      monster.level !== starter.level ||
-      monster.xp !== starter.xp ||
-      monster.maxXp !== starter.maxXp ||
-      monster.attack !== starter.attack ||
-      monster.defense !== starter.defense ||
-      monster.speed !== starter.speed ||
-      monster.hp !== starter.hp ||
-      (monster.prismatic === true) !== (starter.prismatic === true)
-    );
-  });
-}
-
-function hasCombatProgress(stats: PlayerState['combatStats'] | undefined): boolean {
-  if (!stats) {
-    return false;
-  }
-  return (
-    (stats.criticalWins ?? 0) > 0 ||
-    (stats.overdrivesUsed ?? 0) > 0 ||
-    (stats.itemsUsed ?? 0) > 0 ||
-    (stats.flawlessWins ?? 0) > 0 ||
-    (stats.gauntletBestWave ?? 0) > 0
-  );
-}
-
-function rarityWeight(rarity: MonsterRarity): number {
-  const weights: Record<MonsterRarity, number> = {
-    Common: 4,
-    Rare: 3,
-    Epic: 2,
-    Legendary: 1,
-  };
-
-  return weights[rarity];
-}
-
-function nodeHash(nodeId: string): number {
-  let hash = 0;
-  for (let i = 0; i < nodeId.length; i += 1) {
-    hash = (Math.imul(hash, 31) + nodeId.charCodeAt(i)) | 0;
-  }
-  return hash >>> 0;
-}
-
-function base64Encode(value: string): string {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
-}
-
-function base64Decode(value: string): string {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
-function formatSaveTimestamp(savedAt: string | null): string {
-  if (!savedAt) {
-    return 'Starter sync';
-  }
-
-  const timestamp = new Date(savedAt);
-  if (Number.isNaN(timestamp.getTime())) {
-    return 'Pending sync';
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(timestamp);
-}
