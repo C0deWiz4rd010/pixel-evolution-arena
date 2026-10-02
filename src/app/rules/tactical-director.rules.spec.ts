@@ -57,4 +57,38 @@ describe('tactical director battle', () => {
       expect(state.skipNextEnemyAction).toBe(true);
     }
   });
+
+  it('shields the squad and adds consumable mitigation at battle start', () => {
+    const state = createBattleSession({ ...params(), consumables: [{ name: 'Bulwark Field', kind: 'shield', mitigation: 0.1 }] });
+    const allies = state.combatants.filter((unit) => unit.side === 'player');
+    expect(allies.every((unit) => unit.statuses.some((status) => status.id === 'shield'))).toBe(true);
+    expect(state.playerMitigation).toBeCloseTo(0.1);
+    expect(state.events.some((event) => event.kind === 'item' && event.text === 'Bulwark Field')).toBe(true);
+  });
+
+  it('spends a repair item once when the squad drops below half HP', () => {
+    const hardFight = {
+      ...params(5),
+      squad: [monster('A', 50, 160), monster('B', 50, 160)],
+      enemies: [enemy('X', 120, 400), enemy('Y', 120, 400)],
+      consumables: [{ name: 'Repair Cell', kind: 'heal' as const, magnitude: 0.25 }],
+    };
+    const result = simulateRecommendedBattle(hardFight);
+    const engaged = result.events.filter((event) => event.kind === 'item' && event.text === 'Repair Cell engaged.');
+    expect(engaged).toHaveLength(1);
+    expect(result.events.some((event) => event.kind === 'heal' && event.side === 'player')).toBe(true);
+  });
+
+  it('blocks enemy debuffs on the squad while a purge item is active', () => {
+    let blocked = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      const purged = simulateRecommendedBattle({ ...params(seed), consumables: [{ name: 'Purge Chip', kind: 'cleanse' }] });
+      const enemyDebuffsOnSquad = purged.events.filter(
+        (event) => event.kind === 'status-apply' && event.side === 'enemy' && event.targetName !== event.actorName,
+      );
+      expect(enemyDebuffsOnSquad).toHaveLength(0);
+      blocked += purged.events.filter((event) => event.text?.startsWith('Purge shielding blocked')).length;
+    }
+    expect(blocked).toBeGreaterThan(0);
+  });
 });

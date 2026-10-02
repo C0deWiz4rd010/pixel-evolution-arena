@@ -3,7 +3,7 @@ import { Monster, MonsterType } from '../models/monster.model';
 import { BattleControlMode } from '../models/player-state.model';
 import { MoveDef, getMonsterMoves, getOverdriveMove } from './moves.rules';
 import { ActiveStatus, STATUS_DEFS, applyStatus, incomingDamageReduction, outgoingDamageMultiplier, tickStatuses } from './status.rules';
-import { BattleEvent } from './combat.engine';
+import { BattleEvent, ConsumableCombatEffect } from './combat.engine';
 import { getTypeMatchupValue } from './type-matchup.rules';
 
 export type { BattleControlMode } from '../models/player-state.model';
@@ -13,6 +13,8 @@ export type TacticalPulseId = 'break' | 'guard' | 'surge';
 export type TacticalBattlePhase = 'opening' | 'pressure' | 'finish' | 'complete';
 
 const COMBAT_DAMAGE_SCALE = 0.42;
+/** A Repair item fires once the squad drops below this share of its total HP. */
+const REPAIR_TRIGGER_RATIO = 0.5;
 
 export interface CombatantState {
   id: string;
@@ -68,6 +70,11 @@ export interface BattleSessionState {
   playerAttackModifier: number;
   enemyAttackModifier: number;
   playerMitigation: number;
+  /** Heal share of max HP banked by Repair-type consumables, spent once when the squad is hurt. */
+  repairReserve: number;
+  repairItemName: string | null;
+  /** Purge-type consumables block every enemy debuff and damage-over-time on the squad. */
+  statusImmune: boolean;
   completed: boolean;
   won: boolean | null;
   criticalHit: boolean;
@@ -83,6 +90,8 @@ export interface CreateBattleSessionParams {
   playerMitigation: number;
   overdriveCharge: number;
   overdriveArmed: boolean;
+  /** Equipped consumables. Attack bonuses arrive via playerAttackModifier; this adds the defensive effects. */
+  consumables?: readonly ConsumableCombatEffect[];
 }
 
 export interface TacticalBattleResult {
@@ -106,6 +115,16 @@ export function createBattleSession(params: CreateBattleSessionParams): BattleSe
   ];
   const seed = (params.seed >>> 0) || 1;
   const intro: BattleEvent = { kind: 'intro', side: 'system', round: 0, text: 'Squad links established. Opening phase online.' };
+  const consumables = params.consumables ?? [];
+  const itemEvents: BattleEvent[] = consumables.map((effect) => ({ kind: 'item', side: 'player', round: 0, text: effect.name }));
+  const repairs = consumables.filter((effect) => effect.kind === 'heal');
+  for (const effect of consumables) {
+    if (effect.kind !== 'shield') continue;
+    for (const ally of combatants) {
+      if (ally.side === 'player') ally.statuses = applyStatus(ally.statuses, 'shield');
+    }
+  }
+  const consumableMitigation = consumables.reduce((total, effect) => total + (effect.mitigation ?? 0), 0);
   return {
     seed,
     rngState: seed,
@@ -121,11 +140,14 @@ export function createBattleSession(params: CreateBattleSessionParams): BattleSe
     overdriveUsed: false,
     orderHistory: [],
     pulseHistory: [],
-    events: [intro],
-    lastBatch: [intro],
+    events: [intro, ...itemEvents],
+    lastBatch: [intro, ...itemEvents],
     playerAttackModifier: params.playerAttackModifier,
     enemyAttackModifier: params.enemyAttackModifier,
-    playerMitigation: params.playerMitigation,
+    playerMitigation: params.playerMitigation + consumableMitigation,
+    repairReserve: repairs.reduce((total, effect) => total + (effect.magnitude ?? 0.25), 0),
+    repairItemName: repairs[0]?.name ?? null,
+    statusImmune: consumables.some((effect) => effect.kind === 'cleanse'),
     completed: false,
     won: null,
     criticalHit: false,
@@ -256,8 +278,12 @@ function performAction(state: BattleSessionState, actor: CombatantState): void {
   const damage = calculateDamage(state, actor, target, move, critical);
   dealDamage(state, actor, target, move, damage, critical);
   if (move.status && random(state) <= (move.statusChance ?? 1) && !target.defeated) {
-    target.statuses = applyStatus(target.statuses, move.status);
-    pushEvent(state, { kind: 'status-apply', side: actor.side, actorName: actor.name, targetName: target.name, moveName: move.name, status: move.status, round: state.round });
+    if (target.side === 'player' && state.statusImmune && STATUS_DEFS[move.status].kind !== 'buff') {
+      pushEvent(state, { kind: 'shield', side: 'player', actorName: target.name, moveName: move.name, round: state.round, text: `Purge shielding blocked ${STATUS_DEFS[move.status].label} on ${target.name}.` });
+    } else {
+      target.statuses = applyStatus(target.statuses, move.status);
+      pushEvent(state, { kind: 'status-apply', side: actor.side, actorName: actor.name, targetName: target.name, moveName: move.name, status: move.status, round: state.round });
+    }
   }
   if (actor.side === 'player') state.overdriveCharge = clamp(state.overdriveCharge + 8, 0, 100);
   consumeOrder(state, actor.side);
@@ -364,6 +390,21 @@ function applyRoundTicks(state: BattleSessionState): void {
     unit.statuses = tickStatuses(unit.statuses);
   }
   if (state.pulse === 'guard') state.pulseRemaining = Math.max(0, state.pulseRemaining - living(state, 'enemy').length);
+  triggerRepair(state);
+}
+
+/** Spend the banked Repair heal once the squad is meaningfully hurt (start-of-battle heals would be wasted). */
+function triggerRepair(state: BattleSessionState): void {
+  if (state.repairReserve <= 0 || teamHpRatio(state, 'player') >= REPAIR_TRIGGER_RATIO) return;
+  const share = state.repairReserve;
+  state.repairReserve = 0;
+  pushEvent(state, { kind: 'item', side: 'player', round: state.round, text: `${state.repairItemName ?? 'Repair'} engaged.` });
+  for (const unit of living(state, 'player')) {
+    const amount = Math.min(unit.maxHp - unit.currentHp, Math.round(unit.maxHp * share));
+    if (amount <= 0) continue;
+    unit.currentHp += amount;
+    pushEvent(state, { kind: 'heal', side: 'player', actorName: unit.name, amount, round: state.round, targetHp: unit.currentHp, targetMaxHp: unit.maxHp });
+  }
 }
 
 function consumeOrder(state: BattleSessionState, actorSide: 'player' | 'enemy'): void {
