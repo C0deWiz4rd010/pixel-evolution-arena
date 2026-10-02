@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { CountUpDirective } from '../../directives/count-up.directive';
 import { GameStateService } from '../../services/game-state.service';
 
-type PulseKey = 'coins' | 'dna' | 'power' | 'dex';
+type PulseKey = 'coins' | 'dna' | 'power' | 'dex' | 'data';
 
 @Component({
   selector: 'app-header-hud',
@@ -19,7 +19,7 @@ export class HeaderHudComponent {
   readonly dexPercent = computed(() => Math.round((this.unlockedCount() / Math.max(1, this.totalCount())) * 100));
   readonly utilityOpen = signal(false);
 
-  private readonly pulseState = signal<Record<PulseKey, boolean>>({ coins: false, dna: false, power: false, dex: false });
+  private readonly pulseState = signal<Record<PulseKey, boolean>>({ coins: false, dna: false, power: false, dex: false, data: false });
   readonly pulseFor = (key: PulseKey) => computed(() => this.pulseState()[key]);
   private readonly previous = new Map<PulseKey, number>();
   private readonly pulseTimers = new Map<PulseKey, ReturnType<typeof setTimeout>>();
@@ -29,6 +29,7 @@ export class HeaderHudComponent {
     effect(() => this.observe('dna', this.game.player().dnaShards));
     effect(() => this.observe('power', this.game.teamPower()));
     effect(() => this.observe('dex', this.unlockedCount()));
+    effect(() => this.observe('data', this.game.bioData()));
   }
 
   openSettings(): void {

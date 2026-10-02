@@ -60,6 +60,22 @@ import { activeSquadTraits, squadCompositionTrait, totalSquadTraitBonus } from '
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
+import { RESEARCH_NODES, RESEARCH_NODE_IDS, getResearchNode } from '../data/research.data';
+import {
+  buildResearchTree,
+  canUnlockNode,
+  dataFromBattle,
+  deriveResearchModifiers,
+  EVOLUTION_DATA_BONUS,
+  FULL_SCAN_BONUS,
+  ResearchModifiers,
+  ResearchNodeView,
+  scanGain,
+  applyResearchYield,
+  cheapestAvailableNode,
+  pickReserveScanTargets,
+  reserveScanGain,
+} from '../rules/research.rules';
 import { buildSquadLoadoutPlan, ForgeQuickRecommendation, recommendForgeQuickAction, SquadLoadoutPlan } from '../rules/operations.rules';
 import { BattleIntelSummary, summarizeBattleRecords } from '../rules/battle-intel.rules';
 import {
@@ -143,6 +159,7 @@ export type GameSectionName =
   | 'Arena'
   | 'Expedition'
   | 'Collection'
+  | 'Research'
   | 'Campaign'
   | 'Medals'
   | 'Handbook'
@@ -255,6 +272,10 @@ const STARTER_PLAYER_STATE: PlayerState = {
   settings: { ...DEFAULT_SETTINGS },
   expedition: null,
   expeditionCores: 0,
+  bioData: 0,
+  totalBioData: 0,
+  scanProgress: {},
+  researchNodes: [],
 };
 
 const STARTER_COMBAT_STATS: CombatStats = { criticalWins: 0, overdrivesUsed: 0, itemsUsed: 0, flawlessWins: 0, gauntletBestWave: 0 };
@@ -377,6 +398,8 @@ export class GameStateService {
       gauntletBestWave: player.combatStats.gauntletBestWave,
       prismaticCount: this.monsters().filter((monster) => monster.prismatic).length,
       bossesDefeated: player.defeatedBosses.length,
+      researchUnlocked: player.researchNodes.length,
+      fullyScanned: this.fullyScannedCount(),
     };
   });
   readonly achievementProgress = computed(() => evaluateAchievements(this.achievementMetrics(), this.player().claimedAchievements));
@@ -591,11 +614,15 @@ export class GameStateService {
     const streakBonus = calculateStreakBonus(nextStreak, baseWin);
     const win = applyStreakBonus(baseWin, streakBonus, nextStreak);
     const loss = buildReward(false, false, multiplier);
-    const itemChance = Math.min(0.65, Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus));
+    const research = this.researchModifiers();
+    const itemChance = Math.min(
+      0.65,
+      Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + research.itemChanceBonus / 100),
+    );
 
     return {
-      win,
-      loss,
+      win: applyResearchYield(win, research),
+      loss: applyResearchYield(loss, research),
       itemChancePercent: Math.round(itemChance * 100),
       multiplier,
       nextStreak,
@@ -1259,6 +1286,18 @@ export class GameStateService {
         title: daily.label,
         detail: `${daily.detail} Progress ${this.dailyDirective().progress}/${daily.goal}.`,
         actionLabel: 'Run Battle',
+        tone: 'meta',
+      };
+    }
+
+    const availableResearch = this.recommendedResearch();
+    if (availableResearch) {
+      return {
+        tab: 'Research',
+        status: 'RESEARCH READY',
+        title: `Unlock ${availableResearch.def.name}`,
+        detail: `${availableResearch.def.detail} Costs ${availableResearch.def.cost} Bio-Data you already have.`,
+        actionLabel: 'Open Research',
         tone: 'meta',
       };
     }
@@ -2221,6 +2260,81 @@ export class GameStateService {
   );
   readonly expeditionCores = computed(() => this.player().expeditionCores);
   readonly relicDefs = RELIC_DEFS;
+
+  // --- Bio-Data & Research Lab (Datenbeschaffung) ---
+  readonly researchNodeDefs = RESEARCH_NODES;
+  readonly bioData = computed(() => this.player().bioData);
+  readonly totalBioData = computed(() => this.player().totalBioData);
+  readonly researchModifiers = computed<ResearchModifiers>(() => deriveResearchModifiers(this.player().researchNodes));
+  readonly researchTree = computed<ResearchNodeView[]>(() =>
+    buildResearchTree(this.player().researchNodes, this.player().bioData),
+  );
+  readonly researchUnlockedCount = computed(() => this.player().researchNodes.length);
+  readonly researchTotalCount = RESEARCH_NODES.length;
+  /** Owned creatures with their scan completion, richest data first. */
+  readonly scanRegistry = computed(() => {
+    const progress = this.player().scanProgress;
+    return this.monsters()
+      .filter((monster) => monster.unlocked)
+      .map((monster) => ({ monster, scan: Math.round(progress[monster.id] ?? 0) }))
+      .sort((a, b) => b.scan - a.scan);
+  });
+  /** Fully-scanned creature count out of unlocked creatures. */
+  readonly fullyScannedCount = computed(() => this.scanRegistry().filter((entry) => entry.scan >= 100).length);
+  readonly scanCompletionPercent = computed(() => {
+    const registry = this.scanRegistry();
+    if (registry.length === 0) return 0;
+    const total = registry.reduce((sum, entry) => sum + entry.scan, 0);
+    return Math.round(total / registry.length);
+  });
+  scanProgressFor(monsterId: string): number {
+    return Math.round(this.player().scanProgress[monsterId] ?? 0);
+  }
+
+  /** True once research reveals exact locked evolution intel everywhere. */
+  readonly revealLocked = computed(() => this.researchModifiers().revealLocked);
+  /** The cheapest research node the player can unlock right now, if any. */
+  readonly recommendedResearch = computed<ResearchNodeView | null>(
+    () => cheapestAvailableNode(this.researchTree()),
+  );
+
+  /** Spend Bio-Data to permanently unlock a research node. */
+  unlockResearch(nodeId: string): boolean {
+    const node = getResearchNode(nodeId);
+    if (!node) {
+      return false;
+    }
+    const player = this.player();
+    const unlocked = new Set(player.researchNodes);
+    if (!canUnlockNode(node, unlocked, player.bioData)) {
+      if (unlocked.has(nodeId)) {
+        this.prependLog(`${node.name} is already online.`, 'system');
+      } else if (!node.requires.every((req) => unlocked.has(req))) {
+        this.prependLog(`${node.name} needs an earlier research first.`, 'system');
+      } else {
+        this.prependLog(`Not enough Bio-Data for ${node.name} (need ${node.cost}).`, 'system');
+      }
+      return false;
+    }
+
+    this.player.update((current) => ({
+      ...current,
+      bioData: current.bioData - node.cost,
+      researchNodes: [...current.researchNodes, node.id],
+    }));
+    this.prependLog(`Research online: ${node.name}. ${node.detail}`, 'reward');
+    this.audio.play('item');
+    this.toast.push({
+      title: 'Research Complete',
+      message: `${node.name} — ${node.detail}`,
+      tone: 'reward',
+      icon: node.icon,
+      durationMs: 4200,
+    });
+    this.checkAchievements();
+    this.persistState();
+    return true;
+  }
   /** Transient relic options the player may pick from a reward/shop node. */
   readonly relicChoices = signal<string[]>([]);
 
@@ -2252,8 +2366,15 @@ export class GameStateService {
     }
     const relics = relicBonus(exp.relicIds);
     const payout = exp.status === 'won' ? exp.rewardCores + relics.coresOnClear : Math.floor(exp.rewardCores * 0.5);
-    this.player.update((player) => ({ ...player, expedition: null, expeditionCores: player.expeditionCores + payout }));
-    this.prependLog(`Expedition ${exp.status === 'won' ? 'cleared' : 'ended'}: +${payout} Cores banked.`, 'reward');
+    const dataPayout = Math.max(6, Math.round(payout * 1.5));
+    this.player.update((player) => ({
+      ...player,
+      expedition: null,
+      expeditionCores: player.expeditionCores + payout,
+      bioData: player.bioData + dataPayout,
+      totalBioData: player.totalBioData + dataPayout,
+    }));
+    this.prependLog(`Expedition ${exp.status === 'won' ? 'cleared' : 'ended'}: +${payout} Cores, +${dataPayout} Bio-Data banked.`, 'reward');
     this.audio.play(exp.status === 'won' ? 'win' : 'loss');
     this.toast.push({
       title: exp.status === 'won' ? 'Expedition Cleared' : 'Expedition Ended',
@@ -2466,9 +2587,17 @@ export class GameStateService {
       return;
     }
 
-    this.player.update((player) => applyEvolutionToPlayer(player, target));
+    this.player.update((player) => {
+      const evolved = applyEvolutionToPlayer(player, target);
+      return {
+        ...evolved,
+        bioData: evolved.bioData + EVOLUTION_DATA_BONUS,
+        totalBioData: evolved.totalBioData + EVOLUTION_DATA_BONUS,
+      };
+    });
     this.monsters.update((monsters) => unlockEvolutionTarget(monsters, source, target));
     this.prependLog(`${source.name} evolved into ${target.name}!`, 'reward');
+    this.prependLog(`New form catalogued: +${EVOLUTION_DATA_BONUS} Bio-Data.`, 'reward');
     this.audio.play('evolve');
     this.toast.push({
       title: 'Evolution Complete',
@@ -2607,7 +2736,10 @@ export class GameStateService {
     const xpResult = applyXpToSquad(this.monsters(), this.player().squadIds, reward.xp);
     this.monsters.set(xpResult.updatedMonsters);
 
-    const itemChance = Math.min(0.65, Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus));
+    const itemChance = Math.min(
+      0.65,
+      Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + this.researchModifiers().itemChanceBonus / 100),
+    );
     const item = shouldAwardItem(sim.won, itemChance, Math.random()) ? this.randomDropItem() : undefined;
 
     if (item) {
@@ -2706,7 +2838,49 @@ export class GameStateService {
     }
 
     // Bestiary: record every enemy seen this run.
-    const encounteredAfter = Array.from(new Set([...currentPlayer.encounteredEnemies, ...this.enemies.map((enemy) => enemy.id ?? enemy.name)]));
+    const enemyIds = this.enemies.map((enemy) => enemy.id ?? enemy.name);
+    const encounteredAfter = Array.from(new Set([...currentPlayer.encounteredEnemies, ...enemyIds]));
+
+    // --- Datenbeschaffung: Bio-Data accrual + creature scan progress ---
+    const research = this.researchModifiers();
+    const knownEnemies = new Set(currentPlayer.encounteredEnemies);
+    const newEnemyCount = enemyIds.filter((id) => !knownEnemies.has(id)).length;
+    // Research yield is folded into the reward itself so logs, toasts, records and the
+    // reward reveal all show exactly what lands in the wallet.
+    reward = applyResearchYield(reward, research);
+    const coinFromBattle = reward.coins;
+    const dnaFromBattle = reward.dnaShards;
+    let bioDataGain = dataFromBattle({
+      won: sim.won,
+      threatMultiplier: threat.rewardModifier,
+      newEnemyCount,
+      squadSize: currentPlayer.squadIds.length,
+      modifiers: research,
+    });
+    const squadScanIds = new Set(currentPlayer.squadIds);
+    const reserveScanIds = research.autoScanReserves
+      ? pickReserveScanTargets(
+          this.monsters()
+            .filter((monster) => monster.unlocked && !squadScanIds.has(monster.id))
+            .map((monster) => monster.id),
+          currentPlayer.scanProgress,
+        )
+      : [];
+    const scanStep = scanGain(sim.won, research);
+    const reserveStep = reserveScanGain(sim.won, research);
+    const nextScanProgress = { ...currentPlayer.scanProgress };
+    const newlyScanned: string[] = [];
+    for (const id of [...squadScanIds, ...reserveScanIds]) {
+      const before = nextScanProgress[id] ?? 0;
+      if (before >= 100) continue;
+      const after = Math.min(100, before + (squadScanIds.has(id) ? scanStep : reserveStep));
+      nextScanProgress[id] = after;
+      if (after >= 100) {
+        newlyScanned.push(id);
+        bioDataGain += FULL_SCAN_BONUS;
+      }
+    }
+
     const battleRecord: RecentBattleRecord = {
       id: `battle-${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -2730,8 +2904,11 @@ export class GameStateService {
 
     this.player.update((player) => ({
       ...player,
-      coins: player.coins + reward.coins + dailyBonusCoins + bossBonusCoins,
-      dnaShards: player.dnaShards + reward.dnaShards + dailyBonusDna + bossBonusDna,
+      coins: player.coins + coinFromBattle + dailyBonusCoins + bossBonusCoins,
+      dnaShards: player.dnaShards + dnaFromBattle + dailyBonusDna + bossBonusDna,
+      bioData: player.bioData + bioDataGain,
+      totalBioData: player.totalBioData + bioDataGain,
+      scanProgress: nextScanProgress,
       battlesFought: player.battlesFought + 1,
       battlesWon: nextBattlesWon,
       inventory: item ? [...inventoryAfter, item] : inventoryAfter,
@@ -2762,6 +2939,21 @@ export class GameStateService {
         tone: 'reward',
         icon: bossNewlyDefeated.icon,
         durationMs: 4600,
+      });
+    }
+
+    if (newlyScanned.length > 0) {
+      const names = newlyScanned
+        .map((id) => this.getMonsterById(id)?.name ?? id)
+        .slice(0, 3)
+        .join(', ');
+      this.prependLog(`Full data profile secured: ${names}. +${newlyScanned.length * FULL_SCAN_BONUS} Bio-Data.`, 'reward');
+      this.toast.push({
+        title: 'Scan Complete',
+        message: `${names} fully catalogued. +${newlyScanned.length * FULL_SCAN_BONUS} Bio-Data.`,
+        tone: 'reward',
+        icon: 'SC',
+        durationMs: 4200,
       });
     }
 
@@ -2804,6 +2996,15 @@ export class GameStateService {
       text: `${award.monsterName} gained ${award.points} ${award.type} Mastery${award.goalCompleted ? ` and completed ${award.goal.label}` : ''}.`,
       type: 'reward' as const,
     }));
+    const dataLog = [
+      {
+        text:
+          newEnemyCount > 0
+            ? `Bio-Data gathered: +${bioDataGain} (incl. ${newEnemyCount} first-contact scan${newEnemyCount > 1 ? 's' : ''}).`
+            : `Bio-Data gathered: +${bioDataGain}.`,
+        type: 'reward' as const,
+      },
+    ];
 
     this.lastReward.set(reward);
     this.lastBattleMastery.set(masteryAwards);
@@ -2826,6 +3027,7 @@ export class GameStateService {
         ...dailyLog,
         ...gauntletLog,
         ...masteryLogs,
+        ...dataLog,
         ...lossHintLog,
         ...(item ? [{ text: `Item found: ${item}.`, type: 'reward' as const }] : []),
         ...this.battleLogs(),
@@ -3194,6 +3396,10 @@ function clonePlayerState(player: PlayerState): PlayerState {
     settings: { ...player.settings },
     expedition: player.expedition ? cloneExpedition(player.expedition) : null,
     expeditionCores: player.expeditionCores,
+    bioData: player.bioData,
+    totalBioData: player.totalBioData,
+    scanProgress: { ...player.scanProgress },
+    researchNodes: [...player.researchNodes],
   };
 }
 
@@ -3296,7 +3502,27 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     settings: sanitizeSettings(player.settings),
     expedition: player.expedition ? cloneExpedition(player.expedition) : null,
     expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
+    bioData: typeof player.bioData === 'number' ? Math.max(0, player.bioData) : 0,
+    totalBioData: typeof player.totalBioData === 'number' ? Math.max(0, player.totalBioData) : 0,
+    scanProgress: sanitizeScanProgressMap(player.scanProgress),
+    researchNodes: Array.isArray(player.researchNodes)
+      ? Array.from(new Set(player.researchNodes.filter((id): id is string => typeof id === 'string' && RESEARCH_NODE_IDS.has(id))))
+      : [],
   };
+}
+
+function sanitizeScanProgressMap(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+  const result: Record<string, number> = {};
+  for (const [id, raw] of Object.entries(value as Record<string, unknown>)) {
+    const num = Number(raw);
+    if (Number.isFinite(num)) {
+      result[id] = Math.max(0, Math.min(100, num));
+    }
+  }
+  return result;
 }
 
 function sanitizeSettings(settings: PlayerSettings | undefined): PlayerSettings {

@@ -11,6 +11,10 @@ const ZERO: AchievementMetrics = {
   itemsUsed: 0,
   flawlessWins: 0,
   gauntletBestWave: 0,
+  prismaticCount: 0,
+  bossesDefeated: 0,
+  researchUnlocked: 0,
+  fullyScanned: 0,
 };
 
 describe('achievements rules', () => {

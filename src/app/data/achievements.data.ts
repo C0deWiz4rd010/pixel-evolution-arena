@@ -14,7 +14,9 @@ export type AchievementMetric =
   | 'flawlessWins'
   | 'gauntletBestWave'
   | 'prismaticCount'
-  | 'bossesDefeated';
+  | 'bossesDefeated'
+  | 'researchUnlocked'
+  | 'fullyScanned';
 
 export interface AchievementDef {
   id: string;
@@ -44,4 +46,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'prismatic-3', label: 'Spectrum Hunter', detail: 'Besitze 3 prismatische Varianten.', icon: '✦', metric: 'prismaticCount', goal: 3, reward: { coins: 700, dnaShards: 24 } },
   { id: 'boss-1', label: 'Crown Breaker', detail: 'Besiege deinen ersten benannten Boss.', icon: '♛', metric: 'bossesDefeated', goal: 1, reward: { coins: 360, dnaShards: 12 } },
   { id: 'boss-all', label: 'Loop Warden', detail: 'Besiege alle benannten Bosse.', icon: '♛', metric: 'bossesDefeated', goal: 3, reward: { coins: 900, dnaShards: 30 } },
+  { id: 'research-3', label: 'Lab Technician', detail: 'Schalte 3 Forschungs-Upgrades frei.', icon: '⬡', metric: 'researchUnlocked', goal: 3, reward: { coins: 320, dnaShards: 10 } },
+  { id: 'research-all', label: 'Chief Scientist', detail: 'Schalte alle 9 Forschungs-Upgrades frei.', icon: '⬡', metric: 'researchUnlocked', goal: 9, reward: { coins: 1200, dnaShards: 40 } },
+  { id: 'scan-5', label: 'Data Harvester', detail: 'Erstelle 5 vollständige Scan-Profile.', icon: '◹', metric: 'fullyScanned', goal: 5, reward: { coins: 340, dnaShards: 11 } },
 ];

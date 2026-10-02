@@ -1,0 +1,119 @@
+<section class="hud-panel research-view" aria-label="Research Lab">
+  <header class="research-head">
+    <div class="head-copy">
+      <span>Archive</span>
+      <h2>Bio-Data Research Lab</h2>
+      <p>Gather Bio-Data by scanning your squad and cataloguing new enemies, then spend it on permanent upgrades.</p>
+    </div>
+    <div class="data-balance" [class.rich]="bioData() > 0">
+      <span>Bio-Data</span>
+      <strong>{{ bioData() }}</strong>
+      <small>{{ totalBioData() }} gathered all-time</small>
+    </div>
+  </header>
+
+  <section class="research-stats" aria-label="Research overview">
+    <article>
+      <span>Research</span>
+      <strong>{{ unlockedCount() }}/{{ totalNodes }}</strong>
+      <i><b [style.width.%]="totalNodes ? (unlockedCount() / totalNodes) * 100 : 0"></b></i>
+    </article>
+    <article>
+      <span>Scan Completion</span>
+      <strong>{{ scanCompletion() }}%</strong>
+      <i><b [style.width.%]="scanCompletion()"></b></i>
+    </article>
+    <article>
+      <span>Full Profiles</span>
+      <strong>{{ fullyScanned() }}/{{ scanRegistry().length }}</strong>
+      <small>Fully scanned creatures</small>
+    </article>
+  </section>
+
+  @if (nextNode(); as goal) {
+    <section class="research-goal" aria-label="Next research goal">
+      <span class="goal-icon" aria-hidden="true">{{ goal.def.icon }}</span>
+      <div>
+        <span>Recommended Research</span>
+        <strong>{{ goal.def.name }}</strong>
+        <small>{{ goal.def.detail }}</small>
+      </div>
+      <button type="button" class="primary" (click)="unlock(goal)">Unlock · {{ goal.def.cost }}</button>
+    </section>
+  } @else {
+    <p class="research-hint">
+      Gather more Bio-Data from battles and expeditions to open the next research tier.
+    </p>
+  }
+
+  <div class="branch-grid">
+    @for (branch of branches(); track branch.branch) {
+      <section class="branch-card branch-{{ branch.branch }}" [attr.aria-label]="branch.label + ' research'">
+        <header>
+          <span class="branch-tag">{{ branch.tag }}</span>
+          <div>
+            <h3>{{ branch.label }}</h3>
+            <p>{{ branch.blurb }}</p>
+          </div>
+          <strong class="branch-count">{{ branch.ownedCount }}/{{ branch.total }}</strong>
+        </header>
+        <ol class="node-list">
+          @for (node of branch.nodes; track node.def.id) {
+            <li class="node status-{{ node.status }}">
+              <span class="node-icon" aria-hidden="true">{{ node.def.icon }}</span>
+              <div class="node-body">
+                <div class="node-title">
+                  <strong>{{ node.def.name }}</strong>
+                  <span class="node-tier">T{{ node.def.tier }}</span>
+                </div>
+                <small>{{ node.def.detail }}</small>
+                @if (node.status === 'locked' && node.missingRequires.length) {
+                  <em class="node-req">Requires: {{ node.missingRequires.join(', ') }}</em>
+                }
+              </div>
+              <button
+                type="button"
+                class="node-action"
+                [class.owned]="node.status === 'owned'"
+                [disabled]="node.status !== 'available'"
+                (click)="unlock(node)"
+              >
+                {{ statusLabel(node) }}
+              </button>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+  </div>
+
+  <section class="scan-registry" aria-label="Creature scan registry">
+    <header>
+      <div>
+        <span>Datenbeschaffung</span>
+        <h3>Scan Registry</h3>
+      </div>
+      <p>Battle with a creature to advance its scan. A full profile pays a one-time Bio-Data bonus.</p>
+    </header>
+    <ul class="scan-list">
+      @for (entry of scanRegistry(); track entry.monster.id) {
+        <li class="scan-row" [class.complete]="entry.scan >= 100">
+          <app-creature-portrait
+            [src]="entry.monster.spriteUrl"
+            [name]="entry.monster.name"
+            [stage]="entry.monster.stage"
+            size="micro"
+          />
+          <div class="scan-copy">
+            <strong>{{ entry.monster.name }}</strong>
+            <span class="scan-meta">{{ entry.monster.stage }} · {{ entry.monster.type }}</span>
+            <i class="scan-bar"><b [style.width.%]="entry.scan"></b></i>
+          </div>
+          <span class="scan-percent">{{ entry.scan }}%</span>
+        </li>
+      } @empty {
+        <li class="scan-empty">Unlock creatures to populate the scan registry.</li>
+      }
+    </ul>
+  </section>
+</section>

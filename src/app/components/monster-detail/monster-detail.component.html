@@ -6,11 +6,11 @@
     </div>
 
     <div class="detail-hero">
-      <span class="detail-icon sprite-node" [class.silhouette]="!selected.unlocked" aria-hidden="true">
+      <span class="detail-icon sprite-node" [class.silhouette]="!selected.unlocked && !game.revealLocked()" aria-hidden="true">
         @if (selected.spriteUrl) { <img class="creature-sprite hero" [src]="selected.spriteUrl" alt="" /> }
       </span>
       <div class="detail-identity">
-        <h2>{{ selected.unlocked ? selected.name : 'Unknown Form' }}</h2>
+        <h2>{{ selected.unlocked || game.revealLocked() ? selected.name : 'Unknown Form' }}</h2>
         <p><span>{{ selected.stage }}</span><span>{{ selected.type }}</span></p>
         <small>{{ familyUnlocked }} / {{ familyTotal }} family forms</small>
       </div>
@@ -60,7 +60,7 @@
         @for (target of game.getEvolutionTargets(selected); track target.id) {
           <article class="target-card" [class.ready]="game.canEvolve(selected, target)" [class.unlocked]="target.unlocked">
             <div class="target-head">
-              <span class="target-icon sprite-node" [class.silhouette]="!target.unlocked" aria-hidden="true">
+              <span class="target-icon sprite-node" [class.silhouette]="!target.unlocked && !game.revealLocked()" aria-hidden="true">
                 @if (target.spriteUrl) { <img class="creature-sprite target" [src]="target.spriteUrl" alt="" /> }
               </span>
               <div class="target-copy"><strong>{{ target.name }}</strong><span>{{ target.stage }} · {{ powerDeltaLabel(selected, target) }}</span></div>

@@ -21,6 +21,9 @@
       <span class="stat-icon">DX</span><span class="stat-body"><span class="stat-label">Dex</span><strong>{{ unlockedCount() }}/{{ totalCount() }}</strong></span>
       <i aria-hidden="true"><b [style.width.%]="dexPercent()"></b></i>
     </div>
+    <div class="stat-chip data secondary-stat" [class.stat-pulse]="pulseFor('data')()">
+      <span class="stat-icon">DT</span><span class="stat-body"><span class="stat-label">Bio-Data</span><strong [appCountUp]="game.bioData()"></strong></span>
+    </div>
     <div class="utility-wrap">
       <button type="button" class="utility-button" aria-label="Open utility menu" [attr.aria-expanded]="utilityOpen()" (click)="utilityOpen.set(!utilityOpen())">•••</button>
       @if (utilityOpen()) {

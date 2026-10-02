@@ -29,6 +29,18 @@ test('all primary areas and secondary views render without runtime errors', asyn
   expect(errors, errors.join('\n')).toHaveLength(0);
 });
 
+test('research lab shows Bio-Data balance, overview and branches', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/');
+  await dismissOnboarding(page);
+  await page.getByRole('navigation', { name: 'Game sections' }).getByRole('button', { name: 'Archive', exact: true }).click();
+  await page.getByRole('button', { name: 'Research', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bio-Data Research Lab' })).toBeVisible();
+  await expect(page.getByLabel('Research overview')).toContainText('Scan Completion');
+  await expect(page.getByLabel('Yield Systems research')).toBeVisible();
+  expect(errors, errors.join('\n')).toHaveLength(0);
+});
+
 test('onboarding is three short steps and routes through the core loop', async ({ page }) => {
   await page.goto('/');
   const dialog = page.getByRole('dialog', { name: 'Getting started' });

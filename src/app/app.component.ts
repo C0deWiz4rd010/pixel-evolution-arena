@@ -10,6 +10,7 @@ import { HandbookComponent } from './components/handbook/handbook.component';
 import { HeaderHudComponent } from './components/header-hud/header-hud.component';
 import { MedalsComponent } from './components/medals/medals.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
+import { ResearchLabComponent } from './components/research-lab/research-lab.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { SquadComponent } from './components/squad/squad.component';
 import { PrimarySection, TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
@@ -23,7 +24,7 @@ const SECTION_VIEWS: Record<PrimarySection, readonly GameSectionName[]> = {
   Squad: ['Squad', 'Forge'],
   Battle: ['Arena', 'Campaign'],
   Explore: ['Expedition'],
-  Archive: ['Collection', 'Medals', 'Handbook'],
+  Archive: ['Collection', 'Research', 'Medals', 'Handbook'],
 };
 
 const VIEW_LABELS: Partial<Record<GameSectionName, string>> = {
@@ -53,6 +54,7 @@ const VIEW_LABELS: Partial<Record<GameSectionName, string>> = {
     CampaignComponent,
     MedalsComponent,
     HandbookComponent,
+    ResearchLabComponent,
     SettingsComponent,
     OnboardingComponent,
     ToastStackComponent,

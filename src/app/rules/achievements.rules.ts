@@ -12,6 +12,8 @@ export interface AchievementMetrics {
   gauntletBestWave: number;
   prismaticCount: number;
   bossesDefeated: number;
+  researchUnlocked: number;
+  fullyScanned: number;
 }
 
 export interface AchievementProgress {

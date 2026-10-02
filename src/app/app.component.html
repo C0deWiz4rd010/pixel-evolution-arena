@@ -79,6 +79,13 @@
           <div class="view-loading">Loading collection...</div>
         }
       }
+      @case ('Research') {
+        @defer (on immediate) {
+          <app-research-lab />
+        } @placeholder {
+          <div class="view-loading">Loading research lab...</div>
+        }
+      }
       @case ('Campaign') {
         @defer (on immediate) {
           <app-campaign />

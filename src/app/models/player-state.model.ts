@@ -125,6 +125,14 @@ export interface PlayerState {
   expedition: ExpeditionState | null;
   /** Meta-currency banked from Expedition clears. */
   expeditionCores: number;
+  /** Bio-Data gathered from scanning creatures and cataloguing enemies. */
+  bioData: number;
+  /** Lifetime Bio-Data gathered (never spent down), for stats/goals. */
+  totalBioData: number;
+  /** monsterId -> scan completion 0..100. */
+  scanProgress: Record<string, number>;
+  /** Unlocked Research Lab node ids. */
+  researchNodes: string[];
 }
 
 export const DEFAULT_SETTINGS: PlayerSettings = {

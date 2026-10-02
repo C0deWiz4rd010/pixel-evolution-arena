@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Monster } from '../models/monster.model';
 import { SaveStateData, SaveStateSnapshot, SAVE_STATE_VERSION, SavedMonsterProgress } from '../models/save-state.model';
+import { RESEARCH_NODE_IDS } from '../data/research.data';
 
 const SAVE_STORAGE_KEY = 'pixel-evolution-arena.save';
 
@@ -199,8 +200,33 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
       settings: sanitizeSettings(player.settings),
       expedition: sanitizeExpedition(player.expedition),
       expeditionCores: typeof player.expeditionCores === 'number' ? Math.max(0, player.expeditionCores) : 0,
+      bioData: typeof player.bioData === 'number' ? Math.max(0, player.bioData) : 0,
+      totalBioData: typeof player.totalBioData === 'number' ? Math.max(0, player.totalBioData) : 0,
+      scanProgress: sanitizeScanProgress(player.scanProgress),
+      researchNodes: sanitizeResearchNodes(player.researchNodes),
     },
   };
+}
+
+function sanitizeScanProgress(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+  const result: Record<string, number> = {};
+  for (const [id, raw] of Object.entries(value as Record<string, unknown>)) {
+    const num = Number(raw);
+    if (Number.isFinite(num)) {
+      result[id] = clamp(num, 0, 100);
+    }
+  }
+  return result;
+}
+
+function sanitizeResearchNodes(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return Array.from(new Set(value.filter((entry): entry is string => typeof entry === 'string' && RESEARCH_NODE_IDS.has(entry))));
 }
 
 function sanitizeExpedition(value: unknown): SaveStateSnapshot['player']['expedition'] {
