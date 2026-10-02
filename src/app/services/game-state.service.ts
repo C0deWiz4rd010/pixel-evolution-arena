@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, EnemyMonster } from '../models/battle.model';
@@ -34,7 +34,6 @@ import { simulateBattle } from '../rules/combat.engine';
 import { ComboBeatResult, resolveComboBeat } from '../rules/combo.rules';
 import { CONSUMABLES } from '../data/items.data';
 import { CONSUMABLE_NAMES, countInInventory, getConsumableDef, isConsumable, removeOneFromInventory, toCombatEffects } from '../rules/items.rules';
-import { AchievementMetrics, evaluateAchievements, findNewlyCompleted } from '../rules/achievements.rules';
 import { ensureDailyDirective, getDailyObjectiveDef, getDateKey, isDailyComplete, progressDaily } from '../rules/daily.rules';
 import {
   applyEvolutionToPlayer,
@@ -46,9 +45,7 @@ import {
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
 import { evaluateTypePressure } from '../rules/type-matchup.rules';
 import { applyXpToMonster, applyXpToSquad } from '../rules/xp.rules';
-import { BOSSES, BossDef, getBossForBattle } from '../data/bosses.data';
-import { CAMPAIGN_CHAPTERS, CampaignChapter } from '../data/campaign.data';
-import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapter } from '../rules/campaign.rules';
+import { BossDef, getBossForBattle } from '../data/bosses.data';
 import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
 import { stageClass } from '../rules/stage.rules';
 import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
@@ -111,6 +108,8 @@ import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
 import { ToastService } from './toast.service';
 import { GameStore } from './game-store.service';
+import { CampaignStore } from './campaign.store';
+import { AchievementsStore } from './achievements.store';
 import { SettingsStore } from './settings.store';
 import { ResearchStore } from './research.store';
 import { GearStore } from './gear.store';
@@ -148,6 +147,8 @@ export * from './game-state.models';
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
   private readonly store = inject(GameStore);
+  readonly campaign = inject(CampaignStore);
+  readonly medals = inject(AchievementsStore);
   readonly prefs = inject(SettingsStore);
   readonly research = inject(ResearchStore);
   readonly gear = inject(GearStore);
@@ -242,27 +243,6 @@ export class GameStateService {
   readonly dailyObjective = computed(() => getDailyObjectiveDef(this.dailyDirective().objectiveId));
   readonly dailyComplete = computed(() => isDailyComplete(this.dailyDirective()));
 
-  readonly achievementMetrics = computed<AchievementMetrics>(() => {
-    const player = this.player();
-    return {
-      battlesWon: player.battlesWon,
-      bestWinStreak: player.bestWinStreak,
-      unlockedCount: this.monsters().filter((monster) => monster.unlocked).length,
-      stageMilestones: player.claimedStageMilestones.length,
-      criticalWins: player.combatStats.criticalWins,
-      overdrivesUsed: player.combatStats.overdrivesUsed,
-      itemsUsed: player.combatStats.itemsUsed,
-      flawlessWins: player.combatStats.flawlessWins,
-      gauntletBestWave: player.combatStats.gauntletBestWave,
-      prismaticCount: this.monsters().filter((monster) => monster.prismatic).length,
-      bossesDefeated: player.defeatedBosses.length,
-      researchUnlocked: player.researchNodes.length,
-      fullyScanned: this.research.fullyScannedCount(),
-    };
-  });
-  readonly achievementProgress = computed(() => evaluateAchievements(this.achievementMetrics(), this.player().claimedAchievements));
-  readonly unlockedAchievementCount = computed(() => this.achievementProgress().filter((entry) => entry.claimed).length);
-  readonly completedAchievementCount = computed(() => this.achievementProgress().filter((entry) => entry.complete).length);
 
   /** Consumable ownership for loadout UI and shop. */
   readonly ownedConsumables = computed(() =>
@@ -295,7 +275,7 @@ export class GameStateService {
 
   readonly teamPower = computed(() => this.gear.effectiveSquad().reduce((total, monster) => total + getMonsterPower(monster), 0));
 
-  readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
+  readonly unlockedCount = this.store.unlockedCount;
 
   readonly lockedCount = computed(() => this.monsters().length - this.unlockedCount());
 
@@ -536,8 +516,6 @@ export class GameStateService {
   });
 
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
-  readonly bosses = BOSSES;
-  readonly campaignChapters = CAMPAIGN_CHAPTERS;
 
   readonly settings = this.store.settings;
 
@@ -546,25 +524,8 @@ export class GameStateService {
     this.upcomingArenaThreat().id === 'boss' ? getBossForBattle(this.player().battlesFought + 1) : null,
   );
 
-  readonly bossCodex = computed(() =>
-    BOSSES.map((boss) => ({ boss, defeated: this.player().defeatedBosses.includes(boss.id) })),
-  );
 
-  readonly campaignMetrics = computed<CampaignMetrics>(() => {
-    const player = this.player();
-    return {
-      battlesWon: player.battlesWon,
-      unlockedCount: this.unlockedCount(),
-      bestWinStreak: player.bestWinStreak,
-      flawlessWins: player.combatStats.flawlessWins,
-      defeatedBosses: player.defeatedBosses.length,
-      stageMilestones: player.claimedStageMilestones.length,
-      gauntletBestWave: player.combatStats.gauntletBestWave,
-    };
-  });
 
-  readonly campaignProgress = computed<ChapterProgress[]>(() => evaluateCampaign(this.campaignMetrics(), this.player().claimedChapters));
-  readonly claimableChapter = computed(() => findClaimableChapter(this.campaignMetrics(), this.player().claimedChapters));
 
 
 
@@ -654,7 +615,6 @@ export class GameStateService {
       tone: 'clear',
     };
   });
-  readonly nextCampaignEntry = computed(() => this.campaignProgress().find((entry) => entry.status !== 'claimed') ?? this.campaignProgress()[0] ?? null);
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
   readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
   readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
@@ -682,7 +642,7 @@ export class GameStateService {
       routeReady: route.ready,
       routePercent: route.percent,
       routeWinsNeeded: estimateRouteWins(route),
-      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      claimableChapterTitle: this.campaign.claimableChapter()?.title ?? null,
       safeItemName: this.firstOwnedConsumable(['Aegis Plating', 'Repair Cell']),
       pushItemName: this.firstOwnedConsumable(['Focus Capsule']),
     });
@@ -724,7 +684,7 @@ export class GameStateService {
       xp: reward?.xp ?? 0,
       itemName: reward?.item ?? null,
       readyEvolutionName: this.readyEvolutionCandidate()?.target.name ?? null,
-      claimableChapterTitle: this.claimableChapter()?.title ?? null,
+      claimableChapterTitle: this.campaign.claimableChapter()?.title ?? null,
       squadSize: this.squad().length,
       winChancePercent: this.battleOutlook().winChancePercent,
       forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
@@ -740,8 +700,8 @@ export class GameStateService {
     const directive = this.dailyDirective();
     const readyEvolution = this.readyEvolutionCandidate();
     const nextEvolution = this.nextEvolutionCandidate();
-    const claimableChapter = this.claimableChapter();
-    const nextChapter = this.nextCampaignEntry();
+    const claimableChapter = this.campaign.claimableChapter();
+    const nextChapter = this.campaign.nextCampaignEntry();
     const expedition = this.expedition();
     const forge = this.gear.forgeQuickRecommendation();
 
@@ -781,7 +741,7 @@ export class GameStateService {
       bestStreak: this.bestWinStreak(),
       nextStreakMilestone: this.nextWinStreakMilestone(),
       bossesDefeated: this.player().defeatedBosses.length,
-      totalBosses: this.bosses.length,
+      totalBosses: this.campaign.bosses.length,
       unlockedMonsters: this.unlockedCount(),
       totalMonsters: this.monsters().length,
     }),
@@ -924,11 +884,6 @@ export class GameStateService {
   });
 
   constructor() {
-    // Medals pay out whenever their metrics complete, no matter which store changed the state.
-    effect(() => {
-      this.achievementMetrics();
-      untracked(() => this.checkAchievements());
-    });
     this.watchCalendarDay();
     const savedState = this.saveState.loadState();
 
@@ -1543,14 +1498,6 @@ export class GameStateService {
 
 
   // --- Campaign ---
-  claimReadyChapter(): boolean {
-    const claimable = this.claimableChapter();
-    if (!claimable) {
-      return false;
-    }
-    this.claimChapter(claimable.id);
-    return true;
-  }
 
   runMetaAction(actionId: MetaActionId): boolean {
     switch (actionId) {
@@ -1576,7 +1523,7 @@ export class GameStateService {
         return true;
       case 'claim-chapter':
         this.requestTab('Campaign');
-        return this.claimReadyChapter() || true;
+        return this.campaign.claimReadyChapter() || true;
       case 'forge-quick':
         this.requestTab('Forge');
         if (this.gear.forgeQuickRecommendation().kind !== 'blocked') {
@@ -1607,32 +1554,6 @@ export class GameStateService {
     }
   }
 
-  claimChapter(chapterId: string): void {
-    const claimable = this.claimableChapter();
-    if (!claimable || claimable.id !== chapterId) {
-      return;
-    }
-    const chapter: CampaignChapter = claimable;
-    const forgedGear = chapter.reward.gearDefId
-      ? { instanceId: `gear-${Date.now()}-${Math.floor(Math.random() * 1000)}`, defId: chapter.reward.gearDefId, tier: 1 }
-      : null;
-    this.player.update((player) => ({
-      ...player,
-      coins: player.coins + chapter.reward.coins,
-      dnaShards: player.dnaShards + chapter.reward.dnaShards,
-      claimedChapters: [...player.claimedChapters, chapter.id],
-      ownedGear: forgedGear ? [...player.ownedGear, forgedGear] : player.ownedGear,
-    }));
-    this.prependLog(`${chapter.title} cleared: ${chapter.reward.lore}`, 'reward');
-    this.audio.play('level-up');
-    this.toast.push({
-      title: 'Chapter Cleared',
-      message: `${chapter.title} — +${chapter.reward.coins} CR, +${chapter.reward.dnaShards} DNA${forgedGear ? ' + gear' : ''}.`,
-      tone: 'reward',
-      icon: '▣',
-      durationMs: 4800,
-    });
-  }
 
   // --- Onboarding ---
   completeTutorial(): void {
@@ -2449,32 +2370,6 @@ export class GameStateService {
 
 
 
-  /** Pays out completed, unclaimed medals. */
-  private checkAchievements(): void {
-    const newly = findNewlyCompleted(this.achievementMetrics(), this.player().claimedAchievements);
-    if (newly.length === 0) {
-      return;
-    }
-    const totalCoins = newly.reduce((sum, def) => sum + def.reward.coins, 0);
-    const totalDna = newly.reduce((sum, def) => sum + def.reward.dnaShards, 0);
-    this.player.update((player) => ({
-      ...player,
-      coins: player.coins + totalCoins,
-      dnaShards: player.dnaShards + totalDna,
-      claimedAchievements: [...player.claimedAchievements, ...newly.map((def) => def.id)],
-    }));
-    for (const def of newly) {
-      this.prependLog(`Medal unlocked: ${def.label} (+${def.reward.coins} CR, +${def.reward.dnaShards} DNA).`, 'reward');
-      this.audio.play('level-up');
-      this.toast.push({
-        title: 'Medal Unlocked',
-        message: `${def.label} - +${def.reward.coins} CR, +${def.reward.dnaShards} DNA.`,
-        tone: 'reward',
-        icon: def.icon,
-        durationMs: 4200,
-      });
-    }
-  }
 
   /** Write any pending autosave immediately (manual "Save now" and page hide). */
   syncSaveState(): void {

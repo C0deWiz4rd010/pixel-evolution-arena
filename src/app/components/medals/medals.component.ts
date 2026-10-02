@@ -11,9 +11,9 @@ import { GameStateService } from '../../services/game-state.service';
 export class MedalsComponent {
   readonly game = inject(GameStateService);
 
-  readonly progress = this.game.achievementProgress;
-  readonly unlockedCount = this.game.unlockedAchievementCount;
-  readonly completedCount = this.game.completedAchievementCount;
+  readonly progress = this.game.medals.achievementProgress;
+  readonly unlockedCount = this.game.medals.unlockedAchievementCount;
+  readonly completedCount = this.game.medals.completedAchievementCount;
   readonly total = computed(() => this.progress().length);
 
   readonly dailyObjective = this.game.dailyObjective;

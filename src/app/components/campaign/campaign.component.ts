@@ -21,9 +21,9 @@ interface ObjectiveRadarCard {
 export class CampaignComponent {
   readonly game = inject(GameStateService);
 
-  readonly progress = this.game.campaignProgress;
-  readonly claimable = this.game.claimableChapter;
-  readonly bossCodex = this.game.bossCodex;
+  readonly progress = this.game.campaign.campaignProgress;
+  readonly claimable = this.game.campaign.claimableChapter;
+  readonly bossCodex = this.game.campaign.bossCodex;
   readonly activeBoss = this.game.activeBoss;
   readonly bossPrepCards = this.game.bossPrepCards;
   readonly nextEntry = computed(() => this.progress().find((entry) => entry.status !== 'claimed') ?? this.progress()[0] ?? null);
@@ -45,7 +45,7 @@ export class CampaignComponent {
       },
       {
         label: 'Codex Sweep',
-        value: `${this.game.player().defeatedBosses.length}/${this.game.bosses.length}`,
+        value: `${this.game.player().defeatedBosses.length}/${this.game.campaign.bosses.length}`,
         detail: 'Defeat new bosses to reveal counters and finish the codex lane.',
       },
     ];
@@ -93,7 +93,7 @@ export class CampaignComponent {
   });
 
   claim(chapterId: string): void {
-    this.game.claimChapter(chapterId);
+    this.game.campaign.claimChapter(chapterId);
   }
 
   runCard(card: CommandCenterCard): void {

@@ -34,7 +34,7 @@ export class StatsCodexComponent {
       { label: 'Items Used', value: `${player.combatStats.itemsUsed}` },
       { label: 'Best Gauntlet Wave', value: `${player.combatStats.gauntletBestWave}` },
       { label: 'Prismatic Variants', value: `${this.game.prismaticCount()}` },
-      { label: 'Bosses Defeated', value: `${player.defeatedBosses.length}/${this.game.bosses.length}` },
+      { label: 'Bosses Defeated', value: `${player.defeatedBosses.length}/${this.game.campaign.bosses.length}` },
       { label: 'Creatures Unlocked', value: `${this.game.unlockedCount()}/${this.game.monsters().length}` },
     ];
   });

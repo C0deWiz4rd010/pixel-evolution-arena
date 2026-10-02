@@ -30,6 +30,7 @@ export class GameStore {
   private readonly monsterIndex = computed(() => new Map(this.monsters().map((monster) => [monster.id, monster])));
 
   readonly settings = computed(() => this.player().settings);
+  readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
   readonly squad = computed(() =>
     this.player()
       .squadIds.map((id) => this.monsterIndex().get(id))
