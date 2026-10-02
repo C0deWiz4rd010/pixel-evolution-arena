@@ -29,7 +29,7 @@ describe('campaign.rules', () => {
   });
 
   it('treats claimed chapters as claimed and unlocks the next', () => {
-    const [first, second] = CAMPAIGN_CHAPTERS;
+    const [first] = CAMPAIGN_CHAPTERS;
     const progress = evaluateCampaign(metrics({ battlesWon: first.objective.goal }), [first.id]);
     expect(progress[0].status).toBe('claimed');
     expect(progress[1].status).not.toBe('locked');

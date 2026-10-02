@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { DailyDirectiveState } from './daily.rules';
 import {
   DailyBattleSignal,
   ensureDailyDirective,
@@ -35,7 +36,7 @@ describe('daily directive rules', () => {
   });
 
   it('advances a win-three objective only on wins and caps at the goal', () => {
-    let state = { dateKey: '2026-05-29', objectiveId: 'win-three' as const, progress: 0, claimed: false };
+    let state: DailyDirectiveState = { dateKey: '2026-05-29', objectiveId: 'win-three', progress: 0, claimed: false };
     state = progressDaily(state, winSignal);
     state = progressDaily(state, { ...winSignal, won: false });
     expect(state.progress).toBe(1);
@@ -46,7 +47,7 @@ describe('daily directive rules', () => {
   });
 
   it('tracks a reach-streak objective by the highest streak seen', () => {
-    let state = { dateKey: '2026-05-29', objectiveId: 'reach-streak' as const, progress: 0, claimed: false };
+    let state: DailyDirectiveState = { dateKey: '2026-05-29', objectiveId: 'reach-streak', progress: 0, claimed: false };
     state = progressDaily(state, { ...winSignal, streakAfter: 2 });
     state = progressDaily(state, { ...winSignal, streakAfter: 1 });
     expect(state.progress).toBe(2);

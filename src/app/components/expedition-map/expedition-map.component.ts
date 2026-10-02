@@ -13,7 +13,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import type { Application as PixiApplication, Container as PixiContainer, Graphics as PixiGraphics, Text as PixiText } from 'pixi.js';
+import type { Application as PixiApplication, Container as PixiContainer, Graphics as PixiGraphics } from 'pixi.js';
 import { ExpeditionNode, ExpeditionNodeType, ExpeditionState } from '../../models/expedition.model';
 import { GameStateService } from '../../services/game-state.service';
 

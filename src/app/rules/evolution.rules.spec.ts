@@ -34,7 +34,7 @@ function createPlayer(overrides: Partial<PlayerState>): PlayerState {
     squadIds: ['M001'],
     inventory: ['Shadow Gem'],
     ...overrides,
-  };
+  } as PlayerState;
 }
 
 describe('evolution rules', () => {

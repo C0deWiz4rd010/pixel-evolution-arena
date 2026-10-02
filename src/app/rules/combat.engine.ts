@@ -177,7 +177,6 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
 
   const maxRounds = params.maxRounds ?? 4;
   let allyFell = false;
-  let foeFell = false;
 
   for (let round = 0; round < maxRounds; round += 1) {
     const ally = allies[round % allies.length];
@@ -240,7 +239,6 @@ export function simulateBattle(params: BattleSimulationParams): BattleSimulation
     allyFell = true;
     events.push({ kind: 'faint', side: 'player', actorName: allies[0].name, text: `${allies[0].name} wird ausgeschaltet.` });
   } else {
-    foeFell = true;
     events.push({ kind: 'faint', side: 'enemy', actorName: foes[0].name, text: `${foes[0].name} bricht zusammen.` });
     if (marginScore < 60 && allies.length > 1) {
       allyFell = true;

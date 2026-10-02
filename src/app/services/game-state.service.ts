@@ -4,7 +4,6 @@ import { MONSTERS, STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, BattleReward, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../models/monster.model';
 import { CombatStats, DEFAULT_SETTINGS, PlayerSettings, PlayerState, RecentBattleRecord, SquadPreset } from '../models/player-state.model';
-import { GearInstance } from '../models/gear.model';
 import { serializeMonsterProgress } from '../models/save-state.model';
 import {
   ArenaThreatProfile,
@@ -45,7 +44,7 @@ import {
   unlockEvolutionTarget,
 } from '../rules/evolution.rules';
 import { calculateSquadBattleModifier, evaluateSquadSynergies, getMonsterPower } from '../rules/squad.rules';
-import { evaluateTypePressure, getTypeMatchupValue, getTypeWeaknesses } from '../rules/type-matchup.rules';
+import { evaluateTypePressure } from '../rules/type-matchup.rules';
 import { applyXpToMonster, applyXpToSquad } from '../rules/xp.rules';
 import { GEAR_DEFS } from '../data/gear.data';
 import { GearSlot } from '../models/gear.model';
@@ -56,9 +55,9 @@ import { CampaignMetrics, ChapterProgress, evaluateCampaign, findClaimableChapte
 import { SAVE_STATE_VERSION, SaveStateSnapshot } from '../models/save-state.model';
 import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
 import { resolveMutator } from '../rules/mutators.rules';
-import { activeSquadTraits, squadCompositionTrait, totalSquadTraitBonus } from '../rules/traits.rules';
+import { totalSquadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
-import { clearNode, generateExpedition, getNode, reachableNodes, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
+import { clearNode, generateExpedition, getNode, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { RESEARCH_NODES, getResearchNode } from '../data/research.data';
 import {
@@ -86,13 +85,10 @@ import {
   CommandCenterCard,
   MetaActionId,
 } from '../rules/command-center.rules';
-import { buildMissionControlCards, MissionControlCard } from '../rules/mission-control.rules';
 import {
-  buildTacticalDirectives,
   estimateRouteWins,
   RouteEtaInput,
   SquadPatchInput,
-  TacticalDirectiveCard,
 } from '../rules/tactical-directive.rules';
 import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.rules';
 import { BattleContractCard, buildBattleContracts } from '../rules/battle-contract.rules';
@@ -108,7 +104,6 @@ import {
 import {
   TACTICAL_PULSE_OPTIONS,
   TacticalPulseChoice,
-  getTacticalPulseOption,
   recommendTacticalPulse,
 } from '../rules/tactical-pulse.rules';
 import {
@@ -374,7 +369,6 @@ export class GameStateService {
   readonly overdriveCharge = computed(() => this.player().overdriveCharge);
   readonly overdrivePercent = computed(() => Math.round(this.player().overdriveCharge));
   readonly overdriveReady = computed(() => canArmOverdrive(this.player().overdriveCharge));
-  private pendingTacticalPulse: TacticalPulseChoice | null = null;
   private tacticalPulseTimer: ReturnType<typeof setInterval> | null = null;
   private tacticalPulseDeadline = 0;
   private battleDecisionResolve: ((decision: BattleDecision) => void) | null = null;
@@ -490,28 +484,8 @@ export class GameStateService {
 
   readonly enemyTypePressure = computed(() => evaluateTypePressure(this.activeEnemies().map((enemy) => enemy.type), this.squad().map((monster) => monster.type), true));
 
-  /**
-   * Per-enemy-type counter read: do you already answer it, does it punish you,
-   * and which type would crack it. Powers the arena Type Scan advisor.
-   */
-  readonly enemyTypeScan = computed<EnemyTypeScanEntry[]>(() => {
-    const squadTypes = this.squad().map((monster) => monster.type);
-    const enemyTypes = Array.from(new Set(this.activeEnemies().map((enemy) => enemy.type)));
-    return enemyTypes.map((type) => {
-      const countered = squadTypes.some((squadType) => getTypeMatchupValue(squadType, type) === 1);
-      const threatens = squadTypes.some((squadType) => getTypeMatchupValue(type, squadType) === 1);
-      const counters = getTypeWeaknesses(type);
-      const suggestion = counters.find((counter) => !squadTypes.includes(counter)) ?? counters[0] ?? null;
-      const tone: 'good' | 'warn' | 'neutral' = countered ? 'good' : threatens ? 'warn' : 'neutral';
-      return { type, countered, threatens, suggestion, tone };
-    });
-  });
-
   // --- Signature traits + battlefield mutators (additive, neutral by default) ---
   readonly activeMutator = computed<MutatorDef>(() => getMutatorForBattle(this.player().battlesFought + 1));
-  readonly squadTraits = computed(() => activeSquadTraits(this.squad()));
-  /** Mono/Spectrum composition bonus for the current squad, or null. */
-  readonly squadComposition = computed(() => squadCompositionTrait(this.squad()));
   readonly traitBonus = computed(() => totalSquadTraitBonus(this.squad()));
   readonly mutatorModifier = computed(() => resolveMutator(this.activeMutator(), this.squad().map((monster) => monster.type)));
 
@@ -572,34 +546,6 @@ export class GameStateService {
     return decision?.kind === 'pulse' ? decision.id : recommendTacticalPulse(this.battleOutlook().winChancePercent);
   });
 
-  /**
-   * Transparent breakdown of every contributor to the battle edge, so the
-   * win-chance is explainable instead of a black box. Only non-trivial rows.
-   */
-  readonly battleEdgeBreakdown = computed<BattleEdgeRow[]>(() => {
-    const synergyMod = this.squadSynergies().reduce((total, synergy) => total + synergy.modifier, 0);
-    const armed = this.overdriveArmed() && this.overdriveReady();
-    const rows: { label: string; value: number }[] = [
-      { label: 'Type Pressure', value: this.squadTypePressure().modifier },
-      { label: 'Squad Synergy', value: synergyMod },
-      { label: 'Signature Traits', value: this.traitBonus().attackBonus },
-      { label: this.activeMutator().name, value: this.mutatorModifier().playerAttackBonus },
-      { label: 'Stance', value: this.battleStance().attackMod },
-      { label: 'Combat Beat', value: this.comboCharge() },
-      { label: 'Consumables', value: this.equippedAttackBonus() },
-      { label: 'Overdrive', value: armed ? OVERDRIVE_ATTACK_BONUS : 0 },
-      { label: 'Enemy Pressure', value: -this.enemyBattleModifier() },
-    ];
-    return rows
-      .filter((row) => Math.abs(row.value) >= 0.005)
-      .map((row) => ({
-        label: row.label,
-        value: row.value,
-        percent: `${row.value > 0 ? '+' : ''}${Math.round(row.value * 100)}%`,
-        tone: row.value > 0 ? ('pos' as const) : ('neg' as const),
-      }));
-  });
-
   readonly arenaRewardForecast = computed<ArenaRewardForecast>(() => {
     const formation = this.activeFormation();
     const threat = this.upcomingArenaThreat();
@@ -634,13 +580,6 @@ export class GameStateService {
 
   readonly winStreak = computed(() => this.player().winStreak);
   readonly bestWinStreak = computed(() => this.player().bestWinStreak);
-  readonly streakLabel = computed(() => {
-    const streak = this.winStreak();
-    if (streak <= 0) {
-      return 'No streak';
-    }
-    return `x${streak}`;
-  });
 
   readonly nextBattleMilestone = computed<BattleMilestonePreview | null>(() => {
     const player = this.player();
@@ -883,64 +822,6 @@ export class GameStateService {
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
   readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
   readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
-  readonly missionControlCards = computed<MissionControlCard[]>(() => {
-    const reward = this.arenaRewardForecast();
-    const readyEvolution = this.readyEvolutionCandidate();
-    const nextEvolution = this.nextEvolutionCandidate();
-    const battleIntel = this.battleIntelSummary();
-    const expedition = this.expedition();
-    const forge = this.forgeQuickRecommendation();
-
-    return buildMissionControlCards({
-      squadSize: this.squad().length,
-      teamPower: this.teamPower(),
-      enemyPower: this.enemyPower(),
-      winChancePercent: this.battleOutlook().winChancePercent,
-      itemChancePercent: reward.itemChancePercent,
-      nextWinCoins: reward.win.coins,
-      nextWinXp: reward.win.xp,
-      readyEvolutionName: readyEvolution?.target.name ?? null,
-      nextEvolutionName: nextEvolution?.target.name ?? null,
-      nextEvolutionPercent: nextEvolution?.percent ?? 100,
-      nextEvolutionBlocker: nextEvolution?.missing[0]?.label ?? null,
-      unlockedCount: this.unlockedCount(),
-      totalMonsters: this.monsters().length,
-      dailyLabel: this.dailyObjective().label,
-      dailyProgress: this.dailyDirective().progress,
-      dailyGoal: this.dailyObjective().goal,
-      dailyComplete: this.dailyComplete(),
-      battleIntelTotal: battleIntel.total,
-      battleIntelWinRate: battleIntel.winRate,
-      battleTrend: battleIntel.trend,
-      claimableChapterTitle: this.claimableChapter()?.title ?? null,
-      expeditionReady: !expedition && this.squad().length > 0,
-      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
-    });
-  });
-  readonly tacticalDirectiveCards = computed<TacticalDirectiveCard[]>(() => {
-    const reward = this.arenaRewardForecast();
-    const readyEvolution = this.readyEvolutionCandidate();
-    const nextEvolution = readyEvolution ?? this.nextEvolutionCandidate();
-    const expedition = this.expedition();
-    const forge = this.forgeQuickRecommendation();
-
-    return buildTacticalDirectives({
-      route: this.buildRouteEtaInput(nextEvolution, reward),
-      squad: this.buildSquadPatchInput(),
-      winChancePercent: this.battleOutlook().winChancePercent,
-      nextWinCoins: reward.win.coins,
-      nextWinDna: reward.win.dnaShards,
-      nextWinXp: reward.win.xp,
-      itemChancePercent: reward.itemChancePercent,
-      claimableChapterTitle: this.claimableChapter()?.title ?? null,
-      expeditionReady: !expedition && this.squad().length > 0,
-      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
-      dailyLabel: this.dailyObjective().label,
-      dailyProgress: this.dailyDirective().progress,
-      dailyGoal: this.dailyObjective().goal,
-      dailyComplete: this.dailyComplete(),
-    });
-  });
   readonly battleContractCards = computed<BattleContractCard[]>(() => {
     const reward = this.arenaRewardForecast();
     const readyEvolution = this.readyEvolutionCandidate();
@@ -1093,129 +974,6 @@ export class GameStateService {
       audioEnabled: this.player().audioEnabled,
     }),
   );
-
-  readonly operationsCards = computed<OperationsCard[]>(() => {
-    const chase = this.pinnedChaseId()
-      ? this.evolutionCandidates().find((candidate) => candidate.target.id === this.pinnedChaseId()) ?? this.nextEvolutionCandidate()
-      : this.nextEvolutionCandidate();
-    const forge = this.forgeQuickRecommendation();
-    const expedition = this.expedition();
-    const chapter = this.claimableChapter() ?? this.nextCampaignEntry()?.chapter ?? null;
-    const chapterProgress = this.nextCampaignEntry();
-
-    return [
-      {
-        id: 'chase',
-        tab: chase?.ready ? 'Evolution Tree' : 'Collection',
-        label: 'Evolution Route',
-        status: chase?.ready ? 'READY' : chase ? 'TRACKING' : 'SYNCED',
-        title: chase ? `${chase.target.name} ${chase.ready ? 'can go online' : 'is the next chase'}` : 'Current chase routes are clear',
-        detail: chase
-          ? chase.ready
-            ? `${chase.source?.name ?? 'Source'} meets every requirement. Convert the route now for a clean power jump.`
-            : `${chase.missing[0]?.label ?? 'Progress the source line'} is the next blocker to remove.`
-          : 'No reachable locked evolutions remain right now. Use the Archive to scout deeper routes.',
-        metric: chase ? `${chase.percent}% sync` : `${this.unlockedCount()}/${this.monsters().length} online`,
-        progressPercent: chase ? chase.percent : 100,
-        tone: chase?.ready ? 'ready' : 'meta',
-        actionLabel: chase?.ready ? 'Evolve Now' : 'Open Archive',
-      },
-      {
-        id: 'forge',
-        tab: forge.kind === 'blocked' ? 'Squad' : 'Forge',
-        label: 'Forge Pulse',
-        status:
-          forge.kind === 'equip'
-            ? 'AUTO-EQUIP'
-            : forge.kind === 'forge'
-              ? 'FORGE READY'
-              : forge.kind === 'upgrade'
-                ? 'UPGRADE READY'
-                : forge.kind === 'blocked'
-                  ? 'BLOCKED'
-                  : 'STABLE',
-        title: forge.title,
-        detail: forge.detail,
-        metric: forge.metric,
-        progressPercent: forge.progressPercent,
-        tone: forge.kind === 'blocked' ? 'warning' : forge.kind === 'open' ? 'info' : 'ready',
-        actionLabel: forge.actionLabel,
-      },
-      {
-        id: 'campaign',
-        tab: 'Campaign',
-        label: 'Campaign Track',
-        status: this.claimableChapter() ? 'CLAIM READY' : chapterProgress?.status === 'locked' ? 'LOCKED' : 'IN PROGRESS',
-        title: chapter ? chapter.title : 'Campaign synced',
-        detail: this.claimableChapter()
-          ? `${chapter?.reward.lore ?? 'Reward ready.'}`
-          : chapterProgress
-            ? `${chapterProgress.chapter.objective.label} (${chapterProgress.current}/${chapterProgress.goal}).`
-            : 'Every current chapter reward has already been claimed.',
-        metric: this.claimableChapter()
-          ? `+${chapter?.reward.coins ?? 0} CR / +${chapter?.reward.dnaShards ?? 0} DNA`
-          : chapterProgress
-            ? `${chapterProgress.current}/${chapterProgress.goal}`
-            : `${this.player().claimedChapters.length}/${this.campaignChapters.length} claimed`,
-        progressPercent: this.claimableChapter() ? 100 : chapterProgress?.percent ?? 100,
-        tone: this.claimableChapter() ? 'ready' : chapterProgress?.status === 'locked' ? 'warning' : 'meta',
-        actionLabel: this.claimableChapter() ? 'Claim Chapter' : 'Open Campaign',
-      },
-      {
-        id: 'expedition',
-        tab: expedition ? 'Expedition' : this.squad().length === 0 ? 'Squad' : 'Expedition',
-        label: 'Expedition Relay',
-        status:
-          !expedition
-            ? this.squad().length === 0
-              ? 'SQUAD REQUIRED'
-              : 'READY'
-            : expedition.status === 'active'
-              ? 'RUN ACTIVE'
-              : 'BANK CORES',
-        title:
-          !expedition
-            ? 'Deep-grid run on standby'
-            : expedition.status === 'active'
-              ? `Depth ${expedition.depth}/7 // run live`
-              : expedition.status === 'won'
-                ? 'Clear complete - bank the core haul'
-                : 'Run ended - salvage the remaining cores',
-        detail:
-          !expedition
-            ? this.squad().length === 0
-              ? 'Load a squad before launching an expedition.'
-              : 'Temporary relics and shared run HP make this the best side loop for meta growth.'
-            : expedition.status === 'active'
-              ? `${expedition.lastEvent} Reach the boss to convert the run into permanent cores.`
-              : `${expedition.lastEvent} Claim now to bank the payout.`,
-        metric:
-          !expedition
-            ? `${this.expeditionCores()} banked`
-            : expedition.status === 'active'
-              ? `HP ${expedition.hp}/${expedition.maxHp}`
-              : `${expedition.rewardCores} run cores`,
-        progressPercent:
-          !expedition
-            ? this.squad().length === 0
-              ? Math.round((this.squad().length / 3) * 100)
-              : 100
-            : expedition.status === 'active'
-              ? Math.round((expedition.depth / 7) * 100)
-              : 100,
-        tone:
-          !expedition
-            ? this.squad().length === 0
-              ? 'warning'
-              : 'ready'
-            : expedition.status === 'active'
-              ? 'meta'
-              : 'ready',
-        actionLabel:
-          !expedition ? (this.squad().length === 0 ? 'Load Squad' : 'Launch Run') : expedition.status === 'active' ? 'Resume Run' : 'Bank Cores',
-      },
-    ];
-  });
 
   readonly nextCommand = computed<NextCommand>(() => {
     const squadSize = this.squad().length;
@@ -2284,11 +2042,6 @@ export class GameStateService {
 
   // --- Expedition (roguelite) ---
   readonly expedition = computed(() => this.player().expedition);
-  readonly expeditionActive = computed(() => this.player().expedition?.status === 'active');
-  readonly expeditionReachable = computed(() => {
-    const exp = this.player().expedition;
-    return exp ? reachableNodes(exp) : [];
-  });
   readonly expeditionRelics = computed(() =>
     (this.player().expedition?.relicIds ?? []).map((id) => getRelicDef(id)).filter((def): def is NonNullable<typeof def> => Boolean(def)),
   );
@@ -2296,7 +2049,6 @@ export class GameStateService {
   readonly relicDefs = RELIC_DEFS;
 
   // --- Bio-Data & Research Lab (Datenbeschaffung) ---
-  readonly researchNodeDefs = RESEARCH_NODES;
   readonly bioData = computed(() => this.player().bioData);
   readonly totalBioData = computed(() => this.player().totalBioData);
   readonly researchModifiers = computed<ResearchModifiers>(() => deriveResearchModifiers(this.player().researchNodes));
@@ -2321,9 +2073,6 @@ export class GameStateService {
     const total = registry.reduce((sum, entry) => sum + entry.scan, 0);
     return Math.round(total / registry.length);
   });
-  scanProgressFor(monsterId: string): number {
-    return Math.round(this.player().scanProgress[monsterId] ?? 0);
-  }
 
   /** True once research reveals exact locked evolution intel everywhere. */
   readonly revealLocked = computed(() => this.researchModifiers().revealLocked);
@@ -3225,14 +2974,6 @@ export class GameStateService {
     }
   }
 
-  getStageCount(stage: MonsterStage): number {
-    return this.monsters().filter((monster) => monster.stage === stage).length;
-  }
-
-  getTypeCount(type: MonsterType): number {
-    return this.monsters().filter((monster) => monster.type === type).length;
-  }
-
   syncSaveState(): void {
     this.persistState();
   }
@@ -3514,9 +3255,6 @@ function sanitizePlayerState(player: PlayerState): PlayerState {
     scanProgress: Object.fromEntries(Object.entries(cloned.scanProgress).filter(([monsterId]) => known(monsterId))),
   };
 }
-
-
-
 
 function hasProgressBeyondStarter(player: PlayerState, monsters: Monster[]): boolean {
   if (

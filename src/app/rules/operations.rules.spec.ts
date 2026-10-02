@@ -8,7 +8,7 @@ function makeMonster(id: string): Monster {
     id,
     name: id,
     stage: 'Rookie',
-    type: 'Data',
+    type: 'Machine',
     rarity: 'Common',
     level: 10,
     xp: 0,
@@ -19,7 +19,6 @@ function makeMonster(id: string): Monster {
     attack: 72,
     defense: 68,
     speed: 70,
-    description: '',
     evolutionTargets: [],
   };
 }

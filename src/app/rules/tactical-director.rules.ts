@@ -1,6 +1,5 @@
 import { EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterType } from '../models/monster.model';
-import { BattleControlMode } from '../models/player-state.model';
 import { MoveDef, getMonsterMoves, getOverdriveMove } from './moves.rules';
 import { ActiveStatus, STATUS_DEFS, applyStatus, incomingDamageReduction, outgoingDamageMultiplier, tickStatuses } from './status.rules';
 import { BattleEvent, ConsumableCombatEffect } from './combat.engine';

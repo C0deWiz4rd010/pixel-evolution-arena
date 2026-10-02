@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { MONSTERS } from '../data/monsters.data';
-import { serializeMonsterProgress } from '../models/save-state.model';
+import { SaveStateData, serializeMonsterProgress } from '../models/save-state.model';
 import { SaveStateService } from './save-state.service';
 
 class MemoryStorage implements Storage {
@@ -75,7 +75,7 @@ describe('save state service', () => {
         ],
         pinnedChaseId: firstMonster.id,
         claimedStageMilestones: ['Baby'],
-      },
+      } as SaveStateData['player'],
       monsters: [serializeMonsterProgress(firstMonster)],
       battleLogs: [{ text: 'Saved battle log.', type: 'info' }],
       lastReward: { coins: 120, dnaShards: 8, xp: 35, won: true },

@@ -3,7 +3,7 @@
  * aus Typ + Stage ab ({@link getMonsterMoves}). Die Daten der Typ-Kits liegen in
  * {@link ../data/moves.data}.
  */
-import { Monster, MonsterStage } from '../models/monster.model';
+import { MonsterStage } from '../models/monster.model';
 import { MonsterType } from '../models/monster.model';
 import { StatusId } from './status.rules';
 import { TYPE_MOVE_KITS, TYPE_OVERDRIVE } from '../data/moves.data';
