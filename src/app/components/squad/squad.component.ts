@@ -288,13 +288,13 @@ export class SquadComponent {
 
   addOrSwapCandidate(candidate: Monster): void {
     if (this.slotsFilled() < 3) {
-      this.game.addToSquad(candidate.id);
+      this.game.squadOps.addToSquad(candidate.id);
       return;
     }
 
     const weakest = this.weakestMember();
     if (weakest && this.power(candidate) > this.power(weakest)) {
-      this.game.replaceSquadMember(weakest.id, candidate.id);
+      this.game.squadOps.replaceSquadMember(weakest.id, candidate.id);
     }
   }
 
@@ -323,7 +323,7 @@ export class SquadComponent {
       return;
     }
 
-    this.game.removeFromSquad(weakest.id);
+    this.game.squadOps.removeFromSquad(weakest.id);
   }
 
   replaceRecommended(): void {
@@ -333,11 +333,11 @@ export class SquadComponent {
       return;
     }
 
-    this.game.replaceSquadMember(weakest.id, candidate.id);
+    this.game.squadOps.replaceSquadMember(weakest.id, candidate.id);
   }
 
   autoBuildSquad(): void {
-    this.game.autoBuildBestSquad();
+    this.game.squadOps.autoBuildBestSquad();
   }
 
   formatModifier(value: number): string {
@@ -354,18 +354,18 @@ export class SquadComponent {
       return;
     }
 
-    const saved = this.game.saveSquadPreset(name);
+    const saved = this.game.squadOps.saveSquadPreset(name);
     if (saved) {
       this.presetDraftName.set('');
     }
   }
 
   loadPreset(id: string): void {
-    this.game.loadSquadPreset(id);
+    this.game.squadOps.loadSquadPreset(id);
   }
 
   deletePreset(id: string): void {
-    this.game.deleteSquadPreset(id);
+    this.game.squadOps.deleteSquadPreset(id);
   }
 
   runSquadOrder(order: SquadOrderCard): void {

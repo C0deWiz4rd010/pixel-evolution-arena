@@ -43,7 +43,7 @@
     }
 
     <div class="detail-actions">
-      <button type="button" class="primary-action" [disabled]="v.addToSquadReason !== null" (click)="game.addToSquad(v.monster.id)">Add to Squad</button>
+      <button type="button" class="primary-action" [disabled]="v.addToSquadReason !== null" (click)="game.squadOps.addToSquad(v.monster.id)">Add to Squad</button>
       @if (v.addToSquadReason; as reason) { <p class="action-note">{{ reason }}</p> }
     </div>
 
@@ -68,7 +68,7 @@
               }
             </div>
             <div class="target-actions">
-              @if (!entry.target.unlocked && !entry.tracked) { <button type="button" class="pin-action" (click)="game.pinChaseTarget(entry.target.id)">Track</button> }
+              @if (!entry.target.unlocked && !entry.tracked) { <button type="button" class="pin-action" (click)="game.squadOps.pinChaseTarget(entry.target.id)">Track</button> }
               <button type="button" [disabled]="!entry.ready" [attr.aria-label]="'Evolve ' + entry.target.name" (click)="game.evolve(v.monster.id, entry.target.id)">
                 {{ entry.actionLabel }}
               </button>

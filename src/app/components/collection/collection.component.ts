@@ -345,7 +345,7 @@ export class CollectionComponent {
   }
 
   pinChase(id: string): void {
-    this.game.pinChaseTarget(id);
+    this.game.squadOps.pinChaseTarget(id);
   }
 
   evolveChase(chase: ChaseTarget): void {
@@ -357,7 +357,7 @@ export class CollectionComponent {
   }
 
   unpinChase(): void {
-    this.game.unpinChaseTarget();
+    this.game.squadOps.unpinChaseTarget();
   }
 
   setStatusFilter(status: StatusFilter): void {
@@ -378,7 +378,7 @@ export class CollectionComponent {
   }
 
   selectMonster(id: string): void {
-    this.game.selectMonster(id);
+    this.game.squadOps.selectMonster(id);
   }
 
   sourceLabel(monster: Monster): string {

@@ -17,11 +17,11 @@
         @if (slot.monster; as monster) {
           <article class="squad-slot stage-{{ stageClassOf(monster.stage) }}" [class.selected]="game.player().selectedMonsterId === monster.id">
             <div class="slot-role"><span>Slot {{ slot.index + 1 }}</span><strong>{{ slot.role.label }}</strong></div>
-            <button type="button" class="squad-portrait" (click)="game.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
+            <button type="button" class="squad-portrait" (click)="game.squadOps.selectMonster(monster.id)" [attr.aria-label]="'Inspect ' + monster.name">
               <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="hero" />
             </button>
             <div class="slot-copy"><span>{{ monster.stage }} · {{ monster.type }}</span><h3>{{ monster.name }}</h3><small>LV {{ monster.level }} · {{ power(monster) }} PW</small></div>
-            <div class="slot-actions"><button type="button" (click)="game.selectMonster(monster.id)">Inspect</button><button type="button" class="danger" (click)="game.removeFromSquad(monster.id)">Remove</button></div>
+            <div class="slot-actions"><button type="button" (click)="game.squadOps.selectMonster(monster.id)">Inspect</button><button type="button" class="danger" (click)="game.squadOps.removeFromSquad(monster.id)">Remove</button></div>
           </article>
         } @else {
           <article class="squad-slot empty">
@@ -64,7 +64,7 @@
 
   <details class="squad-disclosure" aria-label="Squad presets">
     <summary><span>Presets & Maintenance</span><strong>{{ presets().length }}/3 saved</strong></summary>
-    <div class="preset-form"><input type="text" maxlength="24" placeholder="Preset name" [value]="presetDraftName()" (input)="onPresetDraftChange($any($event.target).value)" aria-label="New preset name" /><button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button><button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.clearSquad()">Clear Squad</button></div>
+    <div class="preset-form"><input type="text" maxlength="24" placeholder="Preset name" [value]="presetDraftName()" (input)="onPresetDraftChange($any($event.target).value)" aria-label="New preset name" /><button type="button" [disabled]="slotsFilled() === 0 || !presetDraftName().trim()" (click)="savePreset()">Save Current</button><button type="button" class="danger" [disabled]="slotsFilled() === 0" (click)="game.squadOps.clearSquad()">Clear Squad</button></div>
     <div class="preset-list">
       @for (preset of presets(); track preset.id) { <article><span><strong>{{ preset.name }}</strong><small>{{ preset.squadIds.length }} creatures</small></span><div><button type="button" (click)="loadPreset(preset.id)">Load</button><button type="button" class="danger" (click)="deletePreset(preset.id)">Delete</button></div></article> }
     </div>

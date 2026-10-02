@@ -3,7 +3,7 @@ import { ARENA_FORMATIONS } from '../data/enemies.data';
 import { STAGES, TYPES } from '../data/monsters.data';
 import { ArenaFormation, BattleLog, EnemyMonster } from '../models/battle.model';
 import { Monster, MonsterRarity, MonsterStage } from '../models/monster.model';
-import { CombatStats, RecentBattleRecord, SquadPreset } from '../models/player-state.model';
+import { CombatStats, RecentBattleRecord } from '../models/player-state.model';
 import { serializeMonsterProgress } from '../models/save-state.model';
 import {
   ArenaThreatProfile,
@@ -108,6 +108,7 @@ import { BattleAnimationService } from './battle-animation.service';
 import { SaveStateService } from './save-state.service';
 import { ToastService } from './toast.service';
 import { GameStore } from './game-store.service';
+import { SquadStore } from './squad.store';
 import { CampaignStore } from './campaign.store';
 import { AchievementsStore } from './achievements.store';
 import { SettingsStore } from './settings.store';
@@ -116,7 +117,6 @@ import { GearStore } from './gear.store';
 import {
   MAX_LOADOUT,
   MAX_RECENT_BATTLES,
-  MAX_SQUAD_PRESETS,
   STAGE_MILESTONE_REWARD,
   base64Decode,
   base64Encode,
@@ -147,6 +147,7 @@ export * from './game-state.models';
 @Injectable({ providedIn: 'root' })
 export class GameStateService {
   private readonly store = inject(GameStore);
+  readonly squadOps = inject(SquadStore);
   readonly campaign = inject(CampaignStore);
   readonly medals = inject(AchievementsStore);
   readonly prefs = inject(SettingsStore);
@@ -973,95 +974,11 @@ export class GameStateService {
     return this.store.getMonsterById(id);
   }
 
-  selectMonster(id: string): void {
-    this.player.update((player) => ({ ...player, selectedMonsterId: id }));
-  }
 
-  addToSquad(id: string): void {
-    const monster = this.getMonsterById(id);
-    if (!monster?.unlocked) {
-      this.prependLog(`${monster?.name ?? 'Locked creature'} must be unlocked before joining the squad.`, 'system');
-      return;
-    }
 
-    this.player.update((player) => {
-      if (player.squadIds.includes(id) || player.squadIds.length >= 3) {
-        return player;
-      }
 
-      return { ...player, squadIds: [...player.squadIds, id] };
-    });
 
-  }
 
-  removeFromSquad(id: string): void {
-    this.player.update((player) => ({ ...player, squadIds: player.squadIds.filter((squadId) => squadId !== id) }));
-  }
-
-  replaceSquadMember(removeId: string, addId: string): void {
-    const monster = this.getMonsterById(addId);
-    if (!monster?.unlocked) {
-      this.prependLog(`${monster?.name ?? 'Locked creature'} must be unlocked before joining the squad.`, 'system');
-      return;
-    }
-
-    this.player.update((player) => {
-      if (!player.squadIds.includes(removeId) || player.squadIds.includes(addId)) {
-        return player;
-      }
-
-      return {
-        ...player,
-        squadIds: player.squadIds.map((squadId) => (squadId === removeId ? addId : squadId)).slice(0, 3),
-      };
-    });
-
-    this.prependLog(`${monster.name} replaced a squad slot for the next run.`, 'info');
-  }
-
-  clearSquad(): void {
-    this.player.update((player) => ({ ...player, squadIds: [] }));
-  }
-
-  autoBuildBestSquad(): void {
-    const selected: Monster[] = [];
-    const unlocked = this.monsters().filter((monster) => monster.unlocked);
-
-    while (selected.length < 3 && selected.length < unlocked.length) {
-      const chosen = unlocked
-        .filter((monster) => !selected.some((entry) => entry.id === monster.id))
-        .sort((left, right) => this.scoreSquadAutofillCandidate(right, selected) - this.scoreSquadAutofillCandidate(left, selected))[0];
-
-      if (!chosen) {
-        break;
-      }
-
-      selected.push(chosen);
-    }
-
-    const nextIds = selected.map((monster) => monster.id);
-    const currentIds = this.player().squadIds;
-    if (nextIds.join('|') === currentIds.join('|')) {
-      this.toast.push({
-        title: 'Squad Already Tuned',
-        message: 'The strongest available three-signal loadout is already online.',
-        tone: 'info',
-        icon: 'SQ',
-        durationMs: 2800,
-      });
-      return;
-    }
-
-    this.player.update((player) => ({ ...player, squadIds: nextIds }));
-    this.prependLog(`Auto-built squad: ${selected.map((monster) => monster.name).join(' / ')}.`, 'info');
-    this.toast.push({
-      title: 'Squad Auto-Built',
-      message: `${selected.length}/3 slots tuned for power and type spread.`,
-      tone: 'success',
-      icon: 'SQ',
-      durationMs: 3400,
-    });
-  }
 
   getMonsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
     return getMonsterTrainingDrills(monster.stage);
@@ -1305,7 +1222,7 @@ export class GameStateService {
   runSquadOrder(actionId: SquadOrderActionId): boolean {
     switch (actionId) {
       case 'auto-squad':
-        this.autoBuildBestSquad();
+        this.squadOps.autoBuildBestSquad();
         return true;
       case 'swap-reserve': {
         const patch = this.buildSquadPatchInput();
@@ -1316,7 +1233,7 @@ export class GameStateService {
         if (!candidate || !weakest || patch.powerGain <= 0) {
           return false;
         }
-        this.replaceSquadMember(weakest.id, candidate.id);
+        this.squadOps.replaceSquadMember(weakest.id, candidate.id);
         return true;
       }
       case 'train-squad':
@@ -1372,78 +1289,10 @@ export class GameStateService {
     this.toast.push({ title: 'Fabricated', message: `${def.name} added to inventory (-${def.cost} CR).`, tone: 'info', icon: def.icon, durationMs: 3200 });
   }
 
-  saveSquadPreset(name: string): SquadPreset | null {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      return null;
-    }
 
-    const squadIds = [...this.player().squadIds];
-    if (squadIds.length === 0) {
-      this.prependLog('Cannot save an empty squad as a preset.', 'system');
-      return null;
-    }
 
-    let saved: SquadPreset | null = null;
 
-    this.player.update((player) => {
-      const preset: SquadPreset = {
-        id: `preset-${Date.now()}`,
-        name: trimmed.slice(0, 24),
-        squadIds,
-      };
 
-      const existingIndex = player.squadPresets.findIndex((current) => current.name.toLowerCase() === preset.name.toLowerCase());
-      let nextPresets: SquadPreset[];
-      if (existingIndex >= 0) {
-        nextPresets = [...player.squadPresets];
-        nextPresets[existingIndex] = preset;
-      } else if (player.squadPresets.length >= MAX_SQUAD_PRESETS) {
-        nextPresets = [...player.squadPresets.slice(1), preset];
-      } else {
-        nextPresets = [...player.squadPresets, preset];
-      }
-
-      saved = preset;
-      return { ...player, squadPresets: nextPresets };
-    });
-
-    return saved;
-  }
-
-  loadSquadPreset(presetId: string): void {
-    const preset = this.player().squadPresets.find((entry) => entry.id === presetId);
-    if (!preset) {
-      return;
-    }
-
-    const validIds = preset.squadIds.filter((id) => {
-      const monster = this.getMonsterById(id);
-      return monster?.unlocked;
-    });
-
-    this.player.update((player) => ({ ...player, squadIds: validIds.slice(0, 3) }));
-    this.prependLog(`Loaded preset "${preset.name}" into squad.`, 'info');
-  }
-
-  deleteSquadPreset(presetId: string): void {
-    this.player.update((player) => ({
-      ...player,
-      squadPresets: player.squadPresets.filter((preset) => preset.id !== presetId),
-    }));
-  }
-
-  pinChaseTarget(id: string): void {
-    const monster = this.getMonsterById(id);
-    if (!monster) {
-      return;
-    }
-    this.player.update((player) => ({ ...player, pinnedChaseId: id }));
-  }
-
-  unpinChaseTarget(): void {
-    this.player.update((player) => ({ ...player, pinnedChaseId: null }));
-  }
 
   resetProgress(): void {
     this.saveState.clearState();
@@ -1503,7 +1352,7 @@ export class GameStateService {
     switch (actionId) {
       case 'auto-squad':
         this.requestTab('Squad');
-        this.autoBuildBestSquad();
+        this.squadOps.autoBuildBestSquad();
         return true;
       case 'evolve-ready':
         this.requestTab('Evolution Tree');
@@ -1513,7 +1362,7 @@ export class GameStateService {
         return true;
       case 'run-battle':
         if (this.squad().length === 0) {
-          this.autoBuildBestSquad();
+          this.squadOps.autoBuildBestSquad();
         }
         this.requestTab('Arena');
         if (this.squad().length === 0) {
@@ -1533,7 +1382,7 @@ export class GameStateService {
       case 'expedition': {
         const expedition = this.expedition();
         if (!expedition && this.squad().length === 0) {
-          this.autoBuildBestSquad();
+          this.squadOps.autoBuildBestSquad();
         }
         this.requestTab(expedition || this.squad().length > 0 ? 'Expedition' : 'Squad');
         if (!expedition) {
@@ -1858,7 +1707,7 @@ export class GameStateService {
     });
 
     if (this.player().pinnedChaseId === target.id) {
-      this.unpinChaseTarget();
+      this.squadOps.unpinChaseTarget();
     }
 
     this.awardStageMilestoneIfComplete(target.stage);
@@ -2527,15 +2376,5 @@ export class GameStateService {
     return min + Math.random() * (max - min);
   }
 
-  private scoreSquadAutofillCandidate(monster: Monster, selected: Monster[]): number {
-    const selectedTypes = new Set(selected.map((entry) => entry.type));
-    const selectedStages = new Set(selected.map((entry) => entry.stage));
-    const typeBonus = selectedTypes.has(monster.type) ? 0 : 150;
-    const stageBonus = selectedStages.has(monster.stage) ? 0 : 45;
-    const prismaticBonus = monster.prismatic ? 60 : 0;
-    const stageRank = this.stages.indexOf(monster.stage) * 12;
-
-    return getMonsterPower(monster) + typeBonus + stageBonus + prismaticBonus + stageRank;
-  }
 }
 

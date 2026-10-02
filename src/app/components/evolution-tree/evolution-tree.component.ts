@@ -66,7 +66,7 @@ export class EvolutionTreeComponent {
   readonly recentDiscoveries = computed(() => this.game.monsters().filter((monster) => monster.unlocked).slice(-3).reverse());
 
   selectMonster(monster: Monster): void {
-    this.game.selectMonster(monster.id);
+    this.game.squadOps.selectMonster(monster.id);
   }
 
   isReady(monster: Monster): boolean {
@@ -81,8 +81,8 @@ export class EvolutionTreeComponent {
       this.game.evolve(candidate.source.id, target.id);
       return;
     }
-    if (candidate?.source) this.game.selectMonster(candidate.source.id);
-    this.game.pinChaseTarget(target.id);
+    if (candidate?.source) this.game.squadOps.selectMonster(candidate.source.id);
+    this.game.squadOps.pinChaseTarget(target.id);
   }
 
   nextActionLabel(): string {
