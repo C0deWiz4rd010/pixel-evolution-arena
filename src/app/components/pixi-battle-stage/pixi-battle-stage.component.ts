@@ -23,6 +23,7 @@ import { EnemyMonster } from '../../models/battle.model';
 import { Monster } from '../../models/monster.model';
 import { BattleAnimationService } from '../../services/battle-animation.service';
 import { GameStateService } from '../../services/game-state.service';
+import { PixiTickerGovernor } from '../shared/pixi-ticker-governor';
 
 type PixiApi = typeof import('pixi.js');
 
@@ -134,6 +135,7 @@ export class PixiBattleStageComponent {
   private width = 600;
   private mediaQuery: MediaQueryList | null = null;
   private resizeObserver: ResizeObserver | null = null;
+  private governor: PixiTickerGovernor | null = null;
   private seenPopupIds = new Set<number>();
   private seenCueIds = new Set<number>();
   private lastPhase = 'idle';
@@ -150,17 +152,18 @@ export class PixiBattleStageComponent {
     const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
     this.reducedMotion.set(reduced);
     if (this.app) {
-      if (reduced) {
-        this.app.ticker.stop();
-        this.renderStaticFrame();
-      } else {
-        this.app.ticker.start();
-      }
+      this.governor?.sync();
+      if (reduced) this.renderStaticFrame();
     }
   }
 
   constructor() {
     this.registerObservers();
+    // Full frame rate only while a battle is playing; ambient idle motion runs capped.
+    effect(() => {
+      const busy = this.anim.isPlaying() || this.game.battleSession() !== null;
+      this.governor?.setBusy(busy);
+    });
 
     if (isPlatformBrowser(this.platformId)) {
       afterNextRender(() => void this.initialize());
@@ -313,10 +316,9 @@ export class PixiBattleStageComponent {
       this.observeResize(hostEl);
 
       app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
-      if (this.reducedMotion()) {
-        app.ticker.stop();
-        this.renderStaticFrame();
-      }
+      this.governor = new PixiTickerGovernor(app.ticker, hostEl, () => this.reducedMotion());
+      this.governor.setBusy(this.anim.isPlaying() || this.game.battleSession() !== null);
+      if (this.reducedMotion()) this.renderStaticFrame();
     } catch {
       this.failed.set(true);
     }
@@ -814,6 +816,8 @@ export class PixiBattleStageComponent {
   }
 
   private dispose(): void {
+    this.governor?.dispose();
+    this.governor = null;
     this.mediaQuery?.removeEventListener('change', this.handleMotionChange);
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;

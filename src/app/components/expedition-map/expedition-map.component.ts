@@ -13,6 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import type { Application as PixiApplication, Container as PixiContainer, Graphics as PixiGraphics } from 'pixi.js';
+import { PixiTickerGovernor } from '../shared/pixi-ticker-governor';
 import { ExpeditionNode, ExpeditionNodeType, ExpeditionState } from '../../models/expedition.model';
 import { GameStateService } from '../../services/game-state.service';
 
@@ -83,6 +84,7 @@ export class ExpeditionMapComponent {
 
   private pixi: PixiApi | null = null;
   private app: PixiApplication | null = null;
+  private governor: PixiTickerGovernor | null = null;
   private root: PixiContainer | null = null;
   private edges: PixiGraphics | null = null;
   private readonly rendered: RenderedNode[] = [];
@@ -150,10 +152,8 @@ export class ExpeditionMapComponent {
       this.rebuild(this.game.expedition());
 
       app.ticker.add((ticker) => this.tick(ticker.deltaMS / 1000));
-      if (this.reducedMotion()) {
-        app.ticker.stop();
-        app.renderer.render(app.stage);
-      }
+      this.governor = new PixiTickerGovernor(app.ticker, hostEl, () => this.reducedMotion());
+      if (this.reducedMotion()) app.renderer.render(app.stage);
     } catch {
       // Pixi unavailable — the surrounding tab still shows run state in the DOM.
     }
@@ -163,12 +163,8 @@ export class ExpeditionMapComponent {
     const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
     this.reducedMotion.set(reduced);
     if (!this.app) return;
-    if (reduced) {
-      this.app.ticker.stop();
-      this.app.renderer.render(this.app.stage);
-    } else {
-      this.app.ticker.start();
-    }
+    this.governor?.sync();
+    if (reduced) this.app.renderer.render(this.app.stage);
   }
 
   private rebuild(exp: ExpeditionState | null): void {
@@ -278,6 +274,8 @@ export class ExpeditionMapComponent {
   }
 
   private dispose(): void {
+    this.governor?.dispose();
+    this.governor = null;
     this.mediaQuery = null;
     this.rendered.length = 0;
     const app = this.app;
