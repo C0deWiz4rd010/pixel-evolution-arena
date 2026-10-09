@@ -5,20 +5,33 @@ import {
   DestroyRef,
   ElementRef,
   PLATFORM_ID,
-  ViewChild,
   afterNextRender,
   effect,
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
-import type * as Three from 'three';
 import { ArenaEffectCue, ArenaEffectsService } from '../../services/effects/arena-effects.service';
 import { GameStateService } from '../../services/game-state.service';
 
-type EffectMesh = Three.Mesh<Three.BufferGeometry, Three.MeshBasicMaterial>;
-type ThreeApi = typeof import('three');
+interface Rgb {
+  r: number;
+  g: number;
+  b: number;
+}
 
+/** Device pixel ratio cap: overlay effects stay sharp enough without paying for 3x canvases. */
+const MAX_PIXEL_RATIO = 1.5;
+const MAX_SPARKS = 160;
+const REDUCED_CUE_MS = 180;
+
+/**
+ * Full-screen feedback overlay (tab switches, selections, squad changes, battle results).
+ *
+ * Canvas 2D with additive blending. The draw loop only runs while a cue is alive; when idle the
+ * canvas is cleared and the host is hidden, so it costs nothing between interactions.
+ */
 @Component({
   selector: 'app-arena-effects',
   standalone: true,
@@ -28,94 +41,62 @@ type ThreeApi = typeof import('three');
   host: {
     'aria-hidden': 'true',
     '[class.reduced-motion]': 'reducedMotion()',
+    '[class.idle]': 'idle()',
   },
 })
 export class ArenaEffectsComponent {
   readonly activeTab = input('Evolution Tree');
   readonly reducedMotion = signal(false);
+  readonly idle = signal(true);
 
-  @ViewChild('canvas', { static: true })
-  private readonly canvasRef?: ElementRef<HTMLCanvasElement>;
-
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly effectRules = inject(ArenaEffectsService);
   private readonly game = inject(GameStateService);
 
-  private readonly maxSparks = 160;
-  private readonly sparkPositions = new Float32Array(this.maxSparks * 3);
-  private readonly sparkVelocities = new Float32Array(this.maxSparks * 3);
-  private readonly sparkColors = new Float32Array(this.maxSparks * 3);
-  private readonly sparkBaseColors = new Float32Array(this.maxSparks * 3);
-  private readonly sparkLives = new Float32Array(this.maxSparks);
-  private readonly sparkMaxLives = new Float32Array(this.maxSparks);
-  private readonly pendingCues: ArenaEffectCue[] = [];
-  private readonly handleResize = (): void => this.resize();
-  private readonly handleContextLost = (event: Event): void => {
-    event.preventDefault();
-    this.stopLoop();
-  };
-  private readonly handleContextRestored = (): void => {
-    this.renderFrame();
-    this.ensureLoop();
-  };
-  private readonly handleMotionPreference = (event: MediaQueryListEvent): void => {
-    this.applyMotionPreference(event.matches);
-  };
+  private readonly sparkX = new Float32Array(MAX_SPARKS);
+  private readonly sparkY = new Float32Array(MAX_SPARKS);
+  private readonly sparkVx = new Float32Array(MAX_SPARKS);
+  private readonly sparkVy = new Float32Array(MAX_SPARKS);
+  private readonly sparkLife = new Float32Array(MAX_SPARKS);
+  private readonly sparkMaxLife = new Float32Array(MAX_SPARKS);
+  private readonly sparkColor: string[] = new Array(MAX_SPARKS).fill('#12d8ff');
+  private liveSparks = 0;
 
-  private applyMotionPreference(systemPrefersReduced = this.mediaQuery?.matches === true): void {
-    const reduced = this.game.settings().motionMode === 'reduced' || systemPrefersReduced;
-    this.reducedMotion.set(reduced);
-
-    if (reduced) {
-      this.stopLoop();
-      this.renderFrame();
-      return;
-    }
-
-    this.ensureLoop();
-  }
-
-  private three: ThreeApi | null = null;
-  private cueColor: Three.Color | null = null;
-  private cueAccentColor: Three.Color | null = null;
-  private renderer: Three.WebGLRenderer | null = null;
-  private scene: Three.Scene | null = null;
-  private camera: Three.OrthographicCamera | null = null;
-  private grid: Three.LineSegments<Three.BufferGeometry, Three.LineBasicMaterial> | null = null;
-  private sparkGeometry: Three.BufferGeometry | null = null;
-  private sparks: Three.Points<Three.BufferGeometry, Three.PointsMaterial> | null = null;
-  private beamCore: EffectMesh | null = null;
-  private beamGlow: EffectMesh | null = null;
-  private ring: EffectMesh | null = null;
-  private menuGlow: EffectMesh | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
   private mediaQuery: MediaQueryList | null = null;
   private animationFrame = 0;
   private reducedCueTimer = 0;
   private width = 1;
   private height = 1;
+  private pixelRatio = 1;
   private lastFrameMs = 0;
+
+  private color: Rgb = { r: 18, g: 216, b: 255 };
+  private accent: Rgb = { r: 124, g: 255, b: 58 };
+  private intensity = 0.5;
   private beamLife = 0;
   private beamDuration = 0.7;
   private ringLife = 0;
   private ringDuration = 0.65;
+  private ringRotation = 0;
   private menuLife = 0;
   private menuDuration = 0.5;
-  private cueIntensity = 0.5;
+
   private previousTab: string | null = null;
   private previousBattleSignature: string | null = null;
   private previousSelectedMonsterId: string | null = null;
   private previousSquadSignature: string | null = null;
 
+  private readonly handleResize = (): void => this.resize();
+  private readonly handleMotionPreference = (): void => this.applyMotionPreference();
+
   constructor() {
     this.registerCueObservers();
-
     if (isPlatformBrowser(this.platformId)) {
-      afterNextRender(() => {
-        void this.initialize();
-      });
+      afterNextRender(() => this.initialize());
     }
-
     this.destroyRef.onDestroy(() => this.dispose());
   }
 
@@ -127,456 +108,199 @@ export class ArenaEffectsComponent {
 
     effect(() => {
       const tab = this.activeTab();
-
-      if (this.previousTab === null) {
-        this.previousTab = tab;
-        return;
+      if (this.previousTab !== null && tab !== this.previousTab) {
+        this.play(this.effectRules.createMenuCue(tab));
       }
-
-      if (tab !== this.previousTab) {
-        this.previousTab = tab;
-        this.enqueueCue(this.effectRules.createMenuCue(tab));
-      }
+      this.previousTab = tab;
     });
 
     effect(() => {
       const monster = this.game.selectedMonster();
       const monsterId = monster?.id ?? '';
-
-      if (this.previousSelectedMonsterId === null) {
-        this.previousSelectedMonsterId = monsterId;
-        return;
-      }
-
-      if (monsterId !== this.previousSelectedMonsterId) {
-        this.previousSelectedMonsterId = monsterId;
+      if (this.previousSelectedMonsterId !== null && monsterId !== this.previousSelectedMonsterId) {
         const cue = this.effectRules.createSelectionCue(monster);
-
-        if (cue !== null) {
-          this.enqueueCue(cue);
-        }
+        if (cue !== null) this.play(cue);
       }
+      this.previousSelectedMonsterId = monsterId;
     });
 
     effect(() => {
       const squad = this.game.squad();
       const teamPower = this.game.teamPower();
       const signature = `${squad.map((monster) => `${monster.id}:${monster.level}`).join('|')}@${teamPower}`;
-
-      if (this.previousSquadSignature === null) {
-        this.previousSquadSignature = signature;
-        return;
+      if (this.previousSquadSignature !== null && signature !== this.previousSquadSignature) {
+        this.play(this.effectRules.createSquadCue(teamPower, squad.length));
       }
-
-      if (signature !== this.previousSquadSignature) {
-        this.previousSquadSignature = signature;
-        this.enqueueCue(this.effectRules.createSquadCue(teamPower, squad.length));
-      }
+      this.previousSquadSignature = signature;
     });
 
     effect(() => {
       const reward = this.game.lastReward();
       const leadingLog = this.game.battleLogs()[0]?.text ?? '';
-      const signature = `${leadingLog}|${reward?.won ?? 'none'}|${reward?.coins ?? 0}|${reward?.dnaShards ?? 0}|${reward?.xp ?? 0}|${reward?.item ?? ''}`;
-
-      if (this.previousBattleSignature === null) {
-        this.previousBattleSignature = signature;
-        return;
+      const signature = `${leadingLog}|${reward?.won ?? 'none'}|${reward?.coins ?? 0}|${reward?.xp ?? 0}|${reward?.item ?? ''}`;
+      if (this.previousBattleSignature !== null && signature !== this.previousBattleSignature && leadingLog.length > 0) {
+        this.play(this.effectRules.createBattleCue(reward, leadingLog, this.game.teamPower()));
       }
-
-      if (signature !== this.previousBattleSignature && leadingLog.length > 0) {
-        this.previousBattleSignature = signature;
-        this.enqueueCue(
-          this.effectRules.createBattleCue(reward, leadingLog, this.game.teamPower()),
-        );
-      }
+      this.previousBattleSignature = signature;
     });
   }
 
-  private async initialize(): Promise<void> {
-    const canvas = this.canvasRef?.nativeElement;
-
-    if (!canvas || this.renderer !== null) {
-      return;
-    }
-
-    this.three = await import('three');
-    this.cueColor = new this.three.Color('#12d8ff');
-    this.cueAccentColor = new this.three.Color('#7cff3a');
-    this.configureMotionPreference();
-    this.scene = new this.three.Scene();
-    this.camera = new this.three.OrthographicCamera(-1, 1, 1, -1, -50, 50);
-    this.renderer = new this.three.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      canvas,
-      powerPreference: 'low-power',
-    });
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.createSceneObjects();
-    this.resize();
-    canvas.addEventListener('webglcontextlost', this.handleContextLost);
-    canvas.addEventListener('webglcontextrestored', this.handleContextRestored);
-    window.addEventListener('resize', this.handleResize, { passive: true });
-    this.flushPendingCues();
-    this.renderFrame();
-
-    if (!this.reducedMotion()) {
-      this.ensureLoop();
-    }
-  }
-
-  private configureMotionPreference(): void {
+  private initialize(): void {
+    this.ctx = this.canvasRef().nativeElement.getContext('2d');
     this.mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    this.applyMotionPreference(this.mediaQuery.matches);
     this.mediaQuery.addEventListener('change', this.handleMotionPreference);
+    window.addEventListener('resize', this.handleResize, { passive: true });
+    this.applyMotionPreference();
+    this.resize();
   }
 
-  private createSceneObjects(): void {
-    const three = this.three;
-
-    if (this.scene === null || three === null) {
-      return;
-    }
-
-    this.beamGlow = new three.Mesh(
-      new three.PlaneGeometry(1, 1),
-      this.createAdditiveMaterial('#7cff3a', 0),
-    );
-    this.beamCore = new three.Mesh(
-      new three.PlaneGeometry(1, 1),
-      this.createAdditiveMaterial('#12d8ff', 0),
-    );
-    this.ring = new three.Mesh(
-      new three.RingGeometry(0.86, 1, 64),
-      this.createAdditiveMaterial('#12d8ff', 0),
-    );
-    this.menuGlow = new three.Mesh(
-      new three.PlaneGeometry(1, 1),
-      this.createAdditiveMaterial('#ff5bd8', 0),
-    );
-    this.sparkGeometry = new three.BufferGeometry();
-    this.sparkGeometry.setAttribute('position', new three.BufferAttribute(this.sparkPositions, 3));
-    this.sparkGeometry.setAttribute('color', new three.BufferAttribute(this.sparkColors, 3));
-    this.sparks = new three.Points(
-      this.sparkGeometry,
-      new three.PointsMaterial({
-        blending: three.AdditiveBlending,
-        depthWrite: false,
-        opacity: 0.85,
-        size: 4,
-        transparent: true,
-        vertexColors: true,
-      }),
-    );
-
-    this.hideTransientMeshes();
-    this.clearSparks();
-    this.scene.add(this.menuGlow, this.beamGlow, this.beamCore, this.ring, this.sparks);
+  private applyMotionPreference(): void {
+    const reduced = this.game.settings().motionMode === 'reduced' || this.mediaQuery?.matches === true;
+    this.reducedMotion.set(reduced);
+    if (reduced) this.stopAndClear();
   }
 
   private resize(): void {
-    if (this.renderer === null || this.camera === null) {
-      return;
-    }
-
+    const canvas = this.canvasRef().nativeElement;
     this.width = Math.max(1, window.innerWidth);
     this.height = Math.max(1, window.innerHeight);
-    this.renderer.setSize(this.width, this.height, false);
-    this.camera.left = -this.width / 2;
-    this.camera.right = this.width / 2;
-    this.camera.top = this.height / 2;
-    this.camera.bottom = -this.height / 2;
-    this.camera.updateProjectionMatrix();
-    this.rebuildGrid();
-    this.positionTransientMeshes();
-    this.renderFrame();
+    this.pixelRatio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+    canvas.width = Math.round(this.width * this.pixelRatio);
+    canvas.height = Math.round(this.height * this.pixelRatio);
   }
 
-  private rebuildGrid(): void {
-    const three = this.three;
-
-    if (this.scene === null || three === null) {
-      return;
-    }
-
-    if (this.grid !== null) {
-      this.scene.remove(this.grid);
-      this.grid.geometry.dispose();
-      this.grid.material.dispose();
-    }
-
-    const step = 64;
-    const positions: number[] = [];
-    const startX = -this.width / 2 - step * 2;
-    const endX = this.width / 2 + step * 2;
-    const startY = -this.height / 2 - step * 2;
-    const endY = this.height / 2 + step * 2;
-
-    for (let x = startX; x <= endX; x += step) {
-      positions.push(x, startY, -4, x, endY, -4);
-    }
-
-    for (let y = startY; y <= endY; y += step) {
-      positions.push(startX, y, -4, endX, y, -4);
-    }
-
-    const geometry = new three.BufferGeometry();
-    geometry.setAttribute('position', new three.Float32BufferAttribute(positions, 3));
-    const material = new three.LineBasicMaterial({
-      blending: three.AdditiveBlending,
-      color: '#12d8ff',
-      depthWrite: false,
-      opacity: this.reducedMotion() ? 0.06 : 0.11,
-      transparent: true,
-    });
-
-    this.grid = new three.LineSegments(geometry, material);
-    this.scene.add(this.grid);
-  }
-
-  private positionTransientMeshes(): void {
-    if (
-      this.beamCore === null ||
-      this.beamGlow === null ||
-      this.ring === null ||
-      this.menuGlow === null
-    ) {
-      return;
-    }
-
-    this.beamCore.position.set(0, -this.height * 0.05, 1);
-    this.beamGlow.position.copy(this.beamCore.position);
-    this.beamCore.scale.set(this.width * 0.5, 8, 1);
-    this.beamGlow.scale.set(this.width * 0.58, 34, 1);
-    this.ring.position.set(this.width * 0.22, -this.height * 0.04, 2);
-    this.menuGlow.position.set(0, this.height / 2 - Math.min(210, this.height * 0.2), 0);
-    this.menuGlow.scale.set(this.width, 92, 1);
-  }
-
-  private enqueueCue(cue: ArenaEffectCue): void {
-    this.pendingCues.push(cue);
-
-    if (this.pendingCues.length > 8) {
-      this.pendingCues.shift();
-    }
-
-    this.flushPendingCues();
-  }
-
-  private flushPendingCues(): void {
-    if (this.renderer === null) {
-      return;
-    }
-
-    while (this.pendingCues.length > 0) {
-      const cue = this.pendingCues.shift();
-
-      if (cue !== undefined) {
-        this.playCue(cue);
-      }
-    }
-  }
-
-  private playCue(cue: ArenaEffectCue): void {
-    if (this.cueColor === null || this.cueAccentColor === null) {
-      return;
-    }
-
-    this.cueColor.set(cue.color);
-    this.cueAccentColor.set(cue.accentColor);
-    this.cueIntensity = cue.intensity;
+  private play(cue: ArenaEffectCue): void {
+    if (this.ctx === null) return;
+    this.color = parseHex(cue.color);
+    this.accent = parseHex(cue.accentColor);
+    this.intensity = cue.intensity;
 
     if (this.reducedMotion()) {
       this.playReducedCue(cue);
       return;
     }
 
-    this.applyCueColors();
-
     if (cue.beam) {
       this.beamDuration = cue.durationMs / 1000;
       this.beamLife = this.beamDuration;
     }
-
     if (cue.ring) {
       this.ringDuration = Math.max(0.32, cue.durationMs / 1000);
       this.ringLife = this.ringDuration;
     }
-
     if (cue.kind === 'menu') {
       this.menuDuration = cue.durationMs / 1000;
       this.menuLife = this.menuDuration;
     }
-
     this.spawnBurst(cue);
     this.ensureLoop();
   }
 
+  /** Reduced motion: a single static flash instead of moving particles. */
   private playReducedCue(cue: ArenaEffectCue): void {
+    const ctx = this.ctx;
+    if (ctx === null) return;
     window.clearTimeout(this.reducedCueTimer);
-    this.applyCueColors();
-
-    if (this.menuGlow !== null) {
-      this.setMaterialOpacity(this.menuGlow, cue.kind === 'menu' ? 0.1 : 0.04);
-    }
-
-    if (this.ring !== null && cue.ring) {
-      this.ring.scale.setScalar(82);
-      this.setMaterialOpacity(this.ring, 0.12);
-    }
-
-    this.renderFrame();
-    this.reducedCueTimer = window.setTimeout(() => {
-      this.hideTransientMeshes();
-      this.renderFrame();
-    }, 180);
-  }
-
-  private applyCueColors(): void {
-    if (this.cueColor === null || this.cueAccentColor === null) {
-      return;
-    }
-
-    if (this.beamCore !== null) {
-      this.beamCore.material.color.copy(this.cueColor);
-    }
-
-    if (this.beamGlow !== null) {
-      this.beamGlow.material.color.copy(this.cueAccentColor);
-    }
-
-    if (this.ring !== null) {
-      this.ring.material.color.copy(this.cueAccentColor);
-    }
-
-    if (this.menuGlow !== null) {
-      this.menuGlow.material.color.copy(this.cueColor);
-    }
+    this.idle.set(false);
+    this.beginFrame(ctx);
+    if (cue.kind === 'menu') this.drawMenuGlow(ctx, 0.1);
+    if (cue.ring) this.drawRing(ctx, 82, 0.12);
+    this.reducedCueTimer = window.setTimeout(() => this.stopAndClear(), REDUCED_CUE_MS);
   }
 
   private ensureLoop(): void {
-    if (this.animationFrame !== 0 || this.renderer === null || this.reducedMotion()) {
-      return;
-    }
-
+    if (this.animationFrame !== 0 || this.ctx === null) return;
+    this.idle.set(false);
     this.lastFrameMs = performance.now();
     this.animationFrame = window.requestAnimationFrame(this.animate);
   }
 
   private readonly animate = (timeMs: number): void => {
     this.animationFrame = 0;
+    const ctx = this.ctx;
+    if (ctx === null || this.reducedMotion()) return;
 
-    if (
-      this.renderer === null ||
-      this.scene === null ||
-      this.camera === null ||
-      this.reducedMotion()
-    ) {
-      return;
-    }
-
-    const deltaSeconds = Math.min(0.05, Math.max(0.001, (timeMs - this.lastFrameMs) / 1000));
+    const dt = Math.min(0.05, Math.max(0.001, (timeMs - this.lastFrameMs) / 1000));
     this.lastFrameMs = timeMs;
-    this.updateAtmosphere(timeMs / 1000);
-    this.updateBeam(deltaSeconds);
-    this.updateRing(deltaSeconds);
-    this.updateMenuGlow(deltaSeconds);
-    this.updateSparks(deltaSeconds);
-    this.renderer.render(this.scene, this.camera);
-    this.animationFrame = window.requestAnimationFrame(this.animate);
+    this.beamLife = Math.max(0, this.beamLife - dt);
+    this.ringLife = Math.max(0, this.ringLife - dt);
+    this.menuLife = Math.max(0, this.menuLife - dt);
+    this.ringRotation += dt * 1.8;
+
+    this.beginFrame(ctx);
+    if (this.menuLife > 0) this.drawMenuGlow(ctx, (this.menuLife / this.menuDuration) * 0.18 * this.intensity);
+    if (this.beamLife > 0) this.drawBeam(ctx, 1 - this.beamLife / this.beamDuration);
+    if (this.ringLife > 0) {
+      const progress = 1 - this.ringLife / this.ringDuration;
+      this.drawRing(ctx, 34 + progress * (150 + this.intensity * 120), (1 - progress) * 0.54 * this.intensity);
+    }
+    this.updateAndDrawSparks(ctx, dt);
+
+    if (this.beamLife > 0 || this.ringLife > 0 || this.menuLife > 0 || this.liveSparks > 0) {
+      this.animationFrame = window.requestAnimationFrame(this.animate);
+    } else {
+      this.stopAndClear();
+    }
   };
 
-  private updateAtmosphere(timeSeconds: number): void {
-    if (this.grid !== null) {
-      this.grid.position.y = (timeSeconds * 9) % 64;
-      this.grid.material.opacity = 0.09 + Math.sin(timeSeconds * 1.3) * 0.018;
-    }
-
-    if (Math.random() < 0.18 && this.cueAccentColor !== null) {
-      this.spawnSpark(
-        -this.width / 2 + Math.random() * this.width,
-        -this.height / 2 + Math.random() * this.height,
-        (Math.random() - 0.5) * 18,
-        16 + Math.random() * 34,
-        0.7 + Math.random() * 0.6,
-        this.cueAccentColor,
-      );
-    }
+  /** Reset the transform, clear, and switch to additive blending in CSS pixels. */
+  private beginFrame(ctx: CanvasRenderingContext2D): void {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+    ctx.globalCompositeOperation = 'lighter';
   }
 
-  private updateBeam(deltaSeconds: number): void {
-    if (this.beamCore === null || this.beamGlow === null || this.beamLife <= 0) {
-      return;
-    }
+  private drawMenuGlow(ctx: CanvasRenderingContext2D, alpha: number): void {
+    const centerY = Math.min(210, this.height * 0.2);
+    const progress = this.menuDuration > 0 ? 1 - this.menuLife / this.menuDuration : 1;
+    const half = (82 + progress * 36) / 2;
+    const gradient = ctx.createLinearGradient(0, centerY - half, 0, centerY + half);
+    gradient.addColorStop(0, rgba(this.color, 0));
+    gradient.addColorStop(0.5, rgba(this.color, alpha));
+    gradient.addColorStop(1, rgba(this.color, 0));
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, centerY - half, this.width, half * 2);
+  }
 
-    this.beamLife = Math.max(0, this.beamLife - deltaSeconds);
-    const progress = 1 - this.beamLife / this.beamDuration;
-    const alpha = Math.sin(progress * Math.PI) * this.cueIntensity;
+  private drawBeam(ctx: CanvasRenderingContext2D, progress: number): void {
+    const alpha = Math.sin(progress * Math.PI) * this.intensity;
     const stretch = 0.42 + progress * 0.28;
-    this.beamCore.scale.set(this.width * stretch, 8 + alpha * 7, 1);
-    this.beamGlow.scale.set(this.width * (stretch + 0.1), 34 + alpha * 20, 1);
-    this.beamCore.rotation.z = Math.sin(progress * Math.PI * 2) * 0.025;
-    this.beamGlow.rotation.z = this.beamCore.rotation.z;
-    this.setMaterialOpacity(this.beamCore, alpha * 0.82);
-    this.setMaterialOpacity(this.beamGlow, alpha * 0.24);
-
-    if (this.beamLife === 0) {
-      this.setMaterialOpacity(this.beamCore, 0);
-      this.setMaterialOpacity(this.beamGlow, 0);
-    }
+    const cx = this.width / 2;
+    const cy = this.height / 2 + this.height * 0.05;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(Math.sin(progress * Math.PI * 2) * 0.025);
+    const glowW = this.width * (stretch + 0.1);
+    const glowH = 34 + alpha * 20;
+    ctx.fillStyle = rgba(this.accent, alpha * 0.24);
+    ctx.fillRect(-glowW / 2, -glowH / 2, glowW, glowH);
+    const coreW = this.width * stretch;
+    const coreH = 8 + alpha * 7;
+    ctx.fillStyle = rgba(this.color, alpha * 0.82);
+    ctx.fillRect(-coreW / 2, -coreH / 2, coreW, coreH);
+    ctx.restore();
   }
 
-  private updateRing(deltaSeconds: number): void {
-    if (this.ring === null || this.ringLife <= 0) {
-      return;
-    }
-
-    this.ringLife = Math.max(0, this.ringLife - deltaSeconds);
-    const progress = 1 - this.ringLife / this.ringDuration;
-    const scale = 34 + progress * (150 + this.cueIntensity * 120);
-    this.ring.scale.setScalar(scale);
-    this.ring.rotation.z += deltaSeconds * 1.8;
-    this.setMaterialOpacity(this.ring, (1 - progress) * 0.54 * this.cueIntensity);
-
-    if (this.ringLife === 0) {
-      this.setMaterialOpacity(this.ring, 0);
-    }
-  }
-
-  private updateMenuGlow(deltaSeconds: number): void {
-    if (this.menuGlow === null || this.menuLife <= 0) {
-      return;
-    }
-
-    this.menuLife = Math.max(0, this.menuLife - deltaSeconds);
-    const progress = 1 - this.menuLife / this.menuDuration;
-    this.menuGlow.scale.set(this.width, 82 + progress * 36, 1);
-    this.setMaterialOpacity(this.menuGlow, (1 - progress) * 0.18 * this.cueIntensity);
-
-    if (this.menuLife === 0) {
-      this.setMaterialOpacity(this.menuGlow, 0);
-    }
+  private drawRing(ctx: CanvasRenderingContext2D, radius: number, alpha: number): void {
+    ctx.save();
+    ctx.translate(this.width / 2 + this.width * 0.22, this.height / 2 + this.height * 0.04);
+    ctx.rotate(this.ringRotation);
+    ctx.strokeStyle = rgba(this.accent, alpha);
+    ctx.lineWidth = Math.max(1, radius * 0.14);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.93, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
 
   private spawnBurst(cue: ArenaEffectCue): void {
-    const three = this.three;
-
-    if (three === null) {
-      return;
-    }
-
-    const primary = new three.Color(cue.color);
-    const accent = new three.Color(cue.accentColor);
-
     const intensity = Math.max(0.15, this.game.settings().effectIntensity);
-    const burstCount = Math.max(1, Math.round(cue.particleBurst * intensity));
-    for (let index = 0; index < burstCount; index += 1) {
-      const useAccent = index % 3 === 0;
-      const color = useAccent ? accent : primary;
-      const origin = this.burstOrigin(cue.kind);
-      const spread = cue.kind === 'menu' ? this.width * 0.45 : 90 + cue.intensity * 90;
+    const count = Math.max(1, Math.round(cue.particleBurst * intensity));
+    const origin = this.burstOrigin(cue.kind);
+    const spread = cue.kind === 'menu' ? this.width * 0.45 : 90 + cue.intensity * 90;
+    for (let i = 0; i < count; i += 1) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 48 + Math.random() * 170 * cue.intensity;
       this.spawnSpark(
@@ -585,205 +309,88 @@ export class ArenaEffectsComponent {
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         0.45 + Math.random() * 0.55,
-        color,
+        i % 3 === 0 ? cue.accentColor : cue.color,
       );
     }
   }
 
+  /** Burst origins in canvas (top-left) coordinates. */
   private burstOrigin(kind: ArenaEffectCue['kind']): { x: number; y: number } {
-    if (kind === 'menu') {
-      return { x: 0, y: this.height / 2 - Math.min(210, this.height * 0.2) };
-    }
-
-    if (kind === 'battle' || kind === 'battle-blocked') {
-      return { x: this.width * 0.18, y: -this.height * 0.04 };
-    }
-
-    if (kind === 'squad') {
-      return { x: -this.width * 0.24, y: -this.height * 0.06 };
-    }
-
-    return { x: 0, y: -this.height * 0.02 };
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+    if (kind === 'menu') return { x: cx, y: Math.min(210, this.height * 0.2) };
+    if (kind === 'battle' || kind === 'battle-blocked') return { x: cx + this.width * 0.18, y: cy + this.height * 0.04 };
+    if (kind === 'squad') return { x: cx - this.width * 0.24, y: cy + this.height * 0.06 };
+    return { x: cx, y: cy + this.height * 0.02 };
   }
 
-  private spawnSpark(
-    x: number,
-    y: number,
-    velocityX: number,
-    velocityY: number,
-    life: number,
-    color: Three.Color,
-  ): void {
-    const index = this.nextSparkIndex();
-    const base = index * 3;
-    this.sparkPositions[base] = x;
-    this.sparkPositions[base + 1] = y;
-    this.sparkPositions[base + 2] = 4;
-    this.sparkVelocities[base] = velocityX;
-    this.sparkVelocities[base + 1] = velocityY;
-    this.sparkVelocities[base + 2] = 0;
-    this.sparkBaseColors[base] = color.r;
-    this.sparkBaseColors[base + 1] = color.g;
-    this.sparkBaseColors[base + 2] = color.b;
-    this.sparkColors[base] = color.r;
-    this.sparkColors[base + 1] = color.g;
-    this.sparkColors[base + 2] = color.b;
-    this.sparkLives[index] = life;
-    this.sparkMaxLives[index] = life;
+  private spawnSpark(x: number, y: number, vx: number, vy: number, life: number, color: string): void {
+    let index = this.sparkLife.findIndex((value) => value <= 0);
+    if (index < 0) index = Math.floor(Math.random() * MAX_SPARKS);
+    else this.liveSparks += 1;
+    this.sparkX[index] = x;
+    this.sparkY[index] = y;
+    this.sparkVx[index] = vx;
+    // Canvas y grows downward; flip so bursts rise like the original scene.
+    this.sparkVy[index] = -vy;
+    this.sparkLife[index] = life;
+    this.sparkMaxLife[index] = life;
+    this.sparkColor[index] = color;
   }
 
-  private updateSparks(deltaSeconds: number): void {
-    if (this.sparkGeometry === null) {
-      return;
-    }
-
-    for (let index = 0; index < this.maxSparks; index += 1) {
-      if (this.sparkLives[index] <= 0) {
+  private updateAndDrawSparks(ctx: CanvasRenderingContext2D, dt: number): void {
+    if (this.liveSparks === 0) return;
+    for (let i = 0; i < MAX_SPARKS; i += 1) {
+      if (this.sparkLife[i] <= 0) continue;
+      this.sparkLife[i] = Math.max(0, this.sparkLife[i] - dt);
+      if (this.sparkLife[i] === 0) {
+        this.liveSparks -= 1;
         continue;
       }
-
-      const base = index * 3;
-      this.sparkLives[index] = Math.max(0, this.sparkLives[index] - deltaSeconds);
-
-      if (this.sparkLives[index] === 0) {
-        this.sparkPositions[base] = 99999;
-        this.sparkPositions[base + 1] = 99999;
-        this.sparkColors[base] = 0;
-        this.sparkColors[base + 1] = 0;
-        this.sparkColors[base + 2] = 0;
-        continue;
-      }
-
-      const fade = this.sparkLives[index] / this.sparkMaxLives[index];
-      this.sparkPositions[base] += this.sparkVelocities[base] * deltaSeconds;
-      this.sparkPositions[base + 1] += this.sparkVelocities[base + 1] * deltaSeconds;
-      this.sparkColors[base] = this.sparkBaseColors[base] * fade;
-      this.sparkColors[base + 1] = this.sparkBaseColors[base + 1] * fade;
-      this.sparkColors[base + 2] = this.sparkBaseColors[base + 2] * fade;
+      this.sparkX[i] += this.sparkVx[i] * dt;
+      this.sparkY[i] += this.sparkVy[i] * dt;
+      ctx.globalAlpha = 0.85 * (this.sparkLife[i] / this.sparkMaxLife[i]);
+      ctx.fillStyle = this.sparkColor[i];
+      ctx.fillRect(this.sparkX[i] - 2, this.sparkY[i] - 2, 4, 4);
     }
-
-    this.sparkGeometry.attributes['position'].needsUpdate = true;
-    this.sparkGeometry.attributes['color'].needsUpdate = true;
+    ctx.globalAlpha = 1;
   }
 
-  private nextSparkIndex(): number {
-    for (let index = 0; index < this.maxSparks; index += 1) {
-      if (this.sparkLives[index] <= 0) {
-        return index;
-      }
+  /** Stop drawing, wipe the canvas and hide the overlay so idle frames cost nothing. */
+  private stopAndClear(): void {
+    if (this.animationFrame !== 0) {
+      window.cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = 0;
     }
-
-    return Math.floor(Math.random() * this.maxSparks);
-  }
-
-  private clearSparks(): void {
-    for (let index = 0; index < this.maxSparks; index += 1) {
-      const base = index * 3;
-      this.sparkPositions[base] = 99999;
-      this.sparkPositions[base + 1] = 99999;
-      this.sparkPositions[base + 2] = 4;
-      this.sparkLives[index] = 0;
-      this.sparkMaxLives[index] = 1;
+    this.beamLife = 0;
+    this.ringLife = 0;
+    this.menuLife = 0;
+    this.sparkLife.fill(0);
+    this.liveSparks = 0;
+    const ctx = this.ctx;
+    if (ctx !== null) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-  }
-
-  private createAdditiveMaterial(color: string, opacity: number): Three.MeshBasicMaterial {
-    const three = this.three;
-
-    if (three === null) {
-      throw new Error('Three.js runtime is not initialized.');
-    }
-
-    return new three.MeshBasicMaterial({
-      blending: three.AdditiveBlending,
-      color,
-      depthWrite: false,
-      opacity,
-      transparent: true,
-    });
-  }
-
-  private setMaterialOpacity(mesh: EffectMesh, opacity: number): void {
-    mesh.material.opacity = opacity;
-    mesh.visible = opacity > 0;
-  }
-
-  private hideTransientMeshes(): void {
-    if (this.beamCore !== null) {
-      this.setMaterialOpacity(this.beamCore, 0);
-    }
-
-    if (this.beamGlow !== null) {
-      this.setMaterialOpacity(this.beamGlow, 0);
-    }
-
-    if (this.ring !== null) {
-      this.setMaterialOpacity(this.ring, 0);
-    }
-
-    if (this.menuGlow !== null) {
-      this.setMaterialOpacity(this.menuGlow, 0);
-    }
-  }
-
-  private renderFrame(): void {
-    if (this.renderer === null || this.scene === null || this.camera === null) {
-      return;
-    }
-
-    this.renderer.render(this.scene, this.camera);
-  }
-
-  private stopLoop(): void {
-    if (this.animationFrame === 0) {
-      return;
-    }
-
-    window.cancelAnimationFrame(this.animationFrame);
-    this.animationFrame = 0;
+    this.idle.set(true);
   }
 
   private dispose(): void {
-    this.stopLoop();
+    if (this.animationFrame !== 0) window.cancelAnimationFrame(this.animationFrame);
     window.clearTimeout(this.reducedCueTimer);
-    window.removeEventListener('resize', this.handleResize);
+    if (isPlatformBrowser(this.platformId)) window.removeEventListener('resize', this.handleResize);
     this.mediaQuery?.removeEventListener('change', this.handleMotionPreference);
-
-    const canvas = this.canvasRef?.nativeElement;
-    canvas?.removeEventListener('webglcontextlost', this.handleContextLost);
-    canvas?.removeEventListener('webglcontextrestored', this.handleContextRestored);
-
-    if (this.scene !== null) {
-      this.scene.traverse((object) => this.disposeSceneObject(object));
-      this.scene.clear();
-    }
-
-    this.renderer?.dispose();
-    this.renderer = null;
-    this.scene = null;
-    this.camera = null;
-    this.grid = null;
-    this.sparkGeometry = null;
-    this.sparks = null;
-    this.beamCore = null;
-    this.beamGlow = null;
-    this.ring = null;
-    this.menuGlow = null;
+    this.ctx = null;
   }
+}
 
-  private disposeSceneObject(object: Three.Object3D): void {
-    const disposable = object as Three.Object3D & {
-      geometry?: Three.BufferGeometry;
-      material?: Three.Material | Three.Material[];
-    };
+function parseHex(hex: string): Rgb {
+  const value = hex.replace('#', '');
+  const full = value.length === 3 ? value.split('').map((c) => c + c).join('') : value.padEnd(6, '0');
+  const num = Number.parseInt(full.slice(0, 6), 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
 
-    disposable.geometry?.dispose();
-
-    if (Array.isArray(disposable.material)) {
-      disposable.material.forEach((material) => material.dispose());
-      return;
-    }
-
-    disposable.material?.dispose();
-  }
+function rgba({ r, g, b }: Rgb, alpha: number): string {
+  return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha)).toFixed(3)})`;
 }

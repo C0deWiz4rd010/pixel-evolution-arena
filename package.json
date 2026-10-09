@@ -24,7 +24,6 @@
     "@angular/router": "21.2.14",
     "pixi.js": "^8.19.0",
     "rxjs": "~7.8.0",
-    "three": "^0.184.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -32,7 +31,6 @@
     "@angular/cli": "21.2.12",
     "@angular/compiler-cli": "21.2.14",
     "@playwright/test": "^1.60.0",
-    "@types/three": "0.184.1",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",

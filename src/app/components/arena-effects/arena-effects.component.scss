@@ -20,6 +20,11 @@
   opacity: 0.34;
 }
 
+/* Nothing to draw: drop the full-screen blend layer entirely until the next cue. */
+:host.idle {
+  visibility: hidden;
+}
+
 @include bp.media-max(nav) {
   :host {
     opacity: 0.58;
