@@ -115,6 +115,11 @@
         }
       }
     }
+    <!-- Never renders: warms every view chunk while the browser is idle so first visits are instant. -->
+    @defer (when false; prefetch on idle) {
+      <app-evolution-tree /><app-squad /><app-forge /><app-arena /><app-expedition /><app-collection />
+      <app-research-lab /><app-campaign /><app-medals /><app-handbook /><app-settings />
+    }
   </section>
 </main>
 

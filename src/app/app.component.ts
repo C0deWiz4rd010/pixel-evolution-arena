@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { ArenaComponent } from './components/arena/arena.component';
 import { ArenaEffectsComponent } from './components/arena-effects/arena-effects.component';
 import { CampaignComponent } from './components/campaign/campaign.component';
@@ -79,6 +79,12 @@ export class AppComponent {
   });
 
   constructor() {
+    // The Arena stage is part of the core loop: warm the Pixi module once the browser is idle.
+    afterNextRender(() => {
+      const warmPixi = () => void import('pixi.js').catch(() => undefined);
+      if ('requestIdleCallback' in window) window.requestIdleCallback(warmPixi, { timeout: 4000 });
+      else setTimeout(warmPixi, 2500);
+    });
     effect(() => {
       const settings = this.game.settings();
       if (typeof document === 'undefined') return;
