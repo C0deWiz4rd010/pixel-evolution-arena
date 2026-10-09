@@ -8,6 +8,7 @@
     "build:pages": "ng build --base-href \"/pixel-evolution-arena/\"",
     "watch": "ng build --watch --configuration development",
     "test": "vitest run",
+    "perf": "node scripts/perf-probe.mjs",
     "sprites": "node scripts/build-sprite-stills.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
     "test:watch": "vitest",

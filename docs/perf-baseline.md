@@ -29,3 +29,25 @@ Build completes without warnings.
 - One debounced save per user action (max ~4 writes/s).
 - Initial bundle warning budget: 450 kB.
 - Mobile LCP < 2 s, INP < 100 ms.
+
+## After Phase 3 (2026-10-09)
+
+`npm run build && npm run perf` (production build, phone 390x844, 4x CPU throttle):
+
+| Metric | Baseline | After Phase 3 |
+| --- | --- | --- |
+| Initial bundle | 476.07 kB | 455.64 kB |
+| Lazy Three.js chunk | 728.15 kB | removed |
+| Idle `requestAnimationFrame` | ~30-60/s (never idles) | 0/s |
+| Collection idle frames | continuous (71 animated SVG `<img>`) | 0/s |
+| Saves per arena battle | one per log line / action | 1 (debounced) |
+| LCP (throttled phone) | not measured | ~0.66-0.96 s |
+| Startup long tasks (throttled) | not measured | ~1.0-1.5 s |
+| Collection tab switch (throttled) | not measured | ~0.75 s |
+
+Profiling the Collection switch shows almost no JavaScript; the time is style/layout/paint of 71
+cards against the 3.8k-line global stylesheet. Phase 4 (style system cleanup) re-measures this.
+
+Other Phase 3 changes: idle prefetch of every view chunk and Pixi, 30 fps cap and off-screen pause
+for Pixi stages, still sprite copies for grids (`npm run sprites`), compositor-only background drift,
+stale-while-revalidate for unhashed assets in the service worker, initial bundle budget 480/650 kB.
