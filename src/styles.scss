@@ -219,18 +219,21 @@ body {
   font-size: 16px;
 }
 
+/*
+ * Drifting diagonal circuit lines. The layer is oversized by one pattern period and moved with
+ * transform (compositor-only) instead of animating background-position, which repainted the whole
+ * viewport every frame. 73.54px = 104px period / sqrt(2), so one cycle loops seamlessly.
+ */
 body::before {
   position: fixed;
-  inset: 0;
+  inset: -74px 0 0 -74px;
   z-index: -2;
   pointer-events: none;
   content: "";
-  background:
-    linear-gradient(90deg, transparent 0 5%, rgba(19, 216, 255, 0.12) 5.2%, transparent 5.4% 100%),
-    linear-gradient(180deg, transparent 0 12%, rgba(124, 255, 58, 0.06) 12.2%, transparent 12.4% 100%),
-    repeating-linear-gradient(135deg, transparent 0 44px, rgba(19, 216, 255, 0.045) 45px 46px, transparent 47px 104px);
+  background: repeating-linear-gradient(135deg, transparent 0 44px, rgba(19, 216, 255, 0.045) 45px 46px, transparent 47px 104px);
   opacity: 0.7;
   mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.72) 70%, rgba(0, 0, 0, 0.35) 100%);
+  will-change: transform;
 }
 
 body::after {
@@ -240,6 +243,8 @@ body::after {
   pointer-events: none;
   content: "";
   background:
+    linear-gradient(90deg, transparent 0 5%, rgba(19, 216, 255, 0.084) 5.2%, transparent 5.4% 100%),
+    linear-gradient(180deg, transparent 0 12%, rgba(124, 255, 58, 0.042) 12.2%, transparent 12.4% 100%),
     linear-gradient(90deg, transparent 0 49.75%, rgba(19, 216, 255, 0.08) 49.9% 50.1%, transparent 50.25% 100%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 24rem);
 }
@@ -2139,10 +2144,6 @@ app-monster-card {
     animation: grid-drift 18s linear infinite;
   }
 
-  .hud-panel::after {
-    animation: panel-scan 4.8s linear infinite;
-  }
-
   .monster-card.selected .creature-sprite,
   .target-card.ready .creature-sprite,
   .squad-slot:not(.empty) .creature-sprite,
@@ -2165,21 +2166,11 @@ app-monster-card {
 
 @keyframes grid-drift {
   from {
-    background-position: 0 0, 0 0, 0 0;
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    background-position: 120px 0, 0 90px, 140px 140px;
-  }
-}
-
-@keyframes panel-scan {
-  from {
-    background-position: -220% 0;
-  }
-
-  to {
-    background-position: 220% 0;
+    transform: translate3d(73.54px, 73.54px, 0);
   }
 }
 
@@ -2196,12 +2187,10 @@ app-monster-card {
 
 @keyframes data-flow {
   from {
-    filter: brightness(0.92);
     opacity: 0.72;
   }
 
   to {
-    filter: brightness(1.22);
     opacity: 1;
   }
 }

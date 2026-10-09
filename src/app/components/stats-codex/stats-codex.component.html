@@ -76,7 +76,7 @@
         <div class="bestiary-cell" [class.undiscovered]="!entry.discovered">
           <div class="bestiary-art">
             @if (entry.spriteUrl) {
-              <img [src]="entry.spriteUrl" [alt]="entry.discovered ? entry.name : 'Undiscovered'" loading="lazy" />
+              <img [src]="still(entry.spriteUrl)" [alt]="entry.discovered ? entry.name : 'Undiscovered'" loading="lazy" />
             } @else {
               <span>{{ entry.icon }}</span>
             }

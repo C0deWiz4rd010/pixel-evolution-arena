@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { stageClass } from '../../rules/stage.rules';
@@ -9,6 +10,8 @@ import { stageClass } from '../../rules/stage.rules';
   styleUrl: './monster-card.component.scss',
 })
 export class MonsterCardComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   @Input({ required: true }) monster!: Monster;
   @Input() selected = false;
   @Input() power = 0;

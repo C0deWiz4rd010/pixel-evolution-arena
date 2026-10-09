@@ -84,7 +84,7 @@
           <div><span>Enemy Team</span><strong>{{ game.enemyPower() }} PW</strong></div>
           <div class="unit-strip">
             @for (enemy of game.enemies; track enemy.id) {
-              <article>@if (enemy.spriteUrl) { <img [src]="enemy.spriteUrl" [alt]="enemy.name" /> }<small>{{ enemy.name }}</small></article>
+              <article>@if (enemy.spriteUrl) { <img [src]="still(enemy.spriteUrl)" [alt]="enemy.name" /> }<small>{{ enemy.name }}</small></article>
             }
           </div>
         </section>

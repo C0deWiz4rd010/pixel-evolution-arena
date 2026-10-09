@@ -30,6 +30,12 @@ export class GameStore {
   private readonly monsterIndex = computed(() => new Map(this.monsters().map((monster) => [monster.id, monster])));
 
   readonly settings = computed(() => this.player().settings);
+  /** OS-level reduced motion, kept live so switching the system setting applies immediately. */
+  private readonly systemReducedMotion = signal(
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  /** True when either the in-app setting or the OS asks for reduced motion. */
+  readonly motionReduced = computed(() => this.settings().motionMode === 'reduced' || this.systemReducedMotion());
   readonly unlockedCount = computed(() => this.monsters().filter((monster) => monster.unlocked).length);
   readonly squad = computed(() =>
     this.player()
@@ -56,6 +62,9 @@ export class GameStore {
       this.scheduleSave();
     });
     this.watchPageLifecycle();
+    if (typeof matchMedia === 'function') {
+      matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (event) => this.systemReducedMotion.set(event.matches));
+    }
   }
 
   getMonsterById(id: string): Monster | undefined {

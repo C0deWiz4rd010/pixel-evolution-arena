@@ -1,3 +1,4 @@
+import { heroSprite, stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Monster } from '../../models/monster.model';
 import { GameStateService } from '../../services/game-state.service';
@@ -31,6 +32,7 @@ interface DrillView {
 interface MonsterDetailView {
   monster: Monster;
   stageClass: string;
+  heroSrc: string;
   revealed: boolean;
   xpPercent: number;
   mastery: { battleXp: number; signatureProgress: number; unlockedMoves: string[]; goalLabel: string; percent: number } | null;
@@ -47,6 +49,8 @@ interface MonsterDetailView {
   styleUrl: './monster-detail.component.scss',
 })
 export class MonsterDetailComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly monster = input<Monster | null>(null);
   readonly familyUnlocked = input(0);
   readonly familyTotal = input(0);
@@ -77,6 +81,7 @@ export class MonsterDetailComponent {
     return {
       monster,
       stageClass: stageClass(monster.stage),
+      heroSrc: heroSprite(monster.spriteUrl, this.game.motionReduced()),
       revealed: monster.unlocked || revealLocked,
       xpPercent: monster.maxXp > 0 ? (monster.xp / monster.maxXp) * 100 : 0,
       mastery: monster.unlocked

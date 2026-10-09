@@ -18,7 +18,7 @@
   </span>
   <span class="monster-icon sprite-node" aria-hidden="true">
     @if (monster.unlocked && monster.spriteUrl) {
-      <img class="creature-sprite node" [src]="monster.spriteUrl" alt="" loading="lazy" />
+      <img class="creature-sprite node" [src]="still(monster.spriteUrl)" alt="" loading="lazy" />
     } @else {
       {{ monster.unlocked ? monster.icon : 'LOCK' }}
     }

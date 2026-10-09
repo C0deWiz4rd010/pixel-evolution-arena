@@ -1,30 +1,38 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
+import { heroSprite, stillSprite } from '../../rules/sprite.rules';
 import { stageClass } from '../../rules/stage.rules';
+import { GameStore } from '../../services/game-store.service';
 
 export type CreaturePortraitSize = 'micro' | 'compact' | 'card' | 'hero' | 'battle';
+
+/** Sizes that show the animated sprite; everything smaller uses the frozen still copy. */
+const ANIMATED_SIZES: ReadonlySet<CreaturePortraitSize> = new Set(['hero', 'battle']);
 
 @Component({
   selector: 'app-creature-portrait',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `@if (src) { <img [src]="src" [alt]="decorative ? '' : name" [class.silhouette]="silhouette" loading="lazy" /> } @else { <span aria-hidden="true">?</span> }`,
+  template: `@if (resolvedSrc()) { <img [src]="resolvedSrc()" [alt]="decorative() ? '' : name()" [class.silhouette]="silhouette()" loading="lazy" decoding="async" /> } @else { <span aria-hidden="true">?</span> }`,
   styleUrl: './creature-portrait.component.scss',
   host: {
-    '[class]': "'portrait size-' + size + ' stage-' + stageClass",
-    '[style.--portrait-scale]': 'scale',
+    '[class]': "'portrait size-' + size() + ' stage-' + stageClassName()",
+    '[style.--portrait-scale]': 'scale()',
   },
 })
 export class CreaturePortraitComponent {
-  @Input() src?: string;
-  @Input() name = '';
-  @Input() stage: MonsterStage = 'Rookie';
-  @Input() size: CreaturePortraitSize = 'compact';
-  @Input() silhouette = false;
-  @Input() decorative = false;
-  @Input() scale: number | null = null;
+  private readonly store = inject(GameStore);
 
-  get stageClass(): string {
-    return stageClass(this.stage);
-  }
+  readonly src = input<string | undefined>();
+  readonly name = input('');
+  readonly stage = input<MonsterStage>('Rookie');
+  readonly size = input<CreaturePortraitSize>('compact');
+  readonly silhouette = input(false);
+  readonly decorative = input(false);
+  readonly scale = input<number | null>(null);
+
+  readonly stageClassName = computed(() => stageClass(this.stage()));
+  readonly resolvedSrc = computed(() =>
+    ANIMATED_SIZES.has(this.size()) ? heroSprite(this.src(), this.store.motionReduced()) : stillSprite(this.src()),
+  );
 }

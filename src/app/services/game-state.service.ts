@@ -519,6 +519,7 @@ export class GameStateService {
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
 
   readonly settings = this.store.settings;
+  readonly motionReduced = this.store.motionReduced;
 
   /** Named boss for the upcoming run, if it is a Boss Surge battle. */
   readonly activeBoss = computed<BossDef | null>(() =>

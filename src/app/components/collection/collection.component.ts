@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Monster, MonsterRarity, MonsterStage, MonsterType } from '../../models/monster.model';
@@ -67,6 +68,8 @@ interface ChaseTarget {
   styleUrl: './collection.component.scss',
 })
 export class CollectionComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly game = inject(GameStateService);
 
   readonly statusOptions: StatusFilter[] = ['All', 'Unlocked', 'Locked'];

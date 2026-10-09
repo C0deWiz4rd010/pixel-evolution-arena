@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { BattleAnimationService } from '../../services/battle-animation.service';
@@ -35,6 +36,8 @@ interface ReadinessCheck {
   styleUrl: './arena.component.scss',
 })
 export class ArenaComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly game = inject(GameStateService);
   readonly anim = inject(BattleAnimationService);
 

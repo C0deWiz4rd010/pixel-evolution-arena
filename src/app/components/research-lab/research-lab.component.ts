@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CreaturePortraitComponent } from '../creature-portrait/creature-portrait.component';
 import { RESEARCH_BRANCH_META, ResearchBranch } from '../../data/research.data';
@@ -23,6 +24,8 @@ interface ResearchBranchView {
   styleUrl: './research-lab.component.scss',
 })
 export class ResearchLabComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly game = inject(GameStateService);
 
   readonly bioData = this.game.research.bioData;

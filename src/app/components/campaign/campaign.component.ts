@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommandCenterCard } from '../../rules/command-center.rules';
@@ -19,6 +20,8 @@ interface ObjectiveRadarCard {
   styleUrl: './campaign.component.scss',
 })
 export class CampaignComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly game = inject(GameStateService);
 
   readonly progress = this.game.campaign.campaignProgress;

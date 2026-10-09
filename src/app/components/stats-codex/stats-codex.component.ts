@@ -1,3 +1,4 @@
+import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { STATUS_DEFS } from '../../rules/status.rules';
@@ -14,6 +15,8 @@ import { MonsterType } from '../../models/monster.model';
   styleUrl: './stats-codex.component.scss',
 })
 export class StatsCodexComponent {
+  /** Frozen sprite copy for list/grid rendering (see sprite.rules). */
+  readonly still = stillSprite;
   readonly game = inject(GameStateService);
 
   readonly statusGlossary = Object.values(STATUS_DEFS);

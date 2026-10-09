@@ -99,7 +99,7 @@
       @for (entry of scanRegistry(); track entry.monster.id) {
         <li class="scan-row" [class.complete]="entry.scan >= 100">
           <app-creature-portrait
-            [src]="entry.monster.spriteUrl"
+            [src]="still(entry.monster.spriteUrl)"
             [name]="entry.monster.name"
             [stage]="entry.monster.stage"
             size="micro"
