@@ -55,6 +55,21 @@ export function winProbability(
   return Math.min(1, Math.max(0, (areaBand + areaFull) / (range * range)));
 }
 
+/**
+ * Win probability of the tactical engine as a function of team/enemy power ratio, fitted to
+ * Monte-Carlo runs of `simulateRecommendedBattle` (see `balance.sim.spec.ts`). The engine favours a
+ * player who spends orders and pulses, so the 50% point sits at ~0.79 instead of 1.0.
+ */
+export const ENGINE_EVEN_RATIO = 0.79;
+export const ENGINE_CURVE_STEEPNESS = 26;
+
+export function engineWinProbability(teamPower: number, enemyPower: number): number {
+  if (teamPower <= 0) return 0;
+  if (enemyPower <= 0) return 1;
+  const z = ENGINE_CURVE_STEEPNESS * (Math.log(teamPower / enemyPower) - Math.log(ENGINE_EVEN_RATIO));
+  return 1 / (1 + Math.exp(-z));
+}
+
 export interface StreakBonus {
   coins: number;
   xp: number;
@@ -327,10 +342,10 @@ export function predictBattleOutlook(params: BattleOutlookParams): BattleOutlook
   const adjustedTeam = Math.max(1, params.teamPower * (1 + params.playerModifier));
   const adjustedEnemy = Math.max(1, params.enemyPower * (1 + params.enemyModifier));
   const ratio = adjustedTeam / adjustedEnemy;
-  const winChance = winProbability(adjustedTeam, adjustedEnemy);
+  const winChance = engineWinProbability(adjustedTeam, adjustedEnemy);
   const winChancePercent = Math.round(winChance * 100);
 
-  if (ratio >= 1.18) {
+  if (winChance >= 0.8) {
     return {
       tone: 'strong',
       label: 'Strong Win Outlook',
@@ -341,7 +356,7 @@ export function predictBattleOutlook(params: BattleOutlookParams): BattleOutlook
     };
   }
 
-  if (ratio >= 0.92) {
+  if (winChance >= 0.45) {
     return {
       tone: 'even',
       label: 'Even Match',
@@ -410,13 +425,67 @@ export function calculateEnemyBattleModifier(baseModifier: number, typePressureM
   return clampModifier(baseModifier + typePressureModifier, -0.12, 0.32);
 }
 
-/** Keeps the onboarding Training mission competitive while the squad has open slots. */
-export function applyTrainingAssist(baseModifier: number, teamPower: number, enemyPower: number, squadSize: number): number {
-  if (squadSize <= 0 || squadSize >= 3 || enemyPower <= 0 || teamPower >= enemyPower * 0.9) {
-    return baseModifier;
+// --- Enemy scaling: formations are scaled to the player's expected progression ---
+
+/** Expected total power of a three-unit squad after N arena wins (from the chain sim in balance.sim.spec). */
+const EXPECTED_SQUAD_POWER: readonly (readonly [number, number])[] = [
+  [0, 560],
+  [5, 920],
+  [10, 1350],
+  [20, 1580],
+  [25, 2150],
+  [35, 2330],
+  [40, 3000],
+  [60, 3250],
+  [120, 3600],
+  [400, 4200],
+];
+
+export function expectedSquadPower(wins: number): number {
+  const points = EXPECTED_SQUAD_POWER;
+  if (wins <= points[0][0]) return points[0][1];
+  for (let index = 1; index < points.length; index += 1) {
+    const [toWins, toPower] = points[index];
+    const [fromWins, fromPower] = points[index - 1];
+    if (wins <= toWins) {
+      return fromPower + ((toPower - fromPower) * (wins - fromWins)) / (toWins - fromWins);
+    }
   }
-  const modifierForCloseFight = teamPower / (enemyPower * 1.03) - 1;
-  return Math.max(-0.72, Math.min(baseModifier, modifierForCloseFight));
+  return points[points.length - 1][1];
+}
+
+/** Enemy power relative to the player reference, per formation tier (engine-calibrated win odds ~99/85/65/45%). */
+export const ENEMY_TIER_RATIO: Readonly<Record<ArenaFormation['tier'], number>> = {
+  Scout: 1.0,
+  Standard: 1.15,
+  Elite: 1.2,
+  Boss: 1.26,
+};
+
+/** Category shifts enemy power directly, so Training stays friendly without a hidden attack handicap. */
+export const CATEGORY_POWER_FACTOR: Readonly<Record<BattleCategoryId, number>> = {
+  training: 0.85,
+  standard: 1,
+  risk: 1.1,
+};
+
+/** Blend of progression curve (rewards levelling) and live squad power (smooth for small or neglected squads). */
+export function playerPowerReference(wins: number, squadSize: number, teamPower: number): number {
+  const curve = expectedSquadPower(wins) * Math.min(1, Math.max(0, squadSize) / 3);
+  return 0.7 * curve + 0.3 * teamPower;
+}
+
+export function scaleEnemiesToPower(enemies: readonly EnemyMonster[], targetPower: number): EnemyMonster[] {
+  const base = enemies.reduce((total, enemy) => total + enemy.attack + enemy.defense + enemy.speed + enemy.hp, 0);
+  if (base <= 0 || targetPower <= 0) return [...enemies];
+  const scale = Math.min(6, Math.max(0.15, targetPower / base));
+  return enemies.map((enemy) => ({
+    ...enemy,
+    hp: Math.max(20, Math.round(enemy.hp * scale)),
+    attack: Math.max(6, Math.round(enemy.attack * scale)),
+    defense: Math.max(4, Math.round(enemy.defense * scale)),
+    speed: Math.max(4, Math.round(enemy.speed * scale)),
+  }));
 }
 
 export function shouldAwardItem(won: boolean, chance: number, randomValue: number): boolean {

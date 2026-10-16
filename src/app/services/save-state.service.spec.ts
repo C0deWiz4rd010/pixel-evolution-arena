@@ -89,7 +89,7 @@ describe('save state service', () => {
       },
     });
 
-    expect(snapshot?.saveVersion).toBe(12);
+    expect(snapshot?.saveVersion).toBe(13);
     expect(service.syncState()).toBe('ready');
 
     const loaded = service.loadState();
@@ -129,7 +129,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(12);
+    expect(loaded?.saveVersion).toBe(13);
     expect(loaded?.player.coins).toBe(500);
     expect(loaded?.player.winStreak).toBe(0);
     expect(loaded?.player.bestWinStreak).toBe(0);
@@ -178,7 +178,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(12);
+    expect(loaded?.saveVersion).toBe(13);
     expect(loaded?.player.squadPresets).toEqual([]);
     expect(loaded?.player.winStreak).toBe(1);
     expect(loaded?.player.pinnedChaseId).toBeNull();
@@ -214,7 +214,7 @@ describe('save state service', () => {
     const service = new SaveStateService();
     const loaded = service.loadState();
 
-    expect(loaded?.saveVersion).toBe(12);
+    expect(loaded?.saveVersion).toBe(13);
     expect(loaded?.player.pinnedChaseId).toBeNull();
     expect(loaded?.player.claimedStageMilestones).toEqual([]);
     expect(loaded?.player.claimedMilestones).toEqual([3, 5]);
@@ -275,7 +275,7 @@ describe('save state service', () => {
       battleLogs: [],
     });
     expect(issue).toBeNull();
-    expect(snapshot?.saveVersion).toBe(12);
+    expect(snapshot?.saveVersion).toBe(13);
     expect(snapshot?.player.bioData).toBe(0);
     expect(snapshot?.player.researchNodes).toEqual([]);
     expect(snapshot?.player.scanProgress).toEqual({});

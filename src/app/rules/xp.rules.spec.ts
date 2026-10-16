@@ -38,8 +38,8 @@ describe('xp rules', () => {
     const updated = result.updatedMonsters[0];
 
     expect(updated.level).toBe(3);
-    expect(updated.xp).toBe(4);
-    expect(updated.maxXp).toBe(135);
+    expect(updated.xp).toBe(12);
+    expect(updated.maxXp).toBe(117);
     expect(updated.attack).toBe(26);
     expect(updated.defense).toBe(22);
     expect(updated.speed).toBe(20);

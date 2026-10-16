@@ -1,5 +1,23 @@
 # Balance And Progression
 
+> **Current model (October 2026, save v13).** This section supersedes the older numbers below wherever they differ.
+> The numbers are enforced by `src/app/rules/balance.sim.spec.ts`, which runs the real XP rules and the real
+> tactical engine.
+>
+> - **Pacing:** one chain monster needs roughly 25-45 pure arena wins to reach its first Mega. XP bars are the data
+>   values times `XP_BASE_SCALE` (0.17, minimum 30) and grow by `XP_LEVEL_GROWTH` (1.08) per level. Old saves are
+>   rescaled by the v12 to v13 migration so progress percentages survive.
+> - **Enemy scaling:** arena enemies are scaled to `playerPowerReference` (70% expected squad power after N wins,
+>   30% live squad power) times a tier ratio: Scout 1.0, Standard 1.15, Elite 1.2, Boss 1.26, and a category factor
+>   (Training 0.85, Standard 1.0, Risk 1.1). With the engine this gives about 100 / 91 / 71 / 46% win odds, and a
+>   squad smaller than three faces proportionally weaker enemies instead of a hidden assist.
+> - **Forecast:** `engineWinProbability` is a logistic fit of the engine win rate against the team/enemy power ratio
+>   (even odds at ratio 0.79). The simulator fails if the forecast drifts more than 15 points from the engine.
+> - **Gate items:** arena drops are random (about 25%) but every 6th win without a gate item guarantees one
+>   (`ITEM_PITY_LIMIT`). The Core Exchange in Expedition sells every gate item for Cores (12-16).
+> - **Expedition** uses the same tactical engine and scaling as the arena; depth and node type add pressure.
+
+
 This document turns the gameplay design into implementation-ready numbers.
 
 ## Stage Power Bands

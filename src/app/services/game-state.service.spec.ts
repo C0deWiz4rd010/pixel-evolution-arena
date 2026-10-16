@@ -66,4 +66,14 @@ describe('GameStateService flows', () => {
     expect(paidCoins).toBeGreaterThanOrEqual(reward!.coins);
     expect(game.player().recentBattles[0].coins).toBe(reward!.coins);
   });
+
+  it('Core Exchange spends banked cores on a gate item and refuses when short', () => {
+    const game = TestBed.inject(GameStateService);
+    expect(game.buyWithCores('Solar Crest')).toBe(false);
+    game.player.update((player) => ({ ...player, expeditionCores: 20 }));
+    expect(game.buyWithCores('Solar Crest')).toBe(true);
+    expect(game.player().expeditionCores).toBe(4);
+    expect(game.player().inventory).toContain('Solar Crest');
+    expect(game.buyWithCores('Not An Item')).toBe(false);
+  });
 });

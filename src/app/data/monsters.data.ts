@@ -1,4 +1,5 @@
 import { Monster, MonsterStage, MonsterType } from '../models/monster.model';
+import { MIN_XP_BAR, XP_BASE_SCALE } from '../rules/xp.rules';
 
 export const STAGES: MonsterStage[] = ['Baby', 'In-Training', 'Rookie', 'Champion', 'Ultimate', 'Mega', 'Special'];
 
@@ -104,5 +105,7 @@ const spriteSlug = (name: string): string =>
 // no index-shuffled mismatches). The emoji `icon` remains only as a last-resort fallback.
 export const MONSTERS: Monster[] = BASE_MONSTERS.map((monster) => ({
   ...monster,
+  xp: Math.round(monster.xp * XP_BASE_SCALE),
+  maxXp: Math.max(MIN_XP_BAR, Math.round(monster.maxXp * XP_BASE_SCALE)),
   spriteUrl: `assets/creatures/playable/${monster.id.toLowerCase()}-${spriteSlug(monster.name)}.svg`,
 }));

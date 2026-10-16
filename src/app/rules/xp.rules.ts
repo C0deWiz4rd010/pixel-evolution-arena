@@ -1,6 +1,12 @@
 import { BattleLog } from '../models/battle.model';
 import { Monster } from '../models/monster.model';
 
+/** Growth of the XP bar per level. Tuned with `balance.sim.spec.ts` (~30-40 wins to a first Mega). */
+export const XP_LEVEL_GROWTH = 1.08;
+/** Data XP bars are authored on a legacy scale; this brings them to the tuned pace. */
+export const XP_BASE_SCALE = 0.17;
+export const MIN_XP_BAR = 30;
+
 export interface SquadXpResult {
   updatedMonsters: Monster[];
   logs: BattleLog[];
@@ -26,7 +32,7 @@ export function applyXpToTargets(monsters: Monster[], targetIds: readonly string
     while (xp >= maxXp) {
       xp -= maxXp;
       level += 1;
-      maxXp = Math.round(maxXp * 1.16);
+      maxXp = Math.round(maxXp * XP_LEVEL_GROWTH);
       attack += 3;
       defense += 2;
       speed += 2;

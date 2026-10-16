@@ -7,6 +7,27 @@ import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
 import { ExpeditionNode, ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 
 export const EXPEDITION_ROWS = 7;
+
+/** Wins without a gate-item drop after which the next win is guaranteed to drop one. */
+export const ITEM_PITY_LIMIT = 6;
+
+export interface CoreShopOffer {
+  item: string;
+  cost: number;
+  note: string;
+}
+
+/** Core Exchange: a deterministic way to buy the evolution gate items the arena only drops by chance. */
+export const CORE_SHOP: readonly CoreShopOffer[] = [
+  { item: 'Armor Core', cost: 12, note: 'Evolution gate: Machine and Beast lines.' },
+  { item: 'Shadow Gem', cost: 12, note: 'Evolution gate: Dark and Toxic lines.' },
+  { item: 'Solar Crest', cost: 16, note: 'Evolution gate: Light and Fire lines.' },
+  { item: 'Ancient Gear', cost: 16, note: 'Evolution gate: Special forms.' },
+];
+
+export function coreOfferFor(item: string): CoreShopOffer | undefined {
+  return CORE_SHOP.find((offer) => offer.item === item);
+}
 export const EXPEDITION_BASE_HP = 100;
 
 export interface RelicBonus {

@@ -1,3 +1,4 @@
+import { CORE_SHOP } from '../../rules/expedition.rules';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { getRelicDef } from '../../data/relics.data';
@@ -26,6 +27,15 @@ export class ExpeditionComponent {
   readonly relics = this.game.expeditionRelics;
   readonly cores = this.game.expeditionCores;
   readonly relicChoices = this.game.relicChoices;
+  readonly coreOffers = CORE_SHOP;
+
+  owned(item: string): number {
+    return this.game.player().inventory.filter((name) => name === item).length;
+  }
+
+  buy(item: string): void {
+    this.game.buyWithCores(item);
+  }
 
   readonly hpPercent = computed(() => {
     const run = this.run();

@@ -18,5 +18,17 @@
     <section class="launch-panel"><div><span>New Run</span><h3>Launch an Expedition</h3><p>Relics last for one run. Survive all seven nodes to bank the largest Core payout.</p><button type="button" class="primary" [disabled]="game.squad().length === 0" (click)="launch()">{{ game.squad().length === 0 ? 'Build a Squad First' : 'Launch Expedition' }}</button></div><div class="launch-visual"><strong>7</strong><span>Nodes</span><small>One squad · One HP pool · One boss</small></div></section>
   }
 
+  <section class="core-exchange" aria-label="Core Exchange">
+    <header><span>Core Exchange</span><strong>{{ cores() }} Cores</strong></header>
+    <ul>
+      @for (offer of coreOffers; track offer.item) {
+        <li>
+          <div><strong>{{ offer.item }}</strong><small>{{ offer.note }} Owned: {{ owned(offer.item) }}</small></div>
+          <button type="button" [disabled]="cores() < offer.cost" (click)="buy(offer.item)">{{ offer.cost }} Cores</button>
+        </li>
+      }
+    </ul>
+  </section>
+
   <details class="expedition-disclosure" aria-label="Expedition preflight scanner"><summary><span>Preflight Details</span><strong>{{ game.squad().length ? 'Squad linked' : 'Squad required' }}</strong></summary><div class="preflight-grid">@for(check of preflightChecks();track check.label){<article class="tone-{{ check.tone }}" [class.ready]="check.ready"><span>{{ check.label }}</span><strong>{{ check.value }}</strong><small>{{ check.detail }}</small></article>}</div></details>
 </section>

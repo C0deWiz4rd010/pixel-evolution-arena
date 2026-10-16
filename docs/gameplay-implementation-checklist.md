@@ -294,3 +294,13 @@ Use this checklist during Angular implementation.
 - `overflow-x: hidden` removed from the mobile play surface; the layout guard now fails when the surface would clip sideways. Guard viewports: 320, 360, 390, 844x390 landscape, 768, 1440.
 - 44 px touch targets on coarse pointers; every `:hover` effect is gated by `(hover: hover)`.
 - Not done: swipe between subviews and long-press details (risk of conflicting with scroll rails, deferred to Phase 9 UX polish).
+
+2026-10-16 Phase 6 (balance and gameplay depth):
+
+- Added `src/app/rules/balance.sim.spec.ts`: runs the real XP rules and tactical engine to assert pacing (25-45 wins to a first Mega, was 230-250), forecast accuracy (within 15 points of the engine) and tier win odds (about 100/91/71/46% for Scout/Standard/Elite/Boss).
+- XP curve retuned (`XP_BASE_SCALE`, `XP_LEVEL_GROWTH`); save v13 migrates stored XP bars so progress percentages survive.
+- Arena enemies scale to the player's progression and squad size (replaces static formations and the Training assist hack); the win forecast now uses the engine-calibrated `engineWinProbability`.
+- Expedition battles run on the tactical engine with the same scaling instead of the legacy roll simulation.
+- Evolution gate items: pity counter guarantees a drop every 6th win without one; the Core Exchange (Expedition tab) sells every gate item for Cores, giving Cores a sink.
+- Docs updated: `balance-and-progression.md` and `game-design.md` carry a current-model header.
+- Not done: reward scaling beyond tier modifiers and Research cost rebalancing (rewards already track tiers; Research costs unchanged after the pace change).

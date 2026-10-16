@@ -84,8 +84,7 @@ test('arena battle plan and reward loop work', async ({ page }) => {
   await expect(page.getByLabel('Battle growth result')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByLabel('Battle growth result')).toContainText(/Mastery/);
 
-  const masteryBeforeReload = await page.getByLabel('Battle growth result').locator('.mastery-head b').first().innerText();
-  expect(masteryBeforeReload).toMatch(/^\+\d+$/);
+  await expect(page.getByLabel('Battle growth result').locator('.mastery-head b').first()).toHaveText(/^\+\d+$/);
   await page.reload();
   await primaryNav(page).getByRole('button', { name: 'Evolve', exact: true }).click();
   await expect(page.getByLabel('Battle mastery')).toContainText(/\d+ MP/);

@@ -14,7 +14,10 @@ import {
   OVERDRIVE_ATTACK_BONUS,
   WIN_STREAK_MILESTONES,
   applyStreakBonus,
-  applyTrainingAssist,
+  CATEGORY_POWER_FACTOR,
+  ENEMY_TIER_RATIO,
+  playerPowerReference,
+  scaleEnemiesToPower,
   buildBattleLogsFromEvents,
   buildReward,
   calculateEnemyBattleModifier,
@@ -28,7 +31,6 @@ import {
   milestoneLabel,
   predictBattleOutlook,
   shouldAwardItem } from '../rules/battle.rules';
-import { simulateBattle } from '../rules/combat.engine';
 import { ComboBeatResult, resolveComboBeat } from '../rules/combo.rules';
 import { CONSUMABLES } from '../data/items.data';
 import { CONSUMABLE_NAMES, countInInventory, getConsumableDef, isConsumable, removeOneFromInventory, toCombatEffects } from '../rules/items.rules';
@@ -50,7 +52,7 @@ import { getMutatorForBattle, MutatorDef } from '../data/mutators.data';
 import { resolveMutator } from '../rules/mutators.rules';
 import { totalSquadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
-import { clearNode, generateExpedition, getNode, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
+import { clearNode, coreOfferFor, generateExpedition, getNode, ITEM_PITY_LIMIT, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
 import { getRelicDef } from '../data/relics.data';
 import {
   dataFromBattle,
@@ -93,6 +95,7 @@ import {
   battleResult,
   createBattleSession,
   recommendedDecision,
+  simulateRecommendedBattle,
 } from '../rules/tactical-director.rules';
 import { AudioService } from './audio.service';
 import { BattleAnimationService } from './battle-animation.service';
@@ -268,7 +271,13 @@ export class GameStateService {
 
   /** Enemies for the current battle; gauntlet scales them per wave. */
   readonly activeEnemies = computed<EnemyMonster[]>(() => {
-    const base = this.activeFormation().enemies;
+    const formation = this.activeFormation();
+    const squadSize = this.squad().length;
+    const target =
+      playerPowerReference(this.player().battlesWon, squadSize, this.teamPower()) *
+      ENEMY_TIER_RATIO[formation.tier] *
+      CATEGORY_POWER_FACTOR[this.battleCategoryId()];
+    const base = squadSize > 0 ? scaleEnemiesToPower(formation.enemies, target) : formation.enemies;
     if (this.battleMode() !== 'gauntlet') {
       return base;
     }
@@ -319,16 +328,13 @@ export class GameStateService {
   );
 
   readonly enemyBattleModifier = computed(() => {
-    const baseModifier = calculateEnemyBattleModifier(
+    return calculateEnemyBattleModifier(
       this.activeFormation().enemyModifier +
         this.upcomingArenaThreat().enemyModifier +
         this.battleCategory().enemyModifier +
         this.mutatorModifier().enemyModifier,
       this.enemyTypePressure().modifier,
     );
-    return this.battleCategoryId() === 'training'
-      ? applyTrainingAssist(baseModifier, this.teamPower(), this.enemyPower(), this.squad().length)
-      : baseModifier;
   });
 
   /** Summed attack bonus from the currently equipped consumables (matches the engine). */
@@ -1226,6 +1232,23 @@ export class GameStateService {
     });
   }
 
+  /** Core Exchange: spends banked Cores on an evolution gate item. */
+  buyWithCores(item: string): boolean {
+    const offer = coreOfferFor(item);
+    if (!offer || this.player().expeditionCores < offer.cost) {
+      return false;
+    }
+    this.player.update((player) => ({
+      ...player,
+      expeditionCores: player.expeditionCores - offer.cost,
+      inventory: [...player.inventory, offer.item],
+    }));
+    this.prependLog(`Core Exchange: ${offer.item} acquired for ${offer.cost} Cores.`, 'reward');
+    this.audio.play('menu');
+    this.toast.push({ title: 'Core Exchange', message: `${offer.item} added to inventory.`, tone: 'success', icon: 'CO', durationMs: 2800 });
+    return true;
+  }
+
   pickExpeditionRelic(relicId: string): void {
     if (!this.relicChoices().includes(relicId)) {
       return;
@@ -1298,30 +1321,24 @@ export class GameStateService {
   private resolveExpeditionBattle(exp: ExpeditionState, nodeId: string, type: ExpeditionNodeType, depth: number): void {
     const relics = relicBonus(exp.relicIds);
     const eliteBump = type === 'elite' ? 0.12 : type === 'boss' ? 0.25 : 0;
-    const growth = 1 + 0.12 * depth + eliteBump;
     const baseFormation = this.arenaFormations[depth % this.arenaFormations.length];
-    const enemies = baseFormation.enemies.map((enemy) => ({
-      ...enemy,
-      name: `${enemy.name}`,
-      hp: Math.round(enemy.hp * growth),
-      attack: Math.round(enemy.attack * growth),
-      defense: Math.round(enemy.defense * growth),
-      speed: Math.round(enemy.speed * growth),
-    }));
+    const squad = this.gear.effectiveSquad();
+    const player = this.player();
+    // Same tactical engine and enemy scaling as the arena; depth and node type raise the pressure.
+    const target =
+      playerPowerReference(player.battlesWon, squad.length, this.teamPower()) *
+      (ENEMY_TIER_RATIO.Standard + 0.04 * depth + eliteBump);
+    const enemies = scaleEnemiesToPower(baseFormation.enemies, target);
 
-    const sim = simulateBattle({
-      squad: this.gear.effectiveSquad(),
+    const sim = simulateRecommendedBattle({
+      squad,
       enemies,
-      playerModifier: this.squadBattleModifier() + relics.attackBonus,
-      enemyModifier: calculateEnemyBattleModifier(0.04 + 0.04 * depth + eliteBump, 0),
-      stanceAttackMod: 0,
-      stanceMitigation: relics.mitigation,
-      overdrive: false,
-      overdriveAttackBonus: OVERDRIVE_ATTACK_BONUS,
-      consumables: [],
-      synergyLabel: this.squadSynergies()[0]?.label ?? null,
-      randomBetween: (min, max) => this.randomBetween(min, max),
-      randomFrom: <T>(items: T[]) => this.randomFrom(items),
+      seed: (Date.now() ^ nodeHash(nodeId)) >>> 0,
+      playerAttackModifier: this.squadBattleModifier() + relics.attackBonus,
+      enemyAttackModifier: calculateEnemyBattleModifier(0.04 * depth + eliteBump, 0),
+      playerMitigation: relics.mitigation,
+      overdriveCharge: 0,
+      overdriveArmed: false,
     });
 
     if (sim.won) {
@@ -1593,7 +1610,15 @@ export class GameStateService {
       0.65,
       Math.max(0.05, 0.25 + formation.itemBonus + threat.itemBonus + category.itemBonus + this.research.researchModifiers().itemChanceBonus / 100),
     );
-    const item = shouldAwardItem(sim.won, itemChance, Math.random()) ? this.randomDropItem() : undefined;
+    let item = shouldAwardItem(sim.won, itemChance, Math.random()) ? this.randomDropItem() : undefined;
+    // Pity: every ITEM_PITY_LIMIT-th win without a gate item drops one, so evolution never stalls on luck.
+    let itemPity = sim.won ? currentPlayer.itemPity + 1 : currentPlayer.itemPity;
+    if (item && this.inventoryItems.includes(item)) {
+      itemPity = 0;
+    } else if (sim.won && itemPity >= ITEM_PITY_LIMIT) {
+      item = this.randomFrom(this.inventoryItems);
+      itemPity = 0;
+    }
 
     if (item) {
       reward.item = item;
@@ -1765,6 +1790,7 @@ export class GameStateService {
       battlesFought: player.battlesFought + 1,
       battlesWon: nextBattlesWon,
       inventory: item ? [...inventoryAfter, item] : inventoryAfter,
+      itemPity,
       winStreak: nextStreak,
       bestWinStreak: Math.max(player.bestWinStreak, nextStreak),
       claimedMilestones:
@@ -2069,10 +2095,6 @@ export class GameStateService {
 
   private randomFrom<T>(items: T[]): T {
     return items[Math.floor(Math.random() * items.length)];
-  }
-
-  private randomBetween(min: number, max: number): number {
-    return min + Math.random() * (max - min);
   }
 
 }

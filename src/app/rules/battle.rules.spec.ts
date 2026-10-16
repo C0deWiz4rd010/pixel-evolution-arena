@@ -4,7 +4,6 @@ import {
   BATTLE_STANCES,
   OVERDRIVE_MAX,
   applyStreakBonus,
-  applyTrainingAssist,
   buildReward,
   calculateEnemyBattleModifier,
   calculateStreakBonus,
@@ -66,11 +65,6 @@ describe('battle rules', () => {
     expect(calculateEnemyBattleModifier(-0.25, -0.2)).toBe(-0.12);
   });
 
-  it('adapts Training pressure for an incomplete starter squad only', () => {
-    expect(applyTrainingAssist(-0.08, 390, 1208, 2)).toBeLessThan(-0.65);
-    expect(applyTrainingAssist(-0.08, 390, 1208, 3)).toBe(-0.08);
-    expect(applyTrainingAssist(-0.08, 1100, 1208, 2)).toBe(-0.08);
-  });
 
   it('exposes the three battle categories with distinct modifiers', () => {
     expect(BATTLE_CATEGORIES.map((category) => category.id)).toEqual(['training', 'standard', 'risk']);
@@ -112,8 +106,8 @@ describe('battle rules', () => {
 
   it('flags an even outlook when both sides are within reach of each other', () => {
     const outlook = predictBattleOutlook({
-      teamPower: 1000,
-      enemyPower: 1020,
+      teamPower: 800,
+      enemyPower: 1000,
       playerModifier: 0,
       enemyModifier: 0,
       hasSquad: true,
@@ -296,7 +290,7 @@ describe('predictBattleOutlook win chance', () => {
     const weak = predictBattleOutlook({ teamPower: 300, enemyPower: 600, playerModifier: 0, enemyModifier: 0, hasSquad: true });
     expect(strong.winChancePercent).toBe(100);
     expect(weak.winChancePercent).toBe(0);
-    expect(predictBattleOutlook({ teamPower: 400, enemyPower: 400, playerModifier: 0, enemyModifier: 0, hasSquad: true }).winChancePercent).toBe(50);
+    expect(predictBattleOutlook({ teamPower: 316, enemyPower: 400, playerModifier: 0, enemyModifier: 0, hasSquad: true }).winChancePercent).toBe(50);
   });
 
   it('returns zero win chance without a squad', () => {

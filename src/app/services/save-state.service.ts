@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Monster } from '../models/monster.model';
 import { SaveStateData, SaveStateSnapshot, SAVE_STATE_VERSION, SavedMonsterProgress } from '../models/save-state.model';
 import { RESEARCH_NODE_IDS } from '../data/research.data';
+import { MIN_XP_BAR, XP_BASE_SCALE } from '../rules/xp.rules';
 
 const SAVE_STORAGE_KEY = 'pixel-evolution-arena.save';
 const SAVE_BACKUP_KEY = 'pixel-evolution-arena.save-backup';
@@ -180,6 +181,14 @@ type SaveMigration = (snapshot: SaveStateSnapshot) => SaveStateSnapshot;
  */
 const SAVE_MIGRATIONS: Partial<Record<number, SaveMigration>> = {
   // v11 -> v12 introduced Bio-Data, scan progress and research nodes (all defaulted).
+  // v12 -> v13 retuned the XP curve: stored XP bars shrink by XP_BASE_SCALE so progress percentages survive.
+  12: (snapshot) => ({
+    ...snapshot,
+    monsters: snapshot.monsters.map((monster) => {
+      const maxXp = Math.max(MIN_XP_BAR, Math.round(monster.maxXp * XP_BASE_SCALE));
+      return { ...monster, maxXp, xp: Math.min(maxXp - 1, Math.round(monster.xp * XP_BASE_SCALE)) };
+    }),
+  }),
 };
 
 function migrateSnapshot(snapshot: SaveStateSnapshot): SaveStateSnapshot | null {
@@ -242,6 +251,7 @@ function ensurePlayerDefaults(snapshot: SaveStateSnapshot): SaveStateSnapshot {
       settings: sanitizeSettings(player.settings),
       expedition: sanitizeExpedition(player.expedition),
       expeditionCores: nonNegative(player.expeditionCores),
+      itemPity: nonNegative(player.itemPity),
       bioData: nonNegative(player.bioData),
       totalBioData: nonNegative(player.totalBioData),
       scanProgress: sanitizeScanProgress(player.scanProgress),

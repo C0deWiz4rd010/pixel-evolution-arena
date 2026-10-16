@@ -1,5 +1,11 @@
 # Game Design: Pixel Evolution Arena
 
+> **Status note (October 2026).** The shipped game has 71 playable creatures, five primary areas (Evolve, Squad,
+> Battle, Explore, Archive), a turn-based tactical battle engine with real HP and squad orders, a Research Lab
+> (Bio-Data), an Expedition roguelike with a Core Exchange, and versioned local saves. Where the sections below
+> describe a roll-based battle formula, read them as the original design intent; the live numbers are in
+> `docs/balance-and-progression.md`.
+
 This is the gameplay source of truth for the first playable prototype. The UI concepts define the mood; this document defines why the prototype should feel fun to click.
 
 ## Design Thesis

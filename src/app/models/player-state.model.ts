@@ -125,6 +125,8 @@ export interface PlayerState {
   expedition: ExpeditionState | null;
   /** Meta-currency banked from Expedition clears. */
   expeditionCores: number;
+  /** Wins since the last evolution gate item dropped (guarantees a drop after ITEM_PITY_LIMIT). */
+  itemPity: number;
   /** Bio-Data gathered from scanning creatures and cataloguing enemies. */
   bioData: number;
   /** Lifetime Bio-Data gathered (never spent down), for stats/goals. */
