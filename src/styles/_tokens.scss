@@ -59,8 +59,8 @@
     0 calc(100% - var(--corner-cut-wide)),
     0 var(--corner-cut-wide)
   );
-  --font-display: "Pixelify Sans Local", "Cascadia Mono", monospace;
-  --font-body: "Space Grotesk Local", "Segoe UI", sans-serif;
+  --font-display: 'Pixelify Sans Local', 'Cascadia Mono', monospace;
+  --font-body: 'Space Grotesk Local', 'Segoe UI', sans-serif;
   --font: var(--font-body);
   --surface-canvas: #030b14;
   --surface-card: #07131f;
@@ -89,15 +89,15 @@
   --sprite-hero: 128px;
 }
 
-:root[data-typography="pixel"] {
-  --font-body: "Pixelify Sans Local", "Cascadia Mono", monospace;
+:root[data-typography='pixel'] {
+  --font-body: 'Pixelify Sans Local', 'Cascadia Mono', monospace;
 }
 
-:root[data-typography="tech-sans"] {
-  --font-display: "Space Grotesk Local", "Segoe UI", sans-serif;
+:root[data-typography='tech-sans'] {
+  --font-display: 'Space Grotesk Local', 'Segoe UI', sans-serif;
 }
 
-:root[data-visual-style="pixel-arcade"] {
+:root[data-visual-style='pixel-arcade'] {
   --surface-card: #041421;
   --surface-card-raised: #071c2b;
   --surface-focus: #082335;
@@ -109,10 +109,19 @@
   --card-shadow: 4px 4px 0 rgba(0, 0, 0, 0.38);
   --focus-shadow: 0 0 0 2px rgba(124, 255, 58, 0.42), 5px 5px 0 rgba(0, 0, 0, 0.34);
   --texture-opacity: 0.55;
-  --chamfer: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+  --chamfer: polygon(
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px),
+    0 5px
+  );
 }
 
-:root[data-visual-style="tactical-minimal"] {
+:root[data-visual-style='tactical-minimal'] {
   --surface-card: #0a141e;
   --surface-card-raised: #0d1924;
   --surface-focus: #101f2b;

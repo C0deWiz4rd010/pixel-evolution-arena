@@ -17,7 +17,11 @@
 
 /* Accent tint on prominent shared surfaces (legacy components keep their palette). */
 .primary {
-  background-image: linear-gradient(180deg, var(--accent-1), color-mix(in srgb, var(--accent-1) 70%, #000));
+  background-image: linear-gradient(
+    180deg,
+    var(--accent-1),
+    color-mix(in srgb, var(--accent-1) 70%, #000)
+  );
 }
 
 /* Colorblind-safe: reinforce type/status text with weight + dotted underline. */
@@ -75,6 +79,11 @@
 }
 
 @keyframes overdrive-pulse {
-  0%, 100% { opacity: 0.82; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
 }

@@ -98,7 +98,10 @@ app-monster-card {
     linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
     linear-gradient(180deg, color-mix(in srgb, currentColor 13%, transparent), rgba(0, 0, 0, 0.42));
-  background-size: 12px 12px, 12px 12px, auto;
+  background-size:
+    12px 12px,
+    12px 12px,
+    auto;
   color: var(--line);
   overflow: visible;
   text-align: left;
@@ -113,7 +116,7 @@ app-monster-card {
   left: 50%;
   z-index: -1;
   border-left: 1px solid currentColor;
-  content: "";
+  content: '';
   opacity: 0.44;
 }
 
@@ -134,7 +137,9 @@ app-monster-card {
 
 .monster-card.selected {
   z-index: 2;
-  box-shadow: 0 0 0 2px currentColor, 0 0 20px color-mix(in srgb, currentColor 42%, transparent);
+  box-shadow:
+    0 0 0 2px currentColor,
+    0 0 20px color-mix(in srgb, currentColor 42%, transparent);
 }
 
 .monster-card.locked {
@@ -171,9 +176,17 @@ app-monster-card {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    radial-gradient(circle at 50% 56%, color-mix(in srgb, currentColor 18%, transparent), transparent 58%),
+    radial-gradient(
+      circle at 50% 56%,
+      color-mix(in srgb, currentColor 18%, transparent),
+      transparent 58%
+    ),
     rgba(0, 0, 0, 0.28);
-  background-size: 10px 10px, 10px 10px, auto, auto;
+  background-size:
+    10px 10px,
+    10px 10px,
+    auto,
+    auto;
   font-size: 1.75rem;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 8px currentColor);
@@ -259,8 +272,16 @@ app-monster-card {
   padding: 0.5rem 0.62rem;
   background:
     radial-gradient(circle, color-mix(in srgb, var(--line) 14%, transparent), transparent 58%),
-    repeating-linear-gradient(90deg, color-mix(in srgb, var(--line) 5%, transparent) 0 1px, transparent 1px 18px),
-    repeating-linear-gradient(180deg, color-mix(in srgb, var(--line) 4%, transparent) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--line) 5%, transparent) 0 1px,
+      transparent 1px 18px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--line) 4%, transparent) 0 1px,
+      transparent 1px 18px
+    ),
     rgba(0, 0, 0, 0.18);
   color: var(--line);
   clip-path: var(--chamfer);
@@ -328,9 +349,17 @@ app-monster-card {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 50% 54%, color-mix(in srgb, currentColor 18%, transparent), transparent 62%),
+    radial-gradient(
+      circle at 50% 54%,
+      color-mix(in srgb, currentColor 18%, transparent),
+      transparent 62%
+    ),
     rgba(0, 0, 0, 0.32);
-  background-size: 14px 14px, 14px 14px, auto, auto;
+  background-size:
+    14px 14px,
+    14px 14px,
+    auto,
+    auto;
   font-size: 3.2rem;
   image-rendering: pixelated;
   clip-path: var(--chamfer);
@@ -393,9 +422,10 @@ app-monster-card {
 .manual-stat {
   border: 1px solid var(--line-soft);
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    rgba(0, 0, 0, 0.27);
-  background-size: 14px 14px, auto;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px), rgba(0, 0, 0, 0.27);
+  background-size:
+    14px 14px,
+    auto;
   padding: 0.62rem;
   clip-path: var(--chamfer-tight);
 }
@@ -447,7 +477,9 @@ app-monster-card {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(180deg, color-mix(in srgb, currentColor 10%, transparent), rgba(0, 0, 0, 0.3));
-  background-size: 14px 14px, auto;
+  background-size:
+    14px 14px,
+    auto;
 }
 
 .target-card.ready {
@@ -490,9 +522,11 @@ app-monster-card {
   border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    rgba(0, 0, 0, 0.3);
-  background-size: 10px 10px, 10px 10px, auto;
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), rgba(0, 0, 0, 0.3);
+  background-size:
+    10px 10px,
+    10px 10px,
+    auto;
   font-size: 2rem;
   clip-path: var(--chamfer-tight);
 }

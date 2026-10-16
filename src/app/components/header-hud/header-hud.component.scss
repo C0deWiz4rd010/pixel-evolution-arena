@@ -1,41 +1,144 @@
 @use '../../../styles/breakpoints' as bp;
 
-:host { position: relative; z-index: 90; display: block; }
+:host {
+  position: relative;
+  z-index: 90;
+  display: block;
+}
 
-.header-hud { position: relative; z-index: 100; min-height: 88px; overflow: visible; clip-path: none; }
-.hud-stats { display: flex; justify-content: flex-end; align-items: stretch; gap: 0.45rem; }
-.stat-chip { min-width: 118px; }
-.stat-chip.coins strong, .stat-chip.coins .stat-icon { color: var(--coin); }
-.stat-chip.dna strong, .stat-chip.dna .stat-icon { color: var(--dna); }
-.stat-chip.power strong, .stat-chip.power .stat-icon { color: var(--success); }
-.stat-chip.dex strong, .stat-chip.dex .stat-icon { color: var(--line-bright); }
-.stat-chip.dex { position: relative; padding-bottom: 0.55rem; }
-.stat-chip.dex i { position: absolute; inset: auto 0.5rem 0.25rem; height: 2px; background: color-mix(in srgb, var(--line) 16%, transparent); }
-.stat-chip.dex b { display: block; height: 100%; background: var(--line-bright); }
+.header-hud {
+  position: relative;
+  z-index: 100;
+  min-height: 88px;
+  overflow: visible;
+  clip-path: none;
+}
+.hud-stats {
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 0.45rem;
+}
+.stat-chip {
+  min-width: 118px;
+}
+.stat-chip.coins strong,
+.stat-chip.coins .stat-icon {
+  color: var(--coin);
+}
+.stat-chip.dna strong,
+.stat-chip.dna .stat-icon {
+  color: var(--dna);
+}
+.stat-chip.power strong,
+.stat-chip.power .stat-icon {
+  color: var(--success);
+}
+.stat-chip.dex strong,
+.stat-chip.dex .stat-icon {
+  color: var(--line-bright);
+}
+.stat-chip.dex {
+  position: relative;
+  padding-bottom: 0.55rem;
+}
+.stat-chip.dex i {
+  position: absolute;
+  inset: auto 0.5rem 0.25rem;
+  height: 2px;
+  background: color-mix(in srgb, var(--line) 16%, transparent);
+}
+.stat-chip.dex b {
+  display: block;
+  height: 100%;
+  background: var(--line-bright);
+}
 
-.utility-wrap { position: relative; }
-.utility-button { min-width: 48px; height: 100%; font-size: 1rem; }
-.utility-menu { position: absolute; z-index: 100; top: calc(100% + 0.4rem); right: 0; display: grid; min-width: 220px; gap: 0.65rem; padding: 0.75rem; border: 1px solid var(--line); background: #06111f; box-shadow: 0 16px 30px rgba(0,0,0,.55); }
-.utility-menu span { color: var(--muted); font-size: 0.72rem; }
+.utility-wrap {
+  position: relative;
+}
+.utility-button {
+  min-width: 48px;
+  height: 100%;
+  font-size: 1rem;
+}
+.utility-menu {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  display: grid;
+  min-width: 220px;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  background: #06111f;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.55);
+}
+.utility-menu span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
 
-.stat-pulse { animation: stat-pulse 700ms ease-out; }
-@keyframes stat-pulse { 25% { box-shadow: 0 0 22px currentColor; transform: translateY(-2px); } }
-@media (prefers-reduced-motion: reduce) { .stat-pulse { animation: none; } }
+.stat-pulse {
+  animation: stat-pulse 700ms ease-out;
+}
+@keyframes stat-pulse {
+  25% {
+    box-shadow: 0 0 22px currentColor;
+    transform: translateY(-2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-pulse {
+    animation: none;
+  }
+}
 
 @include bp.media-max(lg) {
-  .brand-copy p { display: none; }
-  .stat-chip { min-width: 94px; }
+  .brand-copy p {
+    display: none;
+  }
+  .stat-chip {
+    min-width: 94px;
+  }
 }
 
 @include bp.media-max(sm) {
-  .header-hud { min-height: 0; align-items: center; padding: 0.65rem; }
-  .brand-copy h1 { font-size: clamp(0.9rem, 4vw, 1.15rem); white-space: nowrap; }
-  .brand-mark-image { width: 36px; height: 36px; }
-  .hud-stats { gap: 0.25rem; }
-  .secondary-stat { display: none; }
-  .stat-chip { min-width: 68px; padding: 0.3rem; }
-  .stat-chip .stat-label { font-size: 0.58rem; }
-  .stat-chip strong { font-size: 0.84rem; }
-  .stat-icon { display: none; }
-  .utility-button { min-width: 42px; min-height: 44px; }
+  .header-hud {
+    min-height: 0;
+    align-items: center;
+    padding: 0.65rem;
+  }
+  .brand-copy h1 {
+    font-size: clamp(0.9rem, 4vw, 1.15rem);
+    white-space: nowrap;
+  }
+  .brand-mark-image {
+    width: 36px;
+    height: 36px;
+  }
+  .hud-stats {
+    gap: 0.25rem;
+  }
+  .secondary-stat {
+    display: none;
+  }
+  .stat-chip {
+    min-width: 68px;
+    padding: 0.3rem;
+  }
+  .stat-chip .stat-label {
+    font-size: 0.58rem;
+  }
+  .stat-chip strong {
+    font-size: 0.84rem;
+  }
+  .stat-icon {
+    display: none;
+  }
+  .utility-button {
+    min-width: 42px;
+    min-height: 44px;
+  }
 }

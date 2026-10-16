@@ -7,16 +7,25 @@
 /// the mixins never shifts an existing layout. Use named tokens where possible;
 /// a raw length (e.g. `1050px`) may still be passed for one-off cases.
 $breakpoints: (
-  'xs': 520px,     // compact phones / modals
-  'sm': 620px,     // small phones
-  'nav': 720px,    // primary tab bar collapses to bottom nav
-  'md': 820px,     // large phone / small tablet
-  'lg': 900px,     // tablet portrait
-  'xl': 1000px,    // tablet landscape
-  'xxl': 1100px,   // small laptop
-  'wide': 1180px,  // main desktop collapse
-  'ultra': 1280px, // wide desktop
-  'max': 1400px,   // ultrawide cap
+  'xs': 520px,
+  // compact phones / modals
+  'sm': 620px,
+  // small phones
+  'nav': 720px,
+  // primary tab bar collapses to bottom nav
+  'md': 820px,
+  // large phone / small tablet
+  'lg': 900px,
+  // tablet portrait
+  'xl': 1000px,
+  // tablet landscape
+  'xxl': 1100px,
+  // small laptop
+  'wide': 1180px,
+  // main desktop collapse
+  'ultra': 1280px,
+  // wide desktop
+  'max': 1400px, // ultrawide cap
 );
 
 /// Resolve a token name to a length, or pass a raw length through unchanged.

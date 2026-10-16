@@ -27,28 +27,27 @@ video {
   /* Intentional horizontal swim lanes (settings/collection/contracts/orders)
      get momentum scrolling + gentle snapping so off-screen cards are reachable
      and feel discoverable on touch. */
-  body .app-shell :is(
-    .stage-progress,
-    .option-cards,
-    .style-options,
-    .system-check-grid,
-    .status-switch,
-    .contract-grid,
-    .squad-order-grid,
-    .scan-list
-  ) {
+  body
+    .app-shell
+    :is(
+      .stage-progress,
+      .option-cards,
+      .style-options,
+      .system-check-grid,
+      .status-switch,
+      .contract-grid,
+      .squad-order-grid,
+      .scan-list
+    ) {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
     scrollbar-width: thin;
   }
 
-  body .app-shell :is(
-    .stage-progress,
-    .option-cards,
-    .style-options,
-    .system-check-grid,
-    .status-switch
-  ) > * {
+  body
+    .app-shell
+    :is(.stage-progress, .option-cards, .style-options, .system-check-grid, .status-switch)
+    > * {
     scroll-snap-align: start;
   }
 }

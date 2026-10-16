@@ -130,7 +130,10 @@
   background: rgba(0, 0, 0, 0.3);
   clip-path: var(--chamfer);
   opacity: 0.82;
-  transition: border-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
 }
 
 .medal-card.complete {
@@ -246,13 +249,17 @@
   gap: 0.24rem;
   padding: 0.6rem;
   border: 1px solid var(--dna);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--dna) 16%, transparent), transparent 70%), rgba(0, 0, 0, 0.3);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--dna) 16%, transparent), transparent 70%),
+    rgba(0, 0, 0, 0.3);
   clip-path: var(--chamfer);
 }
 
 .daily-card.done {
   border-color: var(--success);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--success) 18%, transparent), transparent 70%), rgba(0, 0, 0, 0.3);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--success) 18%, transparent), transparent 70%),
+    rgba(0, 0, 0, 0.3);
 }
 
 .daily-card strong {

@@ -43,7 +43,11 @@
 
 .primary-nav-item.active {
   color: var(--line-bright);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--line) 16%, transparent), color-mix(in srgb, var(--line) 4%, transparent));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--line) 16%, transparent),
+    color-mix(in srgb, var(--line) 4%, transparent)
+  );
 }
 
 .primary-nav-item.active::after {

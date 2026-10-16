@@ -17,7 +17,8 @@
   .dex-card:hover:not(:disabled) .creature-sprite,
   .target-card:hover .creature-sprite,
   .squad-slot:hover .creature-sprite {
-    filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 34%, transparent)) saturate(1.28);
+    filter: drop-shadow(0 0 12px currentColor)
+      drop-shadow(0 0 22px color-mix(in srgb, currentColor 34%, transparent)) saturate(1.28);
   }
 }
 
@@ -39,7 +40,9 @@
   background:
     linear-gradient(90deg, color-mix(in srgb, currentColor 16%, transparent) 1px, transparent 1px),
     rgba(0, 0, 0, 0.3);
-  background-size: 14px 14px, auto;
+  background-size:
+    14px 14px,
+    auto;
   text-align: left;
   clip-path: var(--chamfer);
 }
@@ -50,7 +53,7 @@
   height: 2px;
   background: currentColor;
   box-shadow: 0 0 12px currentColor;
-  content: "";
+  content: '';
   opacity: 0.62;
 }
 

@@ -106,7 +106,8 @@
   border: 1px solid color-mix(in srgb, var(--line) 34%, transparent);
   padding: 0.72rem;
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--line) 12%, transparent), transparent 60%), rgba(0, 0, 0, 0.34);
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 12%, transparent), transparent 60%),
+    rgba(0, 0, 0, 0.34);
   clip-path: var(--chamfer);
 }
 

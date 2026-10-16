@@ -310,7 +310,11 @@
 
   &.status-owned {
     border-color: color-mix(in srgb, var(--success) 40%, transparent);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--success) 8%, transparent), transparent);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--success) 8%, transparent),
+      transparent
+    );
   }
 
   &.status-available {

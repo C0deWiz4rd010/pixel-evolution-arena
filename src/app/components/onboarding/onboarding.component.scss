@@ -1,1 +1,108 @@
-.onboarding-scrim{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(2,6,14,.76);backdrop-filter:blur(5px);animation:fade-in .2s ease}.onboarding-card{display:grid;width:min(500px,100%);gap:14px;padding:26px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(10,24,42,.99),rgba(4,12,24,.99));box-shadow:0 24px 60px rgba(0,0,0,.55);clip-path:var(--chamfer)}.onboarding-card h2{margin:0;color:var(--text);font-size:1.45rem}.onboarding-card p{margin:0;color:var(--muted);font-size:1rem;line-height:1.55}.step-dots{display:flex;gap:7px}.dot{width:44px;height:5px;background:rgba(80,110,160,.38);transition:background .2s ease}.dot.active{background:linear-gradient(90deg,var(--line),var(--success))}.dot.done{background:color-mix(in srgb, var(--success) 48%, transparent)}.step-counter{color:var(--line-bright);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}.onboarding-actions{display:flex;align-items:center;justify-content:space-between;margin-top:6px}.nav-buttons{display:flex;gap:8px}.onboarding-actions button{min-height:44px;padding:9px 18px}.onboarding-actions .primary{border-color:var(--line-bright);background:color-mix(in srgb, var(--line) 18%, transparent);color:var(--text)}.onboarding-actions .ghost{border-color:transparent;background:transparent;color:var(--muted)}@keyframes fade-in{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.onboarding-scrim{animation:none}}@media(max-width:500px){.onboarding-card{padding:20px}.onboarding-actions{align-items:stretch;flex-direction:column-reverse;gap:8px}.nav-buttons{display:grid;grid-template-columns:1fr 1fr}.onboarding-actions .ghost{width:100%}}
+.onboarding-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 6, 14, 0.76);
+  backdrop-filter: blur(5px);
+  animation: fade-in 0.2s ease;
+}
+.onboarding-card {
+  display: grid;
+  width: min(500px, 100%);
+  gap: 14px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(10, 24, 42, 0.99), rgba(4, 12, 24, 0.99));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  clip-path: var(--chamfer);
+}
+.onboarding-card h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.45rem;
+}
+.onboarding-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.step-dots {
+  display: flex;
+  gap: 7px;
+}
+.dot {
+  width: 44px;
+  height: 5px;
+  background: rgba(80, 110, 160, 0.38);
+  transition: background 0.2s ease;
+}
+.dot.active {
+  background: linear-gradient(90deg, var(--line), var(--success));
+}
+.dot.done {
+  background: color-mix(in srgb, var(--success) 48%, transparent);
+}
+.step-counter {
+  color: var(--line-bright);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+.onboarding-actions button {
+  min-height: 44px;
+  padding: 9px 18px;
+}
+.onboarding-actions .primary {
+  border-color: var(--line-bright);
+  background: color-mix(in srgb, var(--line) 18%, transparent);
+  color: var(--text);
+}
+.onboarding-actions .ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-scrim {
+    animation: none;
+  }
+}
+@media (max-width: 500px) {
+  .onboarding-card {
+    padding: 20px;
+  }
+  .onboarding-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .nav-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .onboarding-actions .ghost {
+    width: 100%;
+  }
+}
