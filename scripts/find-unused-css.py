@@ -35,6 +35,9 @@ def collect_used_classes():
         # string literals in TS and bound expressions: any kebab/word token could be a class
         for lit in re.findall(r"'([^'\n]{1,80})'|\"([^\"\n]{1,80})\"|`([^`]{1,200})`", text):
             for chunk in lit:
+                # prose (sentences, lore, toasts) cannot be a class list
+                if len(chunk.split()) > 5 or re.search(r'[.!?:] [A-Z]', chunk):
+                    continue
                 for token in re.findall(r'[a-z][a-z0-9-]*', chunk):
                     used.add(token)
                 for p in re.findall(r"([a-z][a-z0-9-]*-)\$\{", chunk):

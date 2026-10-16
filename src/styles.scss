@@ -569,11 +569,6 @@ li {
   filter: drop-shadow(0 0 10px currentColor) saturate(1.2) contrast(1.04);
 }
 
-.creature-sprite.small {
-  width: var(--sprite-small);
-  height: var(--sprite-small);
-}
-
 .creature-sprite.large {
   width: var(--sprite-large);
   height: var(--sprite-large);
@@ -1213,13 +1208,6 @@ app-monster-card {
   color: #ff958f;
 }
 
-.battlefield {
-  display: grid;
-  grid-template-columns: minmax(180px, 240px) minmax(240px, 1fr) minmax(180px, 240px);
-  gap: 0.75rem;
-  min-height: 360px;
-}
-
 .battle-team {
   display: grid;
   align-content: start;
@@ -1538,16 +1526,9 @@ app-monster-card {
   }
 }
 
-@include bp.media-max(max) {
-}
-
 @include bp.media-max(ultra) {
   .handbook-layout {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
-  }
-
-  .battlefield {
-    grid-template-columns: minmax(160px, 210px) minmax(0, 1fr) minmax(160px, 210px);
   }
 }
 
@@ -1569,11 +1550,6 @@ app-monster-card {
   .detail-panel {
     position: static;
     max-height: none;
-  }
-
-  .battlefield {
-    grid-template-columns: 1fr;
-    min-height: 0;
   }
 }
 
@@ -1673,9 +1649,6 @@ app-monster-card {
   background-image: linear-gradient(180deg, var(--accent-1), color-mix(in srgb, var(--accent-1) 70%, #000));
 }
 
-@include bp.media-max(1020px) {
-}
-
 /* Colorblind-safe: reinforce type/status text with weight + dotted underline. */
 :root[data-colorblind='on'] .monster-meta,
 :root[data-colorblind='on'] .stat-label {
@@ -1733,36 +1706,6 @@ app-monster-card {
 @keyframes overdrive-pulse {
   0%, 100% { opacity: 0.82; }
   50% { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-}
-
-.fabricator {
-  flex: 1 1 100%;
-}
-
-.fabricator > summary {
-  cursor: pointer;
-  padding: 0.24rem 0.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.3);
-  color: var(--line);
-  font-size: 0.58rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  list-style: none;
-  clip-path: var(--chamfer-tight);
-}
-
-.fabricator > summary::-webkit-details-marker {
-  display: none;
-}
-
-.fabricator[open] > summary {
-  border-color: var(--line);
-  color: var(--text);
 }
 
 /* Arena Battle Contracts: global to avoid growing the Arena component style budget. */
@@ -1847,9 +1790,6 @@ app-monster-card {
     flex: 0 0 min(86vw, 320px);
     min-height: 172px;
   }
-}
-
-@include bp.media-max(xs) {
 }
 
 /* Wide screens: let the Arena grow with its command stack instead of clipping actions. */
