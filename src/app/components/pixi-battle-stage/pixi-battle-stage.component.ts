@@ -21,6 +21,7 @@ import type {
 } from 'pixi.js';
 import { EnemyMonster } from '../../models/battle.model';
 import { Monster } from '../../models/monster.model';
+import { AudioService } from '../../services/audio.service';
 import { BattleAnimationService } from '../../services/battle-animation.service';
 import { GameStateService } from '../../services/game-state.service';
 import { PixiTickerGovernor } from '../shared/pixi-ticker-governor';
@@ -118,6 +119,7 @@ export class PixiBattleStageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly game = inject(GameStateService);
   private readonly anim = inject(BattleAnimationService);
+  private readonly audio = inject(AudioService);
 
   readonly reducedMotion = signal(false);
   readonly failed = signal(false);
@@ -140,6 +142,8 @@ export class PixiBattleStageComponent {
   private seenCueIds = new Set<number>();
   private lastPhase = 'idle';
   private shakeTime = 0;
+  /** Seconds of freeze-frame left; crits and Overdrive hits "hold" for a beat. */
+  private hitStop = 0;
   private banner: PixiText | null = null;
   private bannerLife = 0;
   private readonly bannerMaxLife = 1.5;
@@ -548,6 +552,10 @@ export class PixiBattleStageComponent {
         : Math.max(0, target.hpPercent - Math.min(55, Math.max(14, amount / 9)));
     }
     this.spawnFloatingNumber(target, amount, critical, offset);
+    this.audio.play(target && target.hpPercent <= 0 ? 'ko' : critical || overdrive ? 'crit' : 'hit');
+    if (!this.reducedMotion()) {
+      this.hitStop = Math.max(this.hitStop, overdrive ? 0.09 : critical ? 0.07 : 0);
+    }
 
     if (moveName && attacker) {
       this.spawnLabel(attacker, moveName.toUpperCase(), overdrive ? 0xffd23c : 0x7de8ff, -22);
@@ -666,6 +674,12 @@ export class PixiBattleStageComponent {
       return;
     }
     const clamped = Math.min(0.05, Math.max(0.001, dt));
+    if (this.hitStop > 0) {
+      // Freeze the choreography (not the shake) so heavy hits read as impact.
+      this.hitStop = Math.max(0, this.hitStop - clamped);
+      this.updateShake(clamped);
+      return;
+    }
     for (const unit of this.units) {
       this.updateUnit(unit, clamped);
     }

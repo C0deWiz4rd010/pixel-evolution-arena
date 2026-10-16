@@ -1,3 +1,4 @@
+import { CountUpDirective } from '../../directives/count-up.directive';
 import { stillSprite } from '../../rules/sprite.rules';
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
@@ -20,7 +21,7 @@ interface BattleCoachPlan {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-arena',
-  imports: [PixiBattleStageComponent, CombatBeatComponent, CreaturePortraitComponent],
+  imports: [CountUpDirective, PixiBattleStageComponent, CombatBeatComponent, CreaturePortraitComponent],
   templateUrl: './arena.component.html',
   styleUrl: './arena.component.scss',
 })

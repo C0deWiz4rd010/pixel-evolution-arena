@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnDestroy, inject } from '@angular/core';
+import { Directive, ElementRef, Input, OnDestroy, OnInit, inject } from '@angular/core';
 
 /**
  * Tweens an element's text content toward a numeric target for a bit of juice.
@@ -8,7 +8,7 @@ import { Directive, ElementRef, Input, OnDestroy, inject } from '@angular/core';
   selector: '[appCountUp]',
   standalone: true,
 })
-export class CountUpDirective implements OnDestroy {
+export class CountUpDirective implements OnInit, OnDestroy {
   private readonly el = inject(ElementRef<HTMLElement>);
 
   private current = 0;
@@ -18,6 +18,9 @@ export class CountUpDirective implements OnDestroy {
   private readonly durationMs = 520;
   private frame = 0;
   private initialized = false;
+
+  /** When set, the first render counts up from this value (e.g. 0 for a reward reveal). */
+  @Input() countFrom: number | null = null;
 
   @Input({ required: true, alias: 'appCountUp' })
   set value(next: number) {
@@ -40,6 +43,17 @@ export class CountUpDirective implements OnDestroy {
     }
     this.startValue = this.current;
     this.startTime = performance.now();
+    this.startLoop();
+  }
+
+  ngOnInit(): void {
+    if (this.countFrom === null || this.prefersReducedMotion() || this.countFrom === this.target) {
+      return;
+    }
+    this.startValue = this.countFrom;
+    this.current = this.countFrom;
+    this.startTime = performance.now();
+    this.render(this.countFrom);
     this.startLoop();
   }
 

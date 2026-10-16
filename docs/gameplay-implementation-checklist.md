@@ -304,3 +304,11 @@ Use this checklist during Angular implementation.
 - Evolution gate items: pity counter guarantees a drop every 6th win without one; the Core Exchange (Expedition tab) sells every gate item for Cores, giving Cores a sink.
 - Docs updated: `balance-and-progression.md` and `game-design.md` carry a current-model header.
 - Not done: reward scaling beyond tier modifiers and Research cost rebalancing (rewards already track tiers; Research costs unchanged after the pace change).
+
+2026-10-16 Phase 7 (combat feel):
+
+- Pixi stage: hit-stop (70 ms on crits, 90 ms on Overdrive; shake keeps running), plus new audio cues for hit, crit and KO.
+- Music ducks while a squad order or tactical pulse is open and recovers when it resolves; decision windows show a countdown bar.
+- Reward reveal counts coins/DNA/XP up from zero (reduced motion snaps).
+- New `EvolutionRevealComponent`: a 1.5 s skippable celebration (click or Escape) tinted in the new stage color, static under reduced motion.
+- Global button press state (1 px sink) that respects both OS and in-app reduced motion.

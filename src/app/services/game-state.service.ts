@@ -128,6 +128,7 @@ import {
   ArenaRewardForecast,
   ArenaRunDirective,
   EvolutionCandidate,
+  EvolutionRevealInfo,
   GameSectionName,
   NextCommand,
   RouteStatusChip } from './game-state.models';
@@ -189,6 +190,9 @@ export class GameStateService {
     return decision?.kind === 'order' ? decision.id : null;
   });
   readonly battleDecisionSeconds = signal(0);
+  /** Length of the current decision window, for the countdown bar. */
+  readonly battleDecisionTotal = signal(1);
+  readonly battleDecisionRatio = computed(() => Math.min(1, this.battleDecisionSeconds() / Math.max(1, this.battleDecisionTotal())));
   readonly battleOrderOptions: readonly { id: BattleOrderId; label: string; detail: string; key: string }[] = [
     { id: 'focus', label: 'Focus Target', detail: 'Two stronger attacks, but lighter cover.', key: '1' },
     { id: 'protect', label: 'Protect Lead', detail: 'Reduce the next two enemy impacts.', key: '2' },
@@ -952,9 +956,11 @@ export class GameStateService {
     const recommended = recommendedDecision(session);
     const mode = this.settings().battleControlMode;
     if (mode === 'auto') return Promise.resolve(recommended);
+    this.audio.duckMusic(true);
     const duration = session.pendingDecision === 'pulse' ? 6 : mode === 'assist' ? 3 : 8;
     this.tacticalPulseOpen.set(session.pendingDecision === 'pulse');
     this.battleDecisionSeconds.set(duration);
+    this.battleDecisionTotal.set(duration);
     this.tacticalPulseSeconds.set(session.pendingDecision === 'pulse' ? duration : 0);
     this.tacticalPulseDeadline = Date.now() + duration * 1000;
     if (session.pendingDecision === 'pulse') this.battleAnimation.beginTacticalPulse();
@@ -969,6 +975,7 @@ export class GameStateService {
 
   private resolveBattleDecision(decision: BattleDecision): void {
     this.clearTacticalPulseTimer();
+    this.audio.duckMusic(false);
     this.tacticalPulseOpen.set(false);
     this.tacticalPulseSeconds.set(0);
     this.battleDecisionSeconds.set(0);
@@ -1470,6 +1477,7 @@ export class GameStateService {
     this.prependLog(`${source.name} evolved into ${target.name}!`, 'reward');
     this.prependLog(`New form catalogued: +${EVOLUTION_DATA_BONUS} Bio-Data.`, 'reward');
     this.audio.play('evolve');
+    this.showEvolutionReveal(source, target);
     this.toast.push({
       title: 'Evolution Complete',
       message: `${source.name} -> ${target.name} (${target.stage}).`,
@@ -1483,6 +1491,28 @@ export class GameStateService {
     }
 
     this.awardStageMilestoneIfComplete(target.stage);
+  }
+
+  /** Evolution celebration shown by `EvolutionRevealComponent`; clears itself after a moment. */
+  readonly evolutionReveal = signal<EvolutionRevealInfo | null>(null);
+  private revealTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private showEvolutionReveal(source: Monster, target: Monster): void {
+    if (this.revealTimer) clearTimeout(this.revealTimer);
+    this.evolutionReveal.set({
+      fromName: source.name,
+      toName: target.name,
+      stage: target.stage,
+      stageClass: stageClass(target.stage),
+      spriteUrl: target.spriteUrl,
+    });
+    this.revealTimer = setTimeout(() => this.dismissEvolutionReveal(), 1500);
+  }
+
+  dismissEvolutionReveal(): void {
+    if (this.revealTimer) clearTimeout(this.revealTimer);
+    this.revealTimer = null;
+    this.evolutionReveal.set(null);
   }
 
   evolveReadyCandidate(): boolean {

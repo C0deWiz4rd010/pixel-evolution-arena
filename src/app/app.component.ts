@@ -15,6 +15,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { SquadComponent } from './components/squad/squad.component';
 import { PrimarySection, TabNavigationComponent } from './components/tab-navigation/tab-navigation.component';
 import { ToastStackComponent } from './components/toast-stack/toast-stack.component';
+import { EvolutionRevealComponent } from './components/evolution-reveal/evolution-reveal.component';
 import { BattleAnimationService } from './services/battle-animation.service';
 import { GameSectionName, GameStateService } from './services/game-state.service';
 
@@ -59,6 +60,7 @@ const VIEW_LABELS: Partial<Record<GameSectionName, string>> = {
     SettingsComponent,
     OnboardingComponent,
     ToastStackComponent,
+    EvolutionRevealComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

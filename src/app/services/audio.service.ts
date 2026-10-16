@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type AudioCueId = 'win' | 'loss' | 'evolve' | 'level-up' | 'item' | 'menu' | 'forge' | 'boss';
+export type AudioCueId = 'win' | 'loss' | 'evolve' | 'level-up' | 'item' | 'menu' | 'forge' | 'boss' | 'hit' | 'crit' | 'ko';
 
 interface CueProfile {
   frequency: number;
@@ -20,6 +20,9 @@ const CUE_PROFILES: Record<AudioCueId, CueProfile> = {
   menu: { frequency: 320, duration: 0.08, type: 'square', gain: 0.025 },
   forge: { frequency: 300, duration: 0.2, type: 'square', gain: 0.045, second: 450 },
   boss: { frequency: 110, duration: 0.5, type: 'sawtooth', gain: 0.05, second: 220 },
+  hit: { frequency: 190, duration: 0.07, type: 'square', gain: 0.03 },
+  crit: { frequency: 260, duration: 0.14, type: 'sawtooth', gain: 0.05, second: 520 },
+  ko: { frequency: 160, duration: 0.3, type: 'triangle', gain: 0.045, second: 90 },
 };
 
 /** A short looping chiptune bassline + arpeggio assembled at runtime (no files). */
@@ -82,6 +85,12 @@ export class AudioService {
     if (profile.second) {
       this.tone(context, profile.second, profile.type, profile.gain * 0.8, profile.duration * 0.8, profile.duration * 0.4);
     }
+  }
+
+  /** Lowers the music bed while the player is making a decision so cues and text stay readable. */
+  duckMusic(active: boolean): void {
+    if (!this.musicGain || !this.context) return;
+    this.musicGain.gain.setTargetAtTime(active ? 0.18 : 0.5, this.context.currentTime, 0.08);
   }
 
   /** Toggles the procedural background loop (independent of SFX enable). */

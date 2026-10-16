@@ -1,0 +1,10 @@
+@if (reveal(); as info) {
+  <div class="reveal" [class]="'stage-' + info.stageClass" role="status" aria-live="polite" (click)="dismiss()">
+    <div class="reveal-card">
+      <span class="eyebrow">Evolution complete</span>
+      <app-creature-portrait [src]="info.spriteUrl" [name]="info.toName" [stage]="info.stage" size="hero" />
+      <strong>{{ info.fromName }} → {{ info.toName }}</strong>
+      <small>{{ info.stage }} form online</small>
+    </div>
+  </div>
+}

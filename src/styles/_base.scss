@@ -156,6 +156,22 @@ button {
     background-color 120ms ease;
 }
 
+/* Press feedback: a quick 1px sink so taps feel physical (reduced motion stays still). */
+button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 60ms;
+}
+
+html[data-motion='reduced'] button:active:not(:disabled) {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 @media (hover: hover) {
   button:hover:not(:disabled) {
     border-color: var(--line-bright);

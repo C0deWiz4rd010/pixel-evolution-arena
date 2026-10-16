@@ -718,3 +718,25 @@
     box-shadow: none;
   }
 }
+
+.reward-line b {
+  font-weight: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.decision-timer {
+  display: block;
+  height: 3px;
+  background: color-mix(in srgb, var(--line) 18%, transparent);
+
+  &::after {
+    display: block;
+    height: 100%;
+    background: var(--coin);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--coin) 60%, transparent);
+    content: '';
+    transform: scaleX(var(--timer, 1));
+    transform-origin: left;
+    transition: transform 0.3s linear;
+  }
+}

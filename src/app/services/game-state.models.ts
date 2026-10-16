@@ -1,5 +1,5 @@
 import { BattleReward } from '../models/battle.model';
-import { Monster } from '../models/monster.model';
+import { Monster, MonsterStage } from '../models/monster.model';
 import { RequirementStatus } from '../rules/evolution.rules';
 
 export interface ArenaRunDirective {
@@ -21,6 +21,14 @@ export type GameSectionName =
   | 'Medals'
   | 'Handbook'
   | 'Settings';
+
+export interface EvolutionRevealInfo {
+  fromName: string;
+  toName: string;
+  stage: MonsterStage;
+  stageClass: string;
+  spriteUrl?: string;
+}
 
 export interface EvolutionCandidate {
   target: Monster;

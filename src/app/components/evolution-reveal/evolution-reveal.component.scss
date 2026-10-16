@@ -1,0 +1,61 @@
+@use '../../../styles/motion';
+
+.reveal {
+  position: fixed;
+  z-index: 95;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--stage-color) 38%, transparent), rgba(2, 7, 17, 0.88) 70%);
+  cursor: pointer;
+}
+
+.reveal-card {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid var(--stage-color);
+  background: var(--panel-strong);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--stage-color) 50%, transparent);
+  clip-path: var(--chamfer);
+  text-align: center;
+  animation: reveal-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+
+  .eyebrow {
+    color: var(--stage-color);
+    font-size: var(--text-micro);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+  }
+
+  small {
+    color: var(--muted);
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+    filter: brightness(3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@include motion.reduced {
+  .reveal-card {
+    animation: none;
+  }
+}

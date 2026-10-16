@@ -51,6 +51,7 @@
               <div><span>Decision window</span><h3>Tactical Pulse</h3></div>
               <strong>{{ game.tacticalPulseSeconds() }}s</strong>
             </header>
+            <i class="decision-timer" aria-hidden="true" [style.--timer]="game.battleDecisionRatio()"></i>
             <p>
               Read the pressure and commit one command.
               @if (game.settings().battleRecommendations) { Recommendation: <b>{{ game.recommendedTacticalPulse() }}</b>. }
@@ -95,6 +96,7 @@
       @if (game.battleOrderOpen()) {
         <section class="tactical-pulse squad-order-rail command-rail" aria-label="Squad Order decision" aria-live="assertive">
           <header><div><span>Director command</span><h3>Choose Squad Order</h3></div><strong>{{ game.battleDecisionSeconds() }}s</strong></header>
+          <i class="decision-timer" aria-hidden="true" [style.--timer]="game.battleDecisionRatio()"></i>
           <p>Shape the next two actions. @if (game.settings().battleRecommendations) { Recommendation is highlighted. }</p>
           <div class="pulse-options">
             @for (option of game.battleOrderOptions; track option.id) {
@@ -159,7 +161,7 @@
   @if (game.lastReward(); as reward) {
     <section class="growth-result" [class.victory]="reward.won" aria-label="Battle growth result">
       <header><span class="eyebrow">{{ reward.won ? 'Victory secured' : 'Retreat complete' }}</span><h3>{{ reward.won ? 'Your squad grew stronger' : 'Every run builds mastery' }}</h3><p>Battle rewards are secured. Review each monster's progress before the next run.</p></header>
-      <div class="reward-line large"><span>+{{ reward.coins }} CR</span><span>+{{ reward.dnaShards }} DNA</span><span>+{{ reward.xp }} XP</span>@if (reward.item) { <span>{{ reward.item }}</span> }</div>
+      <div class="reward-line large"><span>+<b [countFrom]="0" [appCountUp]="reward.coins"></b> CR</span><span>+<b [countFrom]="0" [appCountUp]="reward.dnaShards"></b> DNA</span><span>+<b [countFrom]="0" [appCountUp]="reward.xp"></b> XP</span>@if (reward.item) { <span>{{ reward.item }}</span> }</div>
       <div class="mastery-grid">
         @for (award of masteryAwards(); track award.monsterId) {
           <article>
