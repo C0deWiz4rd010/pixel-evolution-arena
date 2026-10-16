@@ -191,7 +191,7 @@
 
 .stat-chip small {
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -203,7 +203,7 @@
   place-items: center;
   border: 1px solid currentColor;
   color: var(--line);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   text-shadow: 0 0 8px currentColor;
 }

@@ -52,7 +52,7 @@
   place-items: center;
   border: 1px solid currentColor;
   color: currentColor;
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   font-weight: 700;
 }
 
@@ -62,7 +62,7 @@
 
 .stage-label span:last-child {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .collection-grid {
@@ -160,7 +160,7 @@ app-monster-card {
 .card-status,
 .monster-id {
   color: var(--text);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   font-weight: 700;
 }
 
@@ -228,14 +228,14 @@ app-monster-card {
 
 .monster-meta {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .card-bottomline {
   border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
   padding-top: 0.2rem;
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .card-bottomline strong {
@@ -250,7 +250,7 @@ app-monster-card {
   border: 1px solid currentColor;
   background: rgba(0, 0, 0, 0.64);
   color: var(--danger);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   clip-path: var(--chamfer-tight);
 }
@@ -294,7 +294,7 @@ app-monster-card {
 .stage-standby span,
 .stage-standby small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -323,7 +323,7 @@ app-monster-card {
 
 .detail-topline {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -509,7 +509,7 @@ app-monster-card {
 
 .target-head span {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 
 .target-icon {
@@ -556,7 +556,7 @@ app-monster-card {
   border-bottom: 1px solid rgba(131, 182, 199, 0.15);
   padding: 0.24rem 0;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 
 .squad-slots {

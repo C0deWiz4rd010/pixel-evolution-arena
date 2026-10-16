@@ -31,7 +31,7 @@
 .family-heading span,
 .recent-discoveries > div > span {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -94,7 +94,7 @@
 }
 .discovery-goal span {
   color: var(--stage-color, var(--line));
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .discovery-goal strong {
@@ -190,7 +190,7 @@
 }
 .node-state {
   color: var(--stage-color, var(--muted));
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.06em;
 }
@@ -230,7 +230,7 @@
   border-radius: 50%;
   background: var(--success);
   color: #02100a;
-  font-size: 0.55rem;
+  font-size: var(--text-micro);
   font-weight: 900;
 }
 .route-link {
@@ -244,7 +244,7 @@
 .family-overflow-note {
   margin: -0.35rem 0 0;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   text-align: right;
 }
 .recent-discoveries {
@@ -276,7 +276,7 @@
   background: color-mix(in srgb, var(--line) 4%, transparent);
 }
 .recent-list span {
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 
 @include bp.media-max(xxl) {

@@ -59,6 +59,8 @@
     0 calc(100% - var(--corner-cut-wide)),
     0 var(--corner-cut-wide)
   );
+  /* Battle stage: two opposing cut corners, a stronger frame than regular panels. */
+  --chamfer-stage: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
   --font-display: 'Pixelify Sans Local', 'Cascadia Mono', monospace;
   --font-body: 'Space Grotesk Local', 'Segoe UI', sans-serif;
   --font: var(--font-body);
@@ -79,6 +81,8 @@
   --text-xs: 0.74rem;
   --text-sm: 0.8rem;
   --text-kicker: 0.7rem;
+  /* Readability floor for labels, chips and meta text (~11.5px). Nothing renders smaller. */
+  --text-micro: 0.72rem;
   --sprite-base: 64px;
   --sprite-tiny: 46px;
   --sprite-small: 60px;
@@ -136,4 +140,5 @@
   --chamfer: inset(0 round 10px);
   --chamfer-tight: inset(0 round 7px);
   --chamfer-wide: inset(0 round 12px);
+  --chamfer-stage: inset(0 round 12px);
 }

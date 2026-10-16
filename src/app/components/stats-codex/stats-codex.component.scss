@@ -119,7 +119,7 @@
     color: #e6f0ff;
     em {
       font-style: normal;
-      font-size: 0.68rem;
+      font-size: var(--text-micro);
       letter-spacing: 0.06em;
       color: rgba(160, 190, 230, 0.7);
       text-transform: uppercase;
@@ -173,7 +173,7 @@
     color: #e6f0ff;
   }
   small {
-    font-size: 0.68rem;
+    font-size: var(--text-micro);
     color: rgba(180, 200, 230, 0.6);
   }
 

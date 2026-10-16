@@ -82,7 +82,7 @@
 
 .stage-band > span:last-of-type {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .stage-band i {

@@ -48,7 +48,7 @@
 }
 .step-counter {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }

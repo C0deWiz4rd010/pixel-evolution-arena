@@ -19,7 +19,7 @@
 .section-title span,
 .analysis-card > span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -40,7 +40,7 @@
 .team-power span,
 .team-power small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .team-power strong {
@@ -67,7 +67,7 @@
 .squad-primary-actions span,
 .squad-primary-actions small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .squad-primary-actions strong {
   font-size: 0.9rem;
@@ -120,7 +120,7 @@
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .slot-role span {
@@ -152,7 +152,7 @@
 .slot-copy span,
 .slot-copy small {
   color: var(--muted);
-  font-size: 0.67rem;
+  font-size: var(--text-micro);
 }
 .slot-copy h3 {
   margin: 0.15rem 0;
@@ -225,7 +225,7 @@
 }
 .reserve-card em {
   color: var(--success);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   font-style: normal;
   text-transform: uppercase;
 }
@@ -253,7 +253,7 @@
 }
 .squad-disclosure summary strong {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .analysis-grid {
   display: grid;
@@ -273,7 +273,7 @@
 .analysis-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 .power-track {
@@ -308,7 +308,7 @@
 .squad-orders span,
 .squad-orders small {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .squad-orders button {
   min-width: 130px;

@@ -66,7 +66,7 @@
   place-items: center;
   border: 1px solid currentColor;
   color: inherit;
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 
 @include bp.media-max(nav) {
@@ -90,7 +90,7 @@
     flex-direction: column;
     gap: 0.2rem;
     padding: 0.38rem 0.16rem;
-    font-size: 0.66rem;
+    font-size: var(--text-micro);
   }
 
   .primary-nav-icon {

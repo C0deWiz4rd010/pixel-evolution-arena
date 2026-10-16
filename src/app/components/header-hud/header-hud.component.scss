@@ -129,7 +129,7 @@
     padding: 0.3rem;
   }
   .stat-chip .stat-label {
-    font-size: 0.58rem;
+    font-size: var(--text-micro);
   }
   .stat-chip strong {
     font-size: 0.84rem;

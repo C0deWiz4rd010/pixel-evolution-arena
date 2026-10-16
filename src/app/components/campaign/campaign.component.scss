@@ -20,7 +20,7 @@
 .chapter-card > div:nth-child(2) > span,
 .prep-grid span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -43,7 +43,7 @@
 .boss-warning span,
 .boss-warning small {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 .boss-warning strong {
   color: var(--danger);
@@ -77,14 +77,14 @@
   padding: 0.35rem;
   border: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 .campaign-command button {
   min-height: 44px;
 }
 .command-state {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .chapter-path {
   display: grid;
@@ -169,7 +169,7 @@
 }
 .campaign-disclosure summary strong {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .prep-grid {
   display: grid;
@@ -186,7 +186,7 @@
 .prep-grid p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .prep-grid small {
   color: var(--coin);
@@ -221,7 +221,7 @@
 .boss-grid small,
 .boss-grid p {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .boss-grid p {
   margin: 0;

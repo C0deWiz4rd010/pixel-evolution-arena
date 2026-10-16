@@ -37,7 +37,7 @@
 .save-state-chip span,
 .save-state-chip small {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .save-state-chip strong {
   color: var(--line-bright);
@@ -71,7 +71,7 @@
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--line) 25%, transparent);
   color: var(--line);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 .settings-nav button.active {
   border-color: var(--line-bright);
@@ -132,7 +132,7 @@
 .style-option small,
 .toggle-row small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 .split-group {
@@ -232,7 +232,7 @@ input[type='range'] {
 .system-card span,
 .system-card p {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .system-card.tone-ready {
   border-color: color-mix(in srgb, var(--success) 35%, transparent);
@@ -287,7 +287,7 @@ input[type='range'] {
   gap: 0.4rem;
   align-items: center;
   color: var(--success);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .settings-footer i {

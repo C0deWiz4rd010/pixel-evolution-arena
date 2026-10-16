@@ -28,7 +28,7 @@
 
 .medals-title span {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -40,7 +40,7 @@
 .medals-title p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 
 .medals-progress {
@@ -56,7 +56,7 @@
 
 .medals-progress span {
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -100,7 +100,7 @@
 
 .focus-head span {
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -117,7 +117,7 @@
 
 .focus-card p {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 
 .medal-card {
@@ -179,7 +179,7 @@
 
 .medal-body small {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .medal-bar {
@@ -208,7 +208,7 @@
 
 .medal-meta {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -218,7 +218,7 @@
   top: 0.4rem;
   right: 0.4rem;
   color: var(--muted);
-  font-size: 0.5rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -239,7 +239,7 @@
 
 .side-kicker {
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -270,12 +270,12 @@
 .daily-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 
 .daily-card small {
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 
 .stat-readout {
@@ -303,7 +303,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.3);
   color: var(--muted);
-  font-size: 0.64rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   clip-path: var(--chamfer-tight);
 }

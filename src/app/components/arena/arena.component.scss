@@ -12,7 +12,7 @@
 }
 .eyebrow {
   color: var(--line-bright);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -47,7 +47,7 @@
 .arena-status span,
 .arena-status small {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .arena-status strong {
   color: var(--success);
@@ -80,7 +80,7 @@
 }
 .battle-phases li span {
   color: var(--line);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .arena-grid {
@@ -105,7 +105,7 @@
 }
 .stage-toolbar span {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .battle-speed-bar {
@@ -134,7 +134,7 @@
 }
 .combat-timeline > span {
   color: var(--line-bright);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .combat-timeline > div {
@@ -155,7 +155,7 @@
 }
 .combat-timeline small {
   color: inherit;
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
 }
 .combat-timeline > i {
   height: 1px;
@@ -167,14 +167,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   background: linear-gradient(180deg, rgba(4, 18, 35, 0.7), rgba(0, 5, 13, 0.9));
-  clip-path: polygon(
-    0 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% 100%,
-    14px 100%,
-    0 calc(100% - 14px)
-  );
+  clip-path: var(--chamfer-stage);
 }
 .pixi-battle-stage {
   display: block;
@@ -197,7 +190,7 @@
 .stage-standby span,
 .stage-standby small {
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .stage-standby strong {
@@ -226,7 +219,7 @@
 }
 .tactical-pulse header span {
   color: var(--line);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .tactical-pulse header > strong {
@@ -241,7 +234,7 @@
 .tactical-pulse > p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .tactical-pulse > p b {
   color: var(--line-bright);
@@ -262,7 +255,7 @@
 .pulse-options button > span,
 .pulse-options button small {
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 .pulse-options button > span {
   text-transform: uppercase;
@@ -322,7 +315,7 @@
 .command-intel span,
 .command-intel small {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -345,7 +338,7 @@
 }
 .formation-summary span {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .formation-summary section > div > strong {
@@ -386,7 +379,7 @@
 .versus small {
   max-width: 90px;
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 
 .battle-brief {
@@ -399,7 +392,7 @@
   background: rgba(0, 7, 15, 0.68);
 }
 .battle-brief header p {
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .brief-section {
   display: grid;
@@ -420,14 +413,14 @@
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--line) 28%, transparent);
   color: var(--line);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 .section-label > div {
   display: grid;
 }
 .section-label small {
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
 }
 .choice-grid,
 .plan-grid {
@@ -458,7 +451,7 @@
 }
 .plan-grid button small {
   color: var(--muted);
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
   line-height: 1.25;
 }
 .overdrive-toggle {
@@ -491,7 +484,7 @@
 .advanced-brief summary span,
 .battle-log summary span {
   color: var(--line-bright);
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 .support-items article {
   display: grid;
@@ -500,7 +493,7 @@
   align-items: center;
   padding: 0.35rem;
   border-top: 1px solid color-mix(in srgb, var(--line) 10%, transparent);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .mission-readout {
   display: grid;
@@ -514,7 +507,7 @@
 }
 .mission-readout > div:first-child span {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .mission-readout > div:first-child strong {
@@ -534,7 +527,7 @@
 .mission-readout p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.63rem;
+  font-size: var(--text-micro);
   line-height: 1.3;
 }
 .reward-line {
@@ -546,7 +539,7 @@
   padding: 0.25rem 0.35rem;
   border: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   color: var(--coin);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 .prep-actions {
   display: grid;
@@ -579,7 +572,7 @@
 }
 .reward-line.large span {
   padding: 0.35rem 0.55rem;
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .mastery-grid {
   display: grid;
@@ -605,7 +598,7 @@
 .mastery-grid p,
 .mastery-grid small {
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
 }
 .mastery-head b {
   color: var(--special);
@@ -624,7 +617,7 @@
   padding: 0.3rem;
   border: 1px solid var(--coin);
   color: var(--coin);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .result-actions {
   display: flex;
@@ -636,7 +629,7 @@
   padding: 0.4rem 0.6rem;
   border-top: 1px solid color-mix(in srgb, var(--line) 10%, transparent);
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .battle-log .log-reward,
 .battle-log .log-level {

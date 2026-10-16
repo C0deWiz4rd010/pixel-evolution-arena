@@ -15,7 +15,7 @@
   display: flex;
   justify-content: space-between;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .rarity {
@@ -59,7 +59,7 @@
   padding: 0.2rem 0.35rem;
   border: 1px solid color-mix(in srgb, var(--line) 25%, transparent);
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .detail-identity small {
@@ -70,7 +70,7 @@
   grid-template-columns: auto;
   gap: 0.25rem;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .bar-track {
   height: 8px;
@@ -120,7 +120,7 @@
 .mastery-stats,
 .mastery-panel p {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 .mastery-title strong {
   color: var(--special);
@@ -144,14 +144,14 @@
 }
 .mastery-moves span {
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .mastery-moves strong {
   padding: 0.18rem 0.3rem;
   border: 1px solid var(--coin);
   color: var(--coin);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .detail-actions {
   display: grid;
@@ -166,7 +166,7 @@
 .action-note {
   margin: 0;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 
 .training-plan {
@@ -193,7 +193,7 @@
 }
 .training-plan span {
   color: var(--plan-color);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -206,7 +206,7 @@
 }
 .training-plan p {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 
@@ -268,7 +268,7 @@
 }
 .target-copy span {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
 }
 .compact-requirements {
   display: flex;
@@ -278,7 +278,7 @@
 .compact-requirements span {
   padding: 0.2rem 0.3rem;
   border: 1px solid currentColor;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 .compact-requirements .met {
   color: var(--success);
@@ -312,7 +312,7 @@
 .drill-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 .drill-topline span {

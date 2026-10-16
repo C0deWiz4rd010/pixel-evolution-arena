@@ -59,7 +59,7 @@
 .manual-stat span,
 .log-entry span {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -190,7 +190,7 @@
 .prep-card span,
 .dossier-row span {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -232,7 +232,7 @@
 
 .prep-card small {
   color: var(--line);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -347,7 +347,7 @@
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
   color: var(--line);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 
 .rule-line strong,
@@ -367,7 +367,7 @@
 
 .rule-line small {
   color: var(--success);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   text-align: right;
   text-transform: uppercase;
   white-space: nowrap;
@@ -409,7 +409,7 @@
 .route-target span {
   grid-row: span 2;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 
 .route-target.ready {
@@ -477,7 +477,7 @@
   place-items: center;
   border: 1px solid currentColor;
   color: currentColor;
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 
 .manual-console {

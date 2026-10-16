@@ -20,7 +20,7 @@
 .index-heading span,
 .selected-record > span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -41,7 +41,7 @@
 .archive-sync > span,
 .archive-sync small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .archive-sync strong {
   color: var(--success);
@@ -114,7 +114,7 @@
 }
 .archive-filters label > span {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .archive-filters input,
@@ -187,7 +187,7 @@
   grid-column: 1/-1;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -245,7 +245,7 @@
 .card-state {
   width: 100%;
   color: var(--stage-color, var(--line));
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-align: left;
 }
 .dex-sprite {
@@ -307,7 +307,7 @@
   justify-content: space-between;
   padding: 0.35rem;
   border: 1px solid color-mix(in srgb, var(--line) 14%, transparent);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .record-stats strong {
   color: var(--success);

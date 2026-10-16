@@ -19,7 +19,7 @@
 .section-title span,
 .loadout-recommendation > div > span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -60,7 +60,7 @@
 }
 .loadout-recommendation small {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .loadout-metric strong {
   color: var(--success);
@@ -149,7 +149,7 @@
 }
 .gear-slot > div:first-child > span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 .gear-slot small {
@@ -167,12 +167,12 @@
 }
 .slot-options > span {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .mini {
   min-height: 36px;
   padding: 0.25rem 0.45rem;
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 .mini.active {
   border-color: var(--success);
@@ -194,7 +194,7 @@
 }
 .loadout-disclosure summary strong {
   color: var(--line-bright);
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
 }
 .blueprint-grid,
 .locker-list {
@@ -224,7 +224,7 @@
 .blueprint p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .blueprint button {
   min-height: 40px;

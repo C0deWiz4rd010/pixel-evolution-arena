@@ -20,7 +20,7 @@
 .launch-panel > div:first-child > span,
 .run-summary > span {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -39,7 +39,7 @@
 }
 .core-balance span {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .core-balance strong {
   color: var(--special);
@@ -71,7 +71,7 @@
   padding: 0.35rem 0.5rem;
   border: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 .run-metrics strong {
   color: var(--text);
@@ -152,7 +152,7 @@
 .run-hud span,
 .run-hud small {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 .run-hud i {
   height: 8px;
@@ -255,7 +255,7 @@
 }
 .expedition-disclosure summary strong {
   color: var(--line-bright);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
 }
 .preflight-grid {
   display: grid;
@@ -275,7 +275,7 @@
 .preflight-grid span,
 .preflight-grid small {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 @include bp.media-max(md) {
   .expedition-head {
