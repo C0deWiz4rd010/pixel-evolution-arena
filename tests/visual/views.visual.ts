@@ -70,6 +70,16 @@ for (const viewport of [
           maxDiffPixelRatio: 0.002,
           mask: [page.locator('.pixi-host canvas, app-expedition-map canvas')],
         });
+        // Unroll the single scroll container so everything below the fold is compared too.
+        await page.addStyleTag({ content: 'html, body, .app-shell, .play-surface { height: auto !important; max-height: none !important; overflow: visible !important; }' });
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(`${viewport.name}-${entry.key}-full.png`, {
+          fullPage: true,
+          animations: 'disabled',
+          caret: 'hide',
+          maxDiffPixelRatio: 0.002,
+          mask: [page.locator('.pixi-host canvas, app-expedition-map canvas')],
+        });
       });
     }
   });
