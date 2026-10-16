@@ -1,0 +1,65 @@
+@use 'breakpoints' as bp;
+
+// Cross-view mobile hardening: overflow guards and dense-HUD readability on small phones.
+
+/* ===========================================================================
+   Cross-view mobile hardening
+   Global safety nets that apply to every view without touching component SCSS.
+   Targets the real issues found on small phones: horizontal overflow,
+   hard-to-discover swim lanes, and media that escapes its container.
+   =========================================================================== */
+
+/* Media never forces horizontal page scroll. */
+img,
+canvas,
+svg,
+video {
+  max-width: 100%;
+}
+
+@include bp.media-max(nav) {
+  /* The single internal scroll region should never scroll sideways: a wide
+     grid is a layout bug, not a feature — clip it instead of leaking overflow. */
+  body .app-shell .play-surface {
+    overflow-x: hidden;
+  }
+
+  /* Intentional horizontal swim lanes (settings/collection/contracts/orders)
+     get momentum scrolling + gentle snapping so off-screen cards are reachable
+     and feel discoverable on touch. */
+  body .app-shell :is(
+    .stage-progress,
+    .option-cards,
+    .style-options,
+    .system-check-grid,
+    .status-switch,
+    .contract-grid,
+    .squad-order-grid,
+    .scan-list
+  ) {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  body .app-shell :is(
+    .stage-progress,
+    .option-cards,
+    .style-options,
+    .system-check-grid,
+    .status-switch
+  ) > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Very small phones: keep the dense HUD readable instead of cramped. */
+@include bp.media-max(xs) {
+  body .app-shell .header-hud .hud-stats {
+    gap: 0.35rem;
+  }
+
+  body .app-shell .header-hud .stat-chip {
+    padding-inline: 0.4rem;
+  }
+}

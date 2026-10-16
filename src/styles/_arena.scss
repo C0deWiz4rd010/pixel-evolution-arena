@@ -1,0 +1,96 @@
+@use 'breakpoints' as bp;
+
+// Arena surfaces that live globally to keep the Arena component under its style budget.
+
+/* Arena Battle Contracts: global to avoid growing the Arena component style budget. */
+.battle-contract-board {
+  display: grid;
+  gap: 0.48rem;
+  padding: 0.52rem;
+  border: 1px solid rgba(19, 216, 255, 0.24);
+  background:
+    linear-gradient(90deg, rgba(19, 216, 255, 0.09), transparent 56%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 8px),
+    rgba(0, 0, 0, 0.3);
+  clip-path: var(--chamfer);
+}
+
+.battle-contract-card {
+  --contract-color: var(--line);
+  display: grid;
+  grid-template-rows: auto auto minmax(2.4em, 1fr) auto auto;
+  gap: 0.24rem;
+  min-width: 0;
+  padding: 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--contract-color) 42%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--contract-color) 14%, transparent), transparent 62%),
+    rgba(2, 8, 16, 0.72);
+  color: var(--contract-color);
+  clip-path: var(--chamfer-tight);
+}
+
+.battle-contract-card.tone-safe {
+  --contract-color: var(--line-bright);
+}
+
+.battle-contract-card.tone-daily {
+  --contract-color: var(--coin);
+}
+
+.battle-contract-card.tone-growth {
+  --contract-color: var(--success);
+}
+
+.battle-contract-card.tone-payout {
+  --contract-color: var(--special);
+}
+
+.battle-contract-card.tone-blocked {
+  --contract-color: var(--danger);
+}
+
+.battle-contract-card.disabled {
+  opacity: 0.62;
+}
+
+.battle-contract-card > strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.battle-contract-card > small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.63rem;
+  line-height: 1.2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.battle-contract-board {
+  scroll-margin-top: 12rem;
+}
+
+@include bp.media-max(md) {
+
+  .battle-contract-card {
+    flex: 0 0 min(86vw, 320px);
+    min-height: 172px;
+  }
+}
+
+/* Wide screens: let the Arena grow with its command stack instead of clipping actions. */
+@media (min-width: 1200px) {
+
+  .battle-terminal {
+    min-height: 0;
+    overflow: visible;
+  }
+}

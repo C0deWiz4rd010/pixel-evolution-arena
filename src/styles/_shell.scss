@@ -1,0 +1,338 @@
+// App shell, play surface, HUD panels and the header stat chips.
+
+.app-shell {
+  width: min(1760px, 100%);
+  height: 100dvh;
+  margin: 0 auto;
+  padding: 0.65rem 0.75rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.play-surface {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.hud-panel {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgba(19, 216, 255, 0.075) 1px, transparent 1px),
+    linear-gradient(rgba(19, 216, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, var(--panel-strong), var(--panel));
+  background-size: 28px 28px, 28px 28px, auto;
+  box-shadow: 0 0 0 1px rgba(19, 216, 255, 0.09) inset, 0 0 24px rgba(19, 216, 255, 0.12);
+  clip-path: var(--chamfer-wide);
+}
+
+.hud-panel::before {
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
+  content: "";
+  border: 1px solid rgba(156, 246, 255, 0.12);
+  background:
+    linear-gradient(90deg, var(--line-bright) 0 16px, transparent 16px calc(100% - 16px), var(--line-bright) calc(100% - 16px) 100%),
+    linear-gradient(180deg, var(--line-bright) 0 1px, transparent 1px calc(100% - 1px), var(--line-bright) calc(100% - 1px) 100%);
+  background-size: 100% 1px, 1px 100%;
+  background-repeat: no-repeat;
+  background-position: top left, top left;
+  clip-path: inherit;
+  opacity: 0.44;
+}
+
+.hud-panel::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  background: linear-gradient(115deg, transparent 0 38%, rgba(156, 246, 255, 0.08) 40%, transparent 43% 100%);
+  background-size: 240% 100%;
+  clip-path: inherit;
+  opacity: 0.76;
+}
+
+.header-hud {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: stretch;
+  padding: 0.46rem 0.6rem;
+  flex-shrink: 0;
+}
+
+.brand-block {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand-mark-image {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: rgba(19, 216, 255, 0.13);
+  color: var(--line);
+  font-size: 1.4rem;
+  text-shadow: 0 0 14px currentColor;
+  clip-path: var(--chamfer);
+}
+
+.brand-mark-image {
+  padding: 0.12rem;
+  object-fit: contain;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.brand-copy h1 {
+  margin: 0;
+  color: var(--text);
+  overflow: hidden;
+  font-size: clamp(1.1rem, 1.8vw, 1.7rem);
+  text-shadow: 0 0 10px rgba(19, 216, 255, 0.7), 0 0 24px rgba(19, 216, 255, 0.3);
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.brand-copy p {
+  margin: 0.15rem 0 0;
+  overflow: hidden;
+  color: #65ebff;
+  font-size: clamp(0.6rem, 0.75vw, 0.76rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem 0.55rem;
+  align-items: stretch;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.status-cluster {
+  display: flex;
+  gap: 0.36rem;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.stat-chip {
+  display: flex;
+  gap: 0.42rem;
+  align-items: center;
+  min-height: 42px;
+  padding: 0.3rem 0.52rem;
+  border: 1px solid var(--line-soft);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    rgba(0, 0, 0, 0.25);
+  background-size: 16px 16px, auto;
+  clip-path: var(--chamfer);
+}
+
+.stat-body {
+  display: grid;
+  gap: 0.04rem;
+  min-width: 0;
+}
+
+.stat-chip strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1.08rem;
+  line-height: 1.02;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-chip small {
+  color: var(--muted);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+
+.stat-icon {
+  display: grid;
+  align-self: center;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid currentColor;
+  color: var(--line);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.stat-chip .stat-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Compact status badges (streak / overdrive / daily) */
+.status-badge {
+  display: grid;
+  gap: 0.04rem;
+  align-content: center;
+  justify-items: center;
+  min-width: 56px;
+  min-height: 42px;
+  padding: 0.26rem 0.42rem;
+  border: 1px solid var(--line-soft);
+  background: rgba(0, 0, 0, 0.25);
+  text-align: center;
+  clip-path: var(--chamfer);
+}
+
+.status-badge strong {
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.status-badge.streak.on {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
+.status-badge.streak.on strong {
+  color: var(--success);
+  text-shadow: 0 0 12px currentColor;
+}
+
+.status-badge.overdrive.on {
+  border-color: var(--dna);
+  box-shadow: 0 0 14px rgba(187, 105, 255, 0.32);
+}
+
+.status-badge.overdrive.on strong {
+  color: var(--dna);
+  text-shadow: 0 0 12px currentColor;
+}
+
+.status-badge.overdrive.armed {
+  border-color: var(--coin);
+  box-shadow: 0 0 16px rgba(255, 220, 66, 0.4);
+}
+
+.status-badge.overdrive.armed strong {
+  color: var(--coin);
+  text-shadow: 0 0 12px currentColor;
+}
+
+.status-badge.daily.on {
+  border-color: var(--success);
+  box-shadow: 0 0 14px rgba(131, 255, 69, 0.28);
+}
+
+.status-badge.daily.on strong {
+  color: var(--success);
+}
+
+.creature-sprite {
+  display: block;
+  width: var(--sprite-base);
+  height: var(--sprite-base);
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px currentColor) saturate(1.2) contrast(1.04);
+}
+
+.creature-sprite.large {
+  width: var(--sprite-large);
+  height: var(--sprite-large);
+}
+
+.creature-sprite.node {
+  width: var(--sprite-node);
+  height: var(--sprite-node);
+}
+
+.creature-sprite.target {
+  width: var(--sprite-target);
+  height: var(--sprite-target);
+}
+
+.creature-sprite.hero {
+  width: var(--sprite-hero);
+  height: var(--sprite-hero);
+  filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 36%, transparent)) saturate(1.24);
+}
+
+.sprite-node {
+  position: relative;
+  isolation: isolate;
+}
+
+.sprite-node::before {
+  position: absolute;
+  inset: 0.2rem;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, currentColor 38%, transparent);
+  background:
+    linear-gradient(90deg, transparent 0 44%, color-mix(in srgb, currentColor 18%, transparent) 45% 55%, transparent 56% 100%),
+    linear-gradient(180deg, transparent 0 44%, color-mix(in srgb, currentColor 14%, transparent) 45% 55%, transparent 56% 100%);
+  content: "";
+  opacity: 0.65;
+  clip-path: var(--chamfer-tight);
+}
+
+.sprite-node::after {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.36rem;
+  left: 0.4rem;
+  z-index: -1;
+  height: 1px;
+  background: currentColor;
+  box-shadow: 0 -18px 0 color-mix(in srgb, currentColor 18%, transparent), 0 18px 0 color-mix(in srgb, currentColor 18%, transparent);
+  content: "";
+  opacity: 0.36;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: var(--text-kicker);
+  text-transform: uppercase;
+}
+
+.coins .stat-icon,
+.coins strong {
+  color: var(--coin);
+}
+
+.dna .stat-icon,
+.dna strong {
+  color: var(--dna);
+}
+
+.wins .stat-icon,
+.wins strong,
+.power strong {
+  color: var(--success);
+}
+
+.save .stat-icon,
+.save strong {
+  color: var(--line-bright);
+}

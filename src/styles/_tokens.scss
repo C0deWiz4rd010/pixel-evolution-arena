@@ -1,0 +1,130 @@
+// Design tokens: colors, stage palette, surfaces, chamfers, type scale, sprite sizes, theme profiles.
+
+:root {
+  color-scheme: dark;
+  --bg: #020711;
+  --bg-2: #04111d;
+  --panel: rgba(3, 13, 24, 0.91);
+  --panel-strong: rgba(6, 22, 37, 0.97);
+  --panel-glass: rgba(0, 0, 0, 0.34);
+  --line: #13d8ff;
+  --line-bright: #9cf6ff;
+  --line-soft: rgba(19, 216, 255, 0.28);
+  --grid-line: rgba(19, 216, 255, 0.1);
+  --text: #eafaff;
+  --muted: #aed9e7;
+  --dim: #87aab9;
+  --danger: #ff564d;
+  --success: #83ff45;
+  --coin: #ffdc42;
+  --dna: #bb69ff;
+  --baby: #7cff3a;
+  --intraining: #18d2ff;
+  --rookie: #ffe12b;
+  --champion: #ff9c24;
+  --ultimate: #ff453b;
+  --mega: #b663ff;
+  --special: #ff55d8;
+  --radius: 4px;
+  --corner-cut: 4px;
+  --corner-cut-tight: 3px;
+  --corner-cut-wide: 5px;
+  --chamfer: polygon(
+    var(--corner-cut) 0,
+    calc(100% - var(--corner-cut)) 0,
+    100% var(--corner-cut),
+    100% calc(100% - var(--corner-cut)),
+    calc(100% - var(--corner-cut)) 100%,
+    var(--corner-cut) 100%,
+    0 calc(100% - var(--corner-cut)),
+    0 var(--corner-cut)
+  );
+  --chamfer-tight: polygon(
+    var(--corner-cut-tight) 0,
+    calc(100% - var(--corner-cut-tight)) 0,
+    100% var(--corner-cut-tight),
+    100% calc(100% - var(--corner-cut-tight)),
+    calc(100% - var(--corner-cut-tight)) 100%,
+    var(--corner-cut-tight) 100%,
+    0 calc(100% - var(--corner-cut-tight)),
+    0 var(--corner-cut-tight)
+  );
+  --chamfer-wide: polygon(
+    var(--corner-cut-wide) 0,
+    calc(100% - var(--corner-cut-wide)) 0,
+    100% var(--corner-cut-wide),
+    100% calc(100% - var(--corner-cut-wide)),
+    calc(100% - var(--corner-cut-wide)) 100%,
+    var(--corner-cut-wide) 100%,
+    0 calc(100% - var(--corner-cut-wide)),
+    0 var(--corner-cut-wide)
+  );
+  --font-display: "Pixelify Sans Local", "Cascadia Mono", monospace;
+  --font-body: "Space Grotesk Local", "Segoe UI", sans-serif;
+  --font: var(--font-body);
+  --surface-canvas: #030b14;
+  --surface-card: #07131f;
+  --surface-card-raised: #0a1927;
+  --surface-focus: #0b1d2d;
+  --card-border: rgba(132, 184, 207, 0.2);
+  --card-border-strong: rgba(19, 216, 255, 0.52);
+  --card-radius: 6px;
+  --card-padding: 0.78rem;
+  --card-gap: 0.7rem;
+  --card-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+  --focus-shadow: 0 0 0 1px rgba(156, 246, 255, 0.2), 0 12px 30px rgba(0, 0, 0, 0.28);
+  --texture-opacity: 0.2;
+  --text-meta: 0.75rem;
+  --text-body: 0.875rem;
+  --text-xs: 0.74rem;
+  --text-sm: 0.8rem;
+  --text-kicker: 0.7rem;
+  --sprite-base: 64px;
+  --sprite-tiny: 46px;
+  --sprite-small: 60px;
+  --sprite-medium: 72px;
+  --sprite-large: 108px;
+  --sprite-node: 96px;
+  --sprite-target: 66px;
+  --sprite-hero: 128px;
+}
+
+:root[data-typography="pixel"] {
+  --font-body: "Pixelify Sans Local", "Cascadia Mono", monospace;
+}
+
+:root[data-typography="tech-sans"] {
+  --font-display: "Space Grotesk Local", "Segoe UI", sans-serif;
+}
+
+:root[data-visual-style="pixel-arcade"] {
+  --surface-card: #041421;
+  --surface-card-raised: #071c2b;
+  --surface-focus: #082335;
+  --card-border: rgba(19, 216, 255, 0.34);
+  --card-border-strong: rgba(124, 255, 58, 0.72);
+  --card-radius: 0;
+  --card-padding: 0.64rem;
+  --card-gap: 0.52rem;
+  --card-shadow: 4px 4px 0 rgba(0, 0, 0, 0.38);
+  --focus-shadow: 0 0 0 2px rgba(124, 255, 58, 0.42), 5px 5px 0 rgba(0, 0, 0, 0.34);
+  --texture-opacity: 0.55;
+  --chamfer: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+}
+
+:root[data-visual-style="tactical-minimal"] {
+  --surface-card: #0a141e;
+  --surface-card-raised: #0d1924;
+  --surface-focus: #101f2b;
+  --card-border: rgba(174, 217, 231, 0.13);
+  --card-border-strong: rgba(174, 217, 231, 0.3);
+  --card-radius: 10px;
+  --card-padding: 0.92rem;
+  --card-gap: 0.9rem;
+  --card-shadow: none;
+  --focus-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --texture-opacity: 0.04;
+  --chamfer: inset(0 round 10px);
+  --chamfer-tight: inset(0 round 7px);
+  --chamfer-wide: inset(0 round 12px);
+}

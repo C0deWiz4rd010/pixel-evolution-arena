@@ -1,0 +1,270 @@
+// Hover affordances, stage color classes and decorative motion (only when motion is allowed).
+
+@media (hover: hover) {
+  .monster-card:hover:not(:disabled),
+  .dex-card:hover:not(:disabled),
+  .target-card:hover,
+  .stage-band:hover,
+  .manual-grid article:hover,
+  .manual-stat:hover {
+    border-color: color-mix(in srgb, currentColor 72%, var(--line-bright));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, currentColor 28%, transparent) inset,
+      0 0 22px color-mix(in srgb, currentColor 30%, transparent);
+  }
+
+  .monster-card:hover:not(:disabled) .creature-sprite,
+  .dex-card:hover:not(:disabled) .creature-sprite,
+  .target-card:hover .creature-sprite,
+  .squad-slot:hover .creature-sprite {
+    filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 34%, transparent)) saturate(1.28);
+  }
+}
+
+.stage-band-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(106px, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.stage-band {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.1rem 0.45rem;
+  min-height: 74px;
+  overflow: hidden;
+  border-color: color-mix(in srgb, currentColor 50%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, currentColor 16%, transparent) 1px, transparent 1px),
+    rgba(0, 0, 0, 0.3);
+  background-size: 14px 14px, auto;
+  text-align: left;
+  clip-path: var(--chamfer);
+}
+
+.stage-band::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+  content: "";
+  opacity: 0.62;
+}
+
+.stage-band .stage-glyph {
+  grid-row: span 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid currentColor;
+  font-weight: 800;
+}
+
+.stage-band strong,
+.stage-band span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-band strong {
+  color: var(--text);
+  font-size: 0.76rem;
+}
+
+.stage-band > span:last-of-type {
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.stage-band i {
+  grid-column: 1 / -1;
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.stage-band em {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.collection-grid {
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+}
+
+.handbook-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 390px);
+}
+
+.manual-code {
+  border: 1px solid var(--line-soft);
+  padding: 0.42rem 0.62rem;
+  color: var(--line);
+  font-size: 0.72rem;
+}
+
+.manual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.manual-grid article {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.manual-grid h3,
+.handbook-side h3 {
+  color: var(--line);
+}
+
+.manual-grid li {
+  margin-bottom: 0.32rem;
+}
+
+.manual-stat {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.manual-stat span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.manual-stat strong {
+  color: var(--success);
+  font-size: 1.35rem;
+}
+
+.empty-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.stage-baby {
+  --stage-color: var(--baby);
+  color: var(--stage-color);
+}
+
+.stage-intraining {
+  --stage-color: var(--intraining);
+  color: var(--stage-color);
+}
+
+.stage-rookie {
+  --stage-color: var(--rookie);
+  color: var(--stage-color);
+}
+
+.stage-champion {
+  --stage-color: var(--champion);
+  color: var(--stage-color);
+}
+
+.stage-ultimate {
+  --stage-color: var(--ultimate);
+  color: var(--stage-color);
+}
+
+.stage-mega {
+  --stage-color: var(--mega);
+  color: var(--stage-color);
+}
+
+.stage-special {
+  --stage-color: var(--special);
+  color: var(--stage-color);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body::before {
+    animation: grid-drift 18s linear infinite;
+  }
+
+  .monster-card.selected .creature-sprite,
+  .target-card.ready .creature-sprite,
+  .squad-slot:not(.empty) .creature-sprite,
+  .dex-card.selected .creature-sprite {
+    animation: sprite-idle-pulse 2.4s steps(2, end) infinite;
+  }
+
+  .bar-track span,
+  .stage-band em {
+    animation: data-flow 1.7s ease-in-out infinite alternate;
+  }
+
+  .monster-card.selected .card-status,
+  .target-card.ready button {
+    animation: neon-breathe 1.8s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes grid-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(73.54px, 73.54px, 0);
+  }
+}
+
+@keyframes sprite-idle-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-2px) scale(1.025);
+  }
+}
+
+@keyframes data-flow {
+  from {
+    opacity: 0.72;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes neon-breathe {
+  from {
+    text-shadow: 0 0 8px currentColor;
+    box-shadow: 0 0 8px color-mix(in srgb, currentColor 22%, transparent);
+  }
+
+  to {
+    text-shadow: 0 0 16px currentColor;
+    box-shadow: 0 0 18px color-mix(in srgb, currentColor 36%, transparent);
+  }
+}
+
+@keyframes pulse-beam {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: scaleX(0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}

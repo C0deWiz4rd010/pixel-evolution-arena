@@ -1,0 +1,106 @@
+@use 'breakpoints' as bp;
+
+// Breakpoint adjustments for the shared components above.
+
+@include bp.media-max(ultra) {
+  .handbook-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  }
+}
+
+@include bp.media-max(wide) {
+  .header-hud {
+    grid-template-columns: 1fr;
+  }
+
+  .handbook-layout {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .medals-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-panel {
+    position: static;
+    max-height: none;
+  }
+}
+
+@include bp.media-max(md) {
+  .app-shell {
+    padding: 0.4rem 0.45rem 0.3rem;
+  }
+
+  .brand-block {
+    align-items: center;
+  }
+
+  .brand-mark-image {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-copy h1 {
+    font-size: clamp(0.95rem, 5vw, 1.25rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .brand-copy p {
+    font-size: clamp(0.56rem, 2.5vw, 0.7rem);
+  }
+
+  .stat-grid,
+  .squad-slots,
+  .manual-grid,
+  .stage-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .status-cluster {
+    flex-wrap: wrap;
+  }
+
+  .stage-label {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+
+  .stage-label span:last-child {
+    grid-column: 2;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+  }
+
+  .detail-hero {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+
+  .detail-icon {
+    width: 110px;
+    height: 110px;
+    font-size: 2.55rem;
+  }
+
+  .creature-sprite.hero {
+    width: 98px;
+    height: 98px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
