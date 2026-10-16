@@ -39,7 +39,8 @@ def collect_used_classes():
                     used.add(token)
                 for p in re.findall(r"([a-z][a-z0-9-]*-)\$\{", chunk):
                     prefixes.add(p)
-        prefixes.update(re.findall(r"'([a-z][a-z0-9-]*-)' *\+", text))
+        # 'portrait size-' + size  ->  prefix "size-" (last token of a concatenated literal)
+        prefixes.update(re.findall(r"([a-z][a-z0-9-]*-)['\"] *\+", text))
     return used, prefixes
 
 

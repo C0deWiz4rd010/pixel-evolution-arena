@@ -155,3 +155,11 @@ export function buildSquadOrders(snapshot: SquadOrderSnapshot): SquadOrderCard[]
 
   return orders.sort((left, right) => right.priority - left.priority).slice(0, 3);
 }
+
+/** Best reserve swap for the current squad, used by the swap-reserve order. */
+export interface SquadPatchInput {
+  squadSize: number;
+  candidateName: string | null;
+  weakestName: string | null;
+  powerGain: number;
+}

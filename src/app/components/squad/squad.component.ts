@@ -24,20 +24,6 @@ interface NextActionView {
   tone: 'add' | 'remove' | 'battle' | 'unlock';
 }
 
-interface TeamShapeStat {
-  label: string;
-  value: number;
-  percent: number;
-  tone: 'attack' | 'defense' | 'speed' | 'hp';
-}
-
-interface RoleFitView {
-  role: SlotRoleDescriptor;
-  monster: Monster | null;
-  score: number;
-  label: string;
-}
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-squad',
@@ -76,7 +62,6 @@ export class SquadComponent {
 
   readonly missingTypes = computed(() => this.coverageItems().filter((item) => !item.covered).map((item) => item.type));
   readonly coveredTypeCount = computed(() => this.coverageItems().filter((item) => item.covered).length);
-  readonly coveragePercent = computed(() => Math.round((this.coveredTypeCount() / this.game.types.length) * 100));
 
   readonly weakestMember = computed(() =>
     this.game.squad().reduce<Monster | null>((weakest, monster) => {
@@ -85,16 +70,6 @@ export class SquadComponent {
       }
 
       return this.power(monster) < this.power(weakest) ? monster : weakest;
-    }, null),
-  );
-
-  readonly strongestMember = computed(() =>
-    this.game.squad().reduce<Monster | null>((strongest, monster) => {
-      if (!strongest) {
-        return monster;
-      }
-
-      return this.power(monster) > this.power(strongest) ? monster : strongest;
     }, null),
   );
 
@@ -162,37 +137,9 @@ export class SquadComponent {
 
   readonly synergySignals = this.game.squadSynergies;
   readonly battleEdge = this.game.squadTypePressure;
-  readonly dangerForecast = this.game.upcomingArenaThreat;
   readonly activeFormation = this.game.activeFormation;
   readonly arenaDirective = this.game.arenaDirective;
   readonly squadOrders = this.game.squadOrderCards;
-
-  readonly teamShapeStats = computed<TeamShapeStat[]>(() => {
-    const squad = this.game.squad();
-    const slotCount = Math.max(1, squad.length);
-    const target = slotCount * 92;
-    const sum = (key: 'attack' | 'defense' | 'speed' | 'hp') => squad.reduce((total, monster) => total + monster[key], 0);
-
-    return [
-      { label: 'Attack', value: sum('attack'), percent: this.statPercent(sum('attack'), target), tone: 'attack' },
-      { label: 'Defense', value: sum('defense'), percent: this.statPercent(sum('defense'), target), tone: 'defense' },
-      { label: 'Speed', value: sum('speed'), percent: this.statPercent(sum('speed'), target), tone: 'speed' },
-      { label: 'HP Grid', value: sum('hp'), percent: this.statPercent(sum('hp'), target), tone: 'hp' },
-    ];
-  });
-
-  readonly roleFits = computed<RoleFitView[]>(() =>
-    this.squadSlots().map((slot) => {
-      const monster = slot.monster;
-      const score = monster ? this.roleFitScore(monster, slot.index) : 0;
-      return {
-        role: slot.role,
-        monster,
-        score,
-        label: monster ? this.roleFitLabel(score) : 'Offline',
-      };
-    }),
-  );
 
   readonly nextAction = computed<NextActionView>(() => {
     const candidate = this.recommendedCandidate();
@@ -317,31 +264,8 @@ export class SquadComponent {
     return 'No power gain';
   }
 
-  removeWeakest(): void {
-    const weakest = this.weakestMember();
-    if (!weakest) {
-      return;
-    }
-
-    this.game.squadOps.removeFromSquad(weakest.id);
-  }
-
-  replaceRecommended(): void {
-    const candidate = this.recommendedCandidate();
-    const weakest = this.weakestMember();
-    if (!candidate || !weakest || this.power(candidate) <= this.power(weakest)) {
-      return;
-    }
-
-    this.game.squadOps.replaceSquadMember(weakest.id, candidate.id);
-  }
-
   autoBuildSquad(): void {
     this.game.squadOps.autoBuildBestSquad();
-  }
-
-  formatModifier(value: number): string {
-    return `${value > 0 ? '+' : ''}${Math.round(value * 100)}%`;
   }
 
   onPresetDraftChange(name: string): void {
@@ -384,31 +308,4 @@ export class SquadComponent {
     return this.power(monster) + missingCoverageBonus + openSlotBonus + upgradeBonus;
   }
 
-  private statPercent(value: number, target: number): number {
-    return Math.max(0, Math.min(100, Math.round((value / target) * 100)));
-  }
-
-  private roleFitScore(monster: Monster, index: number): number {
-    if (index === 0) {
-      return this.statPercent(monster.hp + monster.speed, 185);
-    }
-
-    if (index === 1) {
-      return this.statPercent(monster.attack + monster.defense + monster.speed, 250);
-    }
-
-    return this.statPercent(monster.attack + monster.defense, 190);
-  }
-
-  private roleFitLabel(score: number): string {
-    if (score >= 88) {
-      return 'Prime fit';
-    }
-
-    if (score >= 68) {
-      return 'Stable fit';
-    }
-
-    return 'Needs tuning';
-  }
 }

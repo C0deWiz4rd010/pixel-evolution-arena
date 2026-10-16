@@ -26,7 +26,6 @@ export class ExpeditionComponent {
   readonly relics = this.game.expeditionRelics;
   readonly cores = this.game.expeditionCores;
   readonly relicChoices = this.game.relicChoices;
-  readonly relicDefs = this.game.relicDefs;
 
   readonly hpPercent = computed(() => {
     const run = this.run();

@@ -8,7 +8,6 @@ import { serializeMonsterProgress } from '../models/save-state.model';
 import {
   ArenaThreatProfile,
   BATTLE_CATEGORIES,
-  BATTLE_STANCES,
   BattleCategoryId,
   BattleCategoryProfile,
   BattleStanceId,
@@ -28,8 +27,7 @@ import {
   getBattleStanceProfile,
   milestoneLabel,
   predictBattleOutlook,
-  shouldAwardItem,
-} from '../rules/battle.rules';
+  shouldAwardItem } from '../rules/battle.rules';
 import { simulateBattle } from '../rules/combat.engine';
 import { ComboBeatResult, resolveComboBeat } from '../rules/combo.rules';
 import { CONSUMABLES } from '../data/items.data';
@@ -53,7 +51,7 @@ import { resolveMutator } from '../rules/mutators.rules';
 import { totalSquadTraitBonus } from '../rules/traits.rules';
 import { ExpeditionNodeType, ExpeditionState } from '../models/expedition.model';
 import { clearNode, generateExpedition, getNode, relicBonus, rollRelicChoices } from '../rules/expedition.rules';
-import { getRelicDef, RELIC_DEFS } from '../data/relics.data';
+import { getRelicDef } from '../data/relics.data';
 import {
   dataFromBattle,
   EVOLUTION_DATA_BONUS,
@@ -71,14 +69,7 @@ import {
   CommandCenterCard,
   MetaActionId,
 } from '../rules/command-center.rules';
-import {
-  estimateRouteWins,
-  RouteEtaInput,
-  SquadPatchInput,
-} from '../rules/tactical-directive.rules';
-import { AfterActionCard, buildAfterActionQueue } from '../rules/after-action.rules';
-import { BattleContractCard, buildBattleContracts } from '../rules/battle-contract.rules';
-import { buildSquadOrders, SquadOrderActionId, SquadOrderCard } from '../rules/squad-order.rules';
+import { buildSquadOrders, SquadOrderActionId, SquadOrderCard, SquadPatchInput } from '../rules/squad-order.rules';
 import { getMonsterTrainingDrills, getSquadTrainingDrill, MonsterTrainingDrill, MonsterTrainingDrillId, SquadTrainingDrill } from '../rules/training.rules';
 import {
   BattleMasteryAward,
@@ -131,16 +122,12 @@ import {
   rarityWeight,
   sanitizePlayerState } from './game-state.helpers';
 import {
-  ArenaMomentumPanel,
-  ArenaObjectiveCard,
   ArenaRewardForecast,
   ArenaRunDirective,
-  BattleMilestonePreview,
   EvolutionCandidate,
   GameSectionName,
   NextCommand,
-  RouteStatusChip,
-} from './game-state.models';
+  RouteStatusChip } from './game-state.models';
 
 export * from './game-state.models';
 
@@ -176,7 +163,6 @@ export class GameStateService {
   readonly battleCategory = computed<BattleCategoryProfile>(() => getBattleCategoryProfile(this.battleCategoryId()));
 
   // --- Hybrid-Steuerung + neue Modi (teils transient, teils aus PlayerState) ---
-  readonly battleStances = BATTLE_STANCES;
   readonly consumables = CONSUMABLES;
   readonly battleStanceId = signal<BattleStanceId>('balanced');
   readonly battleStance = computed(() => getBattleStanceProfile(this.battleStanceId()));
@@ -244,7 +230,6 @@ export class GameStateService {
   readonly dailyObjective = computed(() => getDailyObjectiveDef(this.dailyDirective().objectiveId));
   readonly dailyComplete = computed(() => isDailyComplete(this.dailyDirective()));
 
-
   /** Consumable ownership for loadout UI and shop. */
   readonly ownedConsumables = computed(() =>
     this.consumables.map((def) => ({ def, count: countInInventory(this.player().inventory, def.name) })),
@@ -272,7 +257,6 @@ export class GameStateService {
   });
 
   readonly squad = this.store.squad;
-
 
   readonly teamPower = computed(() => this.gear.effectiveSquad().reduce((total, monster) => total + getMonsterPower(monster), 0));
 
@@ -419,103 +403,6 @@ export class GameStateService {
   readonly winStreak = computed(() => this.player().winStreak);
   readonly bestWinStreak = computed(() => this.player().bestWinStreak);
 
-  readonly nextBattleMilestone = computed<BattleMilestonePreview | null>(() => {
-    const player = this.player();
-    const next = WIN_STREAK_MILESTONES.find(
-      (threshold) => player.battlesWon < threshold && !player.claimedMilestones.includes(threshold),
-    );
-
-    if (next === undefined) {
-      return null;
-    }
-
-    return {
-      threshold: next,
-      winsNeeded: next - player.battlesWon,
-      label: milestoneLabel(next),
-    };
-  });
-
-  readonly arenaMomentum = computed<ArenaMomentumPanel>(() => {
-    const squadSize = this.squad().length;
-    const forecast = this.arenaRewardForecast();
-    if (squadSize === 0) {
-      return {
-        title: 'Momentum Offline',
-        status: 'Squad Required',
-        detail: 'Load at least one allied signal before the Arena can build a battle chain.',
-        meterPercent: 0,
-        nextGoalLabel: '0/3 squad online',
-        rewardHint: 'Rewards unlock once a squad enters the sim.',
-        tone: 'blocked',
-      };
-    }
-
-    const player = this.player();
-    const streak = player.winStreak;
-    const nextGoal = WIN_STREAK_MILESTONES.find((threshold) => streak < threshold) ?? streak + 1;
-    const winsNeeded = Math.max(1, nextGoal - streak);
-    const outlook = this.battleOutlook();
-    const tone: ArenaMomentumPanel['tone'] = this.overdriveReady()
-      ? 'charged'
-      : outlook.tone === 'low'
-        ? 'risk'
-        : streak >= 3
-          ? 'hot'
-          : 'building';
-
-    return {
-      title: streak > 0 ? `Chain x${streak}` : 'Ignition Run',
-      status: this.overdriveReady() ? 'Overdrive Banked' : streak > 0 ? 'Momentum Live' : 'Chain Ready',
-      detail:
-        tone === 'risk'
-          ? 'Forecast is unstable. Guard, Training, or a stronger slot protects the next run.'
-          : tone === 'charged'
-            ? 'Spend the charged core on a boss, gauntlet push, or high-value Risk run.'
-            : streak > 0
-              ? 'Keep winning to stack payout pressure and push the next milestone.'
-              : 'The next win starts the bonus chain and charges Overdrive faster.',
-      meterPercent: Math.min(100, Math.round((streak / nextGoal) * 100)),
-      nextGoalLabel: `${winsNeeded} win${winsNeeded === 1 ? '' : 's'} to x${nextGoal}`,
-      rewardHint: `Next win: +${forecast.win.coins} CR / +${forecast.win.xp} XP / ${forecast.itemChancePercent}% item.`,
-      tone,
-    };
-  });
-
-  readonly arenaObjectiveCards = computed<ArenaObjectiveCard[]>(() => {
-    const daily = this.dailyObjective();
-    const directive = this.dailyDirective();
-    const chase = this.pinnedChaseId()
-      ? this.evolutionCandidates().find((candidate) => candidate.target.id === this.pinnedChaseId()) ?? this.nextEvolutionCandidate()
-      : this.nextEvolutionCandidate();
-    const milestone = this.nextBattleMilestone();
-    const dailyDone = this.dailyComplete();
-
-    return [
-      {
-        label: 'Daily Directive',
-        value: dailyDone ? 'Claimed' : `${directive.progress}/${daily.goal}`,
-        detail: daily.label,
-        progressPercent: dailyDone ? 100 : Math.round((directive.progress / daily.goal) * 100),
-        tone: 'daily',
-      },
-      {
-        label: chase ? 'Next Evolution' : 'Roster Network',
-        value: chase ? `${chase.percent}%` : `${this.unlockedCount()}/${this.monsters().length}`,
-        detail: chase ? `${chase.target.name}: ${chase.missing[0]?.label ?? 'ready now'}` : 'All current chase routes are complete.',
-        progressPercent: chase ? chase.percent : 100,
-        tone: 'evolution',
-      },
-      {
-        label: 'Battle Milestone',
-        value: milestone ? `${milestone.winsNeeded} wins` : 'Cleared',
-        detail: milestone ? milestone.label : 'All milestone rewards claimed.',
-        progressPercent: milestone ? Math.round(((milestone.threshold - milestone.winsNeeded) / milestone.threshold) * 100) : 100,
-        tone: 'milestone',
-      },
-    ];
-  });
-
   // --- Gear, Boss, Campaign, Settings (new feature surfaces) ---
 
   readonly settings = this.store.settings;
@@ -525,12 +412,6 @@ export class GameStateService {
   readonly activeBoss = computed<BossDef | null>(() =>
     this.upcomingArenaThreat().id === 'boss' ? getBossForBattle(this.player().battlesFought + 1) : null,
   );
-
-
-
-
-
-
 
   readonly prismaticCount = computed(() => this.monsters().filter((monster) => monster.prismatic).length);
 
@@ -620,35 +501,6 @@ export class GameStateService {
   readonly squadTrainingDrill = computed<SquadTrainingDrill>(() => getSquadTrainingDrill(this.squad()));
   readonly recentBattles = computed(() => this.player().recentBattles.slice(0, MAX_RECENT_BATTLES));
   readonly battleIntelSummary = computed<BattleIntelSummary>(() => summarizeBattleRecords(this.recentBattles()));
-  readonly battleContractCards = computed<BattleContractCard[]>(() => {
-    const reward = this.arenaRewardForecast();
-    const readyEvolution = this.readyEvolutionCandidate();
-    const nextEvolution = readyEvolution ?? this.nextEvolutionCandidate();
-    const route = this.buildRouteEtaInput(nextEvolution, reward);
-
-    return buildBattleContracts({
-      squadSize: this.squad().length,
-      winChancePercent: this.battleOutlook().winChancePercent,
-      nextWinCoins: reward.win.coins,
-      nextWinDna: reward.win.dnaShards,
-      nextWinXp: reward.win.xp,
-      itemChancePercent: reward.itemChancePercent,
-      winStreak: this.winStreak(),
-      overdriveReady: this.overdriveReady(),
-      dailyObjectiveId: this.dailyDirective().objectiveId,
-      dailyLabel: this.dailyObjective().label,
-      dailyProgress: this.dailyDirective().progress,
-      dailyGoal: this.dailyObjective().goal,
-      dailyComplete: this.dailyComplete(),
-      routeTargetName: route.targetName,
-      routeReady: route.ready,
-      routePercent: route.percent,
-      routeWinsNeeded: estimateRouteWins(route),
-      claimableChapterTitle: this.campaign.claimableChapter()?.title ?? null,
-      safeItemName: this.firstOwnedConsumable(['Aegis Plating', 'Repair Cell']),
-      pushItemName: this.firstOwnedConsumable(['Focus Capsule']),
-    });
-  });
   readonly squadOrderCards = computed<SquadOrderCard[]>(() => {
     const patch = this.buildSquadPatchInput();
     const drill = this.squadTrainingDrill();
@@ -671,29 +523,6 @@ export class GameStateService {
       readyEvolutionName: this.readyEvolutionCandidate()?.target.name ?? null,
       typePressureLabel: this.squadTypePressure().label,
       synergyCount: this.squadSynergies().length,
-    });
-  });
-  readonly afterActionCards = computed<AfterActionCard[]>(() => {
-    const reward = this.lastReward();
-    const expedition = this.expedition();
-    const forge = this.gear.forgeQuickRecommendation();
-
-    return buildAfterActionQueue({
-      hasBattleResult: reward !== null,
-      won: reward?.won ?? false,
-      coins: reward?.coins ?? 0,
-      dnaShards: reward?.dnaShards ?? 0,
-      xp: reward?.xp ?? 0,
-      itemName: reward?.item ?? null,
-      readyEvolutionName: this.readyEvolutionCandidate()?.target.name ?? null,
-      claimableChapterTitle: this.campaign.claimableChapter()?.title ?? null,
-      squadSize: this.squad().length,
-      winChancePercent: this.battleOutlook().winChancePercent,
-      forgeReady: forge.kind !== 'blocked' && forge.kind !== 'open',
-      forgeTitle: forge.title,
-      expeditionStatus: !expedition ? 'idle' : expedition.status === 'active' ? 'active' : 'reward',
-      expeditionCores: expedition?.rewardCores ?? this.expeditionCores(),
-      dailyComplete: this.dailyComplete(),
     });
   });
   readonly nextWinStreakMilestone = computed(() => WIN_STREAK_MILESTONES.find((milestone) => milestone > this.bestWinStreak()) ?? null);
@@ -957,8 +786,6 @@ export class GameStateService {
     }
   }
 
-
-
   get enemies(): EnemyMonster[] {
     return this.activeEnemies();
   }
@@ -974,12 +801,6 @@ export class GameStateService {
   getMonsterById(id: string): Monster | undefined {
     return this.store.getMonsterById(id);
   }
-
-
-
-
-
-
 
   getMonsterTrainingDrills(monster: Monster): MonsterTrainingDrill[] {
     return getMonsterTrainingDrills(monster.stage);
@@ -1191,35 +1012,6 @@ export class GameStateService {
     return true;
   }
 
-  applyBattlePrepAndLaunch(stanceId: BattleStanceId, categoryId: BattleCategoryId, itemName: string | null = null): boolean {
-    const applied = this.applyBattlePrep(stanceId, categoryId, itemName);
-    if (!applied) {
-      return false;
-    }
-    this.startBattle();
-    return true;
-  }
-
-  applyBattleContract(contractId: string, launch = false): boolean {
-    const contract = this.battleContractCards().find((card) => card.id === contractId);
-    if (!contract || contract.disabled) {
-      if (contractId === 'load-squad') {
-        this.requestedTab.set('Squad');
-      }
-      return false;
-    }
-
-    const applied = launch
-      ? this.applyBattlePrepAndLaunch(contract.stanceId, contract.categoryId, contract.itemName)
-      : this.applyBattlePrep(contract.stanceId, contract.categoryId, contract.itemName);
-
-    if (applied && !launch) {
-      this.prependLog(`Contract loaded: ${contract.title}.`, 'info');
-    }
-
-    return applied;
-  }
-
   runSquadOrder(actionId: SquadOrderActionId): boolean {
     switch (actionId) {
       case 'auto-squad':
@@ -1275,26 +1067,6 @@ export class GameStateService {
     });
   }
 
-  /** Buys a combat consumable with coins. */
-  buyConsumable(name: string): void {
-    const def = getConsumableDef(name);
-    if (!def) {
-      return;
-    }
-    if (this.player().coins < def.cost) {
-      this.toast.push({ title: 'Insufficient Coins', message: `${def.name} costs ${def.cost} CR.`, tone: 'warn', icon: '!', durationMs: 3000 });
-      return;
-    }
-    this.player.update((player) => ({ ...player, coins: player.coins - def.cost, inventory: [...player.inventory, def.name] }));
-    this.audio.play('item');
-    this.toast.push({ title: 'Fabricated', message: `${def.name} added to inventory (-${def.cost} CR).`, tone: 'info', icon: def.icon, durationMs: 3200 });
-  }
-
-
-
-
-
-
   resetProgress(): void {
     this.saveState.clearState();
     this.monsters.set(createStarterMonsters());
@@ -1330,22 +1102,7 @@ export class GameStateService {
 
   // --- Gear / Forge ---
 
-
-
-
-
-
-
-
   // --- Settings + accessibility ---
-
-
-
-
-
-
-
-
 
   // --- Campaign ---
 
@@ -1404,7 +1161,6 @@ export class GameStateService {
     }
   }
 
-
   // --- Onboarding ---
   completeTutorial(): void {
     if (this.player().tutorialDone) {
@@ -1419,10 +1175,8 @@ export class GameStateService {
     (this.player().expedition?.relicIds ?? []).map((id) => getRelicDef(id)).filter((def): def is NonNullable<typeof def> => Boolean(def)),
   );
   readonly expeditionCores = computed(() => this.player().expeditionCores);
-  readonly relicDefs = RELIC_DEFS;
 
   // --- Bio-Data & Research Lab (Datenbeschaffung) ---
-
 
   /** Transient relic options the player may pick from a reward/shop node. */
   readonly relicChoices = signal<string[]>([]);
@@ -2215,19 +1969,10 @@ export class GameStateService {
     this.battleRunning = false;
   }
 
-
-
-
-
-
-
   /** Write any pending autosave immediately (manual "Save now" and page hide). */
   syncSaveState(): void {
     this.store.flushSave();
   }
-
-
-
 
   private getArenaThreatProfile(battleNumber: number): ArenaThreatProfile {
     if (battleNumber > 0 && battleNumber % 5 === 0) {
@@ -2294,53 +2039,6 @@ export class GameStateService {
 
   private prependLog(text: string, type: BattleLog['type']): void {
     this.store.prependLog(text, type);
-  }
-
-  private buildRouteEtaInput(candidate: EvolutionCandidate | null, reward: ArenaRewardForecast): RouteEtaInput {
-    if (!candidate?.source) {
-      return {
-        targetName: null,
-        ready: false,
-        percent: 100,
-        levelGap: 0,
-        xpToLevel: 0,
-        coinGap: 0,
-        dnaGap: 0,
-        itemMissing: false,
-        winCoins: reward.win.coins,
-        winDna: reward.win.dnaShards,
-        winXp: reward.win.xp,
-        itemChancePercent: reward.itemChancePercent,
-      };
-    }
-
-    const requirements = candidate.target.requirements ?? {};
-    const player = this.player();
-    const levelGap = Math.max(0, (requirements.level ?? candidate.source.level) - candidate.source.level);
-    const xpToLevel =
-      levelGap <= 0
-        ? 0
-        : Math.max(0, candidate.source.maxXp - candidate.source.xp) + Math.max(0, levelGap - 1) * candidate.source.maxXp;
-
-    return {
-      targetName: candidate.target.name,
-      ready: candidate.ready,
-      percent: candidate.percent,
-      levelGap,
-      xpToLevel,
-      coinGap: Math.max(0, (requirements.coins ?? 0) - player.coins),
-      dnaGap: Math.max(0, (requirements.dnaShards ?? 0) - player.dnaShards),
-      itemMissing: requirements.item ? !player.inventory.includes(requirements.item) : false,
-      winCoins: reward.win.coins,
-      winDna: reward.win.dnaShards,
-      winXp: reward.win.xp,
-      itemChancePercent: reward.itemChancePercent,
-    };
-  }
-
-  private firstOwnedConsumable(names: string[]): string | null {
-    const inventory = this.player().inventory;
-    return names.find((name) => countInInventory(inventory, name) > 0) ?? null;
   }
 
   private buildSquadPatchInput(): SquadPatchInput {

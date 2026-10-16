@@ -10,12 +10,6 @@ type StatusFilter = 'All' | 'Unlocked' | 'Locked';
 type RequirementStatusView = ReturnType<GameStateService['getRequirementStatuses']>[number];
 type FilterPresetId = 'ready-soon' | 'item-gated' | 'special-route' | 'reachable' | 'prismatic';
 
-interface FilterPresetView {
-  id: FilterPresetId;
-  label: string;
-  detail: string;
-}
-
 interface StageStat {
   stage: MonsterStage;
   className: string;
@@ -24,29 +18,6 @@ interface StageStat {
   unlocked: number;
   locked: number;
   percent: number;
-}
-
-interface TypeStat {
-  type: MonsterType;
-  code: string;
-  total: number;
-  unlocked: number;
-  locked: number;
-  percent: number;
-}
-
-interface MatrixCell {
-  type: MonsterType;
-  total: number;
-  unlocked: number;
-  locked: number;
-}
-
-interface MatrixRow {
-  stage: MonsterStage;
-  className: string;
-  glyph: string;
-  cells: MatrixCell[];
 }
 
 interface ChaseTarget {
@@ -80,14 +51,6 @@ export class CollectionComponent {
   readonly statusFilter = signal<StatusFilter>('All');
   readonly searchTerm = signal('');
   readonly activePreset = signal<FilterPresetId | null>(null);
-
-  readonly filterPresets: FilterPresetView[] = [
-    { id: 'ready-soon', label: 'Ready Soon', detail: 'Locked targets whose requirements are 80%+ complete.' },
-    { id: 'item-gated', label: 'Item-Gated', detail: 'Locked targets that need an item from your inventory.' },
-    { id: 'special-route', label: 'Special Route', detail: 'Targets on the Special stage (branch routes).' },
-    { id: 'reachable', label: 'Reachable Now', detail: 'Locked targets you can evolve into right away.' },
-    { id: 'prismatic', label: 'Prismatic', detail: 'Only prismatic (shiny) variants you have discovered.' },
-  ];
 
   readonly readinessIndex = computed(() => {
     const sourceIndex = this.sourceIndex();
@@ -198,43 +161,6 @@ export class CollectionComponent {
     }),
   );
 
-  readonly typeStats = computed<TypeStat[]>(() =>
-    this.game.types.map((type) => {
-      const monsters = this.game.monsters().filter((monster) => monster.type === type);
-      const unlocked = monsters.filter((monster) => monster.unlocked).length;
-
-      return {
-        type,
-        code: this.typeCode(type),
-        total: monsters.length,
-        unlocked,
-        locked: monsters.length - unlocked,
-        percent: this.percent(unlocked, monsters.length),
-      };
-    }),
-  );
-
-  readonly stageTypeMatrix = computed<MatrixRow[]>(() =>
-    this.game.stages.map((stage) => ({
-      stage,
-      className: stageClass(stage),
-      glyph: stageGlyph(stage),
-      cells: this.game.types.map((type) => {
-        const monsters = this.game
-          .monsters()
-          .filter((monster) => monster.stage === stage && monster.type === type);
-        const unlocked = monsters.filter((monster) => monster.unlocked).length;
-
-        return {
-          type,
-          total: monsters.length,
-          unlocked,
-          locked: monsters.length - unlocked,
-        };
-      }),
-    })),
-  );
-
   readonly sourceIndex = computed(() => {
     const index = new Map<string, Monster[]>();
 
@@ -339,10 +265,6 @@ export class CollectionComponent {
     this.activePreset.set(null);
   }
 
-  togglePreset(id: FilterPresetId): void {
-    this.activePreset.set(this.activePreset() === id ? null : id);
-  }
-
   onSearch(value: string): void {
     this.searchTerm.set(value);
   }
@@ -359,10 +281,6 @@ export class CollectionComponent {
     this.game.evolve(chase.source.id, chase.target.id);
   }
 
-  unpinChase(): void {
-    this.game.squadOps.unpinChaseTarget();
-  }
-
   setStatusFilter(status: StatusFilter): void {
     this.statusFilter.set(status);
   }
@@ -371,47 +289,9 @@ export class CollectionComponent {
     this.stageFilter.set(this.stageFilter() === stage ? 'All' : stage);
   }
 
-  toggleTypeFilter(type: MonsterType): void {
-    this.typeFilter.set(this.typeFilter() === type ? 'All' : type);
-  }
-
-  setMatrixFilter(stage: MonsterStage, type: MonsterType): void {
-    this.stageFilter.set(stage);
-    this.typeFilter.set(type);
-  }
-
   selectMonster(id: string): void {
     this.game.squadOps.selectMonster(id);
   }
-
-  sourceLabel(monster: Monster): string {
-    const sources = this.sourceIndex().get(monster.id) ?? [];
-
-    if (sources.length === 0) {
-      return 'Origin';
-    }
-
-    return sources
-      .slice(0, 2)
-      .map((source) => source.id)
-      .join(' / ');
-  }
-
-  typeCode(type: MonsterType): string {
-    const codes: Record<MonsterType, string> = {
-      Nature: 'NAT',
-      Fire: 'FIR',
-      Water: 'WTR',
-      Dark: 'DRK',
-      Light: 'LGT',
-      Machine: 'MCH',
-      Beast: 'BST',
-      Toxic: 'TOX',
-    };
-
-    return codes[type];
-  }
-
 
   private percent(value: number, total: number): number {
     return total === 0 ? 0 : Math.round((value / total) * 100);

@@ -12,7 +12,6 @@ export class MedalsComponent {
   readonly game = inject(GameStateService);
 
   readonly progress = this.game.medals.achievementProgress;
-  readonly unlockedCount = this.game.medals.unlockedAchievementCount;
   readonly completedCount = this.game.medals.completedAchievementCount;
   readonly total = computed(() => this.progress().length);
 
