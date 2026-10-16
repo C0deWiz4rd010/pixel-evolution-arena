@@ -10,7 +10,7 @@
 .stat-chip.power strong, .stat-chip.power .stat-icon { color: var(--success); }
 .stat-chip.dex strong, .stat-chip.dex .stat-icon { color: var(--line-bright); }
 .stat-chip.dex { position: relative; padding-bottom: 0.55rem; }
-.stat-chip.dex i { position: absolute; inset: auto 0.5rem 0.25rem; height: 2px; background: rgba(19,216,255,.16); }
+.stat-chip.dex i { position: absolute; inset: auto 0.5rem 0.25rem; height: 2px; background: color-mix(in srgb, var(--line) 16%, transparent); }
 .stat-chip.dex b { display: block; height: 100%; background: var(--line-bright); }
 
 .utility-wrap { position: relative; }

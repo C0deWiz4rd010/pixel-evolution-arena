@@ -21,18 +21,18 @@ small,
 
 *::-webkit-scrollbar-track {
   background: rgba(2, 8, 16, 0.6);
-  border: 1px solid rgba(19, 216, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--line) 12%, transparent);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(19, 216, 255, 0.62), rgba(19, 216, 255, 0.28));
-  border: 1px solid rgba(19, 216, 255, 0.42);
-  box-shadow: 0 0 8px rgba(19, 216, 255, 0.32) inset;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--line) 62%, transparent), color-mix(in srgb, var(--line) 28%, transparent));
+  border: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--line) 32%, transparent) inset;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(19, 216, 255, 0.82), rgba(19, 216, 255, 0.42));
-  box-shadow: 0 0 12px rgba(19, 216, 255, 0.55) inset;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--line) 82%, transparent), color-mix(in srgb, var(--line) 42%, transparent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--line) 55%, transparent) inset;
 }
 
 *::-webkit-scrollbar-corner {
@@ -44,8 +44,8 @@ html {
   margin: 0;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(19, 216, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--line) 5%, transparent) 1px, transparent 1px),
     linear-gradient(145deg, #01050d 0%, #051522 48%, #020711 100%);
   background-size: 42px 42px, 42px 42px, auto;
 }
@@ -55,8 +55,8 @@ body {
   margin: 0;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(19, 216, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--line) 5%, transparent) 1px, transparent 1px),
     linear-gradient(145deg, #01050d 0%, #051522 48%, #020711 100%);
   background-size: 42px 42px, 42px 42px, auto;
   color: var(--text);
@@ -75,7 +75,7 @@ body::before {
   z-index: -2;
   pointer-events: none;
   content: "";
-  background: repeating-linear-gradient(135deg, transparent 0 44px, rgba(19, 216, 255, 0.045) 45px 46px, transparent 47px 104px);
+  background: repeating-linear-gradient(135deg, transparent 0 44px, color-mix(in srgb, var(--line) 4.5%, transparent) 45px 46px, transparent 47px 104px);
   opacity: 0.7;
   mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.72) 70%, rgba(0, 0, 0, 0.35) 100%);
   will-change: transform;
@@ -88,9 +88,9 @@ body::after {
   pointer-events: none;
   content: "";
   background:
-    linear-gradient(90deg, transparent 0 5%, rgba(19, 216, 255, 0.084) 5.2%, transparent 5.4% 100%),
-    linear-gradient(180deg, transparent 0 12%, rgba(124, 255, 58, 0.042) 12.2%, transparent 12.4% 100%),
-    linear-gradient(90deg, transparent 0 49.75%, rgba(19, 216, 255, 0.08) 49.9% 50.1%, transparent 50.25% 100%),
+    linear-gradient(90deg, transparent 0 5%, color-mix(in srgb, var(--line) 8.4%, transparent) 5.2%, transparent 5.4% 100%),
+    linear-gradient(180deg, transparent 0 12%, color-mix(in srgb, var(--baby) 4.2%, transparent) 12.2%, transparent 12.4% 100%),
+    linear-gradient(90deg, transparent 0 49.75%, color-mix(in srgb, var(--line) 8%, transparent) 49.9% 50.1%, transparent 50.25% 100%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 24rem);
 }
 
@@ -104,9 +104,9 @@ button {
   border: 1px solid var(--line);
   border-radius: 2px;
   background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.12) 1px, transparent 1px),
-    linear-gradient(rgba(19, 216, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(19, 216, 255, 0.18), rgba(0, 0, 0, 0.22));
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--line) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--line) 18%, transparent), rgba(0, 0, 0, 0.22));
   background-size: 18px 18px, 18px 18px, auto;
   color: var(--text);
   cursor: pointer;
@@ -116,7 +116,7 @@ button {
 
 button:hover:not(:disabled) {
   border-color: var(--line-bright);
-  box-shadow: 0 0 18px rgba(19, 216, 255, 0.38);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--line) 38%, transparent);
 }
 
 button:focus-visible,
@@ -125,7 +125,7 @@ summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid var(--line-bright);
   outline-offset: 2px;
-  box-shadow: 0 0 0 1px var(--bg), 0 0 16px rgba(156, 246, 255, 0.6);
+  box-shadow: 0 0 0 1px var(--bg), 0 0 16px color-mix(in srgb, var(--line-bright) 60%, transparent);
 }
 
 button:disabled {

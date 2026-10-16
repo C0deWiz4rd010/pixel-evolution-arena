@@ -19,8 +19,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(19, 216, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--line) 4%, transparent) 1px, transparent 1px);
   background-size: 22px 22px;
   content: '';
   opacity: 0.5;
@@ -69,7 +69,7 @@
   color: var(--line);
   font-size: 1.4rem;
   text-transform: uppercase;
-  text-shadow: 0 0 14px rgba(19, 216, 255, 0.45);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--line) 45%, transparent);
 }
 
 .manual-title-block p,
@@ -86,8 +86,8 @@
   display: grid;
   min-width: 96px;
   gap: 0.1rem;
-  border-color: rgba(255, 85, 216, 0.38);
-  background: rgba(255, 85, 216, 0.08);
+  border-color: color-mix(in srgb, var(--special) 38%, transparent);
+  background: color-mix(in srgb, var(--special) 8%, transparent);
   text-align: right;
   clip-path: var(--chamfer-tight);
 }
@@ -103,16 +103,16 @@
   gap: 0.7rem;
   align-items: center;
   margin-bottom: 0.75rem;
-  border: 1px solid rgba(19, 216, 255, 0.34);
+  border: 1px solid color-mix(in srgb, var(--line) 34%, transparent);
   padding: 0.72rem;
   background:
-    linear-gradient(90deg, rgba(19, 216, 255, 0.12), transparent 60%), rgba(0, 0, 0, 0.34);
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 12%, transparent), transparent 60%), rgba(0, 0, 0, 0.34);
   clip-path: var(--chamfer);
 }
 
 .directive-banner.ready {
-  border-color: rgba(131, 255, 69, 0.55);
-  box-shadow: 0 0 20px rgba(131, 255, 69, 0.12);
+  border-color: color-mix(in srgb, var(--success) 55%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--success) 12%, transparent);
 }
 
 .directive-banner.squad {
@@ -156,7 +156,7 @@
 .command-card,
 .prep-card,
 .dossier-row {
-  border: 1px solid rgba(19, 216, 255, 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   background: rgba(0, 0, 0, 0.24);
   padding: 0.6rem;
 }
@@ -169,8 +169,8 @@
 .command-card.tone-ready,
 .prep-card.tone-ready,
 .dossier-row.win {
-  border-color: rgba(131, 255, 69, 0.52);
-  box-shadow: 0 0 14px rgba(131, 255, 69, 0.1);
+  border-color: color-mix(in srgb, var(--success) 52%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--success) 10%, transparent);
 }
 
 .command-card.tone-warning,
@@ -210,7 +210,7 @@
 .command-bar {
   height: 8px;
   overflow: hidden;
-  border: 1px solid rgba(19, 216, 255, 0.18);
+  border: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
   background: rgba(0, 0, 0, 0.35);
 }
 
@@ -254,8 +254,8 @@
 .manual-card::after {
   position: absolute;
   inset: 5px;
-  border-top: 1px solid rgba(19, 216, 255, 0.18);
-  border-right: 1px solid rgba(255, 85, 216, 0.12);
+  border-top: 1px solid color-mix(in srgb, var(--line) 18%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--special) 12%, transparent);
   content: '';
   pointer-events: none;
 }
@@ -269,7 +269,7 @@
   gap: 0.55rem;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(19, 216, 255, 0.16);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   padding-bottom: 0.4rem;
 }
 
@@ -328,15 +328,15 @@
   grid-template-columns: 42px minmax(0, 1fr) auto;
   gap: 0.55rem;
   align-items: center;
-  border: 1px solid rgba(19, 216, 255, 0.16);
+  border: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   padding: 0.5rem;
   background: rgba(0, 0, 0, 0.2);
 }
 
 .rule-line.active {
-  border-color: rgba(131, 255, 69, 0.52);
-  background: rgba(131, 255, 69, 0.06);
-  box-shadow: 0 0 14px rgba(131, 255, 69, 0.1);
+  border-color: color-mix(in srgb, var(--success) 52%, transparent);
+  background: color-mix(in srgb, var(--success) 6%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--success) 10%, transparent);
 }
 
 .rule-code {
@@ -344,7 +344,7 @@
   width: 34px;
   height: 30px;
   place-items: center;
-  border: 1px solid rgba(19, 216, 255, 0.42);
+  border: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
   color: var(--line);
   font-size: 0.7rem;
 }
@@ -379,7 +379,7 @@
 .stage-row,
 .manual-stat,
 .log-entry {
-  border: 1px solid rgba(19, 216, 255, 0.16);
+  border: 1px solid color-mix(in srgb, var(--line) 16%, transparent);
   background: rgba(0, 0, 0, 0.24);
   padding: 0.5rem;
 }
@@ -393,7 +393,7 @@
 
 .selected-id {
   grid-row: span 2;
-  border: 1px solid rgba(19, 216, 255, 0.44);
+  border: 1px solid color-mix(in srgb, var(--line) 44%, transparent);
   padding: 0.28rem 0.36rem;
   color: var(--line);
   font-size: 0.72rem;
@@ -412,7 +412,7 @@
 }
 
 .route-target.ready {
-  border-color: rgba(131, 255, 69, 0.5);
+  border-color: color-mix(in srgb, var(--success) 50%, transparent);
 }
 
 .route-target.ready small {
@@ -428,9 +428,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid rgba(131, 255, 69, 0.24);
+  border: 1px solid color-mix(in srgb, var(--success) 24%, transparent);
   padding: 0.5rem;
-  background: rgba(131, 255, 69, 0.05);
+  background: color-mix(in srgb, var(--success) 5%, transparent);
 }
 
 .inventory-grid {
@@ -488,7 +488,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 85, 216, 0.22);
+  border-bottom: 1px solid color-mix(in srgb, var(--special) 22%, transparent);
   padding-bottom: 0.55rem;
 }
 
@@ -552,7 +552,7 @@
 
 .log-key span {
   display: block;
-  border-left: 2px solid rgba(19, 216, 255, 0.24);
+  border-left: 2px solid color-mix(in srgb, var(--line) 24%, transparent);
   padding-left: 0.48rem;
 }
 

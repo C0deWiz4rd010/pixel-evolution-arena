@@ -4,14 +4,14 @@
 .evolve-layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(320px, .72fr); gap: 0.75rem; align-items: start; }
 .evolution-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; padding: 1rem; }
 .evolution-workspace > * { min-width: 0; }
-.evolve-header { display: flex; gap: 1rem; align-items: end; justify-content: space-between; padding-bottom: 0.85rem; border-bottom: 1px solid rgba(19,216,255,.22); }
+.evolve-header { display: flex; gap: 1rem; align-items: end; justify-content: space-between; padding-bottom: 0.85rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 22%, transparent); }
 .evolve-header span, .family-heading span, .recent-discoveries > div > span { color: var(--line-bright); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .evolve-header h2 { margin: .2rem 0; font-size: clamp(1.35rem, 2.4vw, 2rem); }
 .evolve-header p { max-width: 680px; margin: 0; color: var(--muted); line-height: 1.45; }
 .dex-progress { display: grid; min-width: 210px; gap: .28rem; }
 .dex-progress div { display: flex; justify-content: space-between; }
 .dex-progress strong { color: var(--success); font-size: 1.15rem; }
-.dex-progress i { height: 7px; border: 1px solid rgba(19,216,255,.3); background: rgba(0,0,0,.4); }
+.dex-progress i { height: 7px; border: 1px solid color-mix(in srgb, var(--line) 30%, transparent); background: rgba(0,0,0,.4); }
 .dex-progress b { display: block; height: 100%; background: linear-gradient(90deg,var(--line-bright),var(--success)); }
 .dex-progress small { color: var(--muted); text-align: right; }
 
@@ -25,7 +25,7 @@
 .mystery-preview img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) drop-shadow(0 0 6px var(--stage-color,var(--line))); opacity: .68; }
 .mystery-preview.revealed img { filter: none; opacity: 1; }
 
-.family-path { display: grid; gap: .8rem; min-height: 420px; align-content: center; padding: 1rem; border: 1px solid rgba(19,216,255,.22); background: rgba(0,8,16,.45); }
+.family-path { display: grid; gap: .8rem; min-height: 420px; align-content: center; padding: 1rem; border: 1px solid color-mix(in srgb, var(--line) 22%, transparent); background: rgba(0,8,16,.45); }
 .family-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .family-heading > div { display: grid; gap: .2rem; }
 .family-heading strong { font-size: 1rem; }
@@ -44,11 +44,11 @@
 .route-link { flex: 1 1 38px; min-width: 20px; max-width: 64px; height: 2px; background: linear-gradient(90deg,var(--line),var(--success)); }
 
 .family-overflow-note { margin: -.35rem 0 0; color: var(--muted); font-size: .68rem; text-align: right; }
-.recent-discoveries { display: flex; gap: 1rem; align-items: center; justify-content: space-between; padding-top: .75rem; border-top: 1px solid rgba(19,216,255,.18); }
+.recent-discoveries { display: flex; gap: 1rem; align-items: center; justify-content: space-between; padding-top: .75rem; border-top: 1px solid color-mix(in srgb, var(--line) 18%, transparent); }
 .recent-discoveries > div:first-child { display: grid; gap: .15rem; }
 .recent-discoveries small { color: var(--muted); }
 .recent-list { display: flex; gap: .45rem; }
-.recent-list button { display: grid; grid-template-columns: 56px auto; gap: .45rem; align-items: center; min-height: 62px; padding: .2rem .55rem; background: rgba(19,216,255,.04); }
+.recent-list button { display: grid; grid-template-columns: 56px auto; gap: .45rem; align-items: center; min-height: 62px; padding: .2rem .55rem; background: color-mix(in srgb, var(--line) 4%, transparent); }
 .recent-list span { font-size: .68rem; }
 
 @include bp.media-max(xxl) { .evolve-layout { grid-template-columns: 1fr; } }

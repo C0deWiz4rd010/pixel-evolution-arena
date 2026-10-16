@@ -255,12 +255,12 @@ app-monster-card {
   width: min(360px, calc(100% - 1.6rem));
   gap: 0.3rem;
   pointer-events: none;
-  border: 1px solid rgba(19, 216, 255, 0.24);
+  border: 1px solid color-mix(in srgb, var(--line) 24%, transparent);
   padding: 0.5rem 0.62rem;
   background:
-    radial-gradient(circle, rgba(19, 216, 255, 0.14), transparent 58%),
-    repeating-linear-gradient(90deg, rgba(19, 216, 255, 0.05) 0 1px, transparent 1px 18px),
-    repeating-linear-gradient(180deg, rgba(19, 216, 255, 0.04) 0 1px, transparent 1px 18px),
+    radial-gradient(circle, color-mix(in srgb, var(--line) 14%, transparent), transparent 58%),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--line) 5%, transparent) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(180deg, color-mix(in srgb, var(--line) 4%, transparent) 0 1px, transparent 1px 18px),
     rgba(0, 0, 0, 0.18);
   color: var(--line);
   clip-path: var(--chamfer);
@@ -452,7 +452,7 @@ app-monster-card {
 
 .target-card.ready {
   border-color: var(--success);
-  box-shadow: 0 0 16px rgba(131, 255, 69, 0.18);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--success) 18%, transparent);
 }
 
 .target-card.unlocked {
@@ -567,7 +567,7 @@ app-monster-card {
 }
 
 .enemy {
-  border-color: rgba(255, 86, 77, 0.62);
+  border-color: color-mix(in srgb, var(--danger) 62%, transparent);
 }
 
 .battle-log {

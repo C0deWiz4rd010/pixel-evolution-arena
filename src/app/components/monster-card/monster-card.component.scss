@@ -44,7 +44,7 @@
 
 .monster-card.locked::before {
   background:
-    repeating-linear-gradient(135deg, rgba(255, 86, 77, 0.16) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--danger) 16%, transparent) 0 1px, transparent 1px 9px),
     repeating-linear-gradient(180deg, transparent 0 6px, rgba(255, 255, 255, 0.045) 6px 7px);
   opacity: 0.62;
 }
@@ -54,7 +54,7 @@
 }
 
 .monster-card.locked .sprite-node {
-  filter: grayscale(1) contrast(1.24) drop-shadow(0 0 10px rgba(255, 86, 77, 0.45));
+  filter: grayscale(1) contrast(1.24) drop-shadow(0 0 10px color-mix(in srgb, var(--danger) 45%, transparent));
 }
 
 .prismatic-sheen {
