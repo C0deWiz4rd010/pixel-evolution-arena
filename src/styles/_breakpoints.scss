@@ -25,7 +25,24 @@ $breakpoints: (
   // main desktop collapse
   'ultra': 1280px,
   // wide desktop
-  'max': 1400px, // ultrawide cap
+  'desk': 1200px,
+  // arena grows with its command stack
+  'max': 1400px,
+  // ultrawide cap
+  'tight': 500px,
+  // narrow phones (onboarding)
+  'stack': 540px,
+  // campaign/expedition card stacks
+  'guide': 560px,
+  // handbook tables
+  'lab': 640px,
+  // research lab two-column
+  'lab-wide': 1080px,
+  // research lab three-column
+  'arena-stack': 680px,
+  // arena command rail stacks
+  'arena-split': 1050px,
+  // arena stage + rail split
 );
 
 /// Resolve a token name to a length, or pass a raw length through unchanged.
@@ -49,6 +66,14 @@ $breakpoints: (
 /// Styles applied at or above the given breakpoint (progressive enhancement).
 @mixin media-min($bp) {
   @media (min-width: #{resolve($bp)}) {
+    @content;
+  }
+}
+
+/// Compact chrome: phones in portrait (bottom tab bar) and landscape phones, where the viewport
+/// is too short for the full header + top navigation. Keep in sync with --nav-height in _tokens.
+@mixin media-compact {
+  @media (max-width: #{resolve('nav')}), (max-height: 520px) and (orientation: landscape) {
     @content;
   }
 }

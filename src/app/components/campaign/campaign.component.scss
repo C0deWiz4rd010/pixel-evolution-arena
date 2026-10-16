@@ -242,7 +242,7 @@
     grid-template-columns: 1fr;
   }
 }
-@include bp.media-max(540px) {
+@include bp.media-max(stack) {
   .campaign-view {
     padding: 0.7rem;
   }

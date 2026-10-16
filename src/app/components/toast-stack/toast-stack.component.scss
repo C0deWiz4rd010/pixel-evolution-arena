@@ -3,8 +3,8 @@
 
 :host {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: calc(var(--safe-top) + 1rem);
+  right: calc(var(--safe-right) + 1rem);
   z-index: 60;
   display: block;
   width: min(360px, calc(100vw - 2rem));
@@ -106,10 +106,12 @@
   line-height: 1;
 }
 
-.toast-close:hover {
-  border-color: var(--text);
-  background: rgba(0, 0, 0, 0.6);
-  color: var(--text);
+@media (hover: hover) {
+  .toast-close:hover {
+    border-color: var(--text);
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--text);
+  }
 }
 
 .toast::before {
@@ -144,5 +146,15 @@
     top: 0.65rem;
     right: 0.65rem;
     width: calc(100vw - 1.3rem);
+  }
+}
+
+@include bp.media-compact {
+  /* Phones: toasts sit above the bottom tab bar, within thumb reach, never over the HUD. */
+  :host {
+    top: auto;
+    right: 50%;
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + 0.6rem);
+    transform: translateX(50%);
   }
 }

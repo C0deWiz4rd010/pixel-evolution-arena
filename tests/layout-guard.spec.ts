@@ -7,8 +7,10 @@ import { expect, test, type Page } from '@playwright/test';
  */
 
 const VIEWPORTS = [
+  { name: 'phone-xs', width: 320, height: 640 },
   { name: 'phone-s', width: 360, height: 800 },
   { name: 'phone', width: 390, height: 844 },
+  { name: 'phone-landscape', width: 844, height: 390 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'desktop', width: 1440, height: 960 },
 ] as const;
@@ -36,6 +38,7 @@ async function findEscapingElements(page: Page): Promise<string[]> {
     const width = document.documentElement.clientWidth;
     const scrollsX = (el: Element | null): boolean => {
       for (let node = el?.parentElement ?? null; node; node = node.parentElement) {
+        if (node.classList.contains('play-surface')) return false;
         const overflowX = getComputedStyle(node).overflowX;
         if (overflowX === 'auto' || overflowX === 'scroll') return true;
       }
@@ -73,6 +76,11 @@ for (const viewport of VIEWPORTS) {
       await page.waitForTimeout(250);
       const docOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       if (docOverflow > 0) problems.push(`${entry.area}/${entry.view ?? '-'}: document overflows by ${docOverflow}px`);
+      const clipped = await page.evaluate(() => {
+        const surface = document.querySelector('.play-surface');
+        return surface ? surface.scrollWidth - surface.clientWidth : 0;
+      });
+      if (clipped > 1) problems.push(`${entry.area}/${entry.view ?? '-'}: play surface clips ${clipped}px sideways`);
       const escaping = await findEscapingElements(page);
       if (escaping.length) problems.push(`${entry.area}/${entry.view ?? '-'}: ${escaping.join(', ')}`);
     }

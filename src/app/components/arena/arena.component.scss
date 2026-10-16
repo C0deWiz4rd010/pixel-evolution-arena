@@ -277,9 +277,13 @@
 .pulse-options .tone-risk {
   --pulse: var(--danger);
 }
-.pulse-options button:hover strong,
 .pulse-options button:focus-visible strong {
   color: var(--pulse);
+}
+@media (hover: hover) {
+  .pulse-options button:hover strong {
+    color: var(--pulse);
+  }
 }
 .squad-order-rail {
   border-color: var(--success);
@@ -637,7 +641,7 @@
   color: var(--success);
 }
 
-@include bp.media-max(1050px) {
+@include bp.media-max(arena-split) {
   .arena-grid {
     grid-template-columns: 1fr;
   }
@@ -650,7 +654,7 @@
   }
 }
 
-@include bp.media-max(680px) {
+@include bp.media-max(arena-stack) {
   .arena-view {
     padding: 0.65rem;
   }

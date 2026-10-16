@@ -1,6 +1,11 @@
 // Design tokens: colors, stage palette, surfaces, chamfers, type scale, sprite sizes, theme profiles.
 
 :root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --nav-height: 64px;
   color-scheme: dark;
   --bg: #020711;
   --bg-2: #04111d;
@@ -141,4 +146,10 @@
   --chamfer-tight: inset(0 round 7px);
   --chamfer-wide: inset(0 round 12px);
   --chamfer-stage: inset(0 round 12px);
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  :root {
+    --nav-height: 48px;
+  }
 }

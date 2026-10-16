@@ -4,7 +4,7 @@
   width: min(1760px, 100%);
   height: 100dvh;
   margin: 0 auto;
-  padding: 0.65rem 0.75rem 0.4rem;
+  padding: calc(0.65rem + var(--safe-top)) max(0.75rem, var(--safe-right)) 0.4rem max(0.75rem, var(--safe-left));
   display: flex;
   flex-direction: column;
   overflow: hidden;

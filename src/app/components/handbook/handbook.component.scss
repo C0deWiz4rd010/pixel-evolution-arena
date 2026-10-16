@@ -304,9 +304,11 @@
   color: #ffd3d3;
 }
 
-.save-actions .danger-action:hover {
-  border-color: rgba(255, 95, 95, 0.55);
-  background: rgba(255, 95, 95, 0.14);
+@media (hover: hover) {
+  .save-actions .danger-action:hover {
+    border-color: rgba(255, 95, 95, 0.55);
+    background: rgba(255, 95, 95, 0.14);
+  }
 }
 
 .card-code {
@@ -584,7 +586,7 @@
   }
 }
 
-@include bp.media-max(560px) {
+@include bp.media-max(guide) {
   .directive-banner,
   .rule-line,
   .selected-readout,

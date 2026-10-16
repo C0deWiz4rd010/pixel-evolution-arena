@@ -104,8 +104,10 @@
   background: linear-gradient(180deg, #ffd23c, #f0a818);
   transition: filter 0.15s ease;
 
-  &:hover:not(:disabled) {
-    filter: brightness(1.12);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      filter: brightness(1.12);
+    }
   }
   &:disabled {
     opacity: 0.55;

@@ -11,7 +11,7 @@
 
 @include bp.media-max(wide) {
   .header-hud {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   .handbook-layout {
@@ -103,5 +103,12 @@
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Portrait tablets and below: brand row above the resource chips. */
+@include bp.media-max(lg) {
+  .header-hud {
+    grid-template-columns: 1fr;
   }
 }

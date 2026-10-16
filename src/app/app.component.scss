@@ -1,3 +1,4 @@
+@use '../styles/breakpoints' as bp;
 :host {
   display: block;
 }
@@ -105,20 +106,30 @@
   box-shadow: inset 0 -2px var(--line-bright);
 }
 
-@media (max-width: 720px) {
+@include bp.media-compact {
   .app-shell {
-    padding-bottom: 72px;
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 8px);
   }
+  /* Phones: one compact row (goal text + action) instead of a text row plus a full-width button. */
   .next-goal {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.55rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    min-height: 0;
+    margin: 0.35rem 0;
+    padding: 0.5rem 0.65rem;
   }
+  .goal-marker,
   .goal-copy small {
     display: none;
   }
+  .goal-copy strong {
+    white-space: normal;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
   .next-goal button {
-    grid-column: 1 / -1;
-    width: 100%;
+    min-width: 0;
+    padding-inline: 0.8rem;
   }
   .secondary-nav {
     width: 100%;

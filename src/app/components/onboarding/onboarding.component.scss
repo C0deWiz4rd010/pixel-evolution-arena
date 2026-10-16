@@ -1,3 +1,4 @@
+@use '../../../styles/breakpoints' as bp;
 @use '../../../styles/motion';
 .onboarding-scrim {
   position: fixed;
@@ -90,7 +91,7 @@
     animation: none;
   }
 }
-@media (max-width: 500px) {
+@include bp.media-max(tight) {
   .onboarding-card {
     padding: 20px;
   }

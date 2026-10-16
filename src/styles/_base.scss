@@ -156,9 +156,11 @@ button {
     background-color 120ms ease;
 }
 
-button:hover:not(:disabled) {
-  border-color: var(--line-bright);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--line) 38%, transparent);
+@media (hover: hover) {
+  button:hover:not(:disabled) {
+    border-color: var(--line-bright);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--line) 38%, transparent);
+  }
 }
 
 button:focus-visible,

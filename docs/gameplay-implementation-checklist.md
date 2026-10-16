@@ -285,3 +285,12 @@ Use this checklist during Angular implementation.
 - Phase 4 (style system): 210 dead global rules and 30 dead selectors removed, ~450 lines of unrendered component logic plus three orphaned rule modules deleted, global stylesheet split into ordered partials (byte-identical output), 213 color literals tokenized, all SCSS formatted, readable type floor `--text-micro` (0.72rem), themable stage frame, accent themes re-tint the HUD, in-app reduced motion reaches CSS via `motion.reduced`.
 - Added a local visual regression net (`npm run test:visual`, viewport + full-page, phone + desktop); every refactor step above was pixel-verified against it.
 - `npm run typecheck` passed; `npm test -- --run` passed (183 tests / 30 files); `npm run build` passed without warnings; `npm run test:e2e` passed (18 tests incl. layout guard at 360/390/768/1440 px).
+
+2026-10-16 Phase 5 (responsiveness):
+
+- All breakpoints are named tokens in `src/styles/_breakpoints.scss` (new: tight, stack, guide, lab, lab-wide, arena-stack, arena-split, desk, plus `media-compact` for phones and landscape phones). No raw pixel media queries remain.
+- Safe areas: `viewport-fit=cover`, `--safe-*` tokens applied to the shell, bottom tab bar, and toasts; `--nav-height` replaces the 72px magic number. Toasts sit above the tab bar on phones.
+- Phone chrome shrank (header 111 -> 67 px, next goal 112 -> 68 px): the play surface gains ~94 px at 390x844. Landscape phones get slim chrome strips and a 48 px bottom bar (play surface 23 -> 158 px at 844x390).
+- `overflow-x: hidden` removed from the mobile play surface; the layout guard now fails when the surface would clip sideways. Guard viewports: 320, 360, 390, 844x390 landscape, 768, 1440.
+- 44 px touch targets on coarse pointers; every `:hover` effect is gated by `(hover: hover)`.
+- Not done: swipe between subviews and long-press details (risk of conflicting with scroll rails, deferred to Phase 9 UX polish).

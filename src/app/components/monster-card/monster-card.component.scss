@@ -13,10 +13,12 @@
   will-change: transform;
 }
 
-.monster-card:hover:not(.locked) {
-  transform: translateY(-3px) scale(1.015);
-  filter: brightness(1.08);
-  z-index: 2;
+@media (hover: hover) {
+  .monster-card:hover:not(.locked) {
+    transform: translateY(-3px) scale(1.015);
+    filter: brightness(1.08);
+    z-index: 2;
+  }
 }
 
 .monster-card:active:not(.locked) {

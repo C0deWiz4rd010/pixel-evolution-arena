@@ -148,11 +148,13 @@ body .app-shell :is(.family-node, .dex-card, .squad-slot, .reserve-card, .target
     transform 140ms ease;
 }
 
-body
-  .app-shell
-  :is(.family-node, .dex-card, .squad-slot, .reserve-card, .target-card):hover:not(:disabled) {
-  border-color: var(--card-border-strong);
-  background-color: var(--surface-focus);
+@media (hover: hover) {
+  body
+    .app-shell
+    :is(.family-node, .dex-card, .squad-slot, .reserve-card, .target-card):hover:not(:disabled) {
+    border-color: var(--card-border-strong);
+    background-color: var(--surface-focus);
+  }
 }
 
 body

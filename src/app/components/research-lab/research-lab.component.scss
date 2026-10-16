@@ -436,7 +436,7 @@
 }
 
 /* --- Progressive enhancement for wider viewports --- */
-@include bp.media-min(640px) {
+@include bp.media-min(lab) {
   .research-head {
     grid-template-columns: 1fr auto;
     align-items: end;
@@ -470,7 +470,7 @@
   }
 }
 
-@include bp.media-min(1080px) {
+@include bp.media-min(lab-wide) {
   .branch-grid {
     grid-template-columns: repeat(3, 1fr);
     align-items: start;

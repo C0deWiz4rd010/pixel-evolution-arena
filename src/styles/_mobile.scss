@@ -18,12 +18,6 @@ video {
 }
 
 @include bp.media-max(nav) {
-  /* The single internal scroll region should never scroll sideways: a wide
-     grid is a layout bug, not a feature — clip it instead of leaking overflow. */
-  body .app-shell .play-surface {
-    overflow-x: hidden;
-  }
-
   /* Intentional horizontal swim lanes (settings/collection/contracts/orders)
      get momentum scrolling + gentle snapping so off-screen cards are reachable
      and feel discoverable on touch. */
@@ -60,5 +54,60 @@ video {
 
   body .app-shell .header-hud .stat-chip {
     padding-inline: 0.4rem;
+  }
+}
+
+/* Touch targets: every tappable control reaches 44px on coarse pointers (WCAG 2.5.5 / platform HIG).
+   Specificity matches the view-level overrides above so dense component rules cannot shrink them. */
+@media (pointer: coarse) {
+  body .app-shell :is(button, select, summary, [role='button'], [role='tab'], input[type='checkbox'], input[type='range']) {
+    min-height: 44px;
+  }
+  body .app-shell :is(button, [role='button']):not(.primary-nav-item, .stat-chip) {
+    min-width: 44px;
+  }
+}
+
+/* Landscape phones: the viewport is ~390px tall, so every chrome row becomes a slim strip and the
+   scrolling play surface gets the rest. */
+@media (max-height: 520px) and (orientation: landscape) {
+  body .app-shell {
+    padding-top: calc(0.35rem + var(--safe-top));
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 4px);
+  }
+  body .app-shell .header-hud {
+    padding: 0.25rem 0.5rem;
+  }
+  body .app-shell .header-hud .brand-mark-image {
+    width: 30px;
+    height: 30px;
+  }
+  body .app-shell .header-hud .stat-chip {
+    min-height: 0;
+    padding-block: 0.1rem;
+  }
+  body .app-shell .next-goal {
+    min-height: 0;
+    margin: 0.25rem 0;
+    padding: 0.25rem 0.6rem;
+  }
+  body .app-shell .next-goal .goal-copy span {
+    display: none;
+  }
+  body .app-shell .next-goal button {
+    min-height: 36px;
+  }
+  body .app-shell .secondary-nav {
+    margin: 0.25rem 0;
+    padding: 0.15rem;
+  }
+  body .app-shell .secondary-nav button {
+    min-height: 34px;
+    padding-block: 0.2rem;
+  }
+  body .app-shell .primary-nav-item {
+    flex-direction: row;
+    min-height: var(--nav-height);
+    gap: 0.5rem;
   }
 }
