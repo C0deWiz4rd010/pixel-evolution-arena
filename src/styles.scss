@@ -155,17 +155,7 @@
 /* Minimum readable font size for small UI text */
 small,
 .stat-label,
-.stat-chip small,
-.type-chip,
-.legend-kicker,
-.tab-status,
-.ops-footer small,
-.ops-topline span,
-.intel-card span,
-.intel-card small,
-.readiness-node span,
-.readiness-node small,
-.forecast-grid small {
+.stat-chip small {
   font-size: max(var(--text-kicker), 0.68rem);
 }
 
@@ -396,7 +386,6 @@ li {
   min-width: 0;
 }
 
-.brand-mark,
 .brand-mark-image {
   display: grid;
   width: 44px;
@@ -448,9 +437,7 @@ li {
   min-width: 0;
 }
 
-.resource-cluster,
-.status-cluster,
-.context-cluster {
+.status-cluster {
   display: flex;
   gap: 0.36rem;
   align-items: stretch;
@@ -492,8 +479,7 @@ li {
   text-transform: uppercase;
 }
 
-.stat-icon,
-.selected-icon {
+.stat-icon {
   display: grid;
   align-self: center;
   width: 22px;
@@ -674,24 +660,13 @@ li {
   flex-shrink: 0;
 }
 
-.tree-layout,
-.squad-layout,
-.arena-layout,
-.collection-layout,
 .handbook-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
   gap: 0.75rem;
 }
 
-.tree-panel,
-.squad-builder,
-.arena-stage,
-.collection-main,
 .detail-panel,
-.team-summary,
-.reward-panel,
-.collection-summary,
 .handbook-main,
 .handbook-side {
   min-width: 0;
@@ -743,7 +718,6 @@ li {
   font-size: 0.62rem;
 }
 
-.monster-row,
 .collection-grid {
   position: relative;
   z-index: 1;
@@ -832,8 +806,7 @@ app-monster-card {
 }
 
 .card-status,
-.monster-id,
-.power-line {
+.monster-id {
   color: var(--text);
   font-size: 0.62rem;
   font-weight: 700;
@@ -893,8 +866,7 @@ app-monster-card {
   font-weight: 800;
 }
 
-.monster-meta,
-.mini-stats {
+.monster-meta {
   color: var(--muted);
   font-size: 0.62rem;
 }
@@ -975,10 +947,7 @@ app-monster-card {
 }
 
 .detail-topline,
-.target-head,
-.coverage-list span,
-.summary-row,
-.strip-heading {
+.target-head {
   display: flex;
   justify-content: space-between;
   gap: 0.7rem;
@@ -1002,8 +971,7 @@ app-monster-card {
   margin: 0.9rem 0 1rem;
 }
 
-.detail-icon,
-.squad-icon {
+.detail-icon {
   display: grid;
   width: 142px;
   height: 142px;
@@ -1065,21 +1033,15 @@ app-monster-card {
   box-shadow: 0 0 12px var(--success);
 }
 
-.stat-grid,
-.reward-grid,
-.collection-stats {
+.stat-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
 }
 
 .stat-grid span,
-.reward-grid span,
-.collection-stats span,
 .target-card,
-.combatant,
 .squad-slot,
-.candidate-card,
 .manual-grid article,
 .manual-stat {
   border: 1px solid var(--line-soft);
@@ -1098,8 +1060,7 @@ app-monster-card {
   font-size: 0.74rem;
 }
 
-.stat-grid strong,
-.big-number {
+.stat-grid strong {
   color: var(--success);
 }
 
@@ -1122,8 +1083,6 @@ app-monster-card {
 }
 
 .evolution-targets h3,
-.candidate-strip h3,
-.reward-panel h3,
 .battle-team h3,
 .manual-grid h3,
 .handbook-side h3 {
@@ -1211,7 +1170,6 @@ app-monster-card {
   color: var(--danger);
 }
 
-.mini-battle-log p,
 .battle-log p {
   margin: 0;
   border-bottom: 1px solid rgba(131, 182, 199, 0.15);
@@ -1299,11 +1257,8 @@ app-monster-card {
 .monster-card,
 .dex-card,
 .squad-slot,
-.candidate-card,
 .target-card,
-.tab-button,
 .stage-band,
-.legend-pill,
 .manual-grid article,
 .manual-stat {
   transition:
@@ -1317,10 +1272,8 @@ app-monster-card {
 @media (hover: hover) {
   .monster-card:hover:not(:disabled),
   .dex-card:hover:not(:disabled),
-  .candidate-card:hover:not(:disabled),
   .target-card:hover,
   .stage-band:hover,
-  .legend-pill:hover,
   .manual-grid article:hover,
   .manual-stat:hover {
     border-color: color-mix(in srgb, currentColor 72%, var(--line-bright));
@@ -1331,7 +1284,6 @@ app-monster-card {
 
   .monster-card:hover:not(:disabled) .creature-sprite,
   .dex-card:hover:not(:disabled) .creature-sprite,
-  .candidate-card:hover:not(:disabled) .creature-sprite,
   .target-card:hover .creature-sprite,
   .squad-slot:hover .creature-sprite {
     filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 22px color-mix(in srgb, currentColor 34%, transparent)) saturate(1.28);
@@ -1515,8 +1467,7 @@ app-monster-card {
   .monster-card.selected .creature-sprite,
   .target-card.ready .creature-sprite,
   .squad-slot:not(.empty) .creature-sprite,
-  .dex-card.selected .creature-sprite,
-  .selected-icon .creature-sprite {
+  .dex-card.selected .creature-sprite {
     animation: sprite-idle-pulse 2.4s steps(2, end) infinite;
   }
 
@@ -1525,7 +1476,6 @@ app-monster-card {
     animation: data-flow 1.7s ease-in-out infinite alternate;
   }
 
-  .tab-button.active .tab-icon,
   .monster-card.selected .card-status,
   .target-card.ready button {
     animation: neon-breathe 1.8s ease-in-out infinite alternate;
@@ -1592,9 +1542,6 @@ app-monster-card {
 }
 
 @include bp.media-max(ultra) {
-  .tree-layout,
-  .squad-layout,
-  .collection-layout,
   .handbook-layout {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
   }
@@ -1609,10 +1556,6 @@ app-monster-card {
     grid-template-columns: 1fr;
   }
 
-  .tree-layout,
-  .squad-layout,
-  .arena-layout,
-  .collection-layout,
   .handbook-layout {
     height: auto;
     min-height: 0;
@@ -1643,7 +1586,6 @@ app-monster-card {
     align-items: center;
   }
 
-  .brand-mark,
   .brand-mark-image {
     width: 36px;
     height: 36px;
@@ -1661,17 +1603,13 @@ app-monster-card {
   }
 
   .stat-grid,
-  .collection-stats,
-  .filter-bar,
   .squad-slots,
   .manual-grid,
   .stage-legend {
     grid-template-columns: 1fr;
   }
 
-  .resource-cluster,
-  .status-cluster,
-  .context-cluster {
+  .status-cluster {
     flex-wrap: wrap;
   }
 
@@ -1692,8 +1630,7 @@ app-monster-card {
     grid-template-columns: 110px minmax(0, 1fr);
   }
 
-  .detail-icon,
-  .squad-icon {
+  .detail-icon {
     width: 110px;
     height: 110px;
     font-size: 2.55rem;
@@ -1732,7 +1669,6 @@ app-monster-card {
 }
 
 /* Accent tint on prominent shared surfaces (legacy components keep their palette). */
-.rail-go,
 .primary {
   background-image: linear-gradient(180deg, var(--accent-1), color-mix(in srgb, var(--accent-1) 70%, #000));
 }
@@ -1741,7 +1677,6 @@ app-monster-card {
 }
 
 /* Colorblind-safe: reinforce type/status text with weight + dotted underline. */
-:root[data-colorblind='on'] .type-chip,
 :root[data-colorblind='on'] .monster-meta,
 :root[data-colorblind='on'] .stat-label {
   font-weight: 700 !important;
@@ -1902,10 +1837,7 @@ app-monster-card {
   -webkit-line-clamp: 2;
 }
 
-.prep-console,
-.start-battle-action,
-.battle-contract-board,
-.after-action-queue {
+.battle-contract-board {
   scroll-margin-top: 12rem;
 }
 
