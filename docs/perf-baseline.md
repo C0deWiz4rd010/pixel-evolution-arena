@@ -51,3 +51,13 @@ cards against the 3.8k-line global stylesheet. Phase 4 (style system cleanup) re
 Other Phase 3 changes: idle prefetch of every view chunk and Pixi, 30 fps cap and off-screen pause
 for Pixi stages, still sprite copies for grids (`npm run sprites`), compositor-only background drift,
 stale-while-revalidate for unhashed assets in the service worker, initial bundle budget 480/650 kB.
+
+## After Phase 4 (2026-10-16)
+
+- Initial bundle 455.64 kB -> ~418 kB; global CSS 64.75 kB -> ~40 kB (dead rules, dead selectors and
+  unrendered component logic removed; stylesheet split into 11 partials).
+- Tab-switch main-thread animation work (throttled phone): ~230-270 ms -> ~40-80 ms, because the
+  overlay cue now starts after the new view's first frame and draws at most 30 fps.
+- A trace of the Collection switch shows raster work dominating under headless software
+  rendering (GPU raster on real devices); layout + style + paint for 683 nodes is ~0.5 s at 4x
+  throttle. Remaining structural improvements belong to Phase 5 (mobile layout pass).

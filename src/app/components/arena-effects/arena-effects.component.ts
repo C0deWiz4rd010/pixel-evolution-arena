@@ -25,6 +25,8 @@ interface Rgb {
 const MAX_PIXEL_RATIO = 1.5;
 const MAX_SPARKS = 160;
 const REDUCED_CUE_MS = 180;
+/** Short glows and sparks read the same at 30 fps and cost half the draw work. */
+const MIN_FRAME_MS = 1000 / 30;
 
 /**
  * Full-screen feedback overlay (tab switches, selections, squad changes, battle results).
@@ -109,7 +111,9 @@ export class ArenaEffectsComponent {
     effect(() => {
       const tab = this.activeTab();
       if (this.previousTab !== null && tab !== this.previousTab) {
-        this.play(this.effectRules.createMenuCue(tab));
+        // Let the newly opened view render its first frame before the overlay starts drawing.
+        const cue = this.effectRules.createMenuCue(tab);
+        requestAnimationFrame(() => requestAnimationFrame(() => this.play(cue)));
       }
       this.previousTab = tab;
     });
@@ -219,6 +223,10 @@ export class ArenaEffectsComponent {
     this.animationFrame = 0;
     const ctx = this.ctx;
     if (ctx === null || this.reducedMotion()) return;
+    if (timeMs - this.lastFrameMs < MIN_FRAME_MS - 1) {
+      this.animationFrame = window.requestAnimationFrame(this.animate);
+      return;
+    }
 
     const dt = Math.min(0.05, Math.max(0.001, (timeMs - this.lastFrameMs) / 1000));
     this.lastFrameMs = timeMs;

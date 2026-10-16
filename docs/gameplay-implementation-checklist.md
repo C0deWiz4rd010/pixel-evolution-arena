@@ -278,3 +278,10 @@ Use this checklist during Angular implementation.
 - Phase 2: GameStateService split into GameStore (root signals, roster index, log, debounced autosave) plus Gear, Research, Settings, Campaign, Achievements and Squad stores; 48 manual saves replaced by one debounced autosave (a full battle writes once); OnPush on every component; computed view-models for monster detail, forge and squad reserves; dead dashboard code and the mission-control module removed; `noUnusedLocals` enforced; TestBed store specs under jsdom.
 - Added `tests/layout-guard.spec.ts`: every primary view at 360/390/768/1440 px must render without page errors or content escaping the viewport. Fixed the evolution-target action buttons and the Handbook stage index that it caught.
 - `npm.cmd run typecheck` passed; `npm.cmd test -- --run` passed (194 tests / 32 files); `npm.cmd run build` passed without warnings (458.89 kB initial); `npm.cmd run test:e2e` passed (18 Playwright tests).
+
+2026-10-16 Phases 3-4:
+
+- Phase 3 (performance): Canvas 2D effect overlay that idles at 0 frames (Three.js removed), Pixi stages capped at 30 fps idle and paused off-screen, idle prefetch of all view chunks and Pixi, still sprite copies for grids, compositor-only background drift, service worker refreshes unhashed assets, `npm run perf` probe. See `docs/perf-baseline.md`.
+- Phase 4 (style system): 210 dead global rules and 30 dead selectors removed, ~450 lines of unrendered component logic plus three orphaned rule modules deleted, global stylesheet split into ordered partials (byte-identical output), 213 color literals tokenized, all SCSS formatted, readable type floor `--text-micro` (0.72rem), themable stage frame, accent themes re-tint the HUD, in-app reduced motion reaches CSS via `motion.reduced`.
+- Added a local visual regression net (`npm run test:visual`, viewport + full-page, phone + desktop); every refactor step above was pixel-verified against it.
+- `npm run typecheck` passed; `npm test -- --run` passed (183 tests / 30 files); `npm run build` passed without warnings; `npm run test:e2e` passed (18 tests incl. layout guard at 360/390/768/1440 px).

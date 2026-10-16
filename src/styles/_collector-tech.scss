@@ -1,6 +1,13 @@
 @use 'breakpoints' as bp;
 
 // Collector Tech card system: neutral surfaces, type tiers and narrow stage accents.
+//
+// This is a deliberate cross-component theme layer: it unifies cards that live in five different
+// components (family nodes, dex cards, squad slots, reserves, targets). Global styles load before
+// component styles and emulated encapsulation gives component selectors one extra attribute, so
+// the `body .app-shell` prefix (specificity 0,2,1) is what lets this layer win over component base
+// rules (0,2,0). Keep new overrides in this file and keep the prefix; do not raise specificity
+// further or reach for !important.
 
 /* Collector Tech card system ------------------------------------------------ */
 
