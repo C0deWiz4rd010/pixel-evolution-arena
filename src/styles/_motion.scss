@@ -1,0 +1,22 @@
+/// Reduced motion has two sources: the OS preference and the in-app Accessibility setting
+/// (mirrored to <html data-motion="reduced"> by AppComponent). Always use this mixin instead of a
+/// bare `@media (prefers-reduced-motion: reduce)` so both are honoured.
+///
+/// Global stylesheets: `@include motion.reduced { ... }` at the top level.
+/// Component stylesheets: same call; `:host-context` reaches the root attribute through
+/// Angular's emulated encapsulation.
+@mixin reduced($scope: component) {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+
+  @if $scope == global {
+    :root[data-motion='reduced'] {
+      @content;
+    }
+  } @else {
+    :host-context([data-motion='reduced']) {
+      @content;
+    }
+  }
+}

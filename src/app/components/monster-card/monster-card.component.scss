@@ -1,3 +1,4 @@
+@use '../../../styles/motion';
 :host {
   display: block;
 }
@@ -117,7 +118,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include motion.reduced {
   .monster-card,
   .monster-card:hover:not(.locked) {
     transition: none;

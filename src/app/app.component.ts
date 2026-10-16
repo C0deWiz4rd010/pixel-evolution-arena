@@ -94,6 +94,8 @@ export class AppComponent {
       root.dataset['typography'] = settings.typographyProfile;
       root.dataset['colorblind'] = settings.colorblindMode ? 'on' : 'off';
       root.dataset['reducedFx'] = settings.effectIntensity < 0.5 ? 'on' : 'off';
+      // In-app reduced motion must reach CSS too, not only the canvas layers.
+      root.dataset['motion'] = this.game.motionReduced() ? 'reduced' : 'full';
       root.lang = settings.language;
     });
 
