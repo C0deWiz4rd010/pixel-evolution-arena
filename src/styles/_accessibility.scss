@@ -1,7 +1,10 @@
 // Accent theming, colorblind support, effect intensity, skip link, screen-reader utilities.
 
-/* ===== Round-2 expansion: theming, battlefield banners, accessibility ===== */
-
+/*
+ * Accent themes. Aurora is the default cyan HUD. Ember and Mono re-tint the whole interface by
+ * overriding the line tokens that panels, borders, grids and glows derive from (color-mix on
+ * var(--line)), while stage colors stay fixed so creature identity never changes.
+ */
 :root {
   --accent-1: #18c8ff;
   --accent-2: #7cff3a;
@@ -9,10 +12,14 @@
 :root[data-accent='ember'] {
   --accent-1: #ff8a3a;
   --accent-2: #ffd23c;
+  --line: #ff8a3a;
+  --line-bright: #ffc79a;
 }
 :root[data-accent='mono'] {
   --accent-1: #9fb8d8;
   --accent-2: #d6e6ff;
+  --line: #9fb8d8;
+  --line-bright: #e3eeff;
 }
 
 /* Accent tint on prominent shared surfaces (legacy components keep their palette). */

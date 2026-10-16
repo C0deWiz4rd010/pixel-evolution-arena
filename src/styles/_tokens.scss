@@ -9,8 +9,8 @@
   --panel-glass: rgba(0, 0, 0, 0.34);
   --line: #13d8ff;
   --line-bright: #9cf6ff;
-  --line-soft: rgba(19, 216, 255, 0.28);
-  --grid-line: rgba(19, 216, 255, 0.1);
+  --line-soft: color-mix(in srgb, var(--line) 28%, transparent);
+  --grid-line: color-mix(in srgb, var(--line) 10%, transparent);
   --text: #eafaff;
   --muted: #aed9e7;
   --dim: #87aab9;
@@ -69,12 +69,12 @@
   --surface-card-raised: #0a1927;
   --surface-focus: #0b1d2d;
   --card-border: rgba(132, 184, 207, 0.2);
-  --card-border-strong: rgba(19, 216, 255, 0.52);
+  --card-border-strong: color-mix(in srgb, var(--line) 52%, transparent);
   --card-radius: 6px;
   --card-padding: 0.78rem;
   --card-gap: 0.7rem;
   --card-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
-  --focus-shadow: 0 0 0 1px rgba(156, 246, 255, 0.2), 0 12px 30px rgba(0, 0, 0, 0.28);
+  --focus-shadow: 0 0 0 1px color-mix(in srgb, var(--line-bright) 20%, transparent), 0 12px 30px rgba(0, 0, 0, 0.28);
   --texture-opacity: 0.2;
   --text-meta: 0.75rem;
   --text-body: 0.875rem;
@@ -105,7 +105,7 @@
   --surface-card: #041421;
   --surface-card-raised: #071c2b;
   --surface-focus: #082335;
-  --card-border: rgba(19, 216, 255, 0.34);
+  --card-border: color-mix(in srgb, var(--line) 34%, transparent);
   --card-border-strong: rgba(124, 255, 58, 0.72);
   --card-radius: 0;
   --card-padding: 0.64rem;
