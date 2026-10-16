@@ -12,7 +12,8 @@
     "sprites": "node scripts/build-sprite-stills.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project=chromium",
+    "test:visual": "playwright test --project=visual",
     "test:e2e:install": "node -e \"process.env.PLAYWRIGHT_BROWSERS_PATH='0';require('child_process').execSync('npx playwright install chromium',{stdio:'inherit'})\""
   },
   "private": true,

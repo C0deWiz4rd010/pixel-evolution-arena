@@ -20,9 +20,16 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120000,
   },
+  snapshotPathTemplate: '{testDir}/visual/__screenshots__/{arg}{ext}',
   projects: [
     {
       name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      // Local-only visual regression net (see tests/visual/views.visual.ts).
+      name: 'visual',
+      testMatch: /.*\.visual\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

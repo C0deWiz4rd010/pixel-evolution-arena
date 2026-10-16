@@ -44,3 +44,6 @@ baseline-*.png
 step*.png
 verify-*.png
 .claude/
+
+# Platform-specific visual regression baselines (generate locally, see tests/visual)
+tests/visual/__screenshots__/
