@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N029" data-stage="Rookie" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N029" data-stage="Rookie" data-type="Water">
   <title id="title">N029 Streamlynx sprite</title>
   <desc id="desc">Original Rookie Water pixel creature for Pixel Evolution Arena. Sleek lynx with river-stripe tail; balanced water carry.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="28,80 10,94 30,100" fill="#9df7ff"/>
     <polygon points="100,80 118,94 98,100" fill="#d6fdff"/>
@@ -40,5 +40,5 @@
     <rect x="48" y="59" width="2" height="2" fill="#9df7ff"/>
     <rect x="76" y="59" width="2" height="2" fill="#9df7ff"/>
     </g>
-  </g>
+  </g></g>
 </svg>

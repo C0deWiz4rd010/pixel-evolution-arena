@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N028" data-stage="Rookie" data-type="Fire">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N028" data-stage="Rookie" data-type="Fire">
   <title id="title">N028 Ashjack sprite</title>
   <desc id="desc">Original Rookie Fire pixel creature for Pixel Evolution Arena. Jackal-like ash sprite with square flame ears; early burst attacker.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="64,31 54,55 66,51" fill="#ffd05a" class="glow"/>
     <polygon points="72,39 66,59 82,55" fill="#ff7134" class="glow"/>
@@ -35,5 +35,5 @@
     <rect x="48" y="57" width="2" height="2" fill="#ffd05a"/>
     <rect x="76" y="57" width="2" height="2" fill="#ffd05a"/>
     </g>
-  </g>
+  </g></g>
 </svg>

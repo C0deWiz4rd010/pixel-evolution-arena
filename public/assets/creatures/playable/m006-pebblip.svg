@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M006" data-stage="Baby" data-type="Beast">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M006" data-stage="Baby" data-type="Beast">
   <title id="title">Pebblip sprite</title>
   <desc id="desc">Original Baby Beast pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#1c0f06" stroke-width="0">
+  <g class="idle" stroke="#1c0f06" stroke-width="0"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     
     <rect x="48" y="114" width="32" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="57,87 71,87 78,94 78,101 71,108 57,108 50,101 50,94" fill="#7a451d"/>
@@ -41,5 +41,5 @@
     <rect x="61" y="101" width="6" height="2" rx="1" fill="#1c0f06" opacity="0.8"/>
     <rect x="62.5" y="97.5" width="4" height="8" rx="1" fill="#ffb24d" class="glow" opacity="0.8"/>
     <rect class="scan" x="52" y="87" width="24" height="3" fill="#fff0d6" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

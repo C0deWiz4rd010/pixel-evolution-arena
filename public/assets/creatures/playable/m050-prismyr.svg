@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M050" data-stage="Special" data-type="Light">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M050" data-stage="Special" data-type="Light">
   <title id="title">Prismyr sprite</title>
   <desc id="desc">Original Special Light pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -7,6 +7,8 @@
     .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.08s steps(2, end) infinite; }
     .eyes { transform-box: fill-box; transform-origin: center; animation: blink 3.8s steps(1, end) infinite; }
     .glow { animation: glow 2.2s steps(2, end) infinite; }
+    .aura { opacity: 0.08; animation: aura 3.2s ease-in-out infinite; }
+    @keyframes aura { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
     .scan { transform-box: fill-box; animation: scan 3.1s linear infinite; }
     .wing { transform-box: fill-box; transform-origin: center; animation: flap 1.6s ease-in-out infinite; }
     .wr { transform-origin: left center; }
@@ -24,11 +26,11 @@
     @keyframes flick { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18) translateY(-2px); } }
     @keyframes drip { 0%, 60% { transform: translateY(0); opacity: 0.9; } 90% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
     @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .aura { animation: none; } .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
   <g class="idle" stroke="#2a2206" stroke-width="0">
-    <rect x="28" y="20" width="72" height="98" rx="6" fill="#ffe884" class="glow" opacity="0.07"/>
+    <polygon points="42,22 86,22 98,34 98,104 86,116 42,116 30,104 30,34" fill="#ffe884" class="aura"/>
     <polygon class="wing wl" points="46,48.24 8,42.24 14,95.84 48,76.8" fill="#9a7a14"/>
     <polygon class="wing wl" points="44,51.24 13,50.24 17,81.56 46,72.04" fill="#ffce3a" opacity="0.85"/>
     <polygon class="wing wr" points="82,48.24 120,42.24 114,95.84 80,76.8" fill="#9a7a14"/>

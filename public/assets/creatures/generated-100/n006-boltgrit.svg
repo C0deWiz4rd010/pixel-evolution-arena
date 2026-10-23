@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N006" data-stage="Baby" data-type="Machine">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N006" data-stage="Baby" data-type="Machine">
   <title id="title">N006 Boltgrit sprite</title>
   <desc id="desc">Original Baby Machine pixel creature for Pixel Evolution Arena. Chunky screw pebble with static feet; defensive starter for machine builds.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="60" y="52" width="8" height="16" fill="#334156"/>
     <rect x="56" y="48" width="16" height="6" fill="#61f4ff" class="glow"/>
@@ -36,5 +36,5 @@
     <rect x="51" y="76" width="4" height="6" fill="#0e1724"/>
     <rect x="73" y="76" width="4" height="6" fill="#0e1724"/>
     </g>
-  </g>
+  </g></g>
 </svg>

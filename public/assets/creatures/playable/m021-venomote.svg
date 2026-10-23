@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M021" data-stage="Rookie" data-type="Toxic">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M021" data-stage="Rookie" data-type="Toxic">
   <title id="title">Venomote sprite</title>
   <desc id="desc">Original Rookie Toxic pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#0c1a05" stroke-width="0">
+  <g class="idle" stroke="#0c1a05" stroke-width="0"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     
     <rect x="43.5" y="114" width="41" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="49.5,76 78.5,76 82.5,80 82.5,104 78.5,108 49.5,108 45.5,104 45.5,80" fill="#3a2266"/>
@@ -47,5 +47,5 @@
     <rect x="57.5" y="92" width="4" height="8" rx="1" fill="#c084fc" class="glow" opacity="0.8"/>
     <rect x="67.5" y="96" width="4" height="8" rx="1" fill="#c084fc" class="glow" opacity="0.8"/>
     <rect class="scan" x="47.5" y="76" width="33" height="3" fill="#f1ffcf" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

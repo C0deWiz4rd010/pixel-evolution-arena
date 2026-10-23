@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N013" data-stage="In-Training" data-type="Nature">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N013" data-stage="In-Training" data-type="Nature">
   <title id="title">N013 Leaflatch sprite</title>
   <desc id="desc">Original In-Training Nature pixel creature for Pixel Evolution Arena. Latching leaf bug with clampy vines; low-cost wall for first squad.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="57,64 34,74 50,84" fill="#b7ff5f"/>
     <polygon points="71,64 94,74 78,84" fill="#ecffd1"/>
@@ -33,5 +33,5 @@
     <rect x="49" y="75" width="4" height="6" fill="#06180f"/>
     <rect x="75" y="75" width="4" height="6" fill="#06180f"/>
     </g>
-  </g>
+  </g></g>
 </svg>

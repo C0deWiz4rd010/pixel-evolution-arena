@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M053" data-stage="Champion" data-type="Dark">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M053" data-stage="Champion" data-type="Dark">
   <title id="title">Hollowveil sprite</title>
   <desc id="desc">Original Champion Dark pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[

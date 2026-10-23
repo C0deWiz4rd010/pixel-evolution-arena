@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M020" data-stage="Rookie" data-type="Nature">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M020" data-stage="Rookie" data-type="Nature">
   <title id="title">Mossnail sprite</title>
   <desc id="desc">Original Rookie Nature pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#06180f" stroke-width="0">
+  <g class="idle" stroke="#06180f" stroke-width="0"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     
     <rect x="49" y="114" width="30" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="58,67 70,67 77,74 77,101 70,108 58,108 51,101 51,74" fill="#13693a"/>
@@ -48,5 +48,5 @@
     <rect x="62.5" y="91.5" width="4" height="8" rx="1" fill="#b7ff5f" class="glow" opacity="0.8"/>
     <rect x="72.5" y="87.5" width="4" height="8" rx="1" fill="#b7ff5f" class="glow" opacity="0.8"/>
     <rect class="scan" x="53" y="67" width="22" height="3" fill="#eaffd0" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

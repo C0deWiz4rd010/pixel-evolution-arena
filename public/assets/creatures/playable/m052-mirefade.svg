@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M052" data-stage="Rookie" data-type="Dark">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M052" data-stage="Rookie" data-type="Dark">
   <title id="title">Mirefade sprite</title>
   <desc id="desc">Original Rookie Dark pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#070310" stroke-width="0">
+  <g class="idle" stroke="#070310" stroke-width="0"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <polygon class="tail" points="82,96 98,84 94,100 100,106" fill="#241548"/>
     <rect x="95" y="86" width="5" height="5" fill="#d95dff" class="glow"/>
     <rect x="42" y="114" width="44" height="6" rx="3" fill="#000000" opacity="0.24"/>
@@ -48,5 +48,5 @@
     <rect x="66" y="97" width="2" height="3" fill="#f0d8ff"/>
     <rect x="62.5" y="94.5" width="4" height="8" rx="1" fill="#d95dff" class="glow" opacity="0.8"/>
     <rect class="scan" x="46" y="81" width="36" height="3" fill="#f0d8ff" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

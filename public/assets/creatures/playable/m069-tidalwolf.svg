@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M069" data-stage="Rookie" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M069" data-stage="Rookie" data-type="Water">
   <title id="title">TidalWolf sprite</title>
   <desc id="desc">Original Rookie Water pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0">
+  <g class="idle" stroke="#041826" stroke-width="0"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <polygon class="tail" points="48,96 32,84 36,100 30,106" fill="#0d5278"/>
     <rect x="35" y="86" width="5" height="5" fill="#36d6ff" class="glow"/>
     <rect x="44" y="114" width="40" height="6" rx="3" fill="#000000" opacity="0.24"/>
@@ -47,5 +47,5 @@
     <polygon points="59,78.5 69,78.5 67,82.5 61,82.5" fill="#041826" opacity="0.85"/>
     <rect x="62.5" y="92" width="4" height="8" rx="1" fill="#36d6ff" class="glow" opacity="0.8"/>
     <rect class="scan" x="48" y="76" width="32" height="3" fill="#e3fbff" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

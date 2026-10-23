@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M001" data-stage="Baby" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M001" data-stage="Baby" data-type="Water">
   <title id="title">Bubblit sprite</title>
   <desc id="desc">Original Baby Water pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0">
+  <g class="idle" stroke="#041826" stroke-width="0"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     
     <rect x="50" y="114" width="28" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="57,84 71,84 76,89 76,103 71,108 57,108 52,103 52,89" fill="#0d5278"/>
@@ -40,5 +40,5 @@
     <rect x="61" y="99" width="6" height="2" rx="1" fill="#041826" opacity="0.8"/>
     <rect x="62.5" y="96" width="4" height="8" rx="1" fill="#36d6ff" class="glow" opacity="0.8"/>
     <rect class="scan" x="54" y="84" width="20" height="3" fill="#e3fbff" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

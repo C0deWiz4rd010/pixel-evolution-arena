@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N003" data-stage="Baby" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N003" data-stage="Baby" data-type="Water">
   <title id="title">N003 Tideblink sprite</title>
   <desc id="desc">Original Baby Water pixel creature for Pixel Evolution Arena. Teardrop sprite with blinking fin; balanced HP and reward-farm comfort.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="36,82 18,96 38,102" fill="#9df7ff"/>
     <polygon points="92,82 110,96 90,102" fill="#d6fdff"/>
@@ -34,5 +34,5 @@
     <rect x="73" y="75" width="4" height="6" fill="#041826"/>
     </g>
     <polygon points="46,62 54,48 64,60 74,48 82,62" fill="#9df7ff" class="glow"/>
-  </g>
+  </g></g>
 </svg>

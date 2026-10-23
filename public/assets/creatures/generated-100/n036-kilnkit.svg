@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N036" data-stage="Rookie" data-type="Fire">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N036" data-stage="Rookie" data-type="Fire">
   <title id="title">N036 Kilnkit sprite</title>
   <desc id="desc">Original Rookie Fire pixel creature for Pixel Evolution Arena. Kiln-shelled kitten with vent tail; sturdy fire starter upgrade.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="64,37 54,61 66,57" fill="#ffd05a" class="glow"/>
     <polygon points="72,45 66,65 82,61" fill="#ff7134" class="glow"/>
@@ -41,5 +41,5 @@
     </g>
     <rect x="48" y="82" width="32" height="6" fill="#fff0bd" opacity="0.85"/>
     <rect x="56" y="74" width="16" height="4" fill="#ffd05a" opacity="0.8"/>
-  </g>
+  </g></g>
 </svg>

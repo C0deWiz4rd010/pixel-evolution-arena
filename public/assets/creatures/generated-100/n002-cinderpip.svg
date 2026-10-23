@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N002" data-stage="Baby" data-type="Fire">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N002" data-stage="Baby" data-type="Fire">
   <title id="title">N002 Cinderpip sprite</title>
   <desc id="desc">Original Baby Fire pixel creature for Pixel Evolution Arena. Tiny coal chick with pixel ember tail; fast opener for first battles.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="64,50 54,74 66,70" fill="#ffd05a" class="glow"/>
     <polygon points="72,58 66,78 82,74" fill="#ff7134" class="glow"/>
@@ -30,5 +30,5 @@
     <rect x="51" y="73" width="4" height="6" fill="#260704"/>
     <rect x="73" y="73" width="4" height="6" fill="#260704"/>
     </g>
-  </g>
+  </g></g>
 </svg>

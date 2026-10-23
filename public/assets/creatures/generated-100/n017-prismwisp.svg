@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N017" data-stage="In-Training" data-type="Light">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N017" data-stage="In-Training" data-type="Light">
   <title id="title">N017 Prismwisp sprite</title>
   <desc id="desc">Original In-Training Light pixel creature for Pixel Evolution Arena. Prism flame with glassy tail; fast support and crit-protection fantasy.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#2a2305" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#2a2305" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="46" y="50" width="36" height="4" fill="#ffffff" class="glow"/>
     <rect x="42" y="54" width="6" height="4" fill="#ffffff" class="glow"/>
@@ -32,5 +32,5 @@
     <rect x="49" y="74" width="4" height="6" fill="#2a2305"/>
     <rect x="75" y="74" width="4" height="6" fill="#2a2305"/>
     </g>
-  </g>
+  </g></g>
 </svg>

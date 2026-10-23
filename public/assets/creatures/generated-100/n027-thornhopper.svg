@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N027" data-stage="Rookie" data-type="Nature">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N027" data-stage="Rookie" data-type="Nature">
   <title id="title">N027 Thornhopper sprite</title>
   <desc id="desc">Original Rookie Nature pixel creature for Pixel Evolution Arena. Grasshopper with thorn knees; evasive nature scout, good third squad slot.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="57,49 34,59 50,69" fill="#b7ff5f"/>
     <polygon points="71,49 94,59 78,69" fill="#ecffd1"/>
@@ -39,5 +39,5 @@
     </g>
     <polygon points="46,55 20,45 32,65" fill="#b7ff5f"/>
     <polygon points="82,55 108,45 96,65" fill="#b7ff5f"/>
-  </g>
+  </g></g>
 </svg>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N038" data-stage="Rookie" data-type="Dark">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N038" data-stage="Rookie" data-type="Dark">
   <title id="title">N038 Shadehook sprite</title>
   <desc id="desc">Original Rookie Dark pixel creature for Pixel Evolution Arena. Hook-clawed shadow climber; disruptor that wants speed items.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="46,51 30,35 38,63" fill="#1a1034"/>
     <polygon points="82,51 98,35 90,63" fill="#1a1034"/>
@@ -38,5 +38,5 @@
     </g>
     <rect x="46" y="94" width="8" height="4" fill="#f0c6ff"/>
     <rect x="74" y="94" width="8" height="4" fill="#f0c6ff"/>
-  </g>
+  </g></g>
 </svg>

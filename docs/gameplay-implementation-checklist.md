@@ -312,3 +312,12 @@ Use this checklist during Angular implementation.
 - Reward reveal counts coins/DNA/XP up from zero (reduced motion snaps).
 - New `EvolutionRevealComponent`: a 1.5 s skippable celebration (click or Escape) tinted in the new stage color, static under reduced motion.
 - Global button press state (1 px sink) that respects both OS and in-app reduced motion.
+
+2026-10-23 Phase 8 (monster art):
+
+- New `tools/sprite-upgrade.mjs` art-bible pass, applied to all 71 playable and 100 generated sprites (`tools/generate-creatures.mjs` calls it; `tools/upgrade-creatures.mjs generated-100` upgrades the second set in place, then `npm run sprites` rebuilds the still copies).
+- Fixed the hard colored box behind Champion+ creatures (flat aura rectangles were animated to near-full opacity by the glow keyframes); auras are now soft octagons with their own low-opacity pulse.
+- Baby / In-Training / Rookie art is scaled up around the ground line (1.45 / 1.32 / 1.15) so low stages fill the canvas; progression by stage stays monotonic.
+- Fixed Budchip's duplicated/overlapping eyes.
+- `npm run sprites:check` validates all sprites (viewBox, reduced-motion block, no scripts or external refs, size budget, art pass applied).
+- Not done: a hand-drawn redesign of individual silhouettes, and migrating the three remaining `.creature-sprite` templates (monster card, monster detail) to `app-creature-portrait` (visual-regression risk for little gain).

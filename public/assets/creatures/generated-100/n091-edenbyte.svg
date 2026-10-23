@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N091" data-stage="Special" data-type="Nature">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N091" data-stage="Special" data-type="Nature">
   <title id="title">N091 Edenbyte sprite</title>
   <desc id="desc">Original Special Nature pixel creature for Pixel Evolution Arena. Secret garden server-beast; collection chase for sustain players.</desc>
   <style><![CDATA[
@@ -7,17 +7,19 @@
     .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
     .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
     .glow { animation: glow 2.6s steps(2, end) infinite; }
+    .aura { opacity: 0.08; animation: aura 3.2s ease-in-out infinite; }
+    @keyframes aura { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
     .scan { animation: scan 3.1s linear infinite; }
     @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
     @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
     @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
     @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
-    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .aura { animation: none; } .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
   <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
-    <rect x="18" y="22" width="92" height="84" fill="#b7ff5f" class="glow" opacity="0.08"/>
-    <rect x="22" y="18" width="84" height="92" fill="#ecffd1" class="glow" opacity="0.06"/>
+    <polygon points="32,24 96,24 108,36 108,92 96,104 32,104 20,92 20,36" fill="#b7ff5f" class="aura"/>
+    <polygon points="36,20 92,20 104,32 104,96 92,108 36,108 24,96 24,32" fill="#ecffd1" class="aura"/>
     <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="57,29 34,39 50,49" fill="#b7ff5f"/>
     <polygon points="71,29 94,39 78,49" fill="#ecffd1"/>

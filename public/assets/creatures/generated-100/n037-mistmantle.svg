@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N037" data-stage="Rookie" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N037" data-stage="Rookie" data-type="Water">
   <title id="title">N037 Mistmantle sprite</title>
   <desc id="desc">Original Rookie Water pixel creature for Pixel Evolution Arena. Cloaked manta pup made of fog pixels; evasion-control flavor.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.15) translate(-64 -116)">
     <rect x="32" y="106" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="26,76 8,90 28,96" fill="#9df7ff"/>
     <polygon points="102,76 120,90 100,96" fill="#d6fdff"/>
@@ -36,5 +36,5 @@
     <rect x="48" y="55" width="2" height="2" fill="#9df7ff"/>
     <rect x="76" y="55" width="2" height="2" fill="#9df7ff"/>
     </g>
-  </g>
+  </g></g>
 </svg>

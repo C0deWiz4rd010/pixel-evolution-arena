@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M003" data-stage="Baby" data-type="Fire">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M003" data-stage="Baby" data-type="Fire">
   <title id="title">Emberling sprite</title>
   <desc id="desc">Original Baby Fire pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#260803" stroke-width="0">
+  <g class="idle" stroke="#260803" stroke-width="0"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     
     <rect x="47.5" y="114" width="33" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="54.5,87 73.5,87 78.5,92 78.5,103 73.5,108 54.5,108 49.5,103 49.5,92" fill="#8a2208"/>
@@ -41,5 +41,5 @@
     <rect x="61" y="101" width="6" height="2" rx="1" fill="#260803" opacity="0.8"/>
     <rect x="62.5" y="97.5" width="4" height="8" rx="1" fill="#ff9c24" class="glow" opacity="0.8"/>
     <rect class="scan" x="51.5" y="87" width="25" height="3" fill="#fff1c2" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

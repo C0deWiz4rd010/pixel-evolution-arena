@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N052" data-stage="Champion" data-type="Machine">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N052" data-stage="Champion" data-type="Machine">
   <title id="title">N052 Circuitelk sprite</title>
   <desc id="desc">Original Champion Machine pixel creature for Pixel Evolution Arena. Elk frame with circuit antlers; utility tank, boosts item-chase fantasy.</desc>
   <style><![CDATA[
@@ -7,16 +7,18 @@
     .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.4s steps(2, end) infinite; }
     .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.45s steps(1, end) infinite; }
     .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .aura { opacity: 0.08; animation: aura 3.2s ease-in-out infinite; }
+    @keyframes aura { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
     .scan { animation: scan 3.64s linear infinite; }
     @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
     @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
     @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
     @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
-    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .aura { animation: none; } .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
   <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
-    <rect x="26" y="30" width="76" height="70" fill="#61f4ff" class="glow" opacity="0.06"/>
+    <polygon points="40,32 88,32 100,44 100,86 88,98 40,98 28,86 28,44" fill="#61f4ff" class="aura"/>
     <rect x="32" y="110" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="60" y="25" width="8" height="16" fill="#334156"/>
     <rect x="56" y="21" width="16" height="6" fill="#61f4ff" class="glow"/>

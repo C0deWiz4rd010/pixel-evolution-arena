@@ -16,6 +16,7 @@
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { upgradeSvg } from './sprite-upgrade.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '..', 'public', 'assets', 'creatures', 'playable');
@@ -458,7 +459,7 @@ mkdirSync(OUT_DIR, { recursive: true });
 const manifest = [];
 for (const mon of ROSTER) {
   const file = `${mon.id.toLowerCase()}-${slug(mon.name)}.svg`;
-  writeFileSync(join(OUT_DIR, file), buildSvg(mon), 'utf8');
+  writeFileSync(join(OUT_DIR, file), upgradeSvg(buildSvg(mon)), 'utf8');
   manifest.push({ id: mon.id, file });
 }
 writeFileSync(join(OUT_DIR, '_manifest.json'), JSON.stringify(manifest, null, 2));

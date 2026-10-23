@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M004" data-stage="Baby" data-type="Dark">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M004" data-stage="Baby" data-type="Dark">
   <title id="title">Shadepuff sprite</title>
   <desc id="desc">Original Baby Dark pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#070310" stroke-width="0">
+  <g class="idle" stroke="#070310" stroke-width="0"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     
     <rect x="47" y="114" width="34" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="54,87 74,87 79,92 79,103 74,108 54,108 49,103 49,92" fill="#241548"/>
@@ -42,5 +42,5 @@
     <rect x="57.5" y="97.5" width="4" height="8" rx="1" fill="#d95dff" class="glow" opacity="0.8"/>
     <rect x="67.5" y="101.5" width="4" height="8" rx="1" fill="#d95dff" class="glow" opacity="0.8"/>
     <rect class="scan" x="51" y="87" width="26" height="3" fill="#f0d8ff" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

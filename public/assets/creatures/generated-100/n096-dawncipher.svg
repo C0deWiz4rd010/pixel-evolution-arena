@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N096" data-stage="Special" data-type="Light">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N096" data-stage="Special" data-type="Light">
   <title id="title">N096 Dawncipher sprite</title>
   <desc id="desc">Original Special Light pixel creature for Pixel Evolution Arena. Cipher-wing dawn sentinel; converts dark or light lines into redemption chase.</desc>
   <style><![CDATA[
@@ -7,17 +7,19 @@
     .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.25s steps(2, end) infinite; }
     .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s steps(1, end) infinite; }
     .glow { animation: glow 2.8s steps(2, end) infinite; }
+    .aura { opacity: 0.08; animation: aura 3.2s ease-in-out infinite; }
+    @keyframes aura { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
     .scan { animation: scan 4s linear infinite; }
     @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
     @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
     @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
     @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
-    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .aura { animation: none; } .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
   <g class="idle" stroke="#2a2305" stroke-width="0" stroke-linejoin="miter">
-    <rect x="18" y="22" width="92" height="84" fill="#ffffff" class="glow" opacity="0.08"/>
-    <rect x="22" y="18" width="84" height="92" fill="#fff9c7" class="glow" opacity="0.06"/>
+    <polygon points="32,24 96,24 108,36 108,92 96,104 32,104 20,92 20,36" fill="#ffffff" class="aura"/>
+    <polygon points="36,20 92,20 104,32 104,96 92,108 36,108 24,96 24,32" fill="#fff9c7" class="aura"/>
     <rect x="32" y="116" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="46" y="21" width="36" height="4" fill="#ffffff" class="glow"/>
     <rect x="42" y="25" width="6" height="4" fill="#ffffff" class="glow"/>

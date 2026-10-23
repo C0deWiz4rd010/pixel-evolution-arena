@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N023" data-stage="In-Training" data-type="Water">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N023" data-stage="In-Training" data-type="Water">
   <title id="title">N023 Shellstream sprite</title>
   <desc id="desc">Original In-Training Water pixel creature for Pixel Evolution Arena. Little shell raft with water feet; high defense bridge.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#041826" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="33,78 15,92 35,98" fill="#9df7ff"/>
     <polygon points="95,78 113,92 93,98" fill="#d6fdff"/>
@@ -33,5 +33,5 @@
     </g>
     <rect x="53" y="78" width="22" height="6" fill="#d6fdff" opacity="0.85"/>
     <rect x="61" y="70" width="6" height="4" fill="#9df7ff" opacity="0.8"/>
-  </g>
+  </g></g>
 </svg>

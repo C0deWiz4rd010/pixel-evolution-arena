@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M066" data-stage="In-Training" data-type="Beast">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="M066" data-stage="In-Training" data-type="Beast">
   <title id="title">Rockpup sprite</title>
   <desc id="desc">Original In-Training Beast pixel creature for Pixel Evolution Arena.</desc>
   <style><![CDATA[
@@ -27,7 +27,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan, .wing, .flame, .ember, .halo, .drip, .bob-leaf { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#1c0f06" stroke-width="0">
+  <g class="idle" stroke="#1c0f06" stroke-width="0"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     
     <rect x="43" y="114" width="42" height="6" rx="3" fill="#000000" opacity="0.24"/>
     <polygon points="51,86 77,86 83,92 83,102 77,108 51,108 45,102 45,92" fill="#7a451d"/>
@@ -45,5 +45,5 @@
     <rect x="62.5" y="101" width="4" height="8" rx="1" fill="#ffb24d" class="glow" opacity="0.8"/>
     <rect x="72.5" y="97" width="4" height="8" rx="1" fill="#ffb24d" class="glow" opacity="0.8"/>
     <rect class="scan" x="47" y="86" width="34" height="3" fill="#fff0d6" opacity="0.2"/>
-  </g>
+  </g></g>
 </svg>

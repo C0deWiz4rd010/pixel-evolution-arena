@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N074" data-stage="Ultimate" data-type="Toxic">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N074" data-stage="Ultimate" data-type="Toxic">
   <title id="title">N074 Plagueforge sprite</title>
   <desc id="desc">Original Ultimate Toxic pixel creature for Pixel Evolution Arena. Bio-forge with dripping smokestacks; poison plus armor archetype.</desc>
   <style><![CDATA[
@@ -7,16 +7,18 @@
     .idle { transform-box: fill-box; transform-origin: center bottom; animation: bob 2.35s steps(2, end) infinite; }
     .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.95s steps(1, end) infinite; }
     .glow { animation: glow 2.4s steps(2, end) infinite; }
+    .aura { opacity: 0.08; animation: aura 3.2s ease-in-out infinite; }
+    @keyframes aura { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
     .scan { animation: scan 3.28s linear infinite; }
     @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
     @keyframes blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.12); } }
     @keyframes glow { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.88; } }
     @keyframes scan { 0% { transform: translateY(-4px); opacity: 0.15; } 50% { opacity: 0.5; } 100% { transform: translateY(7px); opacity: 0.15; } }
-    @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .aura { animation: none; } .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
   <g class="idle" stroke="#102000" stroke-width="0" stroke-linejoin="miter">
-    <rect x="26" y="30" width="76" height="70" fill="#e4ff47" class="glow" opacity="0.06"/>
+    <polygon points="40,32 88,32 100,44 100,86 88,98 40,98 28,86 28,44" fill="#e4ff47" class="aura"/>
     <rect x="32" y="114" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="52" y="30" width="24" height="8" fill="#e4ff47" class="glow"/>
     <rect x="56" y="24" width="16" height="6" fill="#f6ffb8" opacity="0.8"/>

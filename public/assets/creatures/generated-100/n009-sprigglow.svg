@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N009" data-stage="Baby" data-type="Nature">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N009" data-stage="Baby" data-type="Nature">
   <title id="title">N009 Sprigglow sprite</title>
   <desc id="desc">Original Baby Nature pixel creature for Pixel Evolution Arena. Glowing seedling lantern; nature/light bridge for safe squads.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#06180f" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.45) translate(-64 -116)">
     <rect x="32" y="98" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="57,68 34,78 50,88" fill="#b7ff5f"/>
     <polygon points="71,68 94,78 78,88" fill="#ecffd1"/>
@@ -34,5 +34,5 @@
     </g>
     <polygon points="42,84 18,68 28,108" fill="#124a2c" opacity="0.92"/>
     <polygon points="86,84 110,68 100,108" fill="#124a2c" opacity="0.92"/>
-  </g>
+  </g></g>
 </svg>

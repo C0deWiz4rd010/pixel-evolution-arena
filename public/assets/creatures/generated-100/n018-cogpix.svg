@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N018" data-stage="In-Training" data-type="Machine">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N018" data-stage="In-Training" data-type="Machine">
   <title id="title">N018 Cogpix sprite</title>
   <desc id="desc">Original In-Training Machine pixel creature for Pixel Evolution Arena. Tiny cog fairy with antenna wings; reward utility and block lines.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#0e1724" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <rect x="60" y="50" width="8" height="16" fill="#334156"/>
     <rect x="56" y="46" width="16" height="6" fill="#61f4ff" class="glow"/>
@@ -40,5 +40,5 @@
     <rect x="65" y="74" width="8" height="8" fill="#0e1724"/>
     <rect x="57" y="76" width="4" height="4" fill="#61f4ff" class="glow"/>
     <rect x="67" y="76" width="4" height="4" fill="#61f4ff" class="glow"/>
-  </g>
+  </g></g>
 </svg>

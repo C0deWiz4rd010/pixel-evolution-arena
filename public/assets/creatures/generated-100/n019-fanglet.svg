@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N019" data-stage="In-Training" data-type="Beast">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N019" data-stage="In-Training" data-type="Beast">
   <title id="title">N019 Fanglet sprite</title>
   <desc id="desc">Original In-Training Beast pixel creature for Pixel Evolution Arena. Round pup with one oversized fang; durable early bruiser.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#221005" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#221005" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="46,74 36,56 56,68" fill="#5b2d17"/>
     <polygon points="82,74 92,56 72,68" fill="#5b2d17"/>
@@ -33,5 +33,5 @@
     </g>
     <rect x="46" y="90" width="8" height="4" fill="#ffe7c7"/>
     <rect x="74" y="90" width="8" height="4" fill="#ffe7c7"/>
-  </g>
+  </g></g>
 </svg>

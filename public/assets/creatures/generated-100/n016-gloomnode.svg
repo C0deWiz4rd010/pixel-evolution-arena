@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N016" data-stage="In-Training" data-type="Dark">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N016" data-stage="In-Training" data-type="Dark">
   <title id="title">N016 Gloomnode sprite</title>
   <desc id="desc">Original In-Training Dark pixel creature for Pixel Evolution Arena. Floating black node with cable whiskers; fragile but high speed.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#070310" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="46,66 30,50 38,78" fill="#1a1034"/>
     <polygon points="82,66 98,50 90,78" fill="#1a1034"/>
@@ -34,5 +34,5 @@
     <rect x="49" y="74" width="4" height="6" fill="#070310"/>
     <rect x="75" y="74" width="4" height="6" fill="#070310"/>
     </g>
-  </g>
+  </g></g>
 </svg>

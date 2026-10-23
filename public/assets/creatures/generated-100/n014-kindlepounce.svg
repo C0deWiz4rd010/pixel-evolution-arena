@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N014" data-stage="In-Training" data-type="Fire">
+<svg data-art="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" shape-rendering="crispEdges" role="img" aria-labelledby="title desc" data-creature-id="N014" data-stage="In-Training" data-type="Fire">
   <title id="title">N014 Kindlepounce sprite</title>
   <desc id="desc">Original In-Training Fire pixel creature for Pixel Evolution Arena. Small spring-legged ember cat; fast attack and first-hit logs.</desc>
   <style><![CDATA[
@@ -15,7 +15,7 @@
     @media (prefers-reduced-motion: reduce) { .idle, .eyes, .glow, .scan { animation: none; } }
   ]]></style>
   <rect width="128" height="128" fill="none"/>
-  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter">
+  <g class="idle" stroke="#260704" stroke-width="0" stroke-linejoin="miter"><g transform="translate(64 116) scale(1.32) translate(-64 -116)">
     <rect x="32" y="102" width="64" height="6" fill="#000000" opacity="0.22"/>
     <polygon points="64,48 54,72 66,68" fill="#ffd05a" class="glow"/>
     <polygon points="72,56 66,76 82,72" fill="#ff7134" class="glow"/>
@@ -32,5 +32,5 @@
     <rect x="49" y="74" width="4" height="6" fill="#260704"/>
     <rect x="75" y="74" width="4" height="6" fill="#260704"/>
     </g>
-  </g>
+  </g></g>
 </svg>
