@@ -330,3 +330,11 @@ Use this checklist during Angular implementation.
 - New keyboard shortcut overlay (`?`), alongside the existing 1-5 and Space/Enter shortcuts.
 - Colorblind mode adds a stage glyph to every portrait, so stage never relies on color alone.
 - Open decision: the Language setting still only translates the onboarding buttons. Options are English only (matches AGENTS.md), full bilingual, or German only; not changed without a decision.
+
+2026-10-28 Phase 10 (test, CI, release):
+
+- Added `items.rules` specs; unit suite now 192 tests / 32 files. Phase TODO documents moved to `docs/archive/`.
+- New `.github/workflows/ci.yml` (typecheck, unit tests, sprite validation, budgeted production build, Chromium e2e incl. layout guard and axe); Playwright's web server command is now platform neutral.
+- Version 0.23.0. Perf probe recorded in `docs/perf-baseline.md`.
+- Not done: Firefox/WebKit projects (browsers not installed here), Lighthouse-CI, and a service-worker update prompt.
+- Not done on purpose: pushing and merging to `develop` (which triggers the Pages deploy) wait for an explicit go-ahead.

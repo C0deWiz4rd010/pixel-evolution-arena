@@ -61,3 +61,7 @@ stale-while-revalidate for unhashed assets in the service worker, initial bundle
 - A trace of the Collection switch shows raster work dominating under headless software
   rendering (GPU raster on real devices); layout + style + paint for 683 nodes is ~0.5 s at 4x
   throttle. Remaining structural improvements belong to Phase 5 (mobile layout pass).
+
+## After Phases 5-9 (2026-10-28, v0.23.0)
+
+Throttled phone profile (390x844, 4x CPU): LCP 1092 ms, startup long tasks 1137 ms, idle rAF 0/s, Collection tab switch 847 ms, initial bundle 428 kB (budget: warn 480 kB, error 650 kB).

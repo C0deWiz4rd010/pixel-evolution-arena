@@ -15,7 +15,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'npm.cmd run start -- --host 127.0.0.1 --port 4300',
+    command: 'npm run start -- --host 127.0.0.1 --port 4300',
     url: 'http://127.0.0.1:4300',
     reuseExistingServer: true,
     timeout: 120000,
