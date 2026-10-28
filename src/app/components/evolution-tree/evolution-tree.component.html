@@ -43,7 +43,6 @@
             [class.locked]="!monster.unlocked"
             [class.ready]="isReady(monster)"
             (click)="selectMonster(monster)"
-            [attr.aria-label]="(monster.unlocked ? 'Inspect ' : 'Inspect locked ') + monster.name"
           >
             <span class="node-state">{{ monster.unlocked ? 'DISCOVERED' : isReady(monster) ? 'READY' : game.research.revealLocked() ? 'SCANNED' : 'UNKNOWN' }}</span>
             <app-creature-portrait class="node-art" [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="card" [silhouette]="!monster.unlocked && !game.research.revealLocked()" [decorative]="!monster.unlocked && !game.research.revealLocked()" />
@@ -63,7 +62,7 @@
       <div><span>Recent Discoveries</span><small>Your collection is taking shape.</small></div>
       <div class="recent-list">
         @for (monster of recentDiscoveries(); track monster.id) {
-          <button type="button" (click)="selectMonster(monster)" [attr.aria-label]="'Inspect ' + monster.name">
+          <button type="button" (click)="selectMonster(monster)" [attr.title]="'Inspect ' + monster.name">
             <app-creature-portrait [src]="monster.spriteUrl" [name]="monster.name" [stage]="monster.stage" size="compact" [decorative]="true" />
             <span>{{ monster.name }}</span>
           </button>

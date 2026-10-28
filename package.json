@@ -34,6 +34,7 @@
     "@angular/build": "21.2.12",
     "@angular/cli": "21.2.12",
     "@angular/compiler-cli": "21.2.14",
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.60.0",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.1",

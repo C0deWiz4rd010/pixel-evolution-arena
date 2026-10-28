@@ -182,6 +182,9 @@ html[data-motion='reduced'] button:active:not(:disabled) {
 button:focus-visible,
 select:focus-visible,
 summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid var(--line-bright);
   outline-offset: 2px;

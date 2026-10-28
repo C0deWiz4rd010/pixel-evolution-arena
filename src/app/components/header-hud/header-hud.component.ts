@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { CountUpDirective } from '../../directives/count-up.directive';
 import { GameStateService } from '../../services/game-state.service';
 
@@ -18,6 +18,22 @@ export class HeaderHudComponent {
   readonly totalCount = computed(() => this.game.monsters().length);
   readonly dexPercent = computed(() => Math.round((this.unlockedCount() / Math.max(1, this.totalCount())) * 100));
   readonly utilityOpen = signal(false);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  @HostListener('document:keydown.escape')
+  protected closeOnEscape(): void {
+    if (this.utilityOpen()) {
+      this.utilityOpen.set(false);
+      this.host.nativeElement.querySelector<HTMLButtonElement>('.utility-button')?.focus();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected closeOnOutsideClick(event: MouseEvent): void {
+    if (this.utilityOpen() && !this.host.nativeElement.querySelector('.utility-wrap')?.contains(event.target as Node)) {
+      this.utilityOpen.set(false);
+    }
+  }
 
   /** Which HUD stat chips are currently flashing after a value change. */
   readonly pulseState = signal<Record<PulseKey, boolean>>({ coins: false, dna: false, power: false, dex: false, data: false });

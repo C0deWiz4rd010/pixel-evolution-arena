@@ -122,6 +122,8 @@ export class AppComponent {
     globalThis.requestAnimationFrame(() => document.querySelector<HTMLElement>('.play-surface')?.scrollTo({ top: 0 }));
   }
 
+  readonly shortcutsOpen = signal(false);
+
   followNextGoal(): void {
     this.openView(this.game.nextCommand().tab);
   }
@@ -138,6 +140,18 @@ export class AppComponent {
     if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
     const target = event.target as HTMLElement | null;
     if (target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) return;
+
+    if (event.key === '?') {
+      event.preventDefault();
+      this.shortcutsOpen.update((open) => !open);
+      if (this.shortcutsOpen()) globalThis.requestAnimationFrame(() => document.querySelector<HTMLElement>('.shortcuts-close')?.focus());
+      return;
+    }
+
+    if (event.key === 'Escape' && this.shortcutsOpen()) {
+      this.shortcutsOpen.set(false);
+      return;
+    }
 
     if (event.key >= '1' && event.key <= '5') {
       event.preventDefault();

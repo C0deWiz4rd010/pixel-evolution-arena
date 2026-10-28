@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MonsterStage } from '../../models/monster.model';
 import { heroSprite, stillSprite } from '../../rules/sprite.rules';
-import { stageClass } from '../../rules/stage.rules';
+import { stageClass, stageGlyph } from '../../rules/stage.rules';
 import { GameStore } from '../../services/game-store.service';
 
 export type CreaturePortraitSize = 'micro' | 'compact' | 'card' | 'hero' | 'battle';
@@ -18,6 +18,7 @@ const ANIMATED_SIZES: ReadonlySet<CreaturePortraitSize> = new Set(['hero', 'batt
   host: {
     '[class]': "'portrait size-' + size() + ' stage-' + stageClassName()",
     '[style.--portrait-scale]': 'scale()',
+    '[attr.data-glyph]': 'glyph()',
   },
 })
 export class CreaturePortraitComponent {
@@ -31,6 +32,8 @@ export class CreaturePortraitComponent {
   readonly decorative = input(false);
   readonly scale = input<number | null>(null);
 
+  /** Shown as a corner mark in colorblind mode so stage never relies on color alone. */
+  readonly glyph = computed(() => stageGlyph(this.stage()));
   readonly stageClassName = computed(() => stageClass(this.stage()));
   readonly resolvedSrc = computed(() =>
     ANIMATED_SIZES.has(this.size()) ? heroSprite(this.src(), this.store.motionReduced()) : stillSprite(this.src()),

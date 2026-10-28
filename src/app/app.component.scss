@@ -139,3 +139,50 @@
     flex: 1 0 auto;
   }
 }
+
+.shortcuts-backdrop {
+  position: fixed;
+  z-index: 96;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(2, 7, 17, 0.8);
+}
+
+.shortcuts {
+  display: grid;
+  width: min(440px, 100%);
+  gap: 0.8rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  clip-path: var(--chamfer);
+
+  h2 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    margin: 0;
+  }
+
+  dt {
+    color: var(--line-bright);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  kbd {
+    padding: 0.05rem 0.35rem;
+    border: 1px solid var(--line);
+    font-family: inherit;
+  }
+}

@@ -321,3 +321,12 @@ Use this checklist during Angular implementation.
 - Fixed Budchip's duplicated/overlapping eyes.
 - `npm run sprites:check` validates all sprites (viewBox, reduced-motion block, no scripts or external refs, size budget, art pass applied).
 - Not done: a hand-drawn redesign of individual silhouettes, and migrating the three remaining `.creature-sprite` templates (monster card, monster detail) to `app-creature-portrait` (visual-regression risk for little gain).
+
+2026-10-28 Phase 9 (accessibility and UX polish):
+
+- Added `tests/a11y.spec.ts`: axe-core (WCAG 2.0/2.1 A and AA) on all ten views at phone and desktop width; no serious or critical violations allowed. It found and we fixed: label-content-name mismatches on evolution-tree buttons, and unfocusable scroll regions (play surface, type chart).
+- `aria-current` on the secondary navigation, decorative HUD glyphs hidden from screen readers, duplicate toast live regions removed.
+- Focus: `:focus-visible` now covers inputs, textareas and links; the utility menu closes on Escape (returning focus) and on outside click; onboarding moves focus to its primary action.
+- New keyboard shortcut overlay (`?`), alongside the existing 1-5 and Space/Enter shortcuts.
+- Colorblind mode adds a stage glyph to every portrait, so stage never relies on color alone.
+- Open decision: the Language setting still only translates the onboarding buttons. Options are English only (matches AGENTS.md), full bilingual, or German only; not changed without a decision.

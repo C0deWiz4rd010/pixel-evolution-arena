@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Output, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostListener, Output, afterNextRender, computed, inject, signal } from '@angular/core';
 import { GameStateService } from '../../services/game-state.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -36,6 +36,13 @@ const STEPS: OnboardingStep[] = [
   styleUrl: './onboarding.component.scss',
 })
 export class OnboardingComponent {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    // Move focus into the dialog so keyboard and screen-reader users start on its primary action.
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLElement>('button.primary')?.focus());
+  }
+
   @Output() navigate = new EventEmitter<string>();
 
   private readonly game = inject(GameStateService);
